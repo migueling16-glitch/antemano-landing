@@ -1,5 +1,20 @@
 ---
-const projects = [
+import PortfolioModal from './PortfolioModal.astro';
+
+interface Project {
+  title: string;
+  client: string;
+  handle: string;
+  category: string;
+  tag: string;
+  color: string;
+  image?: string;
+  slug: string;
+  description: string;
+  gallery: string[];
+}
+
+const projects: Project[] = [
   {
     title: 'Campaña Visual',
     client: 'Ototo',
@@ -7,7 +22,18 @@ const projects = [
     category: 'Video',
     tag: 'video',
     color: '#1A1A1A',
-    image: '/ototo/foto-1.jpg',
+    image: '/images/proyectos/ototo/foto-1.jpg',
+    slug: 'ototo',
+    description: 'Producción audiovisual completa para Ototo, restaurante de cocina contemporánea en Durango. Una campaña que captura la esencia del lugar, sus platillos y la experiencia que ofrece.',
+    gallery: [
+      '/images/proyectos/ototo/foto-1.jpg',
+      '/images/proyectos/ototo/foto-2.jpg',
+      '/images/proyectos/ototo/foto-3.jpg',
+      '/images/proyectos/ototo/foto-4.jpg',
+      '/images/proyectos/ototo/foto-5.jpg',
+      '/images/proyectos/ototo/foto-6.jpg',
+      '/images/proyectos/ototo/foto-7.jpg',
+    ],
   },
   {
     title: 'Reel de Lanzamiento',
@@ -16,6 +42,9 @@ const projects = [
     category: 'Video',
     tag: 'video',
     color: '#2A2A2A',
+    slug: 'chachacenizo',
+    description: '[Descripción del proyecto — próximamente]',
+    gallery: [],
   },
   {
     title: 'Contenido para Redes',
@@ -24,6 +53,9 @@ const projects = [
     category: 'Redes Sociales',
     tag: 'redes',
     color: '#333333',
+    slug: 'pacamara',
+    description: '[Descripción del proyecto — próximamente]',
+    gallery: [],
   },
   {
     title: 'Fotografía de Producto',
@@ -32,6 +64,9 @@ const projects = [
     category: 'Fotografía',
     tag: 'foto',
     color: '#3D3D3D',
+    slug: 'mortirolo',
+    description: '[Descripción del proyecto — próximamente]',
+    gallery: [],
   },
   {
     title: 'Cobertura de Evento',
@@ -40,6 +75,9 @@ const projects = [
     category: 'Fotografía',
     tag: 'foto',
     color: '#222222',
+    slug: 'durangojam',
+    description: '[Descripción del proyecto — próximamente]',
+    gallery: [],
   },
   {
     title: 'Estrategia Digital',
@@ -48,12 +86,16 @@ const projects = [
     category: 'Redes Sociales',
     tag: 'redes',
     color: '#2E2E2E',
+    slug: 'noomcoldbrew',
+    description: '[Descripción del proyecto — próximamente]',
+    gallery: [],
   },
 ];
 ---
 
 <section id="portafolio" class="py-24 lg:py-32 bg-white">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
+
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
       <div class="max-w-xl">
@@ -66,10 +108,20 @@ const projects = [
       </div>
 
       <!-- Filter buttons -->
-      <div class="flex flex-wrap gap-2 reveal reveal-delay-2" id="filter-buttons" role="group" aria-label="Filtrar proyectos">
+      <div
+        class="flex flex-wrap gap-2 reveal reveal-delay-2"
+        id="filter-buttons"
+        role="group"
+        aria-label="Filtrar proyectos"
+      >
         {['Todos', 'Video', 'Fotografía', 'Redes Sociales'].map((label) => (
           <button
-            data-filter={label === 'Todos' ? 'all' : label === 'Video' ? 'video' : label === 'Fotografía' ? 'foto' : 'redes'}
+            data-filter={
+              label === 'Todos' ? 'all'
+              : label === 'Video' ? 'video'
+              : label === 'Fotografía' ? 'foto'
+              : 'redes'
+            }
             class="filter-btn px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 text-gray-500 hover:border-charcoal hover:text-charcoal transition-all duration-200"
           >
             {label}
@@ -84,10 +136,24 @@ const projects = [
         <article
           class={`reveal reveal-delay-${(i % 3) + 1} portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer`}
           data-tag={project.tag}
+          data-project={JSON.stringify({
+            title: project.title,
+            client: project.client,
+            handle: project.handle,
+            category: project.category,
+            description: project.description,
+            gallery: project.gallery,
+          })}
+          role="button"
+          tabindex="0"
+          aria-label={`Ver proyecto: ${project.title} — ${project.client}`}
         >
           <!-- Thumbnail -->
           {project.image ? (
-            <div class="w-full aspect-video overflow-hidden" aria-label={`Imagen del proyecto: ${project.title} — ${project.client}`}>
+            <div
+              class="w-full aspect-video overflow-hidden"
+              aria-hidden="true"
+            >
               <img
                 src={project.image}
                 alt={`${project.title} — ${project.client}`}
@@ -99,7 +165,7 @@ const projects = [
             <div
               class="w-full aspect-video flex items-center justify-center"
               style={`background-color: ${project.color};`}
-              aria-label={`Imagen del proyecto: ${project.title} — ${project.client}`}
+              aria-hidden="true"
             >
               <span class="text-white/20 text-xs font-medium tracking-widest uppercase">
                 {project.category}
@@ -118,9 +184,9 @@ const projects = [
           </div>
 
           <!-- Hover overlay -->
-          <div class="absolute inset-0 bg-charcoal/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-2xl">
-            <span class="px-5 py-2.5 border border-white text-white text-sm font-semibold rounded-full hover:bg-white hover:text-charcoal transition-colors duration-200">
-              Ver proyecto
+          <div class="absolute inset-0 bg-charcoal/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-2xl pointer-events-none">
+            <span class="px-5 py-2.5 border border-white text-white text-sm font-semibold rounded-full">
+              {project.gallery.length > 0 ? 'Ver galería' : 'Ver proyecto'}
             </span>
           </div>
         </article>
@@ -129,12 +195,16 @@ const projects = [
   </div>
 </section>
 
+<!-- Modal -->
+<PortfolioModal />
+
 <script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  // ─── Filter ───────────────────────────────────────────────────────────────
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
   const items = document.querySelectorAll<HTMLElement>('.portfolio-item');
 
-  function setActive(btn: HTMLButtonElement) {
-    buttons.forEach((b) => {
+  function setActiveFilter(btn: HTMLButtonElement) {
+    filterBtns.forEach((b) => {
       b.classList.remove('bg-charcoal', 'text-white', 'border-charcoal');
       b.classList.add('border-gray-200', 'text-gray-500');
     });
@@ -142,10 +212,10 @@ const projects = [
     btn.classList.remove('border-gray-200', 'text-gray-500');
   }
 
-  buttons.forEach((btn) => {
+  filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter!;
-      setActive(btn);
+      setActiveFilter(btn);
       items.forEach((item) => {
         const match = filter === 'all' || item.dataset.tag === filter;
         item.style.display = match ? '' : 'none';
@@ -153,7 +223,172 @@ const projects = [
     });
   });
 
-  // Set "Todos" active by default
   const defaultBtn = document.querySelector<HTMLButtonElement>('[data-filter="all"]');
-  if (defaultBtn) setActive(defaultBtn);
+  if (defaultBtn) setActiveFilter(defaultBtn);
+
+  // ─── Modal ────────────────────────────────────────────────────────────────
+  const modal     = document.getElementById('portfolio-modal')!;
+  const overlay   = document.getElementById('pmodal-overlay')!;
+  const closeBtn  = document.getElementById('pmodal-close')!;
+  const mainImg   = document.getElementById('pmodal-main-img') as HTMLImageElement;
+  const thumbs    = document.getElementById('pmodal-thumbs')!;
+  const prevBtn   = document.getElementById('pmodal-prev')!;
+  const nextBtn   = document.getElementById('pmodal-next')!;
+  const noImages  = document.getElementById('pmodal-no-images')!;
+  const counter   = document.getElementById('pmodal-counter')!;
+
+  let gallery: string[] = [];
+  let current = 0;
+
+  // Focus trap helpers
+  function getFocusable() {
+    return Array.from(
+      modal.querySelectorAll<HTMLElement>(
+        'button, [href], input, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled'));
+  }
+
+  function trapFocus(e: KeyboardEvent) {
+    const focusable = getFocusable();
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+  }
+
+  function openModal(project: Record<string, any>) {
+    // Populate header
+    (document.getElementById('pmodal-title')!).textContent = project.title ?? '';
+    (document.getElementById('pmodal-category')!).textContent = project.category ?? '';
+    (document.getElementById('pmodal-client')!).textContent =
+      `${project.client ?? ''}  ·  ${project.handle ?? ''}`;
+    (document.getElementById('pmodal-description')!).textContent = project.description ?? '';
+
+    gallery = Array.isArray(project.gallery) ? project.gallery : [];
+    current = 0;
+
+    // Build thumbnails
+    thumbs.innerHTML = '';
+    if (gallery.length > 0) {
+      noImages.classList.add('hidden');
+      mainImg.classList.remove('hidden');
+      prevBtn.classList.remove('hidden');
+      nextBtn.classList.remove('hidden');
+      counter.classList.remove('hidden');
+
+      gallery.forEach((src, idx) => {
+        const btn = document.createElement('button');
+        btn.setAttribute('role', 'listitem');
+        btn.setAttribute('aria-label', `Ver imagen ${idx + 1}`);
+        btn.className =
+          'flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-charcoal';
+        btn.classList.add(idx === 0 ? 'border-charcoal' : 'border-transparent');
+        btn.innerHTML = `<img src="${src}" alt="Miniatura ${idx + 1}" class="w-full h-full object-cover" loading="lazy" />`;
+        btn.addEventListener('click', () => goTo(idx));
+        thumbs.appendChild(btn);
+      });
+
+      goTo(0, /* instant */ true);
+    } else {
+      noImages.classList.remove('hidden');
+      mainImg.classList.add('hidden');
+      prevBtn.classList.add('hidden');
+      nextBtn.classList.add('hidden');
+      counter.classList.add('hidden');
+    }
+
+    // Show
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => modal.classList.add('modal-open'));
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKey);
+    closeBtn.focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', handleKey);
+    setTimeout(() => modal.classList.add('hidden'), 200);
+  }
+
+  function goTo(idx: number, instant = false) {
+    current = idx;
+
+    if (instant) {
+      mainImg.src = gallery[idx];
+      mainImg.alt = `Imagen ${idx + 1} de ${gallery.length}`;
+      mainImg.style.opacity = '1';
+    } else {
+      mainImg.style.opacity = '0';
+      setTimeout(() => {
+        mainImg.src = gallery[idx];
+        mainImg.alt = `Imagen ${idx + 1} de ${gallery.length}`;
+        mainImg.style.opacity = '1';
+      }, 160);
+    }
+
+    // Update counter
+    counter.textContent = `${idx + 1} / ${gallery.length}`;
+
+    // Update thumb borders
+    thumbs.querySelectorAll<HTMLButtonElement>('button').forEach((btn, i) => {
+      btn.classList.toggle('border-charcoal', i === idx);
+      btn.classList.toggle('border-transparent', i !== idx);
+    });
+
+    // Scroll active thumb into view
+    const activeThumb = thumbs.querySelectorAll<HTMLElement>('button')[idx];
+    activeThumb?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }
+
+  function handleKey(e: KeyboardEvent) {
+    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'ArrowLeft' && gallery.length > 0)  goTo((current - 1 + gallery.length) % gallery.length);
+    if (e.key === 'ArrowRight' && gallery.length > 0) goTo((current + 1) % gallery.length);
+    trapFocus(e);
+  }
+
+  // Open on card click / Enter / Space
+  items.forEach((item) => {
+    const open = () => {
+      try {
+        const project = JSON.parse(item.dataset.project || '{}');
+        openModal(project);
+      } catch {}
+    };
+    item.addEventListener('click', open);
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+
+  prevBtn.addEventListener('click', () => {
+    if (gallery.length) goTo((current - 1 + gallery.length) % gallery.length);
+  });
+  nextBtn.addEventListener('click', () => {
+    if (gallery.length) goTo((current + 1) % gallery.length);
+  });
+
+  // Touch swipe on main image
+  let touchX = 0;
+  const imgWrap = document.getElementById('pmodal-img-wrap')!;
+  imgWrap.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+  imgWrap.addEventListener('touchend', (e) => {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 48 && gallery.length) {
+      diff > 0
+        ? goTo((current + 1) % gallery.length)
+        : goTo((current - 1 + gallery.length) % gallery.length);
+    }
+  }, { passive: true });
 </script>

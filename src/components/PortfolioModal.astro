@@ -1,0 +1,148 @@
+---
+// PortfolioModal.astro — shell HTML for the portfolio lightbox.
+// All state and data is managed by Portfolio.astro's <script>.
+---
+
+<div
+  id="portfolio-modal"
+  class="fixed inset-0 z-[100] hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="pmodal-title"
+>
+  <!-- Overlay -->
+  <div id="pmodal-overlay" class="absolute inset-0" style="background: rgba(0,0,0,0.92);"></div>
+
+  <!-- Centering wrapper -->
+  <div
+    id="pmodal-inner"
+    class="relative z-10 h-full flex items-center justify-center p-4 sm:p-6 lg:p-8"
+  >
+    <!-- Content card -->
+    <div
+      id="pmodal-card"
+      class="bg-white rounded-2xl w-full overflow-y-auto flex flex-col"
+      style="max-width: 1100px; max-height: 92vh;"
+    >
+
+      <!-- ── Top bar ── -->
+      <div class="flex items-start justify-between px-6 pt-6 flex-shrink-0 gap-4">
+        <div class="min-w-0">
+          <span
+            id="pmodal-category"
+            class="inline-block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2"
+          ></span>
+          <h2
+            id="pmodal-title"
+            class="text-2xl sm:text-3xl font-black text-charcoal leading-tight"
+          ></h2>
+          <p id="pmodal-client" class="text-gray-400 text-sm mt-1 font-medium"></p>
+        </div>
+        <button
+          id="pmodal-close"
+          class="flex-shrink-0 mt-1 w-9 h-9 rounded-full flex items-center justify-center border border-gray-200 hover:border-charcoal transition-colors"
+          aria-label="Cerrar galería"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- ── Description ── -->
+      <p
+        id="pmodal-description"
+        class="px-6 mt-3 text-gray-500 text-sm leading-relaxed flex-shrink-0"
+      ></p>
+
+      <!-- ── Main image ── -->
+      <div class="px-6 mt-5 flex-shrink-0">
+        <div
+          id="pmodal-img-wrap"
+          class="relative flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden"
+          style="min-height: 180px;"
+        >
+          <!-- Image -->
+          <img
+            id="pmodal-main-img"
+            src=""
+            alt=""
+            class="w-full rounded-xl"
+            style="max-height: 54vh; object-fit: contain; transition: opacity 0.18s ease;"
+            loading="lazy"
+          />
+
+          <!-- Empty state -->
+          <p
+            id="pmodal-no-images"
+            class="absolute inset-0 flex items-center justify-center text-gray-300 text-sm hidden"
+          >
+            Próximamente
+          </p>
+
+          <!-- Prev arrow -->
+          <button
+            id="pmodal-prev"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-gray-200 flex items-center justify-center hover:border-charcoal transition-colors shadow-sm"
+            aria-label="Imagen anterior"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+
+          <!-- Next arrow -->
+          <button
+            id="pmodal-next"
+            class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-gray-200 flex items-center justify-center hover:border-charcoal transition-colors shadow-sm"
+            aria-label="Siguiente imagen"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+
+          <!-- Image counter -->
+          <span
+            id="pmodal-counter"
+            class="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2.5 py-1 rounded-full font-medium"
+          ></span>
+        </div>
+      </div>
+
+      <!-- ── Thumbnails strip ── -->
+      <div
+        id="pmodal-thumbs"
+        class="flex gap-2 overflow-x-auto px-6 py-4 mt-1 flex-shrink-0"
+        style="scrollbar-width: none; -ms-overflow-style: none;"
+        role="list"
+        aria-label="Miniaturas de la galería"
+      >
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ── Open/close animation ── */
+  #portfolio-modal {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  #portfolio-modal.modal-open {
+    opacity: 1;
+  }
+  #pmodal-card {
+    transform: scale(0.96);
+    opacity: 0;
+    transition: transform 0.2s ease-out, opacity 0.2s ease;
+  }
+  #portfolio-modal.modal-open #pmodal-card {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  /* Thumbnail strip scrollbar */
+  #pmodal-thumbs::-webkit-scrollbar { display: none; }
+</style>
