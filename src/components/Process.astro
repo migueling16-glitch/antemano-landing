@@ -1,0 +1,73 @@
+---
+const steps = [
+  {
+    number: '01',
+    title: 'Diagnóstico',
+    description:
+      'Entendemos tu marca, tu audiencia y tus objetivos. Hacemos las preguntas correctas para construir sobre bases sólidas.',
+  },
+  {
+    number: '02',
+    title: 'Propuesta',
+    description:
+      'Diseñamos un plan creativo y estratégico a la medida. Nada genérico: cada propuesta es única para tu negocio.',
+  },
+  {
+    number: '03',
+    title: 'Producción',
+    description:
+      'Ejecutamos con equipo profesional y atención al detalle. Coordinamos cada elemento para que el resultado supere expectativas.',
+  },
+  {
+    number: '04',
+    title: 'Entrega + Seguimiento',
+    description:
+      'Entregamos, medimos y optimizamos. El trabajo no termina en la entrega — te acompañamos para asegurar resultados.',
+  },
+];
+---
+
+<section id="proceso" class="py-24 lg:py-32 bg-charcoal text-white overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <!-- Header -->
+    <div class="max-w-xl mb-16">
+      <p class="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-3 reveal">
+        Cómo trabajamos
+      </p>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight reveal reveal-delay-1">
+        Un proceso claro de principio a fin
+      </h2>
+    </div>
+
+    <!-- Steps — horizontal timeline (desktop) / vertical (mobile) -->
+    <div class="relative">
+      <!-- Connector line (desktop only) -->
+      <div
+        class="hidden lg:block absolute top-10 left-0 right-0 h-px bg-white/10"
+        aria-hidden="true"
+      ></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-8">
+        {steps.map((step, i) => (
+          <div class={`reveal reveal-delay-${i + 1} relative flex flex-col gap-4`}>
+            <!-- Step number circle -->
+            <div class="flex items-center gap-4 lg:flex-col lg:items-start">
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0 z-10"
+                style="background-color: #1A1A1A; color: white; border: 1px solid rgba(255,255,255,0.2);"
+              >
+                {step.number}
+              </div>
+              <!-- Mobile connector line -->
+              {i < steps.length - 1 && (
+                <div class="lg:hidden flex-1 h-px bg-white/10" aria-hidden="true"></div>
+              )}
+            </div>
+            <h3 class="text-xl font-bold">{step.title}</h3>
+            <p class="text-white/50 text-sm leading-relaxed">{step.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

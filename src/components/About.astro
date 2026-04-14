@@ -1,0 +1,90 @@
+---
+const team = [
+  {
+    name: 'Miguel Salomón',
+    role: 'Realizador Audiovisual & Estratega Digital',
+    initials: 'MS',
+    bg: '#1A1A1A',
+  },
+  {
+    name: 'Víctor',
+    role: 'Dirección Creativa',
+    initials: 'V',
+    bg: '#555555',
+  },
+  {
+    name: 'Diego',
+    role: 'Producción & Logística',
+    initials: 'D',
+    bg: '#3A3A3A',
+  },
+];
+---
+
+<section id="nosotros" class="py-24 lg:py-32 bg-offwhite">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+      <!-- Text -->
+      <div>
+        <p class="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-3 reveal">
+          Nosotros
+        </p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal mb-6 reveal reveal-delay-1">
+          Realizadores y estrategas con raíces en Durango
+        </h2>
+        <div class="space-y-4 text-gray-500 leading-relaxed reveal reveal-delay-2">
+          <p>
+            Somos un equipo de realizadores y estrategas en Durango. Combinamos
+            producción audiovisual de alto nivel con estrategia digital que
+            genera resultados medibles.
+          </p>
+          <p>
+            Creemos que el buen contenido no es un gasto, es una inversión.
+            Cada proyecto que tomamos lo tratamos como si fuera nuestra propia
+            marca: con atención al detalle, criterio estético y enfoque en
+            objetivos reales.
+          </p>
+          <p>
+            Trabajamos con negocios locales y regionales que quieren crecer
+            sin perder su identidad. Somos pequeños en tamaño, grandes en
+            compromiso.
+          </p>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-6 mt-10 reveal reveal-delay-3">
+          {[
+            { number: '+60', label: 'Proyectos' },
+            { number: '4+', label: 'Años de experiencia' },
+            { number: '100%', label: 'Clientes satisfechos' },
+          ].map((stat) => (
+            <div class="text-center">
+              <p class="text-3xl font-black text-charcoal">{stat.number}</p>
+              <p class="text-xs text-gray-400 mt-1 font-medium">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div class="flex flex-col gap-6">
+        {team.map((member, i) => (
+          <div class={`reveal reveal-delay-${i + 1} flex items-center gap-5 p-6 bg-white rounded-2xl border border-gray-100 hover:border-charcoal hover:shadow-md transition-all duration-300`}>
+            <!-- Photo placeholder -->
+            <div
+              class="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-lg"
+              style={`background-color: ${member.bg};`}
+              aria-label={`Foto de ${member.name}`}
+            >
+              {member.initials}
+            </div>
+            <div>
+              <p class="font-bold text-charcoal">{member.name}</p>
+              <p class="text-sm text-gray-400 mt-0.5">{member.role}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

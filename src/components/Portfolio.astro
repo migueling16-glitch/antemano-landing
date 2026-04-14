@@ -1,0 +1,147 @@
+---
+const projects = [
+  {
+    title: 'Campaña Visual',
+    client: 'Ototo',
+    handle: '@ototo.rest',
+    category: 'Video',
+    tag: 'video',
+    color: '#1A1A1A',
+  },
+  {
+    title: 'Reel de Lanzamiento',
+    client: 'CHA CHA CENIZO',
+    handle: '@chachacenizo',
+    category: 'Video',
+    tag: 'video',
+    color: '#2A2A2A',
+  },
+  {
+    title: 'Contenido para Redes',
+    client: 'PACAMARA',
+    handle: '@pacamara_cafemx',
+    category: 'Redes Sociales',
+    tag: 'redes',
+    color: '#333333',
+  },
+  {
+    title: 'Fotografía de Producto',
+    client: 'Mortirolo',
+    handle: '@mortirolomx',
+    category: 'Fotografía',
+    tag: 'foto',
+    color: '#3D3D3D',
+  },
+  {
+    title: 'Cobertura de Evento',
+    client: 'Durango Jam',
+    handle: '@durango.jam',
+    category: 'Fotografía',
+    tag: 'foto',
+    color: '#222222',
+  },
+  {
+    title: 'Estrategia Digital',
+    client: 'Noom Cold Brew',
+    handle: '@noomcoldbrew',
+    category: 'Redes Sociales',
+    tag: 'redes',
+    color: '#2E2E2E',
+  },
+];
+---
+
+<section id="portafolio" class="py-24 lg:py-32 bg-white">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
+      <div class="max-w-xl">
+        <p class="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-3 reveal">
+          Portafolio
+        </p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
+          Trabajos que hablan por sí solos
+        </h2>
+      </div>
+
+      <!-- Filter buttons -->
+      <div class="flex flex-wrap gap-2 reveal reveal-delay-2" id="filter-buttons" role="group" aria-label="Filtrar proyectos">
+        {['Todos', 'Video', 'Fotografía', 'Redes Sociales'].map((label) => (
+          <button
+            data-filter={label === 'Todos' ? 'all' : label === 'Video' ? 'video' : label === 'Fotografía' ? 'foto' : 'redes'}
+            class="filter-btn px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 text-gray-500 hover:border-charcoal hover:text-charcoal transition-all duration-200"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="portfolio-grid">
+      {projects.map((project, i) => (
+        <article
+          class={`reveal reveal-delay-${(i % 3) + 1} portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer`}
+          data-tag={project.tag}
+        >
+          <!-- Thumbnail placeholder -->
+          <div
+            class="w-full aspect-video flex items-center justify-center"
+            style={`background-color: ${project.color};`}
+            aria-label={`Imagen del proyecto: ${project.title} — ${project.client}`}
+          >
+            <span class="text-white/20 text-xs font-medium tracking-widest uppercase">
+              {project.category}
+            </span>
+          </div>
+
+          <!-- Card info -->
+          <div class="p-5 bg-white border border-gray-100 border-t-0 rounded-b-2xl">
+            <span class="inline-block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">
+              {project.category}
+            </span>
+            <h3 class="font-bold text-charcoal text-base leading-snug">{project.title}</h3>
+            <p class="text-gray-500 text-sm mt-0.5 font-medium">{project.client}</p>
+            <p class="text-gray-300 text-xs mt-0.5">{project.handle}</p>
+          </div>
+
+          <!-- Hover overlay -->
+          <div class="absolute inset-0 bg-charcoal/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-2xl">
+            <span class="px-5 py-2.5 border border-white text-white text-sm font-semibold rounded-full hover:bg-white hover:text-charcoal transition-colors duration-200">
+              Ver proyecto
+            </span>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const items = document.querySelectorAll<HTMLElement>('.portfolio-item');
+
+  function setActive(btn: HTMLButtonElement) {
+    buttons.forEach((b) => {
+      b.classList.remove('bg-charcoal', 'text-white', 'border-charcoal');
+      b.classList.add('border-gray-200', 'text-gray-500');
+    });
+    btn.classList.add('bg-charcoal', 'text-white', 'border-charcoal');
+    btn.classList.remove('border-gray-200', 'text-gray-500');
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter!;
+      setActive(btn);
+      items.forEach((item) => {
+        const match = filter === 'all' || item.dataset.tag === filter;
+        item.style.display = match ? '' : 'none';
+      });
+    });
+  });
+
+  // Set "Todos" active by default
+  const defaultBtn = document.querySelector<HTMLButtonElement>('[data-filter="all"]');
+  if (defaultBtn) setActive(defaultBtn);
+</script>

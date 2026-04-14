@@ -1,0 +1,103 @@
+---
+const testimonials = [
+  {
+    quote:
+      'Antemano entiende cómo contar la historia de una marca. El contenido que produjeron para nosotros capturó exactamente la experiencia que queremos transmitir.',
+    name: 'Ototo',
+    company: '@ototo.rest · Durango',
+    initials: 'OT',
+  },
+  {
+    quote:
+      'Desde el primer brief entendieron nuestra estética. El reel de lanzamiento quedó mejor de lo que imaginamos y el impacto en redes fue inmediato.',
+    name: 'CHA CHA CENIZO',
+    company: '@chachacenizo · Durango',
+    initials: 'CC',
+  },
+  {
+    quote:
+      'La estrategia de contenido que diseñaron para nuestra cafetería nos ayudó a crecer orgánicamente y a conectar de verdad con nuestra comunidad.',
+    name: 'PACAMARA',
+    company: '@pacamara_cafemx · Durango',
+    initials: 'PC',
+  },
+];
+---
+
+<section id="testimonios" class="py-24 lg:py-32 bg-white">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="text-center max-w-xl mx-auto mb-14">
+      <p class="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-3 reveal">
+        Testimonios
+      </p>
+      <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
+        Lo que dicen nuestros clientes
+      </h2>
+    </div>
+
+    <!-- Carousel wrapper -->
+    <div class="relative overflow-hidden" id="carousel-wrapper">
+      <div
+        class="flex transition-transform duration-500 ease-in-out"
+        id="carousel-track"
+      >
+        {testimonials.map((t) => (
+          <div class="min-w-full px-4 sm:px-12 lg:px-24">
+            <blockquote class="max-w-3xl mx-auto text-center">
+              <p class="text-xl sm:text-2xl font-medium text-charcoal leading-relaxed mb-8">
+                &ldquo;{t.quote}&rdquo;
+              </p>
+              <footer class="flex flex-col items-center gap-2">
+                <div
+                  class="w-12 h-12 rounded-full bg-charcoal text-white flex items-center justify-center font-bold text-sm"
+                  aria-hidden="true"
+                >
+                  {t.initials}
+                </div>
+                <cite class="not-italic">
+                  <p class="font-bold text-charcoal text-sm">{t.name}</p>
+                  <p class="text-gray-400 text-xs mt-0.5">{t.company}</p>
+                </cite>
+              </footer>
+            </blockquote>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Dots -->
+    <div class="flex justify-center gap-2 mt-10" role="group" aria-label="Navegar testimonios">
+      {testimonials.map((_, i) => (
+        <button
+          class="carousel-dot w-2 h-2 rounded-full bg-gray-200 transition-all duration-200 hover:bg-charcoal"
+          data-index={i}
+          aria-label={`Testimonio ${i + 1}`}
+        ></button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  const track = document.getElementById('carousel-track')!;
+  const dots = document.querySelectorAll<HTMLButtonElement>('.carousel-dot');
+  let current = 0;
+
+  function goTo(index: number) {
+    current = index;
+    track.style.transform = `translateX(-${index * 100}%)`;
+    dots.forEach((d, i) => {
+      d.classList.toggle('bg-charcoal', i === index);
+      d.classList.toggle('bg-gray-200', i !== index);
+    });
+  }
+
+  dots.forEach((dot) => {
+    dot.addEventListener('click', () => goTo(Number(dot.dataset.index)));
+  });
+
+  // Auto-advance
+  setInterval(() => goTo((current + 1) % dots.length), 5000);
+
+  goTo(0);
+</script>
