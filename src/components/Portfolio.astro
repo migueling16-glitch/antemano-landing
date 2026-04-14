@@ -7,6 +7,7 @@ const projects = [
     category: 'Video',
     tag: 'video',
     color: '#1A1A1A',
+    image: '/ototo/foto-1.jpg',
   },
   {
     title: 'Reel de Lanzamiento',
@@ -84,16 +85,27 @@ const projects = [
           class={`reveal reveal-delay-${(i % 3) + 1} portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer`}
           data-tag={project.tag}
         >
-          <!-- Thumbnail placeholder -->
-          <div
-            class="w-full aspect-video flex items-center justify-center"
-            style={`background-color: ${project.color};`}
-            aria-label={`Imagen del proyecto: ${project.title} — ${project.client}`}
-          >
-            <span class="text-white/20 text-xs font-medium tracking-widest uppercase">
-              {project.category}
-            </span>
-          </div>
+          <!-- Thumbnail -->
+          {project.image ? (
+            <div class="w-full aspect-video overflow-hidden" aria-label={`Imagen del proyecto: ${project.title} — ${project.client}`}>
+              <img
+                src={project.image}
+                alt={`${project.title} — ${project.client}`}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <div
+              class="w-full aspect-video flex items-center justify-center"
+              style={`background-color: ${project.color};`}
+              aria-label={`Imagen del proyecto: ${project.title} — ${project.client}`}
+            >
+              <span class="text-white/20 text-xs font-medium tracking-widest uppercase">
+                {project.category}
+              </span>
+            </div>
+          )}
 
           <!-- Card info -->
           <div class="p-5 bg-white border border-gray-100 border-t-0 rounded-b-2xl">
