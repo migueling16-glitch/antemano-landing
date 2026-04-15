@@ -10,17 +10,16 @@
     <a href="#inicio" aria-label="Antemano Taller Creativo — inicio" class="flex-shrink-0 logo-link">
       <img
         id="site-logo"
-        src="/logo.png"
+        src="/logo-full.png"
         alt="Antemano Taller Creativo"
-        width="152"
-        height="44"
+        width="160"
+        height="48"
         class="block"
         style="
-          width: 152px;
-          height: 44px;
-          object-fit: cover;
-          object-position: center 52%;
-          filter: none;
+          width: 160px;
+          height: 48px;
+          object-fit: contain;
+          filter: invert(1);
           transition: filter 0.3s ease, transform 0.3s var(--ease-out-quart);
         "
       />
@@ -189,18 +188,16 @@
     const scrolled = window.scrollY > 60;
     if (scrolled) {
       navbar.classList.add('scrolled');
-      // Light bg → invert white logo to black
-      logo.style.filter = 'brightness(0)';
-      logo.style.mixBlendMode = 'normal';
+      // Light bg → logo es negro, sin filtro
+      logo.style.filter = 'none';
       links.forEach((l) => { l.style.color = '#1A1A1A'; });
       cta.style.color = '#1A1A1A';
       cta.style.borderColor = '#1A1A1A';
       lines.forEach((l) => { l.style.background = '#1A1A1A'; });
     } else {
       navbar.classList.remove('scrolled');
-      // Dark bg → logo already white, no filter
-      logo.style.filter = 'none';
-      logo.style.mixBlendMode = 'normal';
+      // Dark bg → invert logo negro a blanco
+      logo.style.filter = 'invert(1)';
       links.forEach((l) => { l.style.color = '#fff'; });
       cta.style.color = '#fff';
       cta.style.borderColor = 'rgba(255,255,255,0.5)';
