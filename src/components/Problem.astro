@@ -1,28 +1,87 @@
 ---
+const lines = [
+  { text: 'Publicas cuando te acuerdas.', group: 1 },
+  { text: 'Tus fotos las toma alguien del equipo con el celular.', group: 1 },
+  { text: 'Tu competidor acaba de subir un Reel y tiene 200 comentarios.', group: 1 },
+  { text: 'Tú llevas tres semanas sin publicar.', group: 1 },
+  { text: 'No es que no te importe.', group: 2 },
+  { text: 'Es que no tienes tiempo, no tienes equipo, y cada vez que lo intentas solo se ve... normal.', group: 2 },
+  { text: 'Mientras tanto, tus clientes potenciales están eligiendo al que sí se ve profesional.', group: 3, emphasis: true },
+];
 ---
 
-<section class="py-24 lg:py-32 bg-white flex flex-col items-center justify-center text-center px-6 lg:px-8">
-  <div class="max-w-2xl mx-auto space-y-12">
-    <div class="space-y-6 text-xl sm:text-2xl font-medium text-charcoal leading-relaxed reveal">
-      <p>Publicas cuando te acuerdas.</p>
-      <p>Tus fotos las toma alguien del equipo con el celular.</p>
-      <p>Tu competidor acaba de subir un Reel y tiene 200 comentarios.</p>
-      <p>Tú llevas tres semanas sin publicar.</p>
+<section id="problema" class="relative bg-white">
+  <div class="max-w-2xl mx-auto px-6 lg:px-8 py-32 lg:py-48">
+    <div class="flex flex-col gap-16 lg:gap-24">
+      {lines.map((line, i) => (
+        <p
+          class={`problem-line text-xl sm:text-2xl lg:text-3xl font-medium leading-relaxed text-center ${line.emphasis ? 'font-bold text-charcoal' : 'text-charcoal'}`}
+          data-index={i}
+        >
+          {line.text}
+        </p>
+      ))}
     </div>
 
-    <div class="space-y-6 text-xl sm:text-2xl font-medium text-charcoal leading-relaxed reveal reveal-delay-1">
-      <p>No es que no te importe.</p>
-      <p>Es que no tienes tiempo, no tienes equipo, y cada vez que lo intentas solo se ve... normal.</p>
-    </div>
-
-    <div class="text-xl sm:text-2xl font-medium text-charcoal leading-relaxed reveal reveal-delay-2 mb-12">
-      <p>Mientras tanto, tus clientes potenciales están eligiendo al que sí se ve profesional.</p>
-    </div>
-
-    <div class="mt-16 reveal reveal-delay-3">
-      <a href="#servicios" class="inline-block text-lg font-bold text-gray-500 hover:text-charcoal transition-colors duration-200">
+    <div class="mt-24 text-center problem-cta">
+      <a href="#servicios" class="inline-block text-lg font-bold text-gray-500 hover:text-charcoal transition-colors duration-300">
         Esto tiene solución &rarr;
       </a>
     </div>
   </div>
 </section>
+
+<style>
+  .problem-line {
+    opacity: 0;
+    transform: translateY(60px);
+    filter: blur(8px);
+    transition:
+      opacity 1s var(--ease-out-expo),
+      transform 1.1s var(--ease-out-expo),
+      filter 0.9s var(--ease-out-expo);
+    will-change: opacity, transform, filter;
+  }
+  .problem-line.emerged {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+  .problem-cta {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s, transform 0.8s var(--ease-out-expo);
+  }
+  .problem-cta.emerged {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .problem-line, .problem-cta {
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
+    }
+  }
+</style>
+
+<script>
+  const lines = document.querySelectorAll<HTMLElement>('.problem-line');
+  const cta = document.querySelector<HTMLElement>('.problem-cta');
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('emerged');
+          io.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.55, rootMargin: '0px 0px -10% 0px' }
+  );
+
+  lines.forEach((l) => io.observe(l));
+  if (cta) io.observe(cta);
+</script>
