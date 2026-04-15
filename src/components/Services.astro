@@ -3,20 +3,50 @@ const services = [
   {
     icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>`,
     title: 'Contenido que vende',
-    description:
-      'Videos, fotos y Reels diseñados para que tu cliente ideal deje de scrollear y te ponga atención. Producidos por un equipo profesional, entregados listos para publicar.',
+    description: 'Videos, fotos y Reels diseñados para que tu cliente ideal deje de scrollear y te ponga atención. Producidos por un equipo profesional, entregados listos para publicar.',
+    expandedText: [
+      'No producimos videos para que se vean bonitos en tu feed. Producimos videos para que tu cliente ideal deje de scrollear, te ponga atención y te contacte.',
+      'Cada pieza está pensada desde la estrategia: qué decir, cómo mostrarlo y cuándo publicarlo para generar resultado.',
+    ],
+    deliverables: [
+      'Reels con guion, grabación y edición profesional',
+      'Fotografía de producto, espacio o equipo',
+      'Contenido para historias (plantillas + material original)',
+      'Videos corporativos y spots publicitarios',
+      'Archivos listos para publicar en formato y resolución correctos',
+    ],
   },
   {
     icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>`,
     title: 'Estrategia que llena agendas',
-    description:
-      'Un plan de contenido mes a mes basado en lo que funciona en tu industria. No adivinamos. Medimos, ajustamos y escalamos lo que genera resultados.',
+    description: 'Un plan de contenido mes a mes basado en lo que funciona en tu industria. No adivinamos. Medimos, ajustamos y escalamos lo que genera resultados.',
+    expandedText: [
+      'Publicar sin estrategia es como repartir volantes con los ojos cerrados. Nosotros analizamos tu industria, tu competencia y tu audiencia para diseñar un plan que tenga sentido.',
+      'No te damos un calendario bonito y ya. Te damos un sistema que se mide, se ajusta y cada mes funciona mejor.',
+    ],
+    deliverables: [
+      'Auditoría de tu presencia digital actual',
+      'Calendario editorial mensual con temas y formatos definidos',
+      'Análisis de competencia en tu zona',
+      'Reporte mensual de métricas con recomendaciones',
+      'Ajustes de estrategia basados en datos reales',
+    ],
   },
   {
     icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" /></svg>`,
     title: 'Presencia que genera confianza',
-    description:
-      'Tu perfil de Instagram deja de verse abandonado. Publicaciones constantes, estética profesional, y la tranquilidad de que alguien competente lo está manejando.',
+    description: 'Tu perfil de Instagram deja de verse abandonado. Publicaciones constantes, estética profesional, y la tranquilidad de que alguien competente lo está manejando.',
+    expandedText: [
+      'Cuando un cliente potencial te busca en Instagram y ve un perfil con tres publicaciones de hace seis meses, ya perdiste. No importa qué tan bueno seas.',
+      'Nosotros nos encargamos de que tu perfil se vea activo, profesional y coherente. Tú te enfocas en tu negocio.',
+    ],
+    deliverables: [
+      'Gestión completa de Instagram (publicación y monitoreo)',
+      'Diseño de feed con identidad visual consistente',
+      'Community management (respuestas a comentarios y mensajes)',
+      'Optimización de perfil y bio',
+      'Parrilla de contenido semanal',
+    ],
   },
 ];
 ---
@@ -37,18 +67,77 @@ const services = [
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       {services.map((service, i) => (
         <article
-          class={`reveal-up reveal-delay-${i + 1} service-card group p-8 bg-white border border-gray-100 rounded-2xl flex flex-col gap-5`}
+          class={`reveal-up reveal-delay-${i + 1} service-card p-8 bg-white border border-gray-100 rounded-2xl flex flex-col gap-5`}
+          data-index={i}
         >
+          <!-- Icon -->
           <div class="service-icon text-charcoal" set:html={service.icon} />
+
+          <!-- Title + description -->
           <h3 class="text-xl font-bold text-charcoal">{service.title}</h3>
           <p class="text-gray-500 text-sm leading-relaxed">{service.description}</p>
-          <!-- arrow reveal on hover -->
-          <div class="service-arrow flex items-center gap-2 text-charcoal text-sm font-semibold mt-auto pt-2">
-            <span>Conocer más</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
+
+          <!-- Expandable region -->
+          <div
+            class="service-expanded"
+            id={`service-body-${i}`}
+            role="region"
+            aria-labelledby={`service-btn-${i}`}
+          >
+            <div class="service-expanded-inner pt-5">
+              <!-- Divider -->
+              <div class="w-full h-px bg-gray-100 mb-5"></div>
+
+              <!-- Extended text -->
+              <div class="space-y-3 mb-5">
+                {service.expandedText.map(p => (
+                  <p class="text-gray-600 text-sm leading-relaxed">{p}</p>
+                ))}
+              </div>
+
+              <!-- Deliverables -->
+              <ul class="space-y-2 mb-6">
+                {service.deliverables.map(item => (
+                  <li class="flex items-start gap-2.5 text-sm text-gray-700">
+                    <span class="mt-0.5 flex-shrink-0 font-bold" style="color:#C8963E;">—</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <!-- CTA -->
+              <a
+                href="#contacto"
+                class="service-cta inline-flex items-center gap-1.5 text-sm font-bold"
+                style="color:#C8963E;"
+              >
+                Quiero esto para mi negocio
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-3.5 h-3.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </a>
+            </div>
           </div>
+
+          <!-- Toggle button -->
+          <button
+            id={`service-btn-${i}`}
+            class="service-toggle flex items-center gap-2 text-charcoal text-sm font-semibold mt-auto pt-2 w-fit"
+            aria-expanded="false"
+            aria-controls={`service-body-${i}`}
+          >
+            <span class="toggle-label">Conocer más</span>
+            <span class="toggle-icon" aria-hidden="true">
+              <!-- Arrow right (collapsed) -->
+              <svg class="arrow-right w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+              <!-- Arrow up (expanded) -->
+              <svg class="arrow-up w-4 h-4 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+              </svg>
+            </span>
+          </button>
         </article>
       ))}
     </div>
@@ -62,10 +151,14 @@ const services = [
       border-color 0.3s,
       box-shadow 0.4s var(--ease-out-quart);
   }
-  .service-card:hover {
+  .service-card:not(.is-open):hover {
     transform: translateY(-6px);
     border-color: #1a1a1a;
     box-shadow: 0 24px 48px -16px rgba(0,0,0,0.14);
+  }
+  .service-card.is-open {
+    border-color: #1a1a1a;
+    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.10);
   }
 
   .service-icon {
@@ -87,21 +180,103 @@ const services = [
     transform: rotate(-6deg) scale(1.06);
   }
 
-  .service-arrow {
-    opacity: 0;
-    transform: translateX(-8px);
-    transition:
-      opacity 0.3s var(--ease-out-quart),
-      transform 0.3s var(--ease-out-quart);
+  /* ── Accordion ── */
+  .service-expanded {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s var(--ease-out-quart, cubic-bezier(.25,.46,.45,.94));
   }
-  .service-card:hover .service-arrow {
+  .service-expanded-inner {
+    opacity: 0;
+    transition: opacity 0.25s ease 0.1s;
+  }
+  .service-card.is-open .service-expanded {
+    max-height: 600px;
+  }
+  .service-card.is-open .service-expanded-inner {
     opacity: 1;
-    transform: translateX(0);
+  }
+
+  /* Toggle button */
+  .service-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .service-toggle:hover,
+  .service-card.is-open .service-toggle {
+    color: #C8963E;
+  }
+  .service-toggle:focus-visible {
+    outline: 2px solid #C8963E;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .arrow-right, .arrow-up {
+    transition: transform 0.3s var(--ease-out-quart);
+  }
+  .arrow-right.hidden { display: none; }
+  .arrow-up.hidden    { display: none; }
+
+  /* CTA hover */
+  .service-cta {
+    transition: gap 0.2s, opacity 0.2s;
+  }
+  .service-cta:hover {
+    opacity: 0.75;
+    gap: 6px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .service-card:hover { transform: none; }
+    .service-card:not(.is-open):hover { transform: none; }
     .service-card:hover .service-icon { transform: none; }
-    .service-arrow { opacity: 1; transform: none; }
+    .service-expanded { transition: none; }
+    .service-expanded-inner { transition: none; opacity: 1; }
   }
 </style>
+
+<script>
+  const cards = document.querySelectorAll<HTMLElement>('.service-card');
+
+  function openCard(card: HTMLElement) {
+    card.classList.add('is-open');
+    const btn = card.querySelector<HTMLButtonElement>('.service-toggle')!;
+    const label = btn.querySelector<HTMLElement>('.toggle-label')!;
+    const arrowRight = btn.querySelector<HTMLElement>('.arrow-right')!;
+    const arrowUp = btn.querySelector<HTMLElement>('.arrow-up')!;
+    btn.setAttribute('aria-expanded', 'true');
+    label.textContent = 'Cerrar';
+    arrowRight.classList.add('hidden');
+    arrowUp.classList.remove('hidden');
+  }
+
+  function closeCard(card: HTMLElement) {
+    card.classList.remove('is-open');
+    const btn = card.querySelector<HTMLButtonElement>('.service-toggle')!;
+    const label = btn.querySelector<HTMLElement>('.toggle-label')!;
+    const arrowRight = btn.querySelector<HTMLElement>('.arrow-right')!;
+    const arrowUp = btn.querySelector<HTMLElement>('.arrow-up')!;
+    btn.setAttribute('aria-expanded', 'false');
+    label.textContent = 'Conocer más';
+    arrowRight.classList.remove('hidden');
+    arrowUp.classList.add('hidden');
+  }
+
+  cards.forEach((card) => {
+    const btn = card.querySelector<HTMLButtonElement>('.service-toggle')!;
+
+    btn.addEventListener('click', () => {
+      const isOpen = card.classList.contains('is-open');
+      // Close all cards first
+      cards.forEach(closeCard);
+      // Toggle this one
+      if (!isOpen) openCard(card);
+    });
+
+    // Keyboard: Enter / Space already trigger click on buttons natively
+    // But ensure proper focus ring via CSS
+  });
+</script>
