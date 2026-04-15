@@ -10,14 +10,9 @@
     <!-- Subtle animated gradient -->
     <div class="hero-gradient absolute inset-0"></div>
 
-    <!-- Giant logo brand mark -->
-    <div class="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
-      <img
-        src="/logo.png"
-        alt=""
-        aria-hidden="true"
-        class="hero-brand-logo select-none"
-      />
+    <!-- Giant "a" lettermark -->
+    <div class="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none" aria-hidden="true">
+      <span class="hero-brand-a select-none">a</span>
     </div>
 
     <!-- Vignette overlay -->
@@ -82,22 +77,32 @@
 </section>
 
 <style>
-  /* ── Giant logo brand mark ── */
-  .hero-brand-logo {
-    width: clamp(28rem, 75vw, 62rem);
-    height: auto;
-    opacity: 0.08;
-    filter: brightness(10) saturate(0);
-    transform: translateY(4%);
-    animation: brandFloat 12s ease-in-out infinite alternate, brandIn 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* ── Giant "a" lettermark ── */
+  .hero-brand-a {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 900;
+    font-size: clamp(60vw, 72vw, 96vh);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255,255,255,0.13);
+    background: linear-gradient(
+      170deg,
+      rgba(255,255,255,0.11) 0%,
+      rgba(255,255,255,0.05) 50%,
+      transparent 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: brandFloat 14s ease-in-out infinite alternate, brandIn 2s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   @keyframes brandFloat {
-    0%   { transform: translateY(4%) scale(1); }
-    100% { transform: translateY(2%) scale(1.03); }
+    0%   { transform: translateY(2%) scale(1) rotate(-1deg); }
+    100% { transform: translateY(-1%) scale(1.02) rotate(0deg); }
   }
   @keyframes brandIn {
-    from { opacity: 0; transform: translateY(10%) scale(0.94); }
-    to   { opacity: 0.08; }
+    from { opacity: 0; transform: scale(0.92) translateY(4%); }
+    to   { opacity: 1; }
   }
 
   .hero-wordmark {
