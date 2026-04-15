@@ -10,9 +10,13 @@
     <!-- Subtle animated gradient -->
     <div class="hero-gradient absolute inset-0"></div>
 
-    <!-- Giant "a" lettermark -->
-    <div class="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none" aria-hidden="true">
-      <span class="hero-brand-a select-none">a</span>
+    <!-- Giant "a" logo (actual PNG) -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <img
+        src="/logo.png"
+        alt=""
+        class="hero-brand-logo select-none"
+      />
     </div>
 
     <!-- Vignette overlay -->
@@ -77,32 +81,26 @@
 </section>
 
 <style>
-  /* ── Giant "a" lettermark ── */
-  .hero-brand-a {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    font-weight: 900;
-    font-size: clamp(60vw, 72vw, 96vh);
-    line-height: 0.85;
-    letter-spacing: -0.06em;
-    color: transparent;
-    -webkit-text-stroke: 1.5px rgba(255,255,255,0.13);
-    background: linear-gradient(
-      170deg,
-      rgba(255,255,255,0.11) 0%,
-      rgba(255,255,255,0.05) 50%,
-      transparent 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    animation: brandFloat 14s ease-in-out infinite alternate, brandIn 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* ── Giant "a" logo (actual PNG) ── */
+  .hero-brand-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(125vh, 110vw);
+    height: auto;
+    transform: translate(-50%, -48%);
+    opacity: 0.09;
+    /* Force white (logo is already white but normalize to pure white) */
+    filter: brightness(0) invert(1);
+    animation: brandFloat 16s ease-in-out infinite alternate, brandIn 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   @keyframes brandFloat {
-    0%   { transform: translateY(2%) scale(1) rotate(-1deg); }
-    100% { transform: translateY(-1%) scale(1.02) rotate(0deg); }
+    0%   { transform: translate(-50%, -48%) scale(1) rotate(-0.5deg); }
+    100% { transform: translate(-50%, -51%) scale(1.03) rotate(0.5deg); }
   }
   @keyframes brandIn {
-    from { opacity: 0; transform: scale(0.92) translateY(4%); }
-    to   { opacity: 1; }
+    from { opacity: 0; transform: translate(-50%, -45%) scale(0.9); }
+    to   { opacity: 0.09; }
   }
 
   .hero-wordmark {

@@ -21,8 +21,16 @@ const team = [
 ];
 ---
 
-<section id="nosotros" class="py-24 lg:py-32 bg-offwhite">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+<section id="nosotros" class="relative py-24 lg:py-32 bg-offwhite overflow-hidden">
+  <!-- Logo watermark -->
+  <img
+    src="/logo.png"
+    alt=""
+    aria-hidden="true"
+    class="about-watermark select-none pointer-events-none"
+  />
+
+  <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
       <!-- Text -->
       <div>
@@ -87,5 +95,19 @@ const team = [
   }
   .team-card:hover .team-avatar {
     transform: rotate(-8deg) scale(1.06);
+  }
+
+  /* Logo watermark */
+  .about-watermark {
+    position: absolute;
+    top: -15%;
+    left: -10%;
+    width: min(65vh, 45vw);
+    height: auto;
+    opacity: 0.04;
+    /* Keep as dark silhouette on light bg */
+    filter: brightness(0);
+    transform: rotate(12deg);
+    z-index: 0;
   }
 </style>
