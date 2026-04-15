@@ -10,22 +10,15 @@
     <!-- Subtle animated gradient -->
     <div class="hero-gradient absolute inset-0"></div>
 
-    <!-- Giant "a" logo (actual PNG) -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      <img
-        src="/logo.png"
-        alt=""
-        class="hero-brand-logo select-none"
-      />
+    <!-- Placeholder reel -->
+    <div class="w-full h-full flex items-center justify-center opacity-10 relative">
+      <div class="border-2 border-white/30 rounded-lg px-8 py-6 text-white text-sm font-medium tracking-widest uppercase">
+        Video Reel — próximamente
+      </div>
     </div>
 
     <!-- Vignette overlay -->
-    <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, rgba(26,26,26,0) 0%, rgba(26,26,26,0.55) 75%, rgba(26,26,26,0.9) 100%);"></div>
-  </div>
-
-  <!-- Antemano wordmark (top) -->
-  <div class="absolute top-6 left-1/2 -translate-x-1/2 z-20 hero-wordmark">
-    <p class="text-white/60 text-[11px] font-semibold tracking-[0.4em] uppercase">Antemano</p>
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, rgba(26,26,26,0) 0%, rgba(26,26,26,0.6) 80%, rgba(26,26,26,0.92) 100%);"></div>
   </div>
 
   <!-- Content -->
@@ -39,10 +32,10 @@
     <h1 class="hero-line text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6" style="--i: 1;">
       Tu competencia ya está publicando.<br class="hidden sm:block" />
       Y se está quedando<br class="hidden sm:block" />
-      <strong class="kw kw-light">con tus clientes.</strong>
+      con tus clientes.
     </h1>
     <p class="hero-line text-lg sm:text-xl text-white/70 font-medium max-w-2xl mx-auto mb-10" style="--i: 2;">
-      Producimos el contenido. Diseñamos la estrategia. <strong class="kw kw-light">Tú recibes los clientes.</strong>
+      Producimos el contenido. Diseñamos la estrategia. Tú recibes los clientes.
     </p>
     <div class="hero-line flex flex-col sm:flex-row gap-4 justify-center" style="--i: 3;">
       <span class="magnetic inline-block" data-magnetic="0.3">
@@ -81,32 +74,6 @@
 </section>
 
 <style>
-  /* ── Giant "a" logo (actual PNG) ── */
-  .hero-brand-logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: min(125vh, 110vw);
-    height: auto;
-    transform: translate(-50%, -48%);
-    opacity: 0.09;
-    /* Force white (logo is already white but normalize to pure white) */
-    filter: brightness(0) invert(1);
-    animation: brandFloat 16s ease-in-out infinite alternate, brandIn 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  @keyframes brandFloat {
-    0%   { transform: translate(-50%, -48%) scale(1) rotate(-0.5deg); }
-    100% { transform: translate(-50%, -51%) scale(1.03) rotate(0.5deg); }
-  }
-  @keyframes brandIn {
-    from { opacity: 0; transform: translate(-50%, -45%) scale(0.9); }
-    to   { opacity: 0.09; }
-  }
-
-  .hero-wordmark {
-    animation: heroIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-  }
-
   /* ── Animated gradient BG (very subtle) ── */
   .hero-gradient {
     background:

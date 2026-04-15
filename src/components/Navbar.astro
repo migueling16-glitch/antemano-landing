@@ -8,23 +8,23 @@
   <nav class="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
     <!-- Logo -->
     <a href="#inicio" aria-label="Antemano Taller Creativo — inicio" class="flex-shrink-0 logo-link">
-      <!-- Wrapper crops the canvas padding of the PNG -->
-      <div class="logo-crop" style="width:172px; height:50px; overflow:hidden; flex-shrink:0;">
-        <img
-          id="site-logo"
-          src="/logo-full.png"
-          alt="Antemano Taller Creativo"
-          style="
-            width: 264px;
-            height: auto;
-            margin-left: -36px;
-            margin-top: -88px;
-            display: block;
-            filter: invert(1);
-            transition: filter 0.3s ease, transform 0.3s var(--ease-out-quart);
-          "
-        />
-      </div>
+      <img
+        id="site-logo"
+        src="/logo.png"
+        alt="Antemano Taller Creativo"
+        width="152"
+        height="44"
+        class="block"
+        style="
+          width: 152px;
+          height: 44px;
+          object-fit: cover;
+          object-position: center 52%;
+          filter: invert(1);
+          mix-blend-mode: screen;
+          transition: filter 0.3s ease, transform 0.3s var(--ease-out-quart);
+        "
+      />
     </a>
 
     <!-- Desktop links -->
@@ -190,16 +190,16 @@
     const scrolled = window.scrollY > 60;
     if (scrolled) {
       navbar.classList.add('scrolled');
-      // Light bg → logo es negro, sin filtro
       logo.style.filter = 'none';
+      logo.style.mixBlendMode = 'normal';
       links.forEach((l) => { l.style.color = '#1A1A1A'; });
       cta.style.color = '#1A1A1A';
       cta.style.borderColor = '#1A1A1A';
       lines.forEach((l) => { l.style.background = '#1A1A1A'; });
     } else {
       navbar.classList.remove('scrolled');
-      // Dark bg → invert logo negro a blanco
       logo.style.filter = 'invert(1)';
+      logo.style.mixBlendMode = 'screen';
       links.forEach((l) => { l.style.color = '#fff'; });
       cta.style.color = '#fff';
       cta.style.borderColor = 'rgba(255,255,255,0.5)';
