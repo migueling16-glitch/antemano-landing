@@ -197,6 +197,31 @@ const services = [
     opacity: 1;
   }
 
+  /* ── Hint animation: nudge arrow after card reveals ── */
+  @keyframes arrowNudge {
+    0%   { transform: translateX(0); }
+    25%  { transform: translateX(6px); }
+    55%  { transform: translateX(-2px); }
+    75%  { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+  }
+  @keyframes cardPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(200,150,62,0); }
+    40%  { box-shadow: 0 0 0 6px rgba(200,150,62,0.12); }
+    100% { box-shadow: 0 0 0 0 rgba(200,150,62,0); }
+  }
+
+  .service-card.hint-active:not(.is-open) {
+    animation: cardPulse 0.9s ease forwards;
+  }
+  .service-card.hint-active:not(.is-open) .arrow-right {
+    animation: arrowNudge 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+  }
+  .service-card.hint-active:not(.is-open) .toggle-label {
+    color: #C8963E;
+    transition: color 0s;
+  }
+
   /* Toggle button */
   .service-toggle {
     background: none;
@@ -265,18 +290,31 @@ const services = [
     arrowUp.classList.add('hidden');
   }
 
-  cards.forEach((card) => {
+  cards.forEach((card, idx) => {
     const btn = card.querySelector<HTMLButtonElement>('.service-toggle')!;
 
     btn.addEventListener('click', () => {
       const isOpen = card.classList.contains('is-open');
-      // Close all cards first
       cards.forEach(closeCard);
-      // Toggle this one
       if (!isOpen) openCard(card);
     });
 
-    // Keyboard: Enter / Space already trigger click on buttons natively
-    // But ensure proper focus ring via CSS
+    // ── Hint: fire nudge once after card enters viewport ──────────────
+    const hintObs = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        hintObs.disconnect();
+        if (card.classList.contains('is-open')) return;
+        // Stagger hints so they don't all fire at once
+        setTimeout(() => {
+          card.classList.add('hint-active');
+          card.addEventListener('animationend', () => {
+            card.classList.remove('hint-active');
+          }, { once: true });
+        }, 600 + idx * 220);
+      },
+      { threshold: 0.6 }
+    );
+    hintObs.observe(card);
   });
 </script>
