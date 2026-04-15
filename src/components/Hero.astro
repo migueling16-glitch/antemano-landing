@@ -10,11 +10,9 @@
     <!-- Subtle animated gradient -->
     <div class="hero-gradient absolute inset-0"></div>
 
-    <!-- Placeholder reel -->
-    <div class="w-full h-full flex items-center justify-center opacity-10 relative">
-      <div class="border-2 border-white/30 rounded-lg px-8 py-6 text-white text-sm font-medium tracking-widest uppercase">
-        Video Reel — próximamente
-      </div>
+    <!-- Giant "a" brand mark -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <img src="/logo-a.png" alt="" class="hero-brand-logo select-none" />
     </div>
 
     <!-- Vignette overlay -->
@@ -74,6 +72,27 @@
 </section>
 
 <style>
+  /* ── Giant "a" brand mark ── */
+  .hero-brand-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(115vh, 100vw);
+    height: auto;
+    transform: translate(-50%, -50%);
+    opacity: 0.08;
+    filter: brightness(0) invert(1);
+    animation: brandFloat 16s ease-in-out infinite alternate, brandIn 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes brandFloat {
+    0%   { transform: translate(-50%, -50%) scale(1) rotate(-0.5deg); }
+    100% { transform: translate(-50%, -53%) scale(1.03) rotate(0.5deg); }
+  }
+  @keyframes brandIn {
+    from { opacity: 0; transform: translate(-50%, -47%) scale(0.9); }
+    to   { opacity: 0.08; }
+  }
+
   /* ── Animated gradient BG (very subtle) ── */
   .hero-gradient {
     background:
