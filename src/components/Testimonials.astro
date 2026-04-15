@@ -1,25 +1,25 @@
 ---
 const testimonials = [
   {
-    quote:
-      'Antemano entiende cómo contar la historia de una marca. El contenido que produjeron para nosotros capturó exactamente la experiencia que queremos transmitir.',
-    name: 'Ototo',
-    company: '@ototo.rest · Durango',
-    initials: 'OT',
+    before: 'Publicábamos una vez al mes con fotos del celular',
+    after: '3 meses después teníamos Reels con 10,000 vistas y la agenda llena',
+    name: 'Dr. [Nombre]',
+    company: '[Especialidad] · Durango',
+    initials: 'DR',
   },
   {
-    quote:
-      'Desde el primer brief entendieron nuestra estética. El reel de lanzamiento quedó mejor de lo que imaginamos y el impacto en redes fue inmediato.',
-    name: 'CHA CHA CENIZO',
-    company: '@chachacenizo · Durango',
-    initials: 'CC',
+    before: 'No sabíamos qué tipo de contenido funcionaba para nuestro giro',
+    after: 'Tenemos un calendario claro, branding consistente y prospectos preguntando por nuestros servicios diario',
+    name: '[Nombre del Cliente]',
+    company: '[Industria] · Durango',
+    initials: 'CL',
   },
   {
-    quote:
-      'La estrategia de contenido que diseñaron para nuestra cafetería nos ayudó a crecer orgánicamente y a conectar de verdad con nuestra comunidad.',
-    name: 'PACAMARA',
-    company: '@pacamara_cafemx · Durango',
-    initials: 'PC',
+    before: 'Gastábamos mucho en pauta sin saber si el contenido era el adecuado',
+    after: 'Mejoramos el CTR un 40% porque ahora cada anuncio tiene un video pensado para conversión',
+    name: '[Nombre del Cliente]',
+    company: '[Empresa] · Durango',
+    initials: 'EM',
   },
 ];
 ---
@@ -43,11 +43,21 @@ const testimonials = [
       >
         {testimonials.map((t) => (
           <div class="min-w-full px-4 sm:px-12 lg:px-24">
-            <blockquote class="max-w-3xl mx-auto text-center">
-              <p class="text-xl sm:text-2xl font-medium text-charcoal leading-relaxed mb-8">
-                &ldquo;{t.quote}&rdquo;
-              </p>
-              <footer class="flex flex-col items-center gap-2">
+            <blockquote class="max-w-3xl mx-auto text-center flex flex-col gap-6 mb-8">
+              <div>
+                <p class="text-sm font-bold tracking-widest text-gray-400 uppercase mb-2">Antes</p>
+                <p class="text-lg sm:text-xl font-medium text-gray-500 leading-relaxed line-through decoration-gray-300">
+                  &ldquo;{t.before}&rdquo;
+                </p>
+              </div>
+              <div class="w-12 h-px bg-gray-200 mx-auto"></div>
+              <div>
+                <p class="text-sm font-bold tracking-widest text-charcoal uppercase mb-2">Después</p>
+                <p class="text-xl sm:text-2xl font-bold text-charcoal leading-relaxed">
+                  &ldquo;{t.after}&rdquo;
+                </p>
+              </div>
+              <footer class="flex flex-col items-center gap-2 mt-8">
                 <div
                   class="w-12 h-12 rounded-full bg-charcoal text-white flex items-center justify-center font-bold text-sm"
                   aria-hidden="true"
@@ -78,26 +88,64 @@ const testimonials = [
   </div>
 </section>
 
+<style>
+  .carousel-dot {
+    transition: width 0.4s var(--ease-out-quart), background 0.3s;
+  }
+  .carousel-dot.active {
+    width: 24px !important;
+    background: #1a1a1a !important;
+  }
+  #carousel-track { transition: transform 0.7s var(--ease-out-expo); }
+</style>
+
 <script>
   const track = document.getElementById('carousel-track')!;
+  const wrapper = document.getElementById('carousel-wrapper')!;
   const dots = document.querySelectorAll<HTMLButtonElement>('.carousel-dot');
   let current = 0;
+  let autoInterval: number | null = null;
 
   function goTo(index: number) {
     current = index;
     track.style.transform = `translateX(-${index * 100}%)`;
     dots.forEach((d, i) => {
-      d.classList.toggle('bg-charcoal', i === index);
+      d.classList.toggle('active', i === index);
       d.classList.toggle('bg-gray-200', i !== index);
     });
   }
 
   dots.forEach((dot) => {
-    dot.addEventListener('click', () => goTo(Number(dot.dataset.index)));
+    dot.addEventListener('click', () => {
+      goTo(Number(dot.dataset.index));
+      restartAuto();
+    });
   });
 
-  // Auto-advance
-  setInterval(() => goTo((current + 1) % dots.length), 5000);
+  function startAuto() {
+    autoInterval = window.setInterval(() => goTo((current + 1) % dots.length), 5500);
+  }
+  function stopAuto() { if (autoInterval) { clearInterval(autoInterval); autoInterval = null; } }
+  function restartAuto() { stopAuto(); startAuto(); }
+
+  wrapper.addEventListener('mouseenter', stopAuto);
+  wrapper.addEventListener('mouseleave', startAuto);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopAuto(); else startAuto();
+  });
+
+  // Touch swipe
+  let touchStart = 0;
+  wrapper.addEventListener('touchstart', (e) => { touchStart = e.touches[0].clientX; stopAuto(); }, { passive: true });
+  wrapper.addEventListener('touchend', (e) => {
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 48) {
+      goTo(diff > 0 ? (current + 1) % dots.length : (current - 1 + dots.length) % dots.length);
+    }
+    startAuto();
+  }, { passive: true });
 
   goTo(0);
+  startAuto();
 </script>

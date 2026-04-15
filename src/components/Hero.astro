@@ -5,70 +5,135 @@
   id="inicio"
   class="relative min-h-screen flex items-center justify-center overflow-hidden bg-charcoal"
 >
-  <!-- Video placeholder background -->
-  <div
-    class="absolute inset-0 bg-charcoal"
-    aria-hidden="true"
-  >
-    <!-- Placeholder reel — replace with <video> tag when reel is ready -->
-    <div class="w-full h-full flex items-center justify-center opacity-10">
+  <!-- Background -->
+  <div class="absolute inset-0 bg-charcoal" aria-hidden="true">
+    <!-- Subtle animated gradient -->
+    <div class="hero-gradient absolute inset-0"></div>
+
+    <!-- Placeholder reel -->
+    <div class="w-full h-full flex items-center justify-center opacity-10 relative">
       <div class="border-2 border-white/30 rounded-lg px-8 py-6 text-white text-sm font-medium tracking-widest uppercase">
         Video Reel — próximamente
       </div>
     </div>
-    <!-- Overlay -->
-    <div class="absolute inset-0 bg-charcoal/60"></div>
+
+    <!-- Vignette overlay -->
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, rgba(26,26,26,0) 0%, rgba(26,26,26,0.6) 80%, rgba(26,26,26,0.92) 100%);"></div>
   </div>
 
   <!-- Content -->
-  <div class="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center text-white">
-    <p class="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-6">
+  <div
+    id="hero-content"
+    class="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center text-white"
+  >
+    <p class="hero-line text-gray-400 text-sm font-semibold tracking-widest uppercase mb-6" style="--i: 0;">
       Durango, México
     </p>
-    <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6">
-      Producimos lo que<br class="hidden sm:block" />
-      tu marca necesita<br class="hidden sm:block" />
-      contar
+    <h1 class="hero-line text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6" style="--i: 1;">
+      Tu competencia ya está publicando.<br class="hidden sm:block" />
+      Y se está quedando<br class="hidden sm:block" />
+      con tus clientes.
     </h1>
-    <p class="text-lg sm:text-xl text-white/70 font-medium max-w-xl mx-auto mb-10">
-      Producción audiovisual y estrategia digital en Durango.
-      Creamos contenido que conecta, convence y convierte.
+    <p class="hero-line text-lg sm:text-xl text-white/70 font-medium max-w-2xl mx-auto mb-10" style="--i: 2;">
+      Producimos el contenido. Diseñamos la estrategia. Tú recibes los clientes.
     </p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <a
-        href="#portafolio"
-        class="px-8 py-4 bg-charcoal text-white font-bold rounded-full text-sm tracking-wide hover:bg-gray-800 transition-all duration-200 hover:-translate-y-0.5"
-      >
-        Ver nuestro trabajo
-      </a>
-      <a
-        href="#contacto"
-        class="px-8 py-4 border border-white/40 text-white font-bold rounded-full text-sm tracking-wide hover:bg-white/10 transition-all duration-200"
-      >
-        Hablemos
-      </a>
+    <div class="hero-line flex flex-col sm:flex-row gap-4 justify-center" style="--i: 3;">
+      <span class="magnetic inline-block" data-magnetic="0.3">
+        <a
+          href="#resultados"
+          class="hero-btn hero-btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-charcoal font-bold rounded-full text-sm tracking-wide"
+        >
+          <span>Ver resultados</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor" class="w-4 h-4 hero-btn-arrow">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+      </span>
+      <span class="magnetic inline-block" data-magnetic="0.3">
+        <a
+          href="#contacto"
+          class="hero-btn hero-btn-ghost inline-flex items-center justify-center px-8 py-4 border border-white/40 text-white font-bold rounded-full text-sm tracking-wide"
+        >
+          Quiero una propuesta
+        </a>
+      </span>
     </div>
   </div>
 
   <!-- Scroll indicator -->
-  <div
-    class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40"
-    aria-hidden="true"
+  <a
+    href="#servicios"
+    class="scroll-indicator absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40 hover:text-white/80 transition-colors"
+    aria-label="Scroll hacia abajo"
   >
     <span class="text-xs tracking-widest uppercase">Scroll</span>
     <div class="w-px h-12 bg-white/20 relative overflow-hidden">
-      <div
-        class="absolute top-0 left-0 w-full bg-charcoal"
-        style="animation: scrollLine 2s ease-in-out infinite;"
-      ></div>
+      <div class="absolute top-0 left-0 w-full bg-white/80" style="animation: scrollLine 2s var(--ease-in-out-quart, ease) infinite;"></div>
     </div>
-  </div>
+  </a>
 </section>
 
 <style>
+  /* ── Animated gradient BG (very subtle) ── */
+  .hero-gradient {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.04), transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(255,255,255,0.03), transparent 50%);
+    animation: heroPulse 8s ease-in-out infinite alternate;
+  }
+  @keyframes heroPulse {
+    0%   { transform: scale(1) translate(0, 0); }
+    100% { transform: scale(1.1) translate(2%, -1%); }
+  }
+
+  /* ── Scroll line ── */
   @keyframes scrollLine {
-    0% { height: 0; top: 0; }
+    0%, 100% { height: 0; top: 0; }
     50% { height: 100%; top: 0; }
     100% { height: 0; top: 100%; }
+  }
+
+  /* ── Scroll indicator breathing ── */
+  .scroll-indicator {
+    animation: scrollBreathe 3s ease-in-out infinite;
+  }
+  @keyframes scrollBreathe {
+    0%, 100% { transform: translate(-50%, 0); }
+    50%      { transform: translate(-50%, 6px); }
+  }
+
+  /* ── Hero text stagger entry ── */
+  .hero-line {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: heroIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(0.2s + var(--i, 0) * 0.12s);
+  }
+  @keyframes heroIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Buttons ── */
+  .hero-btn {
+    transition: background 0.25s var(--ease-out-quart), color 0.25s var(--ease-out-quart), border-color 0.25s;
+    position: relative;
+  }
+  .hero-btn-arrow {
+    transition: transform 0.25s var(--ease-out-quart);
+  }
+  .hero-btn-primary:hover .hero-btn-arrow {
+    transform: translateX(4px);
+  }
+  .hero-btn-primary:hover {
+    background: #f4f4f4;
+  }
+  .hero-btn-ghost:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.8);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-gradient, .scroll-indicator { animation: none !important; }
+    .hero-line { opacity: 1; transform: none; animation: none; }
   }
 </style>

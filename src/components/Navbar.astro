@@ -3,17 +3,11 @@
 
 <header
   id="navbar"
-  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+  class="fixed top-0 left-0 right-0 z-50"
 >
   <nav class="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
     <!-- Logo -->
-    <a href="#inicio" aria-label="Antemano Taller Creativo — inicio" class="flex-shrink-0">
-      <!--
-        El PNG original es 560×560 con mucho espacio vacío alrededor del logo.
-        object-fit:cover + dimensiones ajustadas recortan ese espacio vacío
-        mostrando solo la zona donde vive el logo real.
-        object-position: center 52% apunta al centro exacto del logo.
-      -->
+    <a href="#inicio" aria-label="Antemano Taller Creativo — inicio" class="flex-shrink-0 logo-link">
       <img
         id="site-logo"
         src="/logo.png"
@@ -26,110 +20,243 @@
           height: 44px;
           object-fit: cover;
           object-position: center 52%;
-          /* inicio: sobre hero oscuro → logo blanco */
           filter: invert(1);
           mix-blend-mode: screen;
-          transition: filter 0.3s ease;
+          transition: filter 0.3s ease, transform 0.3s var(--ease-out-quart);
         "
       />
     </a>
 
     <!-- Desktop links -->
-    <ul class="hidden md:flex items-center gap-8 text-sm font-medium" id="nav-links">
-      <li><a href="#servicios" class="nav-link transition-colors duration-200" style="color:#fff">Servicios</a></li>
-      <li><a href="#portafolio" class="nav-link transition-colors duration-200" style="color:#fff">Portafolio</a></li>
-      <li><a href="#nosotros" class="nav-link transition-colors duration-200" style="color:#fff">Nosotros</a></li>
-      <li><a href="#proceso" class="nav-link transition-colors duration-200" style="color:#fff">Proceso</a></li>
+    <ul class="hidden md:flex items-center gap-7 text-sm font-medium" id="nav-links">
+      <li><a href="#inicio"     data-section="inicio"     class="nav-link" style="color:#fff">Inicio</a></li>
+      <li><a href="#resultados" data-section="resultados" class="nav-link" style="color:#fff">Resultados</a></li>
+      <li><a href="#portafolio" data-section="portafolio" class="nav-link" style="color:#fff">Nuestro trabajo</a></li>
+      <li><a href="#nosotros"   data-section="nosotros"   class="nav-link" style="color:#fff">Nosotros</a></li>
       <li>
-        <a
-          href="#contacto"
-          id="nav-cta"
-          class="px-4 py-2 border rounded-full text-sm font-semibold transition-all duration-200 hover:bg-charcoal hover:border-charcoal hover:text-white"
-          style="color:#fff; border-color: rgba(255,255,255,0.5);"
-        >
-          Hablemos
-        </a>
+        <span class="magnetic inline-block" data-magnetic="0.18">
+          <a
+            href="#contacto"
+            id="nav-cta"
+            class="nav-cta px-4 py-2 border rounded-full text-sm font-semibold"
+            style="color:#fff; border-color: rgba(255,255,255,0.5);"
+          >
+            Contacto
+          </a>
+        </span>
       </li>
     </ul>
 
     <!-- Mobile hamburger -->
     <button
       id="menu-toggle"
-      class="md:hidden flex flex-col gap-1.5 p-2"
+      class="md:hidden relative flex flex-col gap-1.5 p-2 z-[60]"
       aria-label="Abrir menú"
       aria-expanded="false"
     >
-      <span class="hamburger-line block w-6 h-0.5 transition-all duration-300" style="background:#fff"></span>
-      <span class="hamburger-line block w-6 h-0.5 transition-all duration-300" style="background:#fff"></span>
-      <span class="hamburger-line block w-6 h-0.5 transition-all duration-300" style="background:#fff"></span>
+      <span class="hamburger-line block w-6 h-0.5" style="background:#fff"></span>
+      <span class="hamburger-line block w-6 h-0.5" style="background:#fff"></span>
+      <span class="hamburger-line block w-6 h-0.5" style="background:#fff"></span>
     </button>
   </nav>
 
   <!-- Mobile menu -->
   <div
     id="mobile-menu"
-    class="md:hidden hidden bg-offwhite border-t border-gray-100 px-6 py-4"
+    class="md:hidden fixed inset-0 top-16 bg-offwhite px-6 py-10 pointer-events-none"
+    aria-hidden="true"
   >
-    <ul class="flex flex-col gap-4 text-sm font-medium text-charcoal">
-      <li><a href="#servicios" class="mobile-link block py-1 hover:text-gray-400 transition-colors">Servicios</a></li>
-      <li><a href="#portafolio" class="mobile-link block py-1 hover:text-gray-400 transition-colors">Portafolio</a></li>
-      <li><a href="#nosotros" class="mobile-link block py-1 hover:text-gray-400 transition-colors">Nosotros</a></li>
-      <li><a href="#proceso" class="mobile-link block py-1 hover:text-gray-400 transition-colors">Proceso</a></li>
-      <li>
-        <a href="#contacto" class="mobile-link inline-block mt-1 px-4 py-2 bg-charcoal text-white rounded-full text-sm font-semibold hover:bg-gray-700 transition-colors">
+    <ul class="flex flex-col gap-1 text-2xl font-bold text-charcoal">
+      <li class="mm-item" style="--i:0"><a href="#inicio"     class="mobile-link block py-3 border-b border-gray-100">Inicio</a></li>
+      <li class="mm-item" style="--i:1"><a href="#resultados" class="mobile-link block py-3 border-b border-gray-100">Resultados</a></li>
+      <li class="mm-item" style="--i:2"><a href="#portafolio" class="mobile-link block py-3 border-b border-gray-100">Nuestro trabajo</a></li>
+      <li class="mm-item" style="--i:3"><a href="#nosotros"   class="mobile-link block py-3 border-b border-gray-100">Nosotros</a></li>
+      <li class="mm-item" style="--i:4"><a href="#proceso"    class="mobile-link block py-3 border-b border-gray-100">Proceso</a></li>
+      <li class="mm-item pt-6" style="--i:5">
+        <a href="#contacto" class="mobile-link inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white rounded-full text-sm font-semibold">
           Hablemos
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
         </a>
       </li>
     </ul>
   </div>
 </header>
 
+<style>
+  #navbar {
+    transition:
+      background-color 0.35s var(--ease-out-quart),
+      box-shadow 0.35s var(--ease-out-quart),
+      backdrop-filter 0.35s;
+  }
+  #navbar.scrolled {
+    background-color: rgba(250, 250, 250, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+  }
+
+  .logo-link:hover #site-logo { transform: scale(1.04); }
+
+  /* ── Nav links ── */
+  .nav-link {
+    position: relative;
+    padding: 4px 0;
+    transition: color 0.2s;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.35s var(--ease-out-quart);
+  }
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    transform: scaleX(1);
+  }
+  .nav-link.active { font-weight: 700; }
+
+  /* ── CTA ── */
+  .nav-cta {
+    transition:
+      background 0.25s var(--ease-out-quart),
+      color 0.25s,
+      border-color 0.25s;
+  }
+  .nav-cta:hover {
+    background: currentColor;
+    /* invert text color via filter trick handled in JS on scroll-state change */
+  }
+
+  /* ── Hamburger ── */
+  .hamburger-line {
+    transition: transform 0.3s var(--ease-out-quart), opacity 0.25s;
+    transform-origin: center;
+  }
+  #menu-toggle[aria-expanded="true"] .hamburger-line:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  #menu-toggle[aria-expanded="true"] .hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  #menu-toggle[aria-expanded="true"] .hamburger-line:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  /* ── Mobile menu ── */
+  #mobile-menu {
+    opacity: 0;
+    transition: opacity 0.35s var(--ease-out-quart);
+  }
+  #mobile-menu.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mm-item {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.45s var(--ease-out-quart),
+      transform 0.45s var(--ease-out-quart);
+    transition-delay: calc(var(--i) * 0.05s + 0.1s);
+  }
+  #mobile-menu.open .mm-item {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+
 <script>
   const navbar  = document.getElementById('navbar')!;
   const logo    = document.getElementById('site-logo') as HTMLImageElement;
-  const links   = document.querySelectorAll<HTMLElement>('.nav-link');
+  const links   = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
   const cta     = document.getElementById('nav-cta') as HTMLAnchorElement;
   const lines   = document.querySelectorAll<HTMLElement>('.hamburger-line');
   const toggle  = document.getElementById('menu-toggle')!;
   const mobile  = document.getElementById('mobile-menu')!;
 
+  // ─── Navbar theme on scroll ──────────────────────────────────────────
   function updateNavbar() {
     const scrolled = window.scrollY > 60;
-
     if (scrolled) {
-      navbar.classList.add('bg-offwhite', 'shadow-sm');
-      // Logo negro normal sobre fondo blanco (sin filtro)
-      logo.style.filter      = 'none';
+      navbar.classList.add('scrolled');
+      logo.style.filter = 'none';
       logo.style.mixBlendMode = 'normal';
-      links.forEach(l => { l.style.color = '#1A1A1A'; });
-      cta.style.color       = '#1A1A1A';
+      links.forEach((l) => { l.style.color = '#1A1A1A'; });
+      cta.style.color = '#1A1A1A';
       cta.style.borderColor = '#1A1A1A';
-      lines.forEach(l => { l.style.background = '#1A1A1A'; });
+      lines.forEach((l) => { l.style.background = '#1A1A1A'; });
     } else {
-      navbar.classList.remove('bg-offwhite', 'shadow-sm');
-      // Logo blanco sobre hero oscuro: invert → blanco; screen → fondo transparente
-      logo.style.filter      = 'invert(1)';
+      navbar.classList.remove('scrolled');
+      logo.style.filter = 'invert(1)';
       logo.style.mixBlendMode = 'screen';
-      links.forEach(l => { l.style.color = '#fff'; });
-      cta.style.color       = '#fff';
+      links.forEach((l) => { l.style.color = '#fff'; });
+      cta.style.color = '#fff';
       cta.style.borderColor = 'rgba(255,255,255,0.5)';
-      lines.forEach(l => { l.style.background = '#fff'; });
+      lines.forEach((l) => { l.style.background = '#fff'; });
     }
   }
-
   window.addEventListener('scroll', updateNavbar, { passive: true });
   updateNavbar();
 
+  // ─── Active section indicator ────────────────────────────────────────
+  const sectionIds = Array.from(links).map((l) => l.dataset.section).filter(Boolean) as string[];
+  const sections = sectionIds
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => !!el);
+
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          links.forEach((l) => l.classList.toggle('active', l.dataset.section === id));
+        }
+      });
+    },
+    { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
+  );
+  sections.forEach((s) => sectionObserver.observe(s));
+
+  // ─── Mobile menu ─────────────────────────────────────────────────────
+  function closeMobile() {
+    mobile.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    mobile.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  function openMobile() {
+    mobile.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+    mobile.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
   toggle.addEventListener('click', () => {
-    const open = !mobile.classList.contains('hidden');
-    mobile.classList.toggle('hidden', open);
-    toggle.setAttribute('aria-expanded', String(!open));
+    if (mobile.classList.contains('open')) closeMobile(); else openMobile();
   });
 
-  mobile.querySelectorAll('.mobile-link').forEach(link => {
-    link.addEventListener('click', () => {
-      mobile.classList.add('hidden');
-      toggle.setAttribute('aria-expanded', 'false');
-    });
+  mobile.querySelectorAll('.mobile-link').forEach((link) => {
+    link.addEventListener('click', closeMobile);
+  });
+
+  // Close mobile menu on resize to desktop
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 768) closeMobile();
+  });
+
+  // ESC closes mobile menu
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mobile.classList.contains('open')) closeMobile();
   });
 </script>

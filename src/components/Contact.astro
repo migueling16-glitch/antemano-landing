@@ -10,10 +10,10 @@
           Contacto
         </p>
         <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal mb-3 reveal reveal-delay-1">
-          ¿Tienes un proyecto en mente?
+          ¿Listo para que tu contenido trabaje por ti?
         </h2>
         <p class="text-gray-500 mb-10 reveal reveal-delay-2">
-          Cuéntanos sobre tu marca y tus objetivos. Te respondemos en menos de 24 horas.
+          Escríbenos y en 24 horas te mandamos una propuesta sin compromiso.
         </p>
 
         <form
@@ -85,8 +85,11 @@
             type="submit"
             class="w-full sm:w-auto px-8 py-4 bg-charcoal text-white font-bold rounded-full text-sm tracking-wide hover:bg-gray-700 transition-all duration-200 hover:-translate-y-0.5"
           >
-            Enviar mensaje
+            Quiero mi propuesta
           </button>
+          <p class="text-xs text-gray-400 text-center sm:text-left mt-3">
+            Sin contratos de permanencia. Sin letras chiquitas.
+          </p>
         </form>
       </div>
 
@@ -97,37 +100,55 @@
             Datos de contacto
           </h3>
           <div class="space-y-4">
-            <!-- Email -->
-            <a
-              href="mailto:hola@antemanoc.com"
-              class="flex items-center gap-4 group"
-              aria-label="Enviar email a hola@antemanoc.com"
-            >
-              <div class="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0 group-hover:border-charcoal transition-colors">
+            <!-- Email (click-to-copy + mailto) -->
+            <div class="flex items-center gap-4 group">
+              <a
+                href="mailto:hola@antemanoc.com"
+                class="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0 group-hover:border-charcoal transition-colors"
+                aria-label="Enviar email a hola@antemanoc.com"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-charcoal">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                 </svg>
-              </div>
-              <span class="text-charcoal text-sm font-medium group-hover:text-gray-400 transition-colors">
+              </a>
+              <button
+                type="button"
+                class="copy-btn text-charcoal text-sm font-medium hover:text-gray-400 transition-colors inline-flex items-center gap-2"
+                data-copy="hola@antemanoc.com"
+                data-toast="Email copiado"
+                aria-label="Copiar hola@antemanoc.com"
+              >
                 hola@antemanoc.com
-              </span>
-            </a>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5 opacity-40 transition-opacity">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25" />
+                </svg>
+              </button>
+            </div>
 
-            <!-- Phone -->
-            <a
-              href="tel:+526181234567"
-              class="flex items-center gap-4 group"
-              aria-label="Llamar al +52 618 123 4567"
-            >
-              <div class="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0 group-hover:border-charcoal transition-colors">
+            <!-- Phone (click-to-copy + tel) -->
+            <div class="flex items-center gap-4 group">
+              <a
+                href="tel:+526181234567"
+                class="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0 group-hover:border-charcoal transition-colors"
+                aria-label="Llamar al +52 618 123 4567"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-charcoal">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
                 </svg>
-              </div>
-              <span class="text-charcoal text-sm font-medium group-hover:text-gray-400 transition-colors">
+              </a>
+              <button
+                type="button"
+                class="copy-btn text-charcoal text-sm font-medium hover:text-gray-400 transition-colors inline-flex items-center gap-2"
+                data-copy="+526181234567"
+                data-toast="Teléfono copiado"
+                aria-label="Copiar teléfono"
+              >
                 +52 618 123 4567
-              </span>
-            </a>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5 opacity-40 transition-opacity">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25" />
+                </svg>
+              </button>
+            </div>
 
             <!-- Location -->
             <div class="flex items-center gap-4">
@@ -153,7 +174,7 @@
             <!-- Instagram -->
             <a
               href="#"
-              class="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:border-charcoal hover:text-gray-400 transition-all duration-200 text-charcoal"
+              class="social-link w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:border-charcoal hover:text-gray-400 text-charcoal"
               aria-label="Instagram de Antemano Taller Creativo"
               rel="noopener noreferrer"
             >
@@ -164,7 +185,7 @@
             <!-- Facebook -->
             <a
               href="#"
-              class="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:border-charcoal hover:text-gray-400 transition-all duration-200 text-charcoal"
+              class="social-link w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:border-charcoal hover:text-gray-400 text-charcoal"
               aria-label="Facebook de Antemano Taller Creativo"
               rel="noopener noreferrer"
             >
@@ -175,7 +196,7 @@
             <!-- TikTok -->
             <a
               href="#"
-              class="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:border-charcoal hover:text-gray-400 transition-all duration-200 text-charcoal"
+              class="social-link w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:border-charcoal hover:text-gray-400 text-charcoal"
               aria-label="TikTok de Antemano Taller Creativo"
               rel="noopener noreferrer"
             >
@@ -189,3 +210,98 @@
     </div>
   </div>
 </section>
+
+<style>
+  /* Contact form polish */
+  #contact-form input,
+  #contact-form textarea {
+    transition:
+      border-color 0.25s var(--ease-out-quart),
+      box-shadow 0.25s var(--ease-out-quart),
+      background 0.25s;
+  }
+  #contact-form input:hover,
+  #contact-form textarea:hover {
+    border-color: #bdbdbd;
+  }
+  #contact-form input:focus,
+  #contact-form textarea:focus {
+    box-shadow: 0 0 0 3px rgba(26,26,26,0.08);
+  }
+
+  /* Submit button shine on hover */
+  #contact-form button[type="submit"] {
+    position: relative;
+    overflow: hidden;
+    transition:
+      transform 0.25s var(--ease-out-quart),
+      background 0.25s;
+  }
+  #contact-form button[type="submit"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+    transform: skewX(-20deg);
+    transition: left 0.6s var(--ease-out-quart);
+  }
+  #contact-form button[type="submit"]:hover { transform: translateY(-2px); }
+  #contact-form button[type="submit"]:hover::after { left: 120%; }
+
+  /* Copy button icon reveal */
+  .copy-btn:hover svg { opacity: 0.9 !important; }
+  .copy-btn.copied { color: #1a1a1a !important; }
+
+  /* Social links lift */
+  .social-link { transition: transform 0.25s var(--ease-out-quart), border-color 0.2s, color 0.2s; }
+  .social-link:hover { transform: translateY(-3px); }
+</style>
+
+<script>
+  // ─── Copy to clipboard on contact rows ───────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy || '';
+      const toast = btn.dataset.toast || 'Copiado';
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 1400);
+        (window as any).showToast?.(`${toast} ✓`);
+      } catch {
+        (window as any).showToast?.('No se pudo copiar');
+      }
+    });
+  });
+
+  // ─── Form submit feedback ────────────────────────────────────────────
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // basic client-side validation
+    const required = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]');
+    let valid = true;
+    required.forEach((el) => {
+      if (!el.value.trim()) { valid = false; el.style.borderColor = '#c94a4a'; }
+    });
+    if (!valid) {
+      (window as any).showToast?.('Completa los campos requeridos');
+      return;
+    }
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (btn) {
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+      setTimeout(() => {
+        btn.textContent = '✓ Mensaje enviado';
+        (window as any).showToast?.('¡Mensaje enviado! Te respondemos en menos de 24 h.');
+        form.reset();
+        setTimeout(() => { btn.disabled = false; btn.textContent = original; }, 2400);
+      }, 900);
+    }
+  });
+</script>

@@ -10,8 +10,12 @@
   aria-modal="true"
   aria-labelledby="pmodal-title"
 >
-  <!-- Overlay -->
-  <div id="pmodal-overlay" class="absolute inset-0" style="background: rgba(0,0,0,0.92);"></div>
+  <!-- Overlay with backdrop blur -->
+  <div
+    id="pmodal-overlay"
+    class="absolute inset-0"
+    style="background: rgba(10,10,10,0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);"
+  ></div>
 
   <!-- Centering wrapper -->
   <div

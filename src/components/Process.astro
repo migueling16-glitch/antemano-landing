@@ -2,27 +2,27 @@
 const steps = [
   {
     number: '01',
-    title: 'Diagnóstico',
+    title: 'Te escuchamos',
     description:
-      'Entendemos tu marca, tu audiencia y tus objetivos. Hacemos las preguntas correctas para construir sobre bases sólidas.',
+      'Nos sentamos contigo (o por videollamada) y entendemos qué necesita tu negocio. No qué video quieres. Qué resultado necesitas.',
   },
   {
     number: '02',
-    title: 'Propuesta',
+    title: 'Diseñamos el plan',
     description:
-      'Diseñamos un plan creativo y estratégico a la medida. Nada genérico: cada propuesta es única para tu negocio.',
+      'Te presentamos una propuesta con calendario, contenidos y métricas esperadas. Sabes exactamente qué vas a recibir.',
   },
   {
     number: '03',
-    title: 'Producción',
+    title: 'Producimos',
     description:
-      'Ejecutamos con equipo profesional y atención al detalle. Coordinamos cada elemento para que el resultado supere expectativas.',
+      'Llegamos con equipo profesional, grabamos, editamos y te entregamos todo listo. Tú no mueves un dedo.',
   },
   {
     number: '04',
-    title: 'Entrega + Seguimiento',
+    title: 'Medimos y ajustamos',
     description:
-      'Entregamos, medimos y optimizamos. El trabajo no termina en la entrega — te acompañamos para asegurar resultados.',
+      'Revisamos qué funcionó, qué no, y ajustamos. No es un proyecto de una vez — es un sistema que mejora cada mes.',
   },
 ];
 ---
@@ -40,25 +40,31 @@ const steps = [
     </div>
 
     <!-- Steps — horizontal timeline (desktop) / vertical (mobile) -->
-    <div class="relative">
+    <div class="relative" id="process-timeline">
       <!-- Connector line (desktop only) -->
       <div
-        class="hidden lg:block absolute top-10 left-0 right-0 h-px bg-white/10"
+        class="hidden lg:block absolute top-5 left-0 right-0 h-px bg-white/10"
+        aria-hidden="true"
+      ></div>
+      <!-- Progress line (fills on scroll) -->
+      <div
+        id="process-progress"
+        class="hidden lg:block absolute top-5 left-0 h-px bg-white origin-left"
+        style="width: 0%; transition: width 1.2s var(--ease-out-expo);"
         aria-hidden="true"
       ></div>
 
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-8">
         {steps.map((step, i) => (
-          <div class={`reveal reveal-delay-${i + 1} relative flex flex-col gap-4`}>
+          <div class={`reveal-up reveal-delay-${i + 1} process-step relative flex flex-col gap-4`}>
             <!-- Step number circle -->
             <div class="flex items-center gap-4 lg:flex-col lg:items-start">
               <div
-                class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0 z-10"
+                class="process-circle w-10 h-10 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0 z-10"
                 style="background-color: #1A1A1A; color: white; border: 1px solid rgba(255,255,255,0.2);"
               >
                 {step.number}
               </div>
-              <!-- Mobile connector line -->
               {i < steps.length - 1 && (
                 <div class="lg:hidden flex-1 h-px bg-white/10" aria-hidden="true"></div>
               )}
@@ -71,3 +77,36 @@ const steps = [
     </div>
   </div>
 </section>
+
+<style>
+  .process-step .process-circle {
+    transition:
+      transform 0.4s var(--ease-out-expo),
+      background 0.3s,
+      border-color 0.3s;
+  }
+  .process-step:hover .process-circle {
+    background: #fff !important;
+    color: #1a1a1a !important;
+    border-color: #fff !important;
+    transform: scale(1.12);
+  }
+  #process-timeline.filled #process-progress {
+    width: 100%;
+  }
+</style>
+
+<script>
+  const timeline = document.getElementById('process-timeline');
+  if (timeline) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          timeline.classList.add('filled');
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.35 });
+    obs.observe(timeline);
+  }
+</script>

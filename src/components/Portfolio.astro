@@ -36,57 +36,57 @@ const projects: Project[] = [
     ],
   },
   {
-    title: 'Reel de Lanzamiento',
-    client: 'CHA CHA CENIZO',
-    handle: '@chachacenizo',
+    title: '[Nombre del Cliente] — Reel de Lanzamiento',
+    client: '[Nombre del Cliente]',
+    handle: '@cliente',
     category: 'Video',
     tag: 'video',
     color: '#2A2A2A',
-    slug: 'chachacenizo',
+    slug: 'proyecto-2',
     description: '[Descripción del proyecto — próximamente]',
     gallery: [],
   },
   {
-    title: 'Contenido para Redes',
-    client: 'PACAMARA',
-    handle: '@pacamara_cafemx',
+    title: '[Nombre del Cliente] — Contenido para Redes',
+    client: '[Nombre del Cliente]',
+    handle: '@cliente',
     category: 'Redes Sociales',
     tag: 'redes',
     color: '#333333',
-    slug: 'pacamara',
+    slug: 'proyecto-3',
     description: '[Descripción del proyecto — próximamente]',
     gallery: [],
   },
   {
-    title: 'Fotografía de Producto',
-    client: 'Mortirolo',
-    handle: '@mortirolomx',
+    title: '[Nombre del Cliente] — Fotografía de Producto',
+    client: '[Nombre del Cliente]',
+    handle: '@cliente',
     category: 'Fotografía',
     tag: 'foto',
     color: '#3D3D3D',
-    slug: 'mortirolo',
+    slug: 'proyecto-4',
     description: '[Descripción del proyecto — próximamente]',
     gallery: [],
   },
   {
-    title: 'Cobertura de Evento',
-    client: 'Durango Jam',
-    handle: '@durango.jam',
+    title: '[Nombre del Cliente] — Cobertura de Evento',
+    client: '[Nombre del Cliente]',
+    handle: '@cliente',
     category: 'Fotografía',
     tag: 'foto',
     color: '#222222',
-    slug: 'durangojam',
+    slug: 'proyecto-5',
     description: '[Descripción del proyecto — próximamente]',
     gallery: [],
   },
   {
-    title: 'Estrategia Digital',
-    client: 'Noom Cold Brew',
-    handle: '@noomcoldbrew',
+    title: '[Nombre del Cliente] — Estrategia Digital',
+    client: '[Nombre del Cliente]',
+    handle: '@cliente',
     category: 'Redes Sociales',
     tag: 'redes',
     color: '#2E2E2E',
-    slug: 'noomcoldbrew',
+    slug: 'proyecto-6',
     description: '[Descripción del proyecto — próximamente]',
     gallery: [],
   },
@@ -100,7 +100,7 @@ const projects: Project[] = [
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
       <div class="max-w-xl">
         <p class="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-3 reveal">
-          Portafolio
+          Nuestro Trabajo
         </p>
         <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
           Trabajos que hablan por sí solos
@@ -134,7 +134,7 @@ const projects: Project[] = [
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="portfolio-grid">
       {projects.map((project, i) => (
         <article
-          class={`reveal reveal-delay-${(i % 3) + 1} portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer`}
+          class={`reveal-up reveal-delay-${(i % 3) + 1} portfolio-item group relative overflow-hidden rounded-2xl cursor-pointer`}
           data-tag={project.tag}
           data-project={JSON.stringify({
             title: project.title,
@@ -184,9 +184,12 @@ const projects: Project[] = [
           </div>
 
           <!-- Hover overlay -->
-          <div class="absolute inset-0 bg-charcoal/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-2xl pointer-events-none">
-            <span class="px-5 py-2.5 border border-white text-white text-sm font-semibold rounded-full">
+          <div class="absolute inset-0 bg-charcoal/80 opacity-0 group-hover:opacity-100 transition-opacity duration-400 flex items-center justify-center rounded-2xl pointer-events-none">
+            <span class="overlay-cta inline-flex items-center gap-2 px-5 py-2.5 border border-white text-white text-sm font-semibold rounded-full">
               {project.gallery.length > 0 ? 'Ver galería' : 'Ver proyecto'}
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
             </span>
           </div>
         </article>
@@ -198,7 +201,66 @@ const projects: Project[] = [
 <!-- Modal -->
 <PortfolioModal />
 
+<style>
+  /* 3D tilt preparation */
+  .portfolio-item {
+    transform-style: preserve-3d;
+    transition:
+      transform 0.5s var(--ease-out-quart),
+      box-shadow 0.5s var(--ease-out-quart);
+    will-change: transform;
+  }
+  .portfolio-item:hover {
+    box-shadow: 0 28px 56px -18px rgba(0,0,0,0.22);
+  }
+
+  /* Inner wrapper (image) — subtle zoom */
+  .portfolio-item .group-hover\:scale-105 {
+    transition: transform 0.7s var(--ease-out-expo);
+  }
+
+  /* Overlay caption */
+  .portfolio-item .overlay-cta {
+    transform: translateY(8px);
+    opacity: 0;
+    transition:
+      transform 0.35s var(--ease-out-quart),
+      opacity 0.35s var(--ease-out-quart);
+  }
+  .portfolio-item:hover .overlay-cta {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portfolio-item { transform: none !important; }
+  }
+</style>
+
 <script>
+  // ─── 3D tilt on cards (desktop only) ─────────────────────────────────────
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (canHover && !reducedMotion) {
+    document.querySelectorAll<HTMLElement>('.portfolio-item').forEach((card) => {
+      let rafId = 0;
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          card.style.transform = `perspective(900px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-4px)`;
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        cancelAnimationFrame(rafId);
+        card.style.transform = '';
+      });
+    });
+  }
+
   // ─── Filter ───────────────────────────────────────────────────────────────
   const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
   const items = document.querySelectorAll<HTMLElement>('.portfolio-item');
