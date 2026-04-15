@@ -8,21 +8,23 @@
   <nav class="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
     <!-- Logo -->
     <a href="#inicio" aria-label="Antemano Taller Creativo — inicio" class="flex-shrink-0 logo-link">
-      <img
-        id="site-logo"
-        src="/logo-full.png"
-        alt="Antemano Taller Creativo"
-        width="160"
-        height="48"
-        class="block"
-        style="
-          width: 160px;
-          height: 48px;
-          object-fit: contain;
-          filter: invert(1);
-          transition: filter 0.3s ease, transform 0.3s var(--ease-out-quart);
-        "
-      />
+      <!-- Wrapper crops the canvas padding of the PNG -->
+      <div class="logo-crop" style="width:172px; height:50px; overflow:hidden; flex-shrink:0;">
+        <img
+          id="site-logo"
+          src="/logo-full.png"
+          alt="Antemano Taller Creativo"
+          style="
+            width: 264px;
+            height: auto;
+            margin-left: -36px;
+            margin-top: -88px;
+            display: block;
+            filter: invert(1);
+            transition: filter 0.3s ease, transform 0.3s var(--ease-out-quart);
+          "
+        />
+      </div>
     </a>
 
     <!-- Desktop links -->
