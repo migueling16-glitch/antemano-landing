@@ -1,12 +1,12 @@
 ---
 const lines = [
-  { text: 'Publicas cuando te acuerdas.', group: 1 },
-  { text: 'Tus fotos las toma alguien del equipo con el celular.', group: 1 },
-  { text: 'Tu competidor ya está en la mente de tus clientes. Tú todavía no.', group: 1 },
-  { text: 'Tú llevas tres semanas sin publicar.', group: 1 },
-  { text: 'No es que no te importe.', group: 2 },
-  { text: 'Es que no tienes tiempo, no tienes equipo, y cada vez que lo intentas solo se ve... normal.', group: 2 },
-  { text: 'Mientras tanto, tus clientes potenciales están eligiendo al que sí se ve profesional.', group: 3, emphasis: true },
+  { html: 'Publicas <strong class="kw">cuando te acuerdas.</strong>', emphasis: false },
+  { html: 'Tus fotos las toma <strong class="kw">alguien del equipo con el celular.</strong>', emphasis: false },
+  { html: 'Tu competidor ya está <strong class="kw">en la mente de tus clientes.</strong> Tú todavía no.', emphasis: false },
+  { html: '<strong class="kw">Tú llevas tres semanas sin publicar.</strong>', emphasis: false },
+  { html: 'No es que no te importe.', emphasis: false },
+  { html: 'Es que <strong class="kw">no tienes tiempo,</strong> no tienes equipo, y cada vez que lo intentas solo se ve... normal.', emphasis: false },
+  { html: 'Mientras tanto, tus clientes potenciales están <strong class="kw">eligiendo al que sí se ve profesional.</strong>', emphasis: true },
 ];
 ---
 
@@ -17,9 +17,8 @@ const lines = [
         <p
           class={`problem-line text-xl sm:text-2xl lg:text-3xl font-medium leading-relaxed text-center ${line.emphasis ? 'font-bold text-charcoal' : 'text-charcoal'}`}
           data-index={i}
-        >
-          {line.text}
-        </p>
+          set:html={line.html}
+        />
       ))}
     </div>
 

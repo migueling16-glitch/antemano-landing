@@ -79,6 +79,18 @@ const ogImage = `${canonical}/og-image.jpg`;
         color: #fff;
       }
 
+      /* ─── Keyword highlight ──────────────────────────────────────────── */
+      /* Use <strong class="kw"> for persuasive words on light backgrounds  */
+      /* Use <strong class="kw kw-light"> for dark (hero) backgrounds       */
+      strong.kw {
+        font-weight: 800;
+        color: #1a1a1a;
+        font-style: normal;
+      }
+      strong.kw-light {
+        color: #ffffff;
+      }
+
       /* ─── Focus ──────────────────────────────────────────────────────── */
       :focus { outline: none; }
       :focus-visible {

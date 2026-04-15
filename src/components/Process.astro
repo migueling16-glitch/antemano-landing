@@ -4,13 +4,13 @@ const steps = [
     number: '01',
     title: 'Te escuchamos',
     description:
-      'Nos sentamos contigo (o por videollamada) y entendemos qué necesita tu negocio. No qué video quieres. Qué resultado necesitas.',
+      'Nos sentamos contigo (o por videollamada) y entendemos qué necesita tu negocio. No qué video quieres. <strong class="kw" style="color:#fff;">Qué resultado necesitas.</strong>',
   },
   {
     number: '02',
     title: 'Diseñamos el plan',
     description:
-      'Te presentamos una propuesta con calendario, contenidos y métricas esperadas. Sabes exactamente qué vas a recibir.',
+      'Te presentamos una propuesta con calendario, contenidos y métricas esperadas. <strong class="kw" style="color:#fff;">Sabes exactamente qué vas a recibir.</strong>',
   },
   {
     number: '03',
@@ -22,7 +22,7 @@ const steps = [
     number: '04',
     title: 'Medimos y ajustamos',
     description:
-      'Revisamos qué funcionó, qué no, y ajustamos. No es un proyecto de una vez — es un sistema que mejora cada mes.',
+      'Revisamos qué funcionó, qué no, y ajustamos. <strong class="kw" style="color:#fff;">No es un proyecto de una vez — es un sistema que mejora cada mes.</strong>',
   },
 ];
 ---
@@ -70,7 +70,7 @@ const steps = [
               )}
             </div>
             <h3 class="text-xl font-bold">{step.title}</h3>
-            <p class="text-white/50 text-sm leading-relaxed">{step.description}</p>
+            <p class="text-white/50 text-sm leading-relaxed" set:html={step.description} />
           </div>
         ))}
       </div>
