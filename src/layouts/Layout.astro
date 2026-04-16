@@ -2,15 +2,18 @@
 interface Props {
   title?: string;
   description?: string;
+  canonicalPath?: string;
 }
 
 const {
   title = 'Antemano Taller Creativo — Producción Audiovisual y Estrategia Digital en Durango',
   description = 'Somos un equipo de realizadores y estrategas en Durango, México. Producimos lo que tu marca necesita contar: video, fotografía y estrategia digital.',
+  canonicalPath = '',
 } = Astro.props;
 
-const canonical = 'https://antemanoc.com';
-const ogImage = `${canonical}/og-image.jpg`;
+const origin = 'https://antemanoc.com';
+const canonical = `${origin}${canonicalPath}`;
+const ogImage = `${origin}/og-image.jpg`;
 ---
 
 <!doctype html>
@@ -49,6 +52,9 @@ const ogImage = `${canonical}/og-image.jpg`;
     />
 
     <title>{title}</title>
+
+    <!-- Per-page head extras (schema.org, tracking pixels, etc.) -->
+    <slot name="head" />
 
     <style is:global>
       /* ─── Base ───────────────────────────────────────────────────────── */

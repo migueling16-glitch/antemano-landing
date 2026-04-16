@@ -1,0 +1,140 @@
+---
+const faqs = [
+  {
+    q: '¿Cuánto cuesta?',
+    a: 'Depende del alcance. Nuestros paquetes para médicos van desde <strong class="kw">$X,XXX MXN/mes</strong> para presencia básica activa, hasta <strong class="kw">$XX,XXX MXN/mes</strong> para operaciones digitales completas. En la llamada de descubrimiento te damos el número exacto basado en tu caso. Lo que sí garantizamos: no hay sorpresas en la factura.',
+  },
+  {
+    q: '¿Tengo que aparecer en cámara?',
+    a: 'No necesariamente. Tenemos clientes médicos cuya presencia digital crece sin que ellos salgan en cámara — usamos contenido educativo, animaciones, y testimonios de pacientes. Si decides aparecer, te asesoramos para que sea cómodo. Si no, también funciona.',
+  },
+  {
+    q: '¿Qué pasa si los pacientes me preguntan cosas médicas en mensajes?',
+    a: 'Manejamos el community management con un protocolo estricto: cualquier consulta clínica se redirige a tu equipo o se agenda como cita. <strong class="kw">Nunca damos consejos médicos en tu nombre.</strong> Tú decides qué nivel de control quieres mantener.',
+  },
+  {
+    q: '¿Cumplen con la normativa de COFEPRIS?',
+    a: 'Sí. Conocemos los lineamientos sobre publicidad médica y nos aseguramos de que todo el contenido respete las restricciones del sector salud. Nada de antes/después comparativos sin consentimiento, nada de garantías de resultados, nada de testimonios sin autorización formal.',
+  },
+  {
+    q: '¿Puedo cancelar si no funciona?',
+    a: 'Sin contratos de permanencia. Trabajamos mes a mes. Si en 90 días no ves resultados medibles, lo platicamos y ajustamos — o terminamos sin penalizaciones. <strong class="kw">Nuestro modelo depende de que renueves porque funciona</strong>, no porque firmaste un contrato.',
+  },
+  {
+    q: '¿Trabajan con doctores fuera de Durango?',
+    a: 'Sí. Tenemos clientes en Monterrey, CDMX y Guadalajara. La producción audiovisual presencial requiere planificación de viajes, pero todo lo demás (estrategia, gestión, contenido digital) lo hacemos remoto sin problema.',
+  },
+];
+---
+
+<section id="faq" class="py-24 lg:py-32 bg-offwhite">
+  <div class="max-w-4xl mx-auto px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-14 text-center">
+      <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+        Preguntas frecuentes
+      </p>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
+        Lo que probablemente estás pensando.
+      </h2>
+    </div>
+
+    <!-- Accordion -->
+    <div class="space-y-3">
+      {faqs.map((f, i) => (
+        <article
+          class={`reveal-up reveal-delay-${(i % 4) + 1} med-faq-item bg-white border border-gray-100 rounded-2xl overflow-hidden`}
+        >
+          <button
+            type="button"
+            class="med-faq-btn w-full flex items-center justify-between gap-4 text-left px-6 py-5"
+            aria-expanded="false"
+            aria-controls={`faq-body-${i}`}
+          >
+            <span class="text-base sm:text-lg font-bold text-charcoal">{f.q}</span>
+            <span class="med-faq-icon flex-shrink-0 w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-3.5 h-3.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </span>
+          </button>
+          <div
+            id={`faq-body-${i}`}
+            class="med-faq-body"
+            role="region"
+          >
+            <div class="med-faq-body-inner px-6 pb-6 text-gray-600 text-sm leading-relaxed" set:html={f.a} />
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .med-faq-item {
+    transition: border-color 0.25s, box-shadow 0.3s var(--ease-out-quart);
+  }
+  .med-faq-item.is-open {
+    border-color: #C8963E;
+    box-shadow: 0 16px 32px -14px rgba(200,150,62,0.22);
+  }
+
+  .med-faq-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .med-faq-btn:hover { background: #fafafa; }
+  .med-faq-btn:focus-visible {
+    outline: 2px solid #C8963E;
+    outline-offset: -2px;
+    border-radius: 1rem;
+  }
+
+  .med-faq-icon {
+    transition:
+      background 0.3s var(--ease-out-quart),
+      color 0.3s,
+      transform 0.35s var(--ease-out-quart),
+      border-color 0.3s;
+  }
+  .med-faq-item.is-open .med-faq-icon {
+    background: #C8963E;
+    color: #fff;
+    border-color: #C8963E;
+    transform: rotate(45deg);
+  }
+
+  .med-faq-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s var(--ease-out-quart);
+  }
+  .med-faq-body-inner {
+    opacity: 0;
+    transition: opacity 0.25s ease 0.08s;
+  }
+  .med-faq-item.is-open .med-faq-body { max-height: 400px; }
+  .med-faq-item.is-open .med-faq-body-inner { opacity: 1; }
+</style>
+
+<script>
+  const faqItems = document.querySelectorAll<HTMLElement>('.med-faq-item');
+
+  faqItems.forEach((item) => {
+    const btn = item.querySelector<HTMLButtonElement>('.med-faq-btn')!;
+    btn.addEventListener('click', () => {
+      const isOpen = item.classList.contains('is-open');
+      faqItems.forEach((other) => {
+        other.classList.remove('is-open');
+        other.querySelector('.med-faq-btn')?.setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+</script>

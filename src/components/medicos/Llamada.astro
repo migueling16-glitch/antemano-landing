@@ -1,0 +1,86 @@
+---
+const steps = [
+  {
+    label: 'Antes de la llamada',
+    timing: '2 días antes',
+    text: 'Te mandamos un cuestionario corto (5 minutos) para entender tu especialidad, tu paciente ideal y tu situación actual. No es un examen — es para llegar preparados.',
+  },
+  {
+    label: 'Durante la llamada',
+    timing: '30 min',
+    text: 'Hacemos un diagnóstico en vivo de tu presencia digital actual: Instagram, Google, web si tienes. Te mostramos qué está funcionando y qué te está costando pacientes.',
+  },
+  {
+    label: 'Si hay match',
+    timing: 'últimos 10 min',
+    text: 'Te presentamos una propuesta concreta con servicios, calendario y precio. Si no hay match, te damos recomendaciones gratis para que mejores por tu cuenta.',
+  },
+  {
+    label: 'Después de la llamada',
+    timing: 'ese mismo día',
+    text: 'Te mandamos un PDF con el diagnóstico de tu presencia digital — sin importar si decides trabajar con nosotros o no. Es tuyo para que lo uses.',
+  },
+];
+---
+
+<section id="llamada" class="py-24 lg:py-32 bg-white">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <!-- Header -->
+    <div class="max-w-3xl mb-16">
+      <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+        Antes de que agendes
+      </p>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
+        Esto es exactamente lo que pasa en la primera llamada.
+      </h2>
+    </div>
+
+    <!-- Timeline (desktop horizontal / mobile vertical) -->
+    <div class="relative">
+      <!-- Horizontal line (desktop) -->
+      <div class="hidden lg:block absolute top-[1.125rem] left-0 right-0 h-px bg-gray-200" aria-hidden="true"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-6 relative">
+        {steps.map((s, i) => (
+          <div class={`reveal-up reveal-delay-${i + 1} med-step relative`}>
+            <!-- Number circle -->
+            <div class="flex lg:block items-center gap-4 mb-5">
+              <div class="med-step-num relative z-10 w-9 h-9 rounded-full bg-charcoal text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                {i + 1}
+              </div>
+              <div class="lg:hidden h-px flex-1 bg-gray-200"></div>
+            </div>
+
+            <!-- Label + timing -->
+            <div class="mb-3 flex items-center gap-2 flex-wrap">
+              <p class="text-sm font-bold text-charcoal">{s.label}</p>
+              <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-amber bg-amber/10 px-2 py-0.5 rounded-full">
+                {s.timing}
+              </span>
+            </div>
+
+            <!-- Text -->
+            <p class="text-sm text-gray-500 leading-relaxed">
+              {s.text}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Closing -->
+    <p class="text-center text-gray-500 text-base max-w-2xl mx-auto mt-16 reveal">
+      Sin presión. Sin descuentos por tiempo limitado. Sin tácticas de venta agresivas. <strong class="kw">Si no es para ti, no es para ti</strong> — y nos vemos en otra ocasión.
+    </p>
+  </div>
+</section>
+
+<style>
+  .med-step:hover .med-step-num {
+    background: #C8963E;
+    transform: scale(1.08);
+  }
+  .med-step-num {
+    transition: background 0.25s, transform 0.25s var(--ease-out-quart);
+  }
+</style>

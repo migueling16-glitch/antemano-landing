@@ -1,0 +1,89 @@
+---
+// Estadísticas ilustrativas. Miguel puede reemplazarlas con fuentes verificadas.
+const stats = [
+  {
+    number: '77%',
+    text: 'de los pacientes investiga en internet antes de elegir un médico especialista',
+  },
+  {
+    number: '1 de 3',
+    text: 'doctores pierde pacientes potenciales por una mala presencia digital',
+  },
+  {
+    number: '94%',
+    text: 'de las personas confía más en un especialista con reseñas y contenido visible',
+  },
+];
+---
+
+<section id="problema" class="py-24 lg:py-32 bg-white relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <!-- Header -->
+    <div class="max-w-3xl mb-16">
+      <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+        La realidad del sector salud en 2026
+      </p>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
+        Tus pacientes ya no eligen como antes.
+      </h2>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
+      {stats.map((s, i) => (
+        <article
+          class={`reveal-up reveal-delay-${i + 1} med-stat-card p-8 rounded-2xl bg-offwhite border border-gray-100`}
+        >
+          <p class="med-stat-number text-5xl lg:text-6xl font-black text-charcoal leading-none mb-5 tracking-tight">
+            {s.number}
+          </p>
+          <p class="text-gray-500 text-sm leading-relaxed">
+            {s.text}
+          </p>
+        </article>
+      ))}
+    </div>
+
+    <!-- Closing text -->
+    <div class="max-w-3xl space-y-4 text-gray-600 text-lg leading-relaxed reveal reveal-delay-2">
+      <p>
+        No es que necesites más marketing. Necesitas que tu presencia digital esté <strong class="kw">a la altura de tu práctica clínica.</strong>
+      </p>
+      <p>
+        El paciente que te busca en Instagram y encuentra un perfil sin actualizar va a marcarle al de la competencia. Aunque tú seas mejor médico.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .med-stat-card {
+    transition:
+      transform 0.4s var(--ease-out-quart),
+      border-color 0.3s,
+      box-shadow 0.4s var(--ease-out-quart);
+    position: relative;
+    overflow: hidden;
+  }
+  .med-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    height: 3px; width: 0;
+    background: #C8963E;
+    transition: width 0.5s var(--ease-out-quart);
+  }
+  .med-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: #1A1A1A;
+    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.10);
+  }
+  .med-stat-card:hover::before { width: 100%; }
+
+  .med-stat-number {
+    background: linear-gradient(120deg, #1A1A1A 0%, #1A1A1A 50%, #C8963E 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+</style>

@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NavbarMedicos from '../components/medicos/NavbarMedicos.astro';
+import HeroMedicos from '../components/medicos/HeroMedicos.astro';
+import ProblemaMedicos from '../components/medicos/ProblemaMedicos.astro';
+import PorQueNosotros from '../components/medicos/PorQueNosotros.astro';
+import ServiciosMedicos from '../components/medicos/ServiciosMedicos.astro';
+import ResultadosMedicos from '../components/medicos/ResultadosMedicos.astro';
+import Llamada from '../components/medicos/Llamada.astro';
+import FAQMedicos from '../components/medicos/FAQMedicos.astro';
+import Agendar from '../components/medicos/Agendar.astro';
+import FooterMedicos from '../components/medicos/FooterMedicos.astro';
+
+const title = 'Marketing Digital para Médicos Especialistas en Durango | Antemano';
+const description = 'Especialistas en presencia digital para médicos en Durango. Más pacientes desde Instagram, Google y web. Agenda tu llamada de descubrimiento sin costo.';
+
+// Schema.org ProfessionalService markup
+const schemaOrg = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'Antemano — Marketing para Médicos Especialistas',
+  description,
+  url: 'https://antemanoc.com/medicos',
+  logo: 'https://antemanoc.com/logo.png',
+  image: 'https://antemanoc.com/og-image.jpg',
+  email: 'antemanotallercreativo@gmail.com',
+  telephone: '+52 618 153 9643',
+  priceRange: '$$',
+  areaServed: [
+    { '@type': 'Country', name: 'México' },
+    { '@type': 'City', name: 'Durango' },
+    { '@type': 'City', name: 'Monterrey' },
+    { '@type': 'City', name: 'Ciudad de México' },
+    { '@type': 'City', name: 'Guadalajara' },
+  ],
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Durango',
+    addressRegion: 'Dgo.',
+    addressCountry: 'MX',
+  },
+  sameAs: ['https://www.instagram.com/antemanomx/'],
+  serviceType: 'Marketing digital para médicos especialistas',
+};
+---
+
+<Layout title={title} description={description} canonicalPath="/medicos">
+  <!-- SEO + Tracking hooks -->
+  <Fragment slot="head">
+    <!-- Structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
+
+    <!--
+      Tracking pixels — pendientes de activar por Miguel:
+
+      Meta Pixel:
+      <script>
+        !function(f,b,e,v,n,t,s){...}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', 'META_PIXEL_ID');
+        fbq('track', 'PageView');
+      </script>
+
+      Google Analytics 4:
+      <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+      </script>
+    -->
+  </Fragment>
+
+  <NavbarMedicos />
+  <main>
+    <HeroMedicos />
+    <ProblemaMedicos />
+    <PorQueNosotros />
+    <ServiciosMedicos />
+    <ResultadosMedicos />
+    <Llamada />
+    <FAQMedicos />
+    <Agendar />
+  </main>
+  <FooterMedicos />
+</Layout>

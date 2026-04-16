@@ -1,0 +1,232 @@
+---
+// Navbar específico para /medicos — tema claro permanente (hero es blanco)
+---
+
+<header
+  id="navbar-medicos"
+  class="fixed top-0 left-0 right-0 z-50"
+>
+  <nav class="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="/medicos" aria-label="Antemano — inicio médicos" class="flex-shrink-0 logo-link flex items-center gap-3">
+      <img
+        src="/logo.png"
+        alt="Antemano Taller Creativo"
+        width="132"
+        height="38"
+        class="block"
+        style="width:132px;height:38px;object-fit:cover;object-position:center 52%;"
+      />
+      <span class="hidden sm:inline-block text-[11px] font-bold uppercase tracking-[0.16em] text-charcoal/50 border-l border-charcoal/15 pl-3">
+        Médicos
+      </span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="hidden md:flex items-center gap-7 text-sm font-medium" id="nav-links-med">
+      <li><a href="#inicio"     data-section="inicio"     class="nav-link-med">Inicio</a></li>
+      <li><a href="#problema"   data-section="problema"   class="nav-link-med">El problema</a></li>
+      <li><a href="#como"       data-section="como"       class="nav-link-med">Cómo funciona</a></li>
+      <li><a href="#resultados" data-section="resultados" class="nav-link-med">Resultados</a></li>
+      <li>
+        <span class="magnetic inline-block" data-magnetic="0.18">
+          <a
+            href="#agendar"
+            class="nav-cta-med px-4 py-2 rounded-full text-sm font-semibold"
+          >
+            Agendar llamada
+          </a>
+        </span>
+      </li>
+    </ul>
+
+    <!-- Mobile hamburger -->
+    <button
+      id="menu-toggle-med"
+      class="md:hidden relative flex flex-col gap-1.5 p-2 z-[60]"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+    >
+      <span class="hamburger-line-med block w-6 h-0.5"></span>
+      <span class="hamburger-line-med block w-6 h-0.5"></span>
+      <span class="hamburger-line-med block w-6 h-0.5"></span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div
+    id="mobile-menu-med"
+    class="md:hidden fixed inset-0 top-16 bg-offwhite px-6 py-10 pointer-events-none"
+    aria-hidden="true"
+  >
+    <ul class="flex flex-col gap-1 text-2xl font-bold text-charcoal">
+      <li class="mm-item-med" style="--i:0"><a href="#inicio"     class="mobile-link-med block py-3 border-b border-gray-100">Inicio</a></li>
+      <li class="mm-item-med" style="--i:1"><a href="#problema"   class="mobile-link-med block py-3 border-b border-gray-100">El problema</a></li>
+      <li class="mm-item-med" style="--i:2"><a href="#como"       class="mobile-link-med block py-3 border-b border-gray-100">Cómo funciona</a></li>
+      <li class="mm-item-med" style="--i:3"><a href="#resultados" class="mobile-link-med block py-3 border-b border-gray-100">Resultados</a></li>
+      <li class="mm-item-med" style="--i:4"><a href="#faq"        class="mobile-link-med block py-3 border-b border-gray-100">Preguntas</a></li>
+      <li class="mm-item-med pt-6" style="--i:5">
+        <a href="#agendar" class="mobile-link-med inline-flex items-center gap-2 px-6 py-3 bg-amber text-white rounded-full text-sm font-semibold">
+          Agendar llamada
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<style>
+  #navbar-medicos {
+    background-color: rgba(250, 250, 250, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: box-shadow 0.35s var(--ease-out-quart), background-color 0.35s;
+  }
+  #navbar-medicos.scrolled {
+    background-color: rgba(250, 250, 250, 0.92);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+  }
+
+  .logo-link:hover img { transform: scale(1.04); transition: transform 0.25s var(--ease-out-quart); }
+
+  .nav-link-med {
+    position: relative;
+    padding: 4px 0;
+    color: #1A1A1A;
+    transition: color 0.2s;
+  }
+  .nav-link-med::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    height: 2px;
+    background: #C8963E;
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.35s var(--ease-out-quart);
+  }
+  .nav-link-med:hover::after,
+  .nav-link-med.active::after { transform: scaleX(1); }
+  .nav-link-med.active { font-weight: 700; }
+
+  /* CTA ocre */
+  .nav-cta-med {
+    background: #C8963E;
+    color: #ffffff;
+    border: 1px solid #C8963E;
+    transition:
+      background 0.25s var(--ease-out-quart),
+      color 0.25s,
+      border-color 0.25s,
+      box-shadow 0.25s;
+  }
+  .nav-cta-med:hover {
+    background: #b2832f;
+    border-color: #b2832f;
+    box-shadow: 0 8px 20px -8px rgba(200,150,62,0.55);
+  }
+
+  /* Hamburger */
+  .hamburger-line-med {
+    background: #1A1A1A;
+    transition: transform 0.3s var(--ease-out-quart), opacity 0.25s;
+    transform-origin: center;
+  }
+  #menu-toggle-med[aria-expanded="true"] .hamburger-line-med:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  #menu-toggle-med[aria-expanded="true"] .hamburger-line-med:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  #menu-toggle-med[aria-expanded="true"] .hamburger-line-med:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  /* Mobile menu */
+  #mobile-menu-med {
+    opacity: 0;
+    transition: opacity 0.35s var(--ease-out-quart);
+  }
+  #mobile-menu-med.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mm-item-med {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.45s var(--ease-out-quart),
+      transform 0.45s var(--ease-out-quart);
+    transition-delay: calc(var(--i) * 0.05s + 0.1s);
+  }
+  #mobile-menu-med.open .mm-item-med {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+
+<script>
+  const navbarMed = document.getElementById('navbar-medicos')!;
+  const linksMed  = document.querySelectorAll<HTMLAnchorElement>('.nav-link-med');
+  const toggleMed = document.getElementById('menu-toggle-med')!;
+  const mobileMed = document.getElementById('mobile-menu-med')!;
+
+  function updateNavbarMed() {
+    navbarMed.classList.toggle('scrolled', window.scrollY > 60);
+  }
+  window.addEventListener('scroll', updateNavbarMed, { passive: true });
+  updateNavbarMed();
+
+  // Active section
+  const sectionIdsMed = Array.from(linksMed).map((l) => l.dataset.section).filter(Boolean) as string[];
+  const sectionsMed = sectionIdsMed
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => !!el);
+
+  const sectionObsMed = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          linksMed.forEach((l) => l.classList.toggle('active', l.dataset.section === id));
+        }
+      });
+    },
+    { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
+  );
+  sectionsMed.forEach((s) => sectionObsMed.observe(s));
+
+  // Mobile menu
+  function closeMobileMed() {
+    mobileMed.classList.remove('open');
+    toggleMed.setAttribute('aria-expanded', 'false');
+    mobileMed.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  function openMobileMed() {
+    mobileMed.classList.add('open');
+    toggleMed.setAttribute('aria-expanded', 'true');
+    mobileMed.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  toggleMed.addEventListener('click', () => {
+    if (mobileMed.classList.contains('open')) closeMobileMed(); else openMobileMed();
+  });
+
+  mobileMed.querySelectorAll('.mobile-link-med').forEach((link) => {
+    link.addEventListener('click', closeMobileMed);
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 768) closeMobileMed();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mobileMed.classList.contains('open')) closeMobileMed();
+  });
+</script>

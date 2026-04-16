@@ -1,0 +1,281 @@
+---
+const especialidades = [
+  'Cardiología',
+  'Dermatología',
+  'Cirugía Plástica',
+  'Ginecología',
+  'Pediatría',
+  'Traumatología',
+  'Oftalmología',
+  'Urología',
+  'Otra',
+];
+---
+
+<section id="agendar" class="py-24 lg:py-32 bg-white relative overflow-hidden">
+  <!-- Soft accent -->
+  <div class="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none" aria-hidden="true">
+    <div class="absolute inset-0" style="background: radial-gradient(circle at center, rgba(200,150,62,0.08) 0%, rgba(200,150,62,0) 70%);"></div>
+  </div>
+
+  <div class="relative z-10 max-w-3xl mx-auto px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-12 text-center">
+      <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+        Agenda tu llamada
+      </p>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal mb-5 reveal reveal-delay-1">
+        ¿Listo para que tu presencia digital esté a la altura de tu práctica?
+      </h2>
+      <p class="text-lg text-gray-500 reveal reveal-delay-2">
+        Agenda tu llamada de descubrimiento de 30 minutos. <strong class="kw">Sin costo. Sin compromiso.</strong>
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form
+      id="agendar-form"
+      class="space-y-5 reveal reveal-delay-2"
+      novalidate
+      action="https://formspree.io/f/TU_ID_AQUI"
+      method="POST"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label for="agendar-nombre" class="block text-sm font-semibold text-charcoal mb-1.5">
+            Nombre completo <span class="text-amber" aria-hidden="true">*</span>
+          </label>
+          <input
+            type="text"
+            id="agendar-nombre"
+            name="nombre"
+            required
+            autocomplete="name"
+            placeholder="Dr. / Dra. ..."
+            class="med-input w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm transition-colors duration-200 placeholder:text-gray-300"
+          />
+        </div>
+
+        <div>
+          <label for="agendar-especialidad" class="block text-sm font-semibold text-charcoal mb-1.5">
+            Especialidad <span class="text-amber" aria-hidden="true">*</span>
+          </label>
+          <select
+            id="agendar-especialidad"
+            name="especialidad"
+            required
+            class="med-input w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm transition-colors duration-200"
+          >
+            <option value="">Selecciona tu especialidad</option>
+            {especialidades.map((e) => (
+              <option value={e}>{e}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label for="agendar-ciudad" class="block text-sm font-semibold text-charcoal mb-1.5">
+            Ciudad <span class="text-amber" aria-hidden="true">*</span>
+          </label>
+          <input
+            type="text"
+            id="agendar-ciudad"
+            name="ciudad"
+            required
+            autocomplete="address-level2"
+            placeholder="Durango, CDMX, Monterrey..."
+            class="med-input w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm transition-colors duration-200 placeholder:text-gray-300"
+          />
+        </div>
+
+        <div>
+          <label for="agendar-email" class="block text-sm font-semibold text-charcoal mb-1.5">
+            Email profesional <span class="text-amber" aria-hidden="true">*</span>
+          </label>
+          <input
+            type="email"
+            id="agendar-email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder="tu@consultorio.com"
+            class="med-input w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm transition-colors duration-200 placeholder:text-gray-300"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label for="agendar-whatsapp" class="block text-sm font-semibold text-charcoal mb-1.5">
+          WhatsApp <span class="text-amber" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="tel"
+          id="agendar-whatsapp"
+          name="whatsapp"
+          required
+          autocomplete="tel"
+          placeholder="+52 618 000 0000"
+          class="med-input w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm transition-colors duration-200 placeholder:text-gray-300"
+        />
+      </div>
+
+      <div>
+        <label for="agendar-reto" class="block text-sm font-semibold text-charcoal mb-1.5">
+          ¿Cuál es tu mayor reto digital actual?
+        </label>
+        <textarea
+          id="agendar-reto"
+          name="reto"
+          rows="4"
+          placeholder="Cuéntanos brevemente qué te trae aquí. Opcional, pero ayuda a llegar preparados."
+          class="med-input w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm transition-colors duration-200 placeholder:text-gray-300 resize-none"
+        ></textarea>
+      </div>
+
+      <!-- Success message (hidden until submit succeeds) -->
+      <div id="agendar-success" class="hidden p-5 bg-amber/10 border border-amber/30 rounded-xl text-charcoal text-sm">
+        <p class="font-bold mb-1">Gracias.</p>
+        <p class="text-gray-600">Te contactamos pronto para coordinar tu llamada.</p>
+      </div>
+
+      <!-- Error message -->
+      <div id="agendar-error" class="hidden p-5 bg-red-50 border border-red-200 rounded-xl text-charcoal text-sm">
+        <p class="font-bold mb-1">No pudimos enviar tu mensaje.</p>
+        <p class="text-gray-600">Intenta de nuevo o escríbenos a <a href="mailto:antemanotallercreativo@gmail.com" class="underline">antemanotallercreativo@gmail.com</a>.</p>
+      </div>
+
+      <button
+        type="submit"
+        class="med-agendar-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber text-white font-bold rounded-full text-sm tracking-wide"
+      >
+        Agendar mi llamada
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor" class="w-4 h-4 med-agendar-arrow">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </button>
+
+      <p class="text-xs text-gray-400 text-center sm:text-left pt-1">
+        Al agendar, te contactamos en menos de 24 horas (hábiles) para coordinar fecha y hora. Tus datos no se comparten con terceros.
+      </p>
+    </form>
+  </div>
+</section>
+
+<style>
+  .med-input {
+    transition:
+      border-color 0.25s var(--ease-out-quart),
+      box-shadow 0.25s var(--ease-out-quart);
+  }
+  .med-input:hover { border-color: #bdbdbd; }
+  .med-input:focus {
+    outline: none;
+    border-color: #C8963E;
+    box-shadow: 0 0 0 3px rgba(200,150,62,0.15);
+  }
+
+  .med-agendar-btn {
+    transition:
+      background 0.25s var(--ease-out-quart),
+      transform 0.2s,
+      box-shadow 0.25s;
+    box-shadow: 0 10px 22px -8px rgba(200,150,62,0.45);
+    position: relative;
+    overflow: hidden;
+  }
+  .med-agendar-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+    transform: skewX(-20deg);
+    transition: left 0.7s var(--ease-out-quart);
+  }
+  .med-agendar-btn:hover {
+    background: #b2832f;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -8px rgba(200,150,62,0.6);
+  }
+  .med-agendar-btn:hover::after { left: 120%; }
+  .med-agendar-arrow { transition: transform 0.25s var(--ease-out-quart); }
+  .med-agendar-btn:hover .med-agendar-arrow { transform: translateX(4px); }
+  .med-agendar-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+</style>
+
+<script>
+  /*
+   * Tracking hooks (comentados — instalar cuando se active el pixel):
+   *
+   *   // Meta Pixel — lead event
+   *   (window as any).fbq?.('track', 'Lead', { content_name: 'medicos_agendar' });
+   *
+   *   // Google Analytics
+   *   (window as any).gtag?.('event', 'generate_lead', { form: 'medicos_agendar' });
+   */
+
+  const agForm = document.getElementById('agendar-form') as HTMLFormElement | null;
+  const agSuccess = document.getElementById('agendar-success');
+  const agError = document.getElementById('agendar-error');
+
+  agForm?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('[required]').forEach((el) => {
+    const clear = () => { el.style.borderColor = ''; };
+    el.addEventListener('input', clear);
+    el.addEventListener('change', clear);
+  });
+
+  agForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!agForm) return;
+
+    const required = agForm.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('[required]');
+    let valid = true;
+    required.forEach((el) => {
+      if (!el.value.trim()) { valid = false; el.style.borderColor = '#c94a4a'; }
+    });
+    if (!valid) {
+      (window as any).showToast?.('Completa los campos marcados');
+      return;
+    }
+
+    const btn = agForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const originalHTML = btn?.innerHTML;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+    }
+
+    agSuccess?.classList.add('hidden');
+    agError?.classList.add('hidden');
+
+    try {
+      const formData = new FormData(agForm);
+      const res = await fetch(agForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' },
+      });
+
+      if (res.ok) {
+        agForm.reset();
+        agSuccess?.classList.remove('hidden');
+        agSuccess?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        (window as any).showToast?.('¡Gracias! Te contactamos pronto.');
+      } else {
+        throw new Error('Bad response');
+      }
+    } catch (err) {
+      agError?.classList.remove('hidden');
+      (window as any).showToast?.('No se pudo enviar. Inténtalo de nuevo.');
+    } finally {
+      if (btn && originalHTML) {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+  });
+</script>

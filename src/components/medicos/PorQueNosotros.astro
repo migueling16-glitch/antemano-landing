@@ -1,0 +1,65 @@
+---
+const badges = [
+  'Especialistas en sector médico',
+  'Conocemos COFEPRIS',
+  'Contenido que respeta tu profesión',
+];
+---
+
+<section id="porque" class="py-24 lg:py-32 bg-offwhite">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start">
+      <!-- Text (60%) -->
+      <div class="lg:col-span-3">
+        <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+          No somos una agencia genérica
+        </p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal mb-8 reveal reveal-delay-1">
+          Especialistas en presencia digital para especialistas médicos.
+        </h2>
+        <div class="space-y-5 text-gray-600 text-lg leading-relaxed reveal reveal-delay-2">
+          <p>
+            Trabajamos casi exclusivamente con médicos especialistas en Durango y la región norte de México. Conocemos las particularidades del sector: las restricciones del <strong class="kw">COFEPRIS</strong> sobre publicidad médica, el tipo de contenido que genera confianza sin sonar promocional, y la sensibilidad que requiere comunicar temas de salud.
+          </p>
+          <p>
+            No te vamos a poner a bailar TikToks. No te vamos a hacer "tendencias". Vamos a construir una presencia digital <strong class="kw">seria, profesional y coherente</strong> con tu práctica clínica.
+          </p>
+        </div>
+      </div>
+
+      <!-- Badges (40%) -->
+      <div class="lg:col-span-2 flex flex-col gap-3 lg:pt-16">
+        {badges.map((b, i) => (
+          <div class={`reveal-right reveal-delay-${i + 1} med-badge flex items-center gap-3 px-5 py-4 bg-white border border-gray-100 rounded-full`}>
+            <span class="med-check flex-shrink-0 w-6 h-6 rounded-full bg-amber flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" class="w-3 h-3">
+                <path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="text-sm font-semibold text-charcoal">{b}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .med-badge {
+    transition:
+      transform 0.3s var(--ease-out-quart),
+      border-color 0.25s,
+      box-shadow 0.3s var(--ease-out-quart);
+  }
+  .med-badge:hover {
+    transform: translateX(4px);
+    border-color: #C8963E;
+    box-shadow: 0 12px 24px -12px rgba(200,150,62,0.35);
+  }
+  .med-badge:hover .med-check {
+    transform: rotate(-8deg) scale(1.08);
+  }
+  .med-check {
+    transition: transform 0.35s var(--ease-out-expo);
+  }
+</style>
