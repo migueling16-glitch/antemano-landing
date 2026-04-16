@@ -13,82 +13,87 @@
           ¿Listo para que tu contenido trabaje por ti?
         </h2>
         <p class="text-gray-500 mb-10 reveal reveal-delay-2">
-          Escríbenos y en 24 horas te mandamos una propuesta sin compromiso.
+          Cuéntanos qué necesitas y <strong class="kw">abrimos la conversación por WhatsApp</strong>. Te respondemos en menos de 24 horas.
         </p>
 
         <form
           class="space-y-5 reveal reveal-delay-2"
           novalidate
           id="contact-form"
-          action="#"
         >
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label for="nombre" class="block text-sm font-semibold text-charcoal mb-1.5">
-                Nombre <span class="text-gray-400" aria-hidden="true">*</span>
-              </label>
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                required
-                autocomplete="name"
-                placeholder="Tu nombre"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm focus:outline-none focus:border-charcoal focus:ring-1 focus:ring-charcoal transition-colors duration-200 placeholder:text-gray-300"
-              />
-            </div>
-            <div>
-              <label for="email" class="block text-sm font-semibold text-charcoal mb-1.5">
-                Email <span class="text-gray-400" aria-hidden="true">*</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                autocomplete="email"
-                placeholder="tu@email.com"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm focus:outline-none focus:border-charcoal focus:ring-1 focus:ring-charcoal transition-colors duration-200 placeholder:text-gray-300"
-              />
-            </div>
-          </div>
-
           <div>
-            <label for="telefono" class="block text-sm font-semibold text-charcoal mb-1.5">
-              Teléfono
+            <label for="nombre" class="block text-sm font-semibold text-charcoal mb-1.5">
+              Nombre <span class="text-gray-400" aria-hidden="true">*</span>
             </label>
             <input
-              type="tel"
-              id="telefono"
-              name="telefono"
-              autocomplete="tel"
-              placeholder="+52 618 000 0000"
+              type="text"
+              id="nombre"
+              name="nombre"
+              required
+              autocomplete="name"
+              placeholder="Tu nombre"
               class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm focus:outline-none focus:border-charcoal focus:ring-1 focus:ring-charcoal transition-colors duration-200 placeholder:text-gray-300"
             />
           </div>
 
           <div>
+            <label for="negocio" class="block text-sm font-semibold text-charcoal mb-1.5">
+              Nombre del negocio
+            </label>
+            <input
+              type="text"
+              id="negocio"
+              name="negocio"
+              autocomplete="organization"
+              placeholder="Tu marca, tienda o proyecto"
+              class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm focus:outline-none focus:border-charcoal focus:ring-1 focus:ring-charcoal transition-colors duration-200 placeholder:text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label for="servicio" class="block text-sm font-semibold text-charcoal mb-1.5">
+              ¿Qué necesitas? <span class="text-gray-400" aria-hidden="true">*</span>
+            </label>
+            <select
+              id="servicio"
+              name="servicio"
+              required
+              class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm focus:outline-none focus:border-charcoal focus:ring-1 focus:ring-charcoal transition-colors duration-200"
+            >
+              <option value="">Selecciona una opción</option>
+              <option value="Manejo de redes sociales">Manejo de redes sociales</option>
+              <option value="Producción de video">Producción de video</option>
+              <option value="Fotografía">Fotografía</option>
+              <option value="Estrategia y publicidad">Estrategia y publicidad</option>
+              <option value="Propuesta completa">Todo lo anterior — propuesta completa</option>
+              <option value="Otra cosa">Otra cosa / quiero platicarlo</option>
+            </select>
+          </div>
+
+          <div>
             <label for="mensaje" class="block text-sm font-semibold text-charcoal mb-1.5">
-              Mensaje <span class="text-gray-400" aria-hidden="true">*</span>
+              Cuéntanos un poco más
             </label>
             <textarea
               id="mensaje"
               name="mensaje"
-              required
-              rows="5"
-              placeholder="Cuéntanos sobre tu proyecto, tu marca y lo que necesitas..."
+              rows="4"
+              placeholder="¿Qué objetivos tienes? ¿Algún presupuesto o fecha en mente?"
               class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-charcoal text-sm focus:outline-none focus:border-charcoal focus:ring-1 focus:ring-charcoal transition-colors duration-200 placeholder:text-gray-300 resize-none"
             ></textarea>
           </div>
 
           <button
             type="submit"
-            class="w-full sm:w-auto px-8 py-4 bg-charcoal text-white font-bold rounded-full text-sm tracking-wide hover:bg-gray-700 transition-all duration-200 hover:-translate-y-0.5"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-charcoal text-white font-bold rounded-full text-sm tracking-wide hover:bg-gray-700 transition-all duration-200 hover:-translate-y-0.5"
           >
-            Quiero mi propuesta
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+            Abrir WhatsApp
           </button>
           <p class="text-xs text-gray-400 text-center sm:text-left mt-3">
-            Sin contratos de permanencia. Sin letras chiquitas.
+            Abrirá WhatsApp con tu mensaje listo. Sin contratos de permanencia. Sin letras chiquitas.
           </p>
         </form>
       </div>
@@ -256,31 +261,62 @@
     });
   });
 
-  // ─── Form submit feedback ────────────────────────────────────────────
+  // ─── Form → WhatsApp ─────────────────────────────────────────────────
+  const WHATSAPP_NUMBER = '526181539643';
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
+
+  // Clear the red border as user types again
+  form?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('[required]').forEach((el) => {
+    el.addEventListener('input', () => { el.style.borderColor = ''; });
+    el.addEventListener('change', () => { el.style.borderColor = ''; });
+  });
+
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
-    // basic client-side validation
-    const required = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]');
+    if (!form) return;
+
+    const nombreEl = document.getElementById('nombre') as HTMLInputElement | null;
+    const negocioEl = document.getElementById('negocio') as HTMLInputElement | null;
+    const servicioEl = document.getElementById('servicio') as HTMLSelectElement | null;
+    const mensajeEl = document.getElementById('mensaje') as HTMLTextAreaElement | null;
+
+    const nombre = nombreEl?.value.trim() || '';
+    const negocio = negocioEl?.value.trim() || '';
+    const servicio = servicioEl?.value.trim() || '';
+    const mensaje = mensajeEl?.value.trim() || '';
+
+    // Basic validation on required fields
     let valid = true;
-    required.forEach((el) => {
-      if (!el.value.trim()) { valid = false; el.style.borderColor = '#c94a4a'; }
-    });
+    if (!nombre && nombreEl) { valid = false; nombreEl.style.borderColor = '#c94a4a'; }
+    if (!servicio && servicioEl) { valid = false; servicioEl.style.borderColor = '#c94a4a'; }
     if (!valid) {
       (window as any).showToast?.('Completa los campos requeridos');
       return;
     }
+
+    // Build the WhatsApp message
+    const intro = negocio
+      ? `Hola Antemano, soy ${nombre} de ${negocio}.`
+      : `Hola Antemano, soy ${nombre}.`;
+    const servicioLine = `Me interesa: ${servicio}.`;
+    const mensajeBlock = mensaje ? `\n\n${mensaje}` : '';
+    const fullMessage = `${intro}\n${servicioLine}${mensajeBlock}`;
+
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(fullMessage)}`;
+
+    // Button feedback
     const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     if (btn) {
-      const original = btn.textContent;
+      const original = btn.innerHTML;
       btn.disabled = true;
-      btn.textContent = 'Enviando…';
+      btn.textContent = 'Abriendo WhatsApp…';
       setTimeout(() => {
-        btn.textContent = '✓ Mensaje enviado';
-        (window as any).showToast?.('¡Mensaje enviado! Te respondemos en menos de 24 h.');
-        form.reset();
-        setTimeout(() => { btn.disabled = false; btn.textContent = original; }, 2400);
-      }, 900);
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }, 2000);
     }
+
+    (window as any).showToast?.('Abriendo WhatsApp con tu mensaje…');
+    window.open(url, '_blank', 'noopener,noreferrer');
   });
 </script>
