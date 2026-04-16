@@ -194,6 +194,37 @@ const schemaOrg = {
         color: transparent;
       }
 
+      /* ── Blur-reveal: cards/articles enter with blur→clear from scroll ── */
+      .blur-reveal {
+        opacity: 0;
+        filter: blur(14px);
+        transform: translateY(22px);
+        transition:
+          opacity  0.8s var(--ease-out-expo),
+          filter   0.8s var(--ease-out-expo),
+          transform 0.8s var(--ease-out-expo);
+        transition-delay: calc(var(--brd, 0) * 0.10s);
+      }
+      .blur-reveal.visible {
+        opacity: 1;
+        filter: blur(0px);
+        transform: translateY(0);
+      }
+
+      /* ── Section draw-line (appears at top of each section) ── */
+      .section-line {
+        display: block;
+        height: 1px;
+        background: #1A1A1A;
+        transform-origin: left center;
+        transform: scaleX(0);
+        opacity: 0.12;
+        transition: transform 1.1s var(--ease-out-expo);
+      }
+      .section-line.visible {
+        transform: scaleX(1);
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .med-grain,
         .med-cta-textured::before,
@@ -203,6 +234,8 @@ const schemaOrg = {
         }
         .med-pulse-dot::before,
         .med-pulse-dot::after { animation: none; }
+        .blur-reveal { opacity: 1; filter: none; transform: none; transition: none; }
+        .section-line { transform: scaleX(1); transition: none; }
       }
     </style>
 
@@ -239,4 +272,33 @@ const schemaOrg = {
     <Agendar />
   </main>
   <FooterMedicos />
+
+  <!-- Blur-reveal + section-line observers -->
+  <script>
+    (() => {
+      // blur-reveal
+      const blurObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible');
+            blurObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+
+      document.querySelectorAll('.blur-reveal').forEach(el => blurObs.observe(el));
+
+      // section-line
+      const lineObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible');
+            lineObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      document.querySelectorAll('.section-line').forEach(el => lineObs.observe(el));
+    })();
+  </script>
 </Layout>

@@ -17,6 +17,8 @@ const stats = [
 ---
 
 <section id="problema" class="py-24 lg:py-32 bg-white relative overflow-hidden">
+  <!-- Draw line -->
+  <span class="section-line absolute top-0 left-6 right-6 lg:left-8 lg:right-8 z-10" aria-hidden="true"></span>
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <!-- Header -->
     <div class="max-w-3xl mb-16">
@@ -32,10 +34,14 @@ const stats = [
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
       {stats.map((s, i) => (
         <article
-          class={`reveal-up reveal-delay-${i + 1} med-stat-card med-glass-ghost med-grain-hover p-8 rounded-2xl relative overflow-hidden`}
+          class={`med-stat-card med-glass-ghost med-grain-hover p-8 rounded-2xl relative overflow-hidden stat-card-enter`}
+          style={`--ci:${i}`}
         >
           <div class="med-grain absolute inset-0"></div>
-          <p class="med-stat-number med-text-textured text-5xl lg:text-6xl font-black leading-none mb-5 tracking-tight relative z-10">
+          <p
+            class="med-stat-number med-text-textured text-5xl lg:text-6xl font-black leading-none mb-5 tracking-tight relative z-10"
+            data-count-target={s.number}
+          >
             {s.number}
           </p>
           <p class="text-gray-500 text-sm leading-relaxed relative z-10">
@@ -58,6 +64,20 @@ const stats = [
 </section>
 
 <style>
+  /* 3D entry animation */
+  .stat-card-enter {
+    opacity: 0;
+    transform: perspective(600px) rotateX(14deg) translateY(28px);
+    transition:
+      opacity 0.75s var(--ease-out-expo),
+      transform 0.75s var(--ease-out-expo);
+    transition-delay: calc(var(--ci, 0) * 0.12s + 0.1s);
+  }
+  .stat-card-enter.visible {
+    opacity: 1;
+    transform: perspective(600px) rotateX(0deg) translateY(0);
+  }
+
   .med-stat-card {
     transition:
       transform 0.4s var(--ease-out-quart),
@@ -84,4 +104,54 @@ const stats = [
   .med-stat-card:hover::before { width: 100%; }
 
   /* .med-stat-number styles now come from global .med-text-textured */
+
+  @media (prefers-reduced-motion: reduce) {
+    .stat-card-enter { opacity: 1; transform: none; transition: none; }
+  }
 </style>
+
+<script>
+  (() => {
+    /* ── Intersection observer: 3D card enter + number counter ── */
+    const cards = document.querySelectorAll<HTMLElement>('.stat-card-enter');
+    if (!cards.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const card = entry.target as HTMLElement;
+        card.classList.add('visible');
+
+        // Counter animation
+        const numEl = card.querySelector<HTMLElement>('[data-count-target]');
+        if (!numEl) return;
+        const raw = numEl.dataset.countTarget ?? '';
+
+        // Parse: "77%" → {value:77, suffix:'%'}, "1 de 3" → skip
+        const match = raw.match(/^(\d+)(.*)/);
+        if (!match) return;
+        const target = parseInt(match[1], 10);
+        const suffix = raw.slice(match[1].length);
+
+        const duration = 1400;
+        const start = performance.now();
+        const ease = (t: number) => 1 - Math.pow(1 - t, 3); // ease-out-cubic
+
+        function step(now: number) {
+          const t = Math.min((now - start) / duration, 1);
+          const val = Math.round(ease(t) * target);
+          numEl.textContent = val + suffix;
+          if (t < 1) requestAnimationFrame(step);
+        }
+
+        // Small delay matching card entrance delay
+        const delay = (parseInt(card.style.getPropertyValue('--ci') || '0', 10) * 120) + 200;
+        setTimeout(() => requestAnimationFrame(step), delay);
+
+        obs.unobserve(card);
+      });
+    }, { threshold: 0.25 });
+
+    cards.forEach(c => obs.observe(c));
+  })();
+</script>
