@@ -64,18 +64,22 @@ const stats = [
 </section>
 
 <style>
-  /* 3D entry animation */
+  /* 3D + motion-blur entry */
   .stat-card-enter {
     opacity: 0;
-    transform: perspective(600px) rotateX(14deg) translateY(28px);
+    filter: blur(24px);
+    transform: perspective(700px) rotateX(16deg) translateY(36px) scale(0.97);
     transition:
-      opacity 0.75s var(--ease-out-expo),
-      transform 0.75s var(--ease-out-expo);
-    transition-delay: calc(var(--ci, 0) * 0.12s + 0.1s);
+      opacity   0.85s var(--ease-out-expo),
+      filter    0.65s cubic-bezier(0.22, 1, 0.36, 1),  /* blur clears first */
+      transform 0.85s var(--ease-out-expo);
+    transition-delay: calc(var(--ci, 0) * 0.13s + 0.05s);
+    will-change: filter, transform, opacity;
   }
   .stat-card-enter.visible {
     opacity: 1;
-    transform: perspective(600px) rotateX(0deg) translateY(0);
+    filter: blur(0px);
+    transform: perspective(700px) rotateX(0deg) translateY(0) scale(1);
   }
 
   .med-stat-card {
@@ -106,7 +110,7 @@ const stats = [
   /* .med-stat-number styles now come from global .med-text-textured */
 
   @media (prefers-reduced-motion: reduce) {
-    .stat-card-enter { opacity: 1; transform: none; transition: none; }
+    .stat-card-enter { opacity: 1; filter: none; transform: none; transition: none; }
   }
 </style>
 

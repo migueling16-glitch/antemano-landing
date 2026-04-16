@@ -268,21 +268,25 @@
     100%    { left: 130%; opacity: 0; }
   }
 
-  /* ── H1 line-by-line reveal ── */
+  /* ── H1 line-by-line reveal — con motion blur ── */
   .lw {
     display: block;
     overflow: hidden;
-    padding-bottom: 0.06em; /* prevent descender clip */
+    padding-bottom: 0.06em;
   }
   .li {
     display: block;
     opacity: 0;
-    transform: translateY(108%);
-    animation: lineUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    filter: blur(12px);
+    transform: translateY(112%);
+    animation: lineUp 1.0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     animation-delay: calc(0.22s + var(--li, 0) * 0.11s);
   }
   @keyframes lineUp {
-    to { opacity: 1; transform: translateY(0); }
+    0%   { opacity: 0; filter: blur(12px); transform: translateY(112%); }
+    30%  { opacity: 1; }
+    55%  { filter: blur(0px); }          /* blur se resuelve antes que el movimiento */
+    100% { opacity: 1; filter: blur(0px); transform: translateY(0); }
   }
 
   /* Textured second-line accent */
@@ -297,39 +301,51 @@
     background-clip: text;
   }
 
-  /* ── Eyebrow entrance ── */
+  /* ── Eyebrow entrance — desenfoque + expand tracking ── */
   .hero-eyebrow {
     opacity: 0;
-    animation: eyebrowIn 0.6s var(--ease-out-quart) 0.12s forwards;
+    filter: blur(8px);
+    animation: eyebrowIn 0.9s var(--ease-out-expo) 0.08s forwards;
   }
   @keyframes eyebrowIn {
-    0%   { opacity: 0; letter-spacing: 0.38em; }
-    100% { opacity: 1; letter-spacing: 0.22em; }
+    0%   { opacity: 0; filter: blur(8px);  letter-spacing: 0.42em; }
+    45%  { opacity: 1; }
+    65%  { filter: blur(0px); }
+    100% { opacity: 1; filter: blur(0px); letter-spacing: 0.22em; }
   }
 
-  /* ── Body text & CTA entrance ── */
+  /* ── Body text & CTA — desenfoque + movimiento ── */
   .hero-body {
     opacity: 0;
-    transform: translateY(20px);
-    animation: fadeUp 0.85s var(--ease-out-expo) 0.72s forwards;
+    filter: blur(18px);
+    transform: translateY(22px);
+    animation: blurFadeUp 1.0s var(--ease-out-expo) 0.72s forwards;
   }
   .hero-cta-row {
     opacity: 0;
-    transform: translateY(16px);
-    animation: fadeUp 0.85s var(--ease-out-expo) 0.88s forwards;
+    filter: blur(14px);
+    transform: translateY(18px);
+    animation: blurFadeUp 1.0s var(--ease-out-expo) 0.90s forwards;
   }
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes blurFadeUp {
+    0%   { opacity: 0; filter: blur(18px); transform: translateY(22px); }
+    40%  { opacity: 1; }
+    60%  { filter: blur(0px); }
+    100% { opacity: 1; filter: blur(0px); transform: translateY(0); }
   }
 
-  /* ── Visual column entrance ── */
+  /* ── Visual column — desenfoque lateral ── */
   .hero-visual-entrance {
     opacity: 0;
-    transform: translateX(32px);
-    animation: visualIn 1.1s var(--ease-out-expo) 0.55s forwards;
+    filter: blur(28px);
+    transform: translateX(40px) scale(0.97);
+    animation: blurSlideIn 1.15s var(--ease-out-expo) 0.48s forwards;
   }
-  @keyframes visualIn {
-    to { opacity: 1; transform: translateX(0); }
+  @keyframes blurSlideIn {
+    0%   { opacity: 0; filter: blur(28px); transform: translateX(40px) scale(0.97); }
+    35%  { opacity: 1; }
+    55%  { filter: blur(0px); }
+    100% { opacity: 1; filter: blur(0px); transform: translateX(0) scale(1); }
   }
 
   /* ── Mock card hover ── */
@@ -371,14 +387,14 @@
 
   /* ── Reduced motion ── */
   @media (prefers-reduced-motion: reduce) {
-    .li        { opacity: 1; transform: none; animation: none; }
+    .li        { opacity: 1; filter: none; transform: none; animation: none; }
     .hero-eyebrow,
     .hero-body,
     .hero-cta-row,
-    .hero-visual-entrance { opacity: 1; transform: none; animation: none; }
-    .hero-orb,
-    .hero-frost,
-    .med-hero-accent { animation: none; }
+    .hero-visual-entrance {
+      opacity: 1; filter: none; transform: none; animation: none;
+    }
+    .hero-orb, .hero-frost, .med-hero-accent { animation: none; }
     .chart-bar { height: var(--bh); animation: none; }
     .frost-pw  { transition: none; }
   }
