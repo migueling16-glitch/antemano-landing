@@ -11,7 +11,7 @@ const badges = [
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start">
       <!-- Text (60%) -->
       <div class="lg:col-span-3">
-        <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+        <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 reveal">
           No somos una agencia genérica
         </p>
         <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal mb-8 reveal reveal-delay-1">
@@ -30,8 +30,8 @@ const badges = [
       <!-- Badges (40%) -->
       <div class="lg:col-span-2 flex flex-col gap-3 lg:pt-16">
         {badges.map((b, i) => (
-          <div class={`reveal-right reveal-delay-${i + 1} med-badge flex items-center gap-3 px-5 py-4 bg-white border border-gray-100 rounded-full`}>
-            <span class="med-check flex-shrink-0 w-6 h-6 rounded-full bg-amber flex items-center justify-center">
+          <div class={`reveal-right reveal-delay-${i + 1} med-badge med-glass flex items-center gap-3 px-5 py-4 rounded-full`}>
+            <span class="med-check flex-shrink-0 w-6 h-6 rounded-full bg-charcoal flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" class="w-3 h-3">
                 <path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -52,9 +52,10 @@ const badges = [
       box-shadow 0.3s var(--ease-out-quart);
   }
   .med-badge:hover {
-    transform: translateX(4px);
-    border-color: #C8963E;
-    box-shadow: 0 12px 24px -12px rgba(200,150,62,0.35);
+    transform: translateX(5px);
+    border-color: rgba(26,26,26,0.3);
+    box-shadow: 0 12px 24px -12px rgba(26,26,26,0.18);
+    background-color: rgba(255,255,255,0.75);
   }
   .med-badge:hover .med-check {
     transform: rotate(-8deg) scale(1.08);

@@ -20,7 +20,7 @@ const stats = [
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <!-- Header -->
     <div class="max-w-3xl mb-16">
-      <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 reveal">
         La realidad del sector salud en 2026
       </p>
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
@@ -32,12 +32,13 @@ const stats = [
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
       {stats.map((s, i) => (
         <article
-          class={`reveal-up reveal-delay-${i + 1} med-stat-card p-8 rounded-2xl bg-offwhite border border-gray-100`}
+          class={`reveal-up reveal-delay-${i + 1} med-stat-card med-glass-ghost med-grain-hover p-8 rounded-2xl relative overflow-hidden`}
         >
-          <p class="med-stat-number text-5xl lg:text-6xl font-black text-charcoal leading-none mb-5 tracking-tight">
+          <div class="med-grain absolute inset-0"></div>
+          <p class="med-stat-number med-text-textured text-5xl lg:text-6xl font-black leading-none mb-5 tracking-tight relative z-10">
             {s.number}
           </p>
-          <p class="text-gray-500 text-sm leading-relaxed">
+          <p class="text-gray-500 text-sm leading-relaxed relative z-10">
             {s.text}
           </p>
         </article>
@@ -69,21 +70,18 @@ const stats = [
     content: '';
     position: absolute;
     top: 0; left: 0;
-    height: 3px; width: 0;
-    background: #C8963E;
-    transition: width 0.5s var(--ease-out-quart);
+    height: 2px; width: 0;
+    background: #1A1A1A;
+    transition: width 0.55s var(--ease-out-quart);
+    z-index: 10;
   }
   .med-stat-card:hover {
     transform: translateY(-4px);
-    border-color: #1A1A1A;
-    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.10);
+    border-color: rgba(26,26,26,0.18);
+    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.12);
+    background-color: rgba(255,255,255,0.65);
   }
   .med-stat-card:hover::before { width: 100%; }
 
-  .med-stat-number {
-    background: linear-gradient(120deg, #1A1A1A 0%, #1A1A1A 50%, #C8963E 120%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+  /* .med-stat-number styles now come from global .med-text-textured */
 </style>

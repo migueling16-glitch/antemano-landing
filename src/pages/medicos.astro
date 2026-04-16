@@ -50,6 +50,162 @@ const schemaOrg = {
     <!-- Structured data -->
     <script type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
 
+    <style is:global>
+      /* ─── Médicos — B&W texture system ───────────────────────────────── */
+
+      /* Noise / grain layer — drop inside a relative element */
+      .med-grain {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.45 0'/></filter><rect width='320' height='320' filter='url(%23n)'/></svg>");
+        mix-blend-mode: multiply;
+        opacity: 0.05;
+        transition:
+          opacity 0.6s var(--ease-out-quart),
+          transform 0.8s var(--ease-out-quart);
+        will-change: transform, opacity;
+      }
+      .med-grain-strong { opacity: 0.10; }
+      .med-grain-light  { opacity: 0.03; }
+
+      /* When the parent has .med-grain-hover, hovering reveals + shifts the grain */
+      .med-grain-hover:hover .med-grain {
+        opacity: 0.14;
+        transform: scale(1.08) translate(1.5%, -1.5%);
+      }
+
+      /* Subtle grain on dark surfaces (screen blend so white speckles appear) */
+      .med-grain-dark {
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='320' height='320' filter='url(%23n)'/></svg>");
+        mix-blend-mode: screen;
+        opacity: 0.10;
+      }
+
+      /* Glass surface — translucent white with blur */
+      .med-glass {
+        background-color: rgba(255, 255, 255, 0.55);
+        backdrop-filter: blur(16px) saturate(140%);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.6) inset,
+          0 8px 24px -14px rgba(26, 26, 26, 0.10);
+      }
+      .med-glass-ghost {
+        background-color: rgba(250, 250, 250, 0.45);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(26, 26, 26, 0.08);
+      }
+      .med-glass-dark {
+        background-color: rgba(26, 26, 26, 0.82);
+        backdrop-filter: blur(14px) saturate(140%);
+        -webkit-backdrop-filter: blur(14px) saturate(140%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+
+      /* Textured CTA — charcoal with noise shimmer that shifts on hover */
+      .med-cta-textured {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        background: #1A1A1A;
+        color: #fff;
+        transition:
+          background 0.3s var(--ease-out-quart),
+          transform 0.25s var(--ease-out-quart),
+          box-shadow 0.35s var(--ease-out-quart);
+        box-shadow: 0 10px 22px -10px rgba(26, 26, 26, 0.55);
+      }
+      .med-cta-textured::before {
+        content: '';
+        position: absolute;
+        inset: -30%;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='320' height='320' filter='url(%23n)'/></svg>");
+        opacity: 0.14;
+        mix-blend-mode: screen;
+        transition:
+          transform 1.2s var(--ease-out-quart),
+          opacity 0.4s var(--ease-out-quart);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .med-cta-textured::after {
+        content: '';
+        position: absolute;
+        top: 0; bottom: 0;
+        left: -60%;
+        width: 45%;
+        background: linear-gradient(100deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.18) 50%,
+          transparent 100%);
+        transform: skewX(-20deg);
+        transition: left 0.85s var(--ease-out-quart);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .med-cta-textured > * { position: relative; z-index: 1; }
+      .med-cta-textured:hover {
+        background: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.6);
+      }
+      .med-cta-textured:hover::before {
+        transform: translate(6%, -6%) scale(1.12);
+        opacity: 0.22;
+      }
+      .med-cta-textured:hover::after { left: 120%; }
+
+      /* Pulse dot — replaces amber bullet */
+      .med-pulse-dot {
+        position: relative;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #1A1A1A;
+        flex-shrink: 0;
+      }
+      .med-pulse-dot::before,
+      .med-pulse-dot::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1.5px solid rgba(26, 26, 26, 0.5);
+        animation: medPulse 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+      }
+      .med-pulse-dot::after { animation-delay: 1.4s; }
+      @keyframes medPulse {
+        0%   { transform: scale(1);   opacity: 0.9; }
+        100% { transform: scale(3.8); opacity: 0;   }
+      }
+
+      /* Textured text — clipped noise fill for statement numbers */
+      .med-text-textured {
+        background-image:
+          url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 1 0'/></filter><rect width='400' height='400' filter='url(%23n)'/></svg>"),
+          linear-gradient(180deg, #1A1A1A 0%, #1A1A1A 100%);
+        background-blend-mode: multiply;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .med-grain,
+        .med-cta-textured::before,
+        .med-cta-textured::after {
+          transition: none !important;
+          animation: none !important;
+        }
+        .med-pulse-dot::before,
+        .med-pulse-dot::after { animation: none; }
+      }
+    </style>
+
     <!--
       Tracking pixels — pendientes de activar por Miguel:
 

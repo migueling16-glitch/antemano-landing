@@ -27,7 +27,7 @@ const steps = [
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <!-- Header -->
     <div class="max-w-3xl mb-16">
-      <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 reveal">
         Antes de que agendes
       </p>
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
@@ -54,7 +54,7 @@ const steps = [
             <!-- Label + timing -->
             <div class="mb-3 flex items-center gap-2 flex-wrap">
               <p class="text-sm font-bold text-charcoal">{s.label}</p>
-              <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-amber bg-amber/10 px-2 py-0.5 rounded-full">
+              <span class="med-timing-pill text-[10px] font-bold tracking-[0.1em] uppercase text-charcoal/55 px-2.5 py-0.5 rounded-full">
                 {s.timing}
               </span>
             </div>
@@ -76,11 +76,19 @@ const steps = [
 </section>
 
 <style>
+  .med-timing-pill {
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(26,26,26,0.10);
+  }
+
   .med-step:hover .med-step-num {
-    background: #C8963E;
-    transform: scale(1.08);
+    background: #000;
+    transform: scale(1.12);
+    box-shadow: 0 6px 14px -4px rgba(0,0,0,0.35);
   }
   .med-step-num {
-    transition: background 0.25s, transform 0.25s var(--ease-out-quart);
+    transition: background 0.25s, transform 0.3s var(--ease-out-quart), box-shadow 0.3s;
   }
 </style>

@@ -13,15 +13,15 @@ const especialidades = [
 ---
 
 <section id="agendar" class="py-24 lg:py-32 bg-white relative overflow-hidden">
-  <!-- Soft accent -->
-  <div class="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none" aria-hidden="true">
-    <div class="absolute inset-0" style="background: radial-gradient(circle at center, rgba(200,150,62,0.08) 0%, rgba(200,150,62,0) 70%);"></div>
+  <!-- Grain accent -->
+  <div class="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none overflow-hidden rounded-full" aria-hidden="true">
+    <div class="med-grain med-grain-strong absolute inset-0 rounded-full" style="mix-blend-mode:multiply;opacity:0.06;"></div>
   </div>
 
   <div class="relative z-10 max-w-3xl mx-auto px-6 lg:px-8">
     <!-- Header -->
     <div class="mb-12 text-center">
-      <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 reveal">
         Agenda tu llamada
       </p>
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal mb-5 reveal reveal-delay-1">
@@ -43,7 +43,7 @@ const especialidades = [
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label for="agendar-nombre" class="block text-sm font-semibold text-charcoal mb-1.5">
-            Nombre completo <span class="text-amber" aria-hidden="true">*</span>
+            Nombre completo <span class="text-charcoal/50" aria-hidden="true">*</span>
           </label>
           <input
             type="text"
@@ -58,7 +58,7 @@ const especialidades = [
 
         <div>
           <label for="agendar-especialidad" class="block text-sm font-semibold text-charcoal mb-1.5">
-            Especialidad <span class="text-amber" aria-hidden="true">*</span>
+            Especialidad <span class="text-charcoal/50" aria-hidden="true">*</span>
           </label>
           <select
             id="agendar-especialidad"
@@ -77,7 +77,7 @@ const especialidades = [
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label for="agendar-ciudad" class="block text-sm font-semibold text-charcoal mb-1.5">
-            Ciudad <span class="text-amber" aria-hidden="true">*</span>
+            Ciudad <span class="text-charcoal/50" aria-hidden="true">*</span>
           </label>
           <input
             type="text"
@@ -92,7 +92,7 @@ const especialidades = [
 
         <div>
           <label for="agendar-email" class="block text-sm font-semibold text-charcoal mb-1.5">
-            Email profesional <span class="text-amber" aria-hidden="true">*</span>
+            Email profesional <span class="text-charcoal/50" aria-hidden="true">*</span>
           </label>
           <input
             type="email"
@@ -108,7 +108,7 @@ const especialidades = [
 
       <div>
         <label for="agendar-whatsapp" class="block text-sm font-semibold text-charcoal mb-1.5">
-          WhatsApp <span class="text-amber" aria-hidden="true">*</span>
+          WhatsApp <span class="text-charcoal/50" aria-hidden="true">*</span>
         </label>
         <input
           type="tel"
@@ -135,7 +135,7 @@ const especialidades = [
       </div>
 
       <!-- Success message (hidden until submit succeeds) -->
-      <div id="agendar-success" class="hidden p-5 bg-amber/10 border border-amber/30 rounded-xl text-charcoal text-sm">
+      <div id="agendar-success" class="hidden p-5 med-glass rounded-xl text-charcoal text-sm">
         <p class="font-bold mb-1">Gracias.</p>
         <p class="text-gray-600">Te contactamos pronto para coordinar tu llamada.</p>
       </div>
@@ -148,7 +148,7 @@ const especialidades = [
 
       <button
         type="submit"
-        class="med-agendar-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber text-white font-bold rounded-full text-sm tracking-wide"
+        class="med-agendar-btn med-cta-textured w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 font-bold rounded-full text-sm tracking-wide"
       >
         Agendar mi llamada
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor" class="w-4 h-4 med-agendar-arrow">
@@ -172,39 +172,15 @@ const especialidades = [
   .med-input:hover { border-color: #bdbdbd; }
   .med-input:focus {
     outline: none;
-    border-color: #C8963E;
-    box-shadow: 0 0 0 3px rgba(200,150,62,0.15);
+    border-color: #1A1A1A;
+    box-shadow: 0 0 0 3px rgba(26,26,26,0.10);
   }
 
-  .med-agendar-btn {
-    transition:
-      background 0.25s var(--ease-out-quart),
-      transform 0.2s,
-      box-shadow 0.25s;
-    box-shadow: 0 10px 22px -8px rgba(200,150,62,0.45);
-    position: relative;
-    overflow: hidden;
-  }
-  .med-agendar-btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -60%;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
-    transform: skewX(-20deg);
-    transition: left 0.7s var(--ease-out-quart);
-  }
-  .med-agendar-btn:hover {
-    background: #b2832f;
-    transform: translateY(-2px);
-    box-shadow: 0 14px 28px -8px rgba(200,150,62,0.6);
-  }
-  .med-agendar-btn:hover::after { left: 120%; }
+  /* .med-agendar-btn — all styling from global .med-cta-textured */
+  .med-agendar-btn { }
   .med-agendar-arrow { transition: transform 0.25s var(--ease-out-quart); }
   .med-agendar-btn:hover .med-agendar-arrow { transform: translateX(4px); }
-  .med-agendar-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .med-agendar-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 
 <script>

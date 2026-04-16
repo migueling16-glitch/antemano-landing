@@ -31,7 +31,7 @@ const faqs = [
   <div class="max-w-4xl mx-auto px-6 lg:px-8">
     <!-- Header -->
     <div class="mb-14 text-center">
-      <p class="text-amber text-xs font-bold tracking-[0.2em] uppercase mb-4 reveal">
+      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 reveal">
         Preguntas frecuentes
       </p>
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
@@ -43,11 +43,12 @@ const faqs = [
     <div class="space-y-3">
       {faqs.map((f, i) => (
         <article
-          class={`reveal-up reveal-delay-${(i % 4) + 1} med-faq-item bg-white border border-gray-100 rounded-2xl overflow-hidden`}
+          class={`reveal-up reveal-delay-${(i % 4) + 1} med-faq-item med-glass-ghost rounded-2xl overflow-hidden relative`}
         >
+          <div class="med-grain absolute inset-0"></div>
           <button
             type="button"
-            class="med-faq-btn w-full flex items-center justify-between gap-4 text-left px-6 py-5"
+            class="med-faq-btn w-full flex items-center justify-between gap-4 text-left px-6 py-5 relative z-10"
             aria-expanded="false"
             aria-controls={`faq-body-${i}`}
           >
@@ -60,7 +61,7 @@ const faqs = [
           </button>
           <div
             id={`faq-body-${i}`}
-            class="med-faq-body"
+            class="med-faq-body relative z-10"
             role="region"
           >
             <div class="med-faq-body-inner px-6 pb-6 text-gray-600 text-sm leading-relaxed" set:html={f.a} />
@@ -76,8 +77,12 @@ const faqs = [
     transition: border-color 0.25s, box-shadow 0.3s var(--ease-out-quart);
   }
   .med-faq-item.is-open {
-    border-color: #C8963E;
-    box-shadow: 0 16px 32px -14px rgba(200,150,62,0.22);
+    border-color: rgba(26,26,26,0.20);
+    box-shadow: 0 16px 32px -14px rgba(0,0,0,0.12);
+    background-color: rgba(255,255,255,0.65);
+  }
+  .med-faq-item.is-open .med-grain {
+    opacity: 0.12;
   }
 
   .med-faq-btn {
@@ -88,7 +93,7 @@ const faqs = [
   }
   .med-faq-btn:hover { background: #fafafa; }
   .med-faq-btn:focus-visible {
-    outline: 2px solid #C8963E;
+    outline: 2px solid #1A1A1A;
     outline-offset: -2px;
     border-radius: 1rem;
   }
@@ -101,9 +106,9 @@ const faqs = [
       border-color 0.3s;
   }
   .med-faq-item.is-open .med-faq-icon {
-    background: #C8963E;
+    background: #1A1A1A;
     color: #fff;
-    border-color: #C8963E;
+    border-color: #1A1A1A;
     transform: rotate(45deg);
   }
 
