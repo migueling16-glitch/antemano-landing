@@ -52,30 +52,30 @@
       <span class="hamburger-line-med block w-6 h-0.5"></span>
     </button>
   </nav>
-
-  <!-- Mobile menu -->
-  <div
-    id="mobile-menu-med"
-    class="md:hidden fixed inset-0 top-16 bg-offwhite px-6 py-10 pointer-events-none"
-    aria-hidden="true"
-  >
-    <ul class="flex flex-col gap-1 text-2xl font-bold text-charcoal">
-      <li class="mm-item-med" style="--i:0"><a href="#inicio"     class="mobile-link-med block py-3 border-b border-gray-100">Inicio</a></li>
-      <li class="mm-item-med" style="--i:1"><a href="#problema"   class="mobile-link-med block py-3 border-b border-gray-100">El problema</a></li>
-      <li class="mm-item-med" style="--i:2"><a href="#como"       class="mobile-link-med block py-3 border-b border-gray-100">Cómo funciona</a></li>
-      <li class="mm-item-med" style="--i:3"><a href="#resultados" class="mobile-link-med block py-3 border-b border-gray-100">Resultados</a></li>
-      <li class="mm-item-med" style="--i:4"><a href="#faq"        class="mobile-link-med block py-3 border-b border-gray-100">Preguntas</a></li>
-      <li class="mm-item-med pt-6" style="--i:5">
-        <a href="#agendar" class="mobile-link-med inline-flex items-center gap-2 px-6 py-3 bg-amber text-white rounded-full text-sm font-semibold">
-          Agendar llamada
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-4 h-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-          </svg>
-        </a>
-      </li>
-    </ul>
-  </div>
 </header>
+
+<!-- Mobile menu (sibling of header — avoids containing-block trap from backdrop-filter) -->
+<div
+  id="mobile-menu-med"
+  class="md:hidden fixed inset-0 top-16 bg-offwhite px-6 py-10 pointer-events-none z-40"
+  aria-hidden="true"
+>
+  <ul class="flex flex-col gap-1 text-2xl font-bold text-charcoal">
+    <li class="mm-item-med" style="--i:0"><a href="#inicio"     class="mobile-link-med block py-3 border-b border-gray-100">Inicio</a></li>
+    <li class="mm-item-med" style="--i:1"><a href="#problema"   class="mobile-link-med block py-3 border-b border-gray-100">El problema</a></li>
+    <li class="mm-item-med" style="--i:2"><a href="#como"       class="mobile-link-med block py-3 border-b border-gray-100">Cómo funciona</a></li>
+    <li class="mm-item-med" style="--i:3"><a href="#resultados" class="mobile-link-med block py-3 border-b border-gray-100">Resultados</a></li>
+    <li class="mm-item-med" style="--i:4"><a href="#faq"        class="mobile-link-med block py-3 border-b border-gray-100">Preguntas</a></li>
+    <li class="mm-item-med pt-6" style="--i:5">
+      <a href="#agendar" class="mobile-link-med inline-flex items-center gap-2 px-6 py-3 bg-amber text-white rounded-full text-sm font-semibold">
+        Agendar llamada
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </li>
+  </ul>
+</div>
 
 <style>
   #navbar-medicos {
