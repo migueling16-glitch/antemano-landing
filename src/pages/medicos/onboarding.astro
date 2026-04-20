@@ -1,0 +1,617 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NavbarMedicos from '../../components/medicos/NavbarMedicos.astro';
+import FooterMedicos from '../../components/medicos/FooterMedicos.astro';
+
+const title = 'Cuestionario de Onboarding | Antemano para Médicos';
+const description = 'Cuestionario de onboarding para diseñar tu sistema de automatización de Instagram DMs. Responde con la mayor claridad posible.';
+---
+
+<Layout title={title} description={description} canonicalPath="/medicos/onboarding">
+  <Fragment slot="head">
+    <!-- No indexar — página de uso interno para clientes -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <style is:global>
+      /* ── Reutilizamos el sistema de texturas de /medicos ── */
+      .ob-block {
+        background: rgba(255,255,255,0.55);
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+        border: 1px solid rgba(255,255,255,0.72);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,0.9),
+          0 8px 32px -12px rgba(0,0,0,0.07);
+      }
+      .ob-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(26,26,26,0.12);
+        background: rgba(250,250,250,0.70);
+        color: #1A1A1A;
+        font-size: 0.875rem;
+        font-family: inherit;
+        transition:
+          border-color 0.25s,
+          box-shadow 0.25s,
+          background 0.25s;
+        resize: vertical;
+      }
+      .ob-input::placeholder { color: rgba(26,26,26,0.28); }
+      .ob-input:hover  { border-color: rgba(26,26,26,0.22); }
+      .ob-input:focus  {
+        outline: none;
+        border-color: #1A1A1A;
+        background: rgba(255,255,255,0.90);
+        box-shadow: 0 0 0 3px rgba(26,26,26,0.08);
+      }
+      .ob-q-num {
+        font-size: 0.6875rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: rgba(26,26,26,0.30);
+        font-variant-numeric: tabular-nums;
+        font-family: inherit;
+      }
+      .ob-hint {
+        font-size: 0.75rem;
+        color: rgba(26,26,26,0.42);
+        font-style: italic;
+        margin-top: 0.2rem;
+        line-height: 1.5;
+      }
+      .ob-block-title {
+        font-size: 1.125rem;
+        font-weight: 800;
+        color: #1A1A1A;
+        letter-spacing: -0.01em;
+      }
+      .ob-block-sub {
+        font-size: 0.75rem;
+        color: rgba(26,26,26,0.40);
+        font-style: italic;
+        margin-top: 0.2rem;
+      }
+      .ob-divider {
+        height: 1px;
+        background: rgba(26,26,26,0.07);
+        margin: 1.5rem 0;
+      }
+      /* radio / checkbox custom */
+      .ob-radio-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .ob-radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.875rem;
+        border: 1px solid rgba(26,26,26,0.12);
+        border-radius: 999px;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        background: rgba(250,250,250,0.7);
+        transition: border-color 0.2s, background 0.2s;
+        user-select: none;
+      }
+      .ob-radio-label:hover {
+        border-color: rgba(26,26,26,0.30);
+        background: rgba(255,255,255,0.85);
+      }
+      .ob-radio-label input[type="radio"],
+      .ob-radio-label input[type="checkbox"] {
+        accent-color: #1A1A1A;
+        width: 14px;
+        height: 14px;
+      }
+      /* progress bar */
+      #ob-progress-bar {
+        height: 2px;
+        background: #1A1A1A;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+    </style>
+  </Fragment>
+
+  <NavbarMedicos />
+
+  <main class="min-h-screen bg-offwhite pt-24 pb-32">
+
+    <!-- ─ Progress indicator ─ -->
+    <div class="fixed top-16 left-0 right-0 z-40 bg-offwhite/60 backdrop-blur-sm" aria-hidden="true">
+      <div id="ob-progress-bar"></div>
+    </div>
+
+    <!-- ─ Header ─ -->
+    <header class="max-w-3xl mx-auto px-6 lg:px-8 pt-14 pb-12">
+      <div class="ob-header-enter">
+        <p class="text-[11px] font-bold tracking-[0.22em] uppercase text-charcoal/40 mb-5">
+          Antemano para médicos
+        </p>
+        <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-charcoal mb-4 leading-[1.06]">
+          Cuestionario de<br/>Onboarding.
+        </h1>
+        <p class="text-base text-gray-500 max-w-xl leading-relaxed">
+          Este cuestionario nos permite diseñar tu sistema de automatización de Instagram DMs <strong class="font-semibold text-charcoal/70">a la medida de tu práctica.</strong> Responde con la mayor claridad posible — no hay respuestas incorrectas.
+        </p>
+        <!-- Blocks overview -->
+        <div class="mt-8 flex flex-wrap gap-2">
+          {[
+            'Tu práctica médica',
+            'Tu paciente ideal',
+            'Tu operación actual',
+            'Objetivos y restricciones',
+          ].map((b, i) => (
+            <span class="text-[11px] font-bold tracking-wide uppercase text-charcoal/40 border border-charcoal/10 rounded-full px-3 py-1">
+              {String(i + 1).padStart(2,'0')} {b}
+            </span>
+          ))}
+        </div>
+      </div>
+    </header>
+
+    <!-- ─ Form ─ -->
+    <form
+      id="ob-form"
+      class="max-w-3xl mx-auto px-6 lg:px-8 space-y-5"
+      novalidate
+      action="https://formspree.io/f/TU_ID_AQUI"
+      method="POST"
+    >
+
+      <!-- Identificación -->
+      <div class="ob-block rounded-2xl p-7 blur-reveal" style="--brd:0">
+        <p class="ob-block-title mb-1">Tus datos de contacto</p>
+        <p class="ob-block-sub mb-5">Para que podamos enviarte el resumen y coordinar tu onboarding.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-charcoal mb-1.5" for="ob-nombre">
+              Nombre completo <span class="text-charcoal/40">*</span>
+            </label>
+            <input
+              type="text" id="ob-nombre" name="nombre" required
+              autocomplete="name" placeholder="Dr. / Dra. ..."
+              class="ob-input"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-charcoal mb-1.5" for="ob-email">
+              Email profesional <span class="text-charcoal/40">*</span>
+            </label>
+            <input
+              type="email" id="ob-email" name="email" required
+              autocomplete="email" placeholder="tu@consultorio.com"
+              class="ob-input"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-charcoal mb-1.5" for="ob-wa">
+              WhatsApp <span class="text-charcoal/40">*</span>
+            </label>
+            <input
+              type="tel" id="ob-wa" name="whatsapp" required
+              autocomplete="tel" placeholder="+52 618 000 0000"
+              class="ob-input"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-charcoal mb-1.5" for="ob-ciudad">
+              Ciudad
+            </label>
+            <input
+              type="text" id="ob-ciudad" name="ciudad"
+              autocomplete="address-level2" placeholder="Durango, CDMX, Monterrey..."
+              class="ob-input"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- ── BLOQUE 1 ── -->
+      <div class="ob-block rounded-2xl p-7 blur-reveal" style="--brd:1">
+        <p class="ob-block-title mb-0.5">Bloque 1 — Tu práctica médica</p>
+        <p class="ob-block-sub mb-6">Información base sobre tu especialidad, servicios y ubicación.</p>
+
+        <!-- Q01 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">01</span>
+            <label for="q01" class="text-sm font-bold text-charcoal">¿Cuál es tu especialidad médica exacta?</label>
+          </div>
+          <p class="ob-hint pl-8">Ej. dermatología, medicina estética, ginecología, cirugía plástica, etc.</p>
+          <textarea id="q01" name="q01_especialidad" rows="2" class="ob-input" placeholder="Mi especialidad es..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q02 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">02</span>
+            <label for="q02" class="text-sm font-bold text-charcoal">¿Cuáles son los 3 a 5 servicios o procedimientos principales que quieres promover?</label>
+          </div>
+          <p class="ob-hint pl-8">Los que generan más ingreso o los que más te interesa llenar.</p>
+          <textarea id="q02" name="q02_servicios" rows="4" class="ob-input" placeholder="1. &#10;2. &#10;3. &#10;4. &#10;5."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q03 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">03</span>
+            <label for="q03" class="text-sm font-bold text-charcoal">¿Cuál es el rango de precios de estos servicios?</label>
+          </div>
+          <p class="ob-hint pl-8">No necesitamos cifras exactas — rangos generales para calibrar el nivel de calificación.</p>
+          <textarea id="q03" name="q03_precios" rows="3" class="ob-input" placeholder="Ej. servicio A: $1,500–$3,000 / servicio B: desde $5,000..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q04 -->
+        <div class="space-y-2 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">04</span>
+            <label class="text-sm font-bold text-charcoal">¿Tienes un servicio "puerta de entrada"?</label>
+          </div>
+          <p class="ob-hint pl-8">Valoración gratuita, consulta con descuento, diagnóstico inicial, etc.</p>
+          <div class="ob-radio-group pl-8">
+            <label class="ob-radio-label">
+              <input type="radio" name="q04_puerta_radio" value="si"> Sí
+            </label>
+            <label class="ob-radio-label">
+              <input type="radio" name="q04_puerta_radio" value="no"> No
+            </label>
+            <label class="ob-radio-label">
+              <input type="radio" name="q04_puerta_radio" value="podria"> Podría crearlo
+            </label>
+          </div>
+          <textarea name="q04_puerta_detalle" rows="2" class="ob-input" placeholder="Si existe o tienes idea de uno, descríbelo brevemente..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q05 -->
+        <div class="space-y-1.5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">05</span>
+            <label for="q05" class="text-sm font-bold text-charcoal">¿Dónde está ubicado tu consultorio?</label>
+          </div>
+          <p class="ob-hint pl-8">Zona, colonia, plaza. Si tienes más de una ubicación, indícalo.</p>
+          <textarea id="q05" name="q05_ubicacion" rows="2" class="ob-input" placeholder="Ej. Consultorio en Torre Médica Durango, Col. Campestre. Consultas virtuales también."></textarea>
+        </div>
+      </div>
+
+      <!-- ── BLOQUE 2 ── -->
+      <div class="ob-block rounded-2xl p-7 blur-reveal" style="--brd:2">
+        <p class="ob-block-title mb-0.5">Bloque 2 — Tu paciente ideal</p>
+        <p class="ob-block-sub mb-6">Entender a quién le hablamos es clave para diseñar el tono, las preguntas de calificación y las respuestas automáticas.</p>
+
+        <!-- Q06 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">06</span>
+            <label for="q06" class="text-sm font-bold text-charcoal">¿Quién es tu paciente típico?</label>
+          </div>
+          <p class="ob-hint pl-8">Género predominante, rango de edad, nivel socioeconómico.</p>
+          <textarea id="q06" name="q06_paciente" rows="3" class="ob-input" placeholder="Ej. Mujeres de 28–50 años, nivel socioeconómico medio-alto, zona urbana..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q07 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">07</span>
+            <label for="q07" class="text-sm font-bold text-charcoal">¿Cuáles son las 3 a 5 preguntas que más te hacen por DM o WhatsApp?</label>
+          </div>
+          <p class="ob-hint pl-8">Las FAQs reales — lo que la gente pregunta antes de agendar.</p>
+          <textarea id="q07" name="q07_faqs" rows="5" class="ob-input" placeholder="1. &#10;2. &#10;3. &#10;4. &#10;5."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q08 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">08</span>
+            <label for="q08" class="text-sm font-bold text-charcoal">¿Cuáles son las objeciones o dudas más comunes antes de agendar cita?</label>
+          </div>
+          <p class="ob-hint pl-8">Ej. precio, dolor, tiempo de recuperación, resultados, miedo, desconfianza, etc.</p>
+          <textarea id="q08" name="q08_objeciones" rows="4" class="ob-input" placeholder="Las principales barreras que mencionan antes de decidirse..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q09 -->
+        <div class="space-y-1.5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">09</span>
+            <label for="q09" class="text-sm font-bold text-charcoal">¿Hay algún tipo de paciente que NO sea candidato a tus servicios?</label>
+          </div>
+          <p class="ob-hint pl-8">Contraindicaciones, edad mínima, condiciones previas. Crucial para el flujo de calificación automática.</p>
+          <textarea id="q09" name="q09_no_candidatos" rows="3" class="ob-input" placeholder="Ej. menores de 18 años, embarazadas, pacientes con condición X..."></textarea>
+        </div>
+      </div>
+
+      <!-- ── BLOQUE 3 ── -->
+      <div class="ob-block rounded-2xl p-7 blur-reveal" style="--brd:3">
+        <p class="ob-block-title mb-0.5">Bloque 3 — Tu operación actual</p>
+        <p class="ob-block-sub mb-6">Cómo funciona hoy tu proceso de agendamiento y atención para integrarlo al sistema automatizado.</p>
+
+        <!-- Q10 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">10</span>
+            <label for="q10" class="text-sm font-bold text-charcoal">¿Cómo agendas citas actualmente?</label>
+          </div>
+          <p class="ob-hint pl-8">WhatsApp manual, llamada telefónica, Doctoralia, Calendly, otra plataforma, etc.</p>
+          <textarea id="q10" name="q10_agendamiento" rows="2" class="ob-input" placeholder="Ej. Por WhatsApp manual con mi recepcionista, también Doctoralia..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q11 -->
+        <div class="space-y-2 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">11</span>
+            <label class="text-sm font-bold text-charcoal">¿Quién responde los DMs e inbox actualmente?</label>
+          </div>
+          <div class="ob-radio-group pl-8">
+            <label class="ob-radio-label"><input type="radio" name="q11_quien_radio" value="yo"> Yo misma / yo mismo</label>
+            <label class="ob-radio-label"><input type="radio" name="q11_quien_radio" value="asistente"> Asistente</label>
+            <label class="ob-radio-label"><input type="radio" name="q11_quien_radio" value="equipo"> Alguien del equipo</label>
+            <label class="ob-radio-label"><input type="radio" name="q11_quien_radio" value="nadie"> Nadie de forma consistente</label>
+          </div>
+          <textarea name="q11_quien_detalle" rows="2" class="ob-input" placeholder="Agrega contexto si lo consideras útil..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q12 -->
+        <div class="space-y-2 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">12</span>
+            <label class="text-sm font-bold text-charcoal">¿En cuánto tiempo se responden los mensajes típicamente?</label>
+          </div>
+          <p class="ob-hint pl-8">Sé honesto/a — esto nos ayuda a medir el impacto del bot.</p>
+          <div class="ob-radio-group pl-8">
+            <label class="ob-radio-label"><input type="radio" name="q12_tiempo_radio" value="minutos"> Minutos</label>
+            <label class="ob-radio-label"><input type="radio" name="q12_tiempo_radio" value="horas"> Pocas horas</label>
+            <label class="ob-radio-label"><input type="radio" name="q12_tiempo_radio" value="dia"> Mismo día</label>
+            <label class="ob-radio-label"><input type="radio" name="q12_tiempo_radio" value="siguiente"> Al día siguiente o más</label>
+          </div>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q13 -->
+        <div class="space-y-2 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">13</span>
+            <label class="text-sm font-bold text-charcoal">¿Tienes un número de WhatsApp Business separado para la práctica?</label>
+          </div>
+          <p class="ob-hint pl-8">Si es así, ¿es el mismo que usarías para recibir leads del bot?</p>
+          <div class="ob-radio-group pl-8">
+            <label class="ob-radio-label"><input type="radio" name="q13_wa_radio" value="si_mismo"> Sí, y usaría ese mismo</label>
+            <label class="ob-radio-label"><input type="radio" name="q13_wa_radio" value="si_diferente"> Sí, pero usaría otro</label>
+            <label class="ob-radio-label"><input type="radio" name="q13_wa_radio" value="no"> No, uso el mismo personal</label>
+          </div>
+          <textarea name="q13_wa_detalle" rows="1" class="ob-input" placeholder="Número de WhatsApp Business (si lo tienes)..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q14 -->
+        <div class="space-y-2">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">14</span>
+            <label class="text-sm font-bold text-charcoal">¿Manejas algún CRM o base de datos de pacientes?</label>
+          </div>
+          <p class="ob-hint pl-8">Notion, Excel, software médico, o nada formal.</p>
+          <div class="ob-radio-group pl-8">
+            <label class="ob-radio-label"><input type="radio" name="q14_crm_radio" value="si"> Sí</label>
+            <label class="ob-radio-label"><input type="radio" name="q14_crm_radio" value="no"> No</label>
+          </div>
+          <textarea name="q14_crm_detalle" rows="2" class="ob-input" placeholder="¿Cuál? ¿Qué datos guardas?..."></textarea>
+        </div>
+      </div>
+
+      <!-- ── BLOQUE 4 ── -->
+      <div class="ob-block rounded-2xl p-7 blur-reveal" style="--brd:4">
+        <p class="ob-block-title mb-0.5">Bloque 4 — Objetivos y restricciones</p>
+        <p class="ob-block-sub mb-6">Definir expectativas, límites y el tono de comunicación de tu marca.</p>
+
+        <!-- Q15 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">15</span>
+            <label for="q15" class="text-sm font-bold text-charcoal">¿Cuántas citas nuevas por semana o por mes quieres generar con este sistema?</label>
+          </div>
+          <p class="ob-hint pl-8">Un número realista nos ayuda a calibrar el volumen del funnel.</p>
+          <input type="text" id="q15" name="q15_meta_citas" class="ob-input" placeholder="Ej. 8–10 citas nuevas por semana..."/>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q16 -->
+        <div class="space-y-1.5 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">16</span>
+            <label for="q16" class="text-sm font-bold text-charcoal">¿Hay algo que el bot definitivamente NO deba decir o prometer?</label>
+          </div>
+          <p class="ob-hint pl-8">Ej. precios exactos, diagnósticos, garantías de resultado, mencionar competidores, etc.</p>
+          <textarea id="q16" name="q16_restricciones" rows="4" class="ob-input" placeholder="El bot nunca deberá..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q17 -->
+        <div class="space-y-2 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">17</span>
+            <label class="text-sm font-bold text-charcoal">¿Cuál es el tono de voz de tu marca?</label>
+          </div>
+          <p class="ob-hint pl-8">Selecciona los que apliquen y describe cómo te gustaría que "suene" el bot.</p>
+          <div class="ob-radio-group pl-8">
+            <label class="ob-radio-label"><input type="checkbox" name="q17_tono[]" value="profesional"> Profesional / formal</label>
+            <label class="ob-radio-label"><input type="checkbox" name="q17_tono[]" value="calido"> Cercano / cálido</label>
+            <label class="ob-radio-label"><input type="checkbox" name="q17_tono[]" value="premium"> Premium / exclusivo</label>
+            <label class="ob-radio-label"><input type="checkbox" name="q17_tono[]" value="fresco"> Juvenil / fresco</label>
+            <label class="ob-radio-label"><input type="checkbox" name="q17_tono[]" value="empatico"> Empático / humano</label>
+          </div>
+          <textarea name="q17_tono_detalle" rows="3" class="ob-input" placeholder="Describe con tus propias palabras el tono que quieres proyectar..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q18 -->
+        <div class="space-y-2 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">18</span>
+            <label class="text-sm font-bold text-charcoal">¿Tienes o estarías dispuesto/a a crear un lead magnet o recurso gratuito?</label>
+          </div>
+          <p class="ob-hint pl-8">Guía PDF, checklist, video informativo, mini-curso — algo de valor a cambio del contacto.</p>
+          <div class="ob-radio-group pl-8">
+            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="tengo"> Ya lo tengo</label>
+            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="crear"> Lo crearía</label>
+            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="no"> No por ahora</label>
+          </div>
+          <textarea name="q18_leadmagnet_detalle" rows="2" class="ob-input" placeholder="Si ya tienes uno o tienes idea de qué sería, descríbelo..."></textarea>
+        </div>
+        <div class="ob-divider"></div>
+
+        <!-- Q19 -->
+        <div class="space-y-1.5">
+          <div class="flex items-baseline gap-3">
+            <span class="ob-q-num">19</span>
+            <label for="q19" class="text-sm font-bold text-charcoal">¿Hay algún horario o día en que prefieras NO recibir citas?</label>
+          </div>
+          <p class="ob-hint pl-8">Para configurar la disponibilidad en el flujo de agendamiento.</p>
+          <textarea id="q19" name="q19_horarios" rows="3" class="ob-input" placeholder="Ej. No lunes, no antes de las 9 am, no después de las 7 pm, no fines de semana..."></textarea>
+        </div>
+      </div>
+
+      <!-- ── Mensajes de estado ── -->
+      <div id="ob-success" class="hidden p-6 ob-block rounded-2xl text-charcoal text-sm">
+        <p class="font-bold text-base mb-1">Cuestionario recibido.</p>
+        <p class="text-gray-500">Lo revisaremos antes de tu sesión de onboarding. Te contactamos pronto.</p>
+      </div>
+      <div id="ob-error" class="hidden p-5 bg-red-50 border border-red-200 rounded-xl text-charcoal text-sm">
+        <p class="font-bold mb-1">No pudimos enviar el formulario.</p>
+        <p class="text-gray-600">Intenta de nuevo o escríbenos a <a href="mailto:antemanotallercreativo@gmail.com" class="underline">antemanotallercreativo@gmail.com</a>.</p>
+      </div>
+
+      <!-- ── Submit ── -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2 blur-reveal" style="--brd:5">
+        <button
+          type="submit"
+          id="ob-submit"
+          class="med-cta-textured inline-flex items-center gap-2 px-8 py-4 font-bold rounded-full text-sm tracking-wide"
+        >
+          Enviar cuestionario
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor" class="w-4 h-4 ob-arrow">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+        <p class="text-xs text-gray-400">
+          Tus respuestas son confidenciales y solo las usa el equipo de Antemano para preparar tu sistema.
+        </p>
+      </div>
+
+    </form>
+  </main>
+
+  <FooterMedicos />
+</Layout>
+
+<style>
+  /* ── Header entrance ── */
+  .ob-header-enter {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: obHeaderIn 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;
+  }
+  @keyframes obHeaderIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── CTA arrow ── */
+  .ob-arrow { transition: transform 0.25s var(--ease-out-quart); }
+  .med-cta-textured:hover .ob-arrow { transform: translateX(4px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ob-header-enter { opacity: 1; transform: none; animation: none; }
+  }
+</style>
+
+<script>
+  (() => {
+    /* ── blur-reveal observer (same as /medicos global) ── */
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.10, rootMargin: '0px 0px -20px 0px' });
+    document.querySelectorAll('.blur-reveal').forEach(el => obs.observe(el));
+
+    /* ── Form progress bar ── */
+    const form    = document.getElementById('ob-form') as HTMLFormElement;
+    const bar     = document.getElementById('ob-progress-bar');
+    const inputs  = form?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[type="text"], input[type="email"], input[type="tel"], textarea');
+    function updateProgress() {
+      if (!inputs || !bar) return;
+      const filled = Array.from(inputs).filter(el => el.value.trim().length > 0).length;
+      bar.style.width = `${Math.round((filled / inputs.length) * 100)}%`;
+    }
+    inputs?.forEach(el => el.addEventListener('input', updateProgress, { passive: true }));
+
+    /* ── Submit ── */
+    const btn     = document.getElementById('ob-submit') as HTMLButtonElement;
+    const success = document.getElementById('ob-success');
+    const error   = document.getElementById('ob-error');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Required fields
+      const required = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]');
+      let valid = true;
+      required.forEach(el => {
+        if (!el.value.trim()) {
+          valid = false;
+          el.style.borderColor = '#c94a4a';
+        }
+      });
+      if (!valid) {
+        (window as any).showToast?.('Completa los campos marcados en rojo');
+        return;
+      }
+
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+      success?.classList.add('hidden');
+      error?.classList.add('hidden');
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (res.ok) {
+          form.reset();
+          if (bar) bar.style.width = '0%';
+          success?.classList.remove('hidden');
+          success?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (window as any).showToast?.('¡Cuestionario enviado!');
+        } else throw new Error();
+      } catch {
+        error?.classList.remove('hidden');
+        (window as any).showToast?.('No se pudo enviar. Inténtalo de nuevo.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+      }
+    });
+
+    // Clear red borders on input
+    form?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]').forEach(el => {
+      el.addEventListener('input', () => { el.style.borderColor = ''; }, { once: false });
+    });
+  })();
+</script>
