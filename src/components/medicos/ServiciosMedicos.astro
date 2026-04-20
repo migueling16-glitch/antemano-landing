@@ -1,260 +1,110 @@
 ---
-const services = [
-  {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>`,
-    title: 'Contenido que educa y convierte',
-    description: 'Producimos videos, fotos y reels que muestran tu experiencia clínica de forma profesional. Contenido que <strong class="kw">educa al paciente</strong>, posiciona tu autoridad y respeta los lineamientos del sector salud.',
-    expandedText: [
-      'El contenido clínico bien hecho no promete resultados. <strong class="kw">Explica, orienta y tranquiliza.</strong> Ese tipo de material es el que convierte en agenda llena.',
-      'Producimos piezas que tu paciente entiende, que Instagram y Google premian, y que tu gremio respeta.',
-    ],
-    deliverables: [
-      'Reels educativos sobre tu especialidad (guion + producción)',
-      'Fotografía profesional de consultorio y equipo',
-      'Videos de testimonios de pacientes (con consentimiento informado)',
-      'Posts informativos con diseño médico-profesional',
-      'Material para historias semanal',
-    ],
-  },
-  {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>`,
-    title: 'Estrategia diseñada para tu especialidad',
-    description: 'Cada especialidad tiene su propio paciente ideal. <strong class="kw">Cardiólogo no es lo mismo que dermatólogo.</strong> Diseñamos un plan de contenido específico para tu nicho, basado en las búsquedas reales de tus pacientes potenciales.',
-    expandedText: [
-      'Publicar sin estrategia es como repartir volantes con los ojos cerrados. Analizamos tu especialidad, tu competencia local y <strong class="kw">cómo busca tu paciente ideal</strong> para diseñar un plan que tenga sentido.',
-      'Cada mes revisamos qué funcionó, qué no, y ajustamos. Nada de adivinar.',
-    ],
-    deliverables: [
-      'Análisis del paciente ideal de tu especialidad',
-      'Investigación de keywords médicas relevantes',
-      'Calendario editorial mensual personalizado',
-      'Análisis de tu competencia local',
-      'Reportes mensuales con métricas y ajustes',
-    ],
-  },
-  {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" /></svg>`,
-    title: 'Presencia que genera confianza desde el primer click',
-    description: 'Tu Instagram, Google Business y eventualmente tu sitio web <strong class="kw">conectados como un sistema.</strong> Cuando el paciente te busca, encuentra una operación profesional coherente — no un perfil abandonado.',
-    expandedText: [
-      'Un paciente que duda entre dos especialistas elige al que se ve <strong class="kw">más sólido en línea.</strong> No al que tiene más seguidores — al que se ve más profesional.',
-      'Nos encargamos de que todos tus canales cuenten la misma historia y reciban al paciente con la misma seriedad con la que tú lo atiendes en consulta.',
-    ],
-    deliverables: [
-      'Optimización de perfil profesional de Instagram',
-      'Gestión de Google Business y reseñas',
-      'Community management con tono médico apropiado',
-      'Coordinación con tu equipo de recepción para captura de leads',
-      'Publicación constante (mínimo 3 veces por semana)',
-    ],
-  },
+const fase1Items = [
+  'Estrategia de contenido por especialidad',
+  'Videos y reels clínicos sin comprometer tu imagen',
+  'Google Business optimizado para búsquedas locales',
+  'Instagram y web funcionando como sistema coherente',
+  'Posicionamiento como autoridad en tu ciudad',
+];
+
+const fase2Items = [
+  'Captación DM → cita agendada automáticamente',
+  'Recordatorios que reducen ausencias hasta 60%',
+  'Reactivación de pacientes inactivos',
+  'Bot FAQ 24/7: horarios, precios, seguros, ubicación',
+  'Reseñas Google automáticas post-consulta',
+  'Flujo de referidos automatizado',
 ];
 ---
 
 <section id="como" class="py-24 lg:py-32 bg-white relative">
   <span class="section-line absolute top-0 left-6 right-6 lg:left-8 lg:right-8 z-10" aria-hidden="true"></span>
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
+
     <!-- Header -->
     <div class="max-w-3xl mb-16">
-      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 reveal">
-        Lo que hacemos por ti
+      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 blur-reveal">
+        Cómo funciona el sistema
       </p>
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal mb-4 reveal reveal-delay-1">
-        Una operación digital que funciona sin ti.
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal mb-4 blur-reveal" style="--brd:1">
+        Dos fases. Un solo resultado: tu agenda llena.
       </h2>
-      <p class="text-lg text-gray-500 reveal reveal-delay-2">
-        Tú atiendes pacientes. Nosotros nos encargamos de que sigan llegando.
+      <p class="text-lg text-gray-500 blur-reveal" style="--brd:2">
+        La presencia sin sistema genera visibilidad que no convierte. El sistema sin presencia no tiene tráfico que procesar. Los dos funcionan juntos — por eso los construimos juntos.
       </p>
     </div>
 
-    <!-- Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {services.map((service, i) => (
-        <article
-          class={`blur-reveal med-service-card med-glass-ghost med-grain-hover p-8 rounded-2xl flex flex-col gap-5 relative overflow-hidden`}
-          data-index={i}
-          style={`--brd:${i}`}
-        >
-          <div class="med-grain absolute inset-0"></div>
-          <div class="med-service-icon text-charcoal relative z-10" set:html={service.icon} />
-          <h3 class="text-xl font-bold text-charcoal relative z-10">{service.title}</h3>
-          <p class="text-gray-500 text-sm leading-relaxed relative z-10" set:html={service.description} />
+    <!-- Grid 2 columnas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          <div
-            class="med-service-expanded relative z-10"
-            id={`med-service-body-${i}`}
-            role="region"
-            aria-labelledby={`med-service-btn-${i}`}
-          >
-            <div class="med-service-expanded-inner pt-5">
-              <div class="space-y-3 mb-6">
-                {service.expandedText.map(p => (
-                  <p class="text-gray-500 text-sm leading-relaxed" set:html={p} />
-                ))}
-              </div>
+      <!-- FASE 01 — fondo claro -->
+      <article class="blur-reveal med-glass-ghost relative overflow-hidden rounded-2xl p-8 flex flex-col" style="--brd:0">
+        <div class="med-grain absolute inset-0"></div>
+        <div class="relative z-10 flex flex-col flex-1">
+          <p class="text-[10px] font-bold tracking-[0.20em] uppercase text-charcoal/50 mb-3">Fase 01</p>
+          <h3 class="text-2xl font-black text-charcoal mb-1">Autoridad Digital</h3>
+          <p class="italic text-gray-500 text-sm mb-5">Que te encuentren y que confíen.</p>
+          <hr class="border-charcoal/10 mb-6" />
 
-              <p class="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-400 mb-3">Qué incluye</p>
+          <ul class="space-y-3 flex-1">
+            {fase1Items.map(item => (
+              <li class="flex items-start gap-3 text-sm">
+                <span class="mt-[2px] flex-shrink-0 w-5 h-5 rounded-full bg-charcoal flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" class="w-3 h-3">
+                    <path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="text-gray-700 leading-snug">{item}</span>
+              </li>
+            ))}
+          </ul>
 
-              <ul class="space-y-2.5 mb-7">
-                {service.deliverables.map(item => (
-                  <li class="flex items-start gap-3 text-sm">
-                    <span class="mt-[3px] flex-shrink-0 w-4 h-4 rounded-full bg-charcoal flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" class="w-2.5 h-2.5">
-                        <path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </span>
-                    <span class="text-gray-700 leading-snug">{item}</span>
-                  </li>
-                ))}
-              </ul>
+          <hr class="border-charcoal/10 mt-6 mb-4" />
+          <p class="text-xs italic text-gray-400">Sin esto eres invisible. Con esto apareces primero.</p>
+        </div>
+      </article>
 
-              <div class="w-full h-px bg-gray-100 mb-5"></div>
+      <!-- FASE 02 — fondo charcoal -->
+      <article class="blur-reveal bg-charcoal relative overflow-hidden rounded-2xl p-8 flex flex-col" style="--brd:1">
+        <div class="med-grain med-grain-dark absolute inset-0"></div>
+        <div class="relative z-10 flex flex-col flex-1">
+          <p class="text-[10px] font-bold tracking-[0.20em] uppercase text-white/40 mb-3">Fase 02</p>
+          <h3 class="text-2xl font-black text-white mb-1">Sistema de Agenda Llena</h3>
+          <p class="italic text-white/50 text-sm mb-5">Que el que llega, se quede y vuelva.</p>
+          <hr class="border-white/10 mb-6" />
 
-              <a
-                href="#agendar"
-                class="med-service-cta inline-flex items-center gap-1.5 text-sm font-bold text-charcoal"
-              >
-                Quiero esto para mi consultorio
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-3.5 h-3.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </a>
-            </div>
-          </div>
+          <ul class="space-y-3 flex-1">
+            {fase2Items.map(item => (
+              <li class="flex items-start gap-3 text-sm">
+                <span class="mt-[2px] flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" class="w-3 h-3">
+                    <path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="text-white/80 leading-snug">{item}</span>
+              </li>
+            ))}
+          </ul>
 
-          <button
-            id={`med-service-btn-${i}`}
-            class="med-service-toggle flex items-center gap-2 text-charcoal text-sm font-semibold mt-auto pt-2 w-fit relative z-10"
-            aria-expanded="false"
-            aria-controls={`med-service-body-${i}`}
-          >
-            <span class="toggle-label">Conocer más</span>
-            <span class="toggle-icon" aria-hidden="true">
-              <svg class="arrow-right w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-              <svg class="arrow-up w-4 h-4 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-              </svg>
-            </span>
-          </button>
-        </article>
-      ))}
+          <hr class="border-white/10 mt-6 mb-4" />
+          <p class="text-xs italic text-white/40">Sin esto la Fase 1 genera demanda que nadie procesa.</p>
+        </div>
+      </article>
+
     </div>
+
+    <!-- Nota al pie -->
+    <div class="mt-8 p-6 rounded-2xl bg-charcoal/[0.06] border border-charcoal/[0.08]">
+      <p class="text-sm text-gray-600 italic text-center">
+        "La Fase 1 te hace encontrable. La Fase 2 hace que encontrarte tenga consecuencias para tu agenda. Son inseparables."
+      </p>
+    </div>
+
   </div>
 </section>
 
 <style>
-  .med-service-card {
-    transition:
-      transform 0.4s var(--ease-out-quart),
-      border-color 0.3s,
-      box-shadow 0.4s var(--ease-out-quart);
-  }
-  .med-service-card:not(.is-open):hover {
-    transform: translateY(-6px);
-    border-color: rgba(26,26,26,0.20);
-    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.14);
-    background-color: rgba(255,255,255,0.68);
-  }
-  .med-service-card.is-open {
-    border-color: rgba(26,26,26,0.22);
-    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.12);
-    background-color: rgba(255,255,255,0.72);
-  }
-
-  .med-service-icon {
-    display: inline-flex;
-    width: 52px;
-    height: 52px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 14px;
-    background: #ffffff;
-    transition:
-      background 0.3s var(--ease-out-quart),
-      color 0.3s,
-      transform 0.5s var(--ease-out-expo);
-  }
-  .med-service-card:hover .med-service-icon {
-    background: #1A1A1A;
-    color: #fff;
-    transform: rotate(-6deg) scale(1.06);
-  }
-
-  .med-service-expanded {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s var(--ease-out-quart);
-  }
-  .med-service-expanded-inner {
-    opacity: 0;
-    transition: opacity 0.25s ease 0.1s;
-  }
-  .med-service-card.is-open .med-service-expanded { max-height: 700px; }
-  .med-service-card.is-open .med-service-expanded-inner { opacity: 1; }
-
-  .med-service-toggle {
-    background: none; border: none; padding: 0; cursor: pointer;
-    transition: color 0.2s;
-  }
-  .med-service-toggle:hover,
-  .med-service-card.is-open .med-service-toggle { color: #555; }
-  .med-service-toggle:focus-visible {
-    outline: 2px solid #1A1A1A;
-    outline-offset: 3px;
-    border-radius: 4px;
-  }
-
-  .arrow-right, .arrow-up { transition: transform 0.3s var(--ease-out-quart); }
-  .arrow-right.hidden, .arrow-up.hidden { display: none; }
-
-  .med-service-cta {
-    transition: gap 0.2s, color 0.2s;
-  }
-  .med-service-cta:hover { gap: 6px; color: #555; }
-
   @media (prefers-reduced-motion: reduce) {
-    .med-service-card:not(.is-open):hover { transform: none; }
-    .med-service-card:hover .med-service-icon { transform: none; }
-    .med-service-expanded { transition: none; }
-    .med-service-expanded-inner { transition: none; opacity: 1; }
+    .blur-reveal { opacity: 1; filter: none; transform: none; transition: none; }
   }
 </style>
-
-<script>
-  const medCards = document.querySelectorAll<HTMLElement>('.med-service-card');
-
-  function openMedCard(card: HTMLElement) {
-    card.classList.add('is-open');
-    const btn = card.querySelector<HTMLButtonElement>('.med-service-toggle')!;
-    const label = btn.querySelector<HTMLElement>('.toggle-label')!;
-    const aR = btn.querySelector<HTMLElement>('.arrow-right')!;
-    const aU = btn.querySelector<HTMLElement>('.arrow-up')!;
-    btn.setAttribute('aria-expanded', 'true');
-    label.textContent = 'Cerrar';
-    aR.classList.add('hidden');
-    aU.classList.remove('hidden');
-  }
-
-  function closeMedCard(card: HTMLElement) {
-    card.classList.remove('is-open');
-    const btn = card.querySelector<HTMLButtonElement>('.med-service-toggle')!;
-    const label = btn.querySelector<HTMLElement>('.toggle-label')!;
-    const aR = btn.querySelector<HTMLElement>('.arrow-right')!;
-    const aU = btn.querySelector<HTMLElement>('.arrow-up')!;
-    btn.setAttribute('aria-expanded', 'false');
-    label.textContent = 'Conocer más';
-    aR.classList.remove('hidden');
-    aU.classList.add('hidden');
-  }
-
-  medCards.forEach((card) => {
-    const btn = card.querySelector<HTMLButtonElement>('.med-service-toggle')!;
-    btn.addEventListener('click', () => {
-      const isOpen = card.classList.contains('is-open');
-      medCards.forEach(closeMedCard);
-      if (!isOpen) openMedCard(card);
-    });
-  });
-</script>

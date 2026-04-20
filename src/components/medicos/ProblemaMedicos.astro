@@ -1,18 +1,15 @@
 ---
-// Estadísticas ilustrativas. Miguel puede reemplazarlas con fuentes verificadas.
 const stats = [
-  {
-    number: '77%',
-    text: 'de los pacientes investiga en internet antes de elegir un médico especialista',
-  },
-  {
-    number: '1 de 3',
-    text: 'doctores pierde pacientes potenciales por una mala presencia digital',
-  },
-  {
-    number: '94%',
-    text: 'de las personas confía más en un especialista con reseñas y contenido visible',
-  },
+  { number: '90%', text: 'de especialistas sin presencia digital seria ni sistema activo', dark: true },
+  { number: '77%', text: 'de pacientes investiga antes de elegir especialista' },
+  { number: '94%', text: 'confía más en doctores con reseñas y contenido visible' },
+  { number: '20–40%', text: 'de no-shows evitables con sistema de recordatorio' },
+];
+
+const bars = [
+  { label: 'Sin presencia digital', pct: 50, style: 'solid' },
+  { label: 'Perfil activo, sin sistema', pct: 40, style: 'mid' },
+  { label: 'Presencia + sistema activo', pct: 10, style: 'light' },
 ];
 ---
 
@@ -20,46 +17,101 @@ const stats = [
   <!-- Draw line -->
   <span class="section-line absolute top-0 left-6 right-6 lg:left-8 lg:right-8 z-10" aria-hidden="true"></span>
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
+
     <!-- Header -->
     <div class="max-w-3xl mb-16">
-      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 reveal">
-        La realidad del sector salud en 2026
+      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 blur-reveal">
+        La realidad del mercado médico digital en 2026
       </p>
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
-        Tus pacientes ya no eligen como antes.
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal blur-reveal" style="--brd:1">
+        La mayoría de tus colegas no tiene esto resuelto. Todavía.
       </h2>
+      <p class="text-lg text-gray-500 leading-relaxed mt-6 blur-reveal" style="--brd:2">
+        El 77% de los pacientes investiga en internet antes de elegir especialista. Y sin embargo, la mayoría de los doctores en México opera digitalmente como si fuera 2015. Sin presencia. Sin sistema. Sin nada que convierta al que busca en el que llega.
+      </p>
     </div>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
+    <!-- Stats Grid 2x2 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-16">
       {stats.map((s, i) => (
         <article
-          class={`med-stat-card med-glass-ghost med-grain-hover p-8 rounded-2xl relative overflow-hidden stat-card-enter`}
+          class={`med-stat-card med-grain-hover p-8 rounded-2xl relative overflow-hidden stat-card-enter ${s.dark ? 'bg-charcoal text-white' : 'med-glass-ghost'}`}
           style={`--ci:${i}`}
         >
-          <div class="med-grain absolute inset-0"></div>
-          <p
-            class="med-stat-number med-text-textured text-5xl lg:text-6xl font-black leading-none mb-5 tracking-tight relative z-10"
-            data-count-target={s.number}
-          >
-            {s.number}
-          </p>
-          <p class="text-gray-500 text-sm leading-relaxed relative z-10">
+          <div class={`${s.dark ? 'med-grain-dark' : 'med-grain'} absolute inset-0`}></div>
+          {s.dark ? (
+            <p class="text-5xl lg:text-6xl font-black leading-none mb-5 tracking-tight relative z-10 text-white">
+              {s.number}
+            </p>
+          ) : (
+            <p
+              class="med-stat-number med-text-textured text-5xl lg:text-6xl font-black leading-none mb-5 tracking-tight relative z-10"
+              data-count-target={s.number}
+            >
+              {s.number}
+            </p>
+          )}
+          <p class={`text-sm leading-relaxed relative z-10 ${s.dark ? 'text-white/70' : 'text-gray-500'}`}>
             {s.text}
           </p>
         </article>
       ))}
     </div>
 
-    <!-- Closing text -->
-    <div class="max-w-3xl space-y-4 text-gray-600 text-lg leading-relaxed reveal reveal-delay-2">
-      <p>
-        No es que necesites más marketing. Necesitas que tu presencia digital esté <strong class="kw">a la altura de tu práctica clínica.</strong>
+    <!-- Barra de distribución -->
+    <div class="max-w-3xl mb-12 blur-reveal" style="--brd:1">
+      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-8 text-charcoal/40">
+        Distribución del mercado médico digital hoy
       </p>
-      <p>
-        El paciente que te busca en Instagram y encuentra un perfil sin actualizar va a marcarle al de la competencia. Aunque tú seas mejor médico.
+
+      <div class="space-y-7" id="market-bars">
+        <!-- Bar 1 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold text-charcoal">Sin presencia digital</span>
+            <span class="text-sm font-black text-charcoal">50%</span>
+          </div>
+          <div class="h-3 rounded-full bg-gray-100 overflow-hidden">
+            <div class="market-bar h-full rounded-full bg-charcoal" data-width="50" style="width:0%;transition:width 1.2s cubic-bezier(0.22,1,0.36,1)"></div>
+          </div>
+        </div>
+
+        <!-- Bar 2 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold text-charcoal">Perfil activo, sin sistema</span>
+            <span class="text-sm font-black text-charcoal">40%</span>
+          </div>
+          <div class="h-3 rounded-full bg-gray-100 overflow-hidden">
+            <div class="market-bar h-full rounded-full bg-charcoal/60" data-width="40" style="width:0%;transition:width 1.2s cubic-bezier(0.22,1,0.36,1) 0.15s"></div>
+          </div>
+        </div>
+
+        <!-- Bar 3 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold text-charcoal">Presencia + sistema activo</span>
+            <span class="text-sm font-black text-charcoal">10%</span>
+          </div>
+          <div class="h-3 rounded-full bg-gray-100 overflow-hidden border border-dashed border-charcoal/40">
+            <div class="market-bar h-full rounded-full bg-charcoal/20" data-width="10" style="width:0%;transition:width 1.2s cubic-bezier(0.22,1,0.36,1) 0.3s"></div>
+          </div>
+          <p class="text-[11px] text-charcoal/50 italic mt-2">← Aquí es donde deberías estar</p>
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-500 leading-relaxed mt-8 border-l-2 border-charcoal/20 pl-4 italic">
+        Ese 10% captura una demanda desproporcionada. El especialista que construya su presencia hoy llega antes que sus colegas — y eso no se revierte fácilmente.
       </p>
     </div>
+
+    <!-- Párrafo cierre -->
+    <div class="max-w-3xl blur-reveal" style="--brd:2">
+      <p class="text-lg text-gray-600 leading-relaxed">
+        La pregunta no es si vale la pena. La pregunta es si llegas antes o después que el especialista de tu competencia en tu ciudad.
+      </p>
+    </div>
+
   </div>
 </section>
 
@@ -71,7 +123,7 @@ const stats = [
     transform: perspective(700px) rotateX(16deg) translateY(36px) scale(0.97);
     transition:
       opacity   0.85s var(--ease-out-expo),
-      filter    0.65s cubic-bezier(0.22, 1, 0.36, 1),  /* blur clears first */
+      filter    0.65s cubic-bezier(0.22, 1, 0.36, 1),
       transform 0.85s var(--ease-out-expo);
     transition-delay: calc(var(--ci, 0) * 0.13s + 0.05s);
     will-change: filter, transform, opacity;
@@ -101,13 +153,13 @@ const stats = [
   }
   .med-stat-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(26,26,26,0.18);
     box-shadow: 0 24px 48px -16px rgba(0,0,0,0.12);
+  }
+  .med-stat-card:not(.bg-charcoal):hover {
+    border-color: rgba(26,26,26,0.18);
     background-color: rgba(255,255,255,0.65);
   }
   .med-stat-card:hover::before { width: 100%; }
-
-  /* .med-stat-number styles now come from global .med-text-textured */
 
   @media (prefers-reduced-motion: reduce) {
     .stat-card-enter { opacity: 1; filter: none; transform: none; transition: none; }
@@ -116,46 +168,59 @@ const stats = [
 
 <script>
   (() => {
-    /* ── Intersection observer: 3D card enter + number counter ── */
+    /* ── Stat cards: 3D enter + counter ── */
     const cards = document.querySelectorAll<HTMLElement>('.stat-card-enter');
-    if (!cards.length) return;
+    if (cards.length) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const card = entry.target as HTMLElement;
+          card.classList.add('visible');
 
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const card = entry.target as HTMLElement;
-        card.classList.add('visible');
+          const numEl = card.querySelector<HTMLElement>('[data-count-target]');
+          if (!numEl) return;
+          const raw = numEl.dataset.countTarget ?? '';
+          const match = raw.match(/^(\d+)(.*)/);
+          if (!match) return;
+          const target = parseInt(match[1], 10);
+          const suffix = raw.slice(match[1].length);
 
-        // Counter animation
-        const numEl = card.querySelector<HTMLElement>('[data-count-target]');
-        if (!numEl) return;
-        const raw = numEl.dataset.countTarget ?? '';
+          const duration = 1400;
+          const start = performance.now();
+          const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 
-        // Parse: "77%" → {value:77, suffix:'%'}, "1 de 3" → skip
-        const match = raw.match(/^(\d+)(.*)/);
-        if (!match) return;
-        const target = parseInt(match[1], 10);
-        const suffix = raw.slice(match[1].length);
+          function step(now: number) {
+            const t = Math.min((now - start) / duration, 1);
+            const val = Math.round(ease(t) * target);
+            numEl.textContent = val + suffix;
+            if (t < 1) requestAnimationFrame(step);
+          }
 
-        const duration = 1400;
-        const start = performance.now();
-        const ease = (t: number) => 1 - Math.pow(1 - t, 3); // ease-out-cubic
+          const delay = (parseInt(card.style.getPropertyValue('--ci') || '0', 10) * 120) + 200;
+          setTimeout(() => requestAnimationFrame(step), delay);
 
-        function step(now: number) {
-          const t = Math.min((now - start) / duration, 1);
-          const val = Math.round(ease(t) * target);
-          numEl.textContent = val + suffix;
-          if (t < 1) requestAnimationFrame(step);
-        }
+          obs.unobserve(card);
+        });
+      }, { threshold: 0.25 });
 
-        // Small delay matching card entrance delay
-        const delay = (parseInt(card.style.getPropertyValue('--ci') || '0', 10) * 120) + 200;
-        setTimeout(() => requestAnimationFrame(step), delay);
+      cards.forEach(c => obs.observe(c));
+    }
 
-        obs.unobserve(card);
-      });
-    }, { threshold: 0.25 });
+    /* ── Market distribution bars ── */
+    const barsContainer = document.getElementById('market-bars');
+    if (barsContainer) {
+      const barObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const bars = entry.target.querySelectorAll<HTMLElement>('.market-bar');
+          bars.forEach(bar => {
+            bar.style.width = (bar.dataset.width ?? '0') + '%';
+          });
+          barObs.unobserve(entry.target);
+        });
+      }, { threshold: 0.3 });
 
-    cards.forEach(c => obs.observe(c));
+      barObs.observe(barsContainer);
+    }
   })();
 </script>

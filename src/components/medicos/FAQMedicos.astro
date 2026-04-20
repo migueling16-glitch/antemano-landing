@@ -2,27 +2,43 @@
 const faqs = [
   {
     q: '¿Cuánto cuesta?',
-    a: 'Depende del alcance. Nuestros paquetes para médicos van desde <strong class="kw">$X,XXX MXN/mes</strong> para presencia básica activa, hasta <strong class="kw">$XX,XXX MXN/mes</strong> para operaciones digitales completas. En la llamada de descubrimiento te damos el número exacto basado en tu caso. Lo que sí garantizamos: no hay sorpresas en la factura.',
+    a: 'El sistema tiene dos componentes: implementación única ($18,000–$22,000 MXN) + membresía mensual de mantenimiento ($4,500–$6,000 MXN). Menos que el sueldo de una recepcionista — y trabaja 24/7.',
   },
   {
     q: '¿Tengo que aparecer en cámara?',
-    a: 'No necesariamente. Tenemos clientes médicos cuya presencia digital crece sin que ellos salgan en cámara — usamos contenido educativo, animaciones, y testimonios de pacientes. Si decides aparecer, te asesoramos para que sea cómodo. Si no, también funciona.',
+    a: 'No necesariamente. El sistema funciona con o sin tu imagen. Muchos de nuestros clientes prefieren no aparecer — construimos autoridad de otras formas.',
   },
   {
-    q: '¿Qué pasa si los pacientes me preguntan cosas médicas en mensajes?',
-    a: 'Manejamos el community management con un protocolo estricto: cualquier consulta clínica se redirige a tu equipo o se agenda como cita. <strong class="kw">Nunca damos consejos médicos en tu nombre.</strong> Tú decides qué nivel de control quieres mantener.',
+    q: '¿Qué pasa si un paciente hace preguntas médicas en DMs?',
+    a: 'Protocolo estricto. El bot nunca da consejos médicos — redirige toda consulta a una cita. Sin excepción.',
   },
   {
-    q: '¿Cumplen con la normativa de COFEPRIS?',
-    a: 'Sí. Conocemos los lineamientos sobre publicidad médica y nos aseguramos de que todo el contenido respete las restricciones del sector salud. Nada de antes/después comparativos sin consentimiento, nada de garantías de resultados, nada de testimonios sin autorización formal.',
+    q: '¿Cumplen con COFEPRIS?',
+    a: 'Sí. Conocemos los lineamientos y los aplicamos en todo el contenido y los flujos de automatización.',
   },
   {
-    q: '¿Puedo cancelar si no funciona?',
-    a: 'Sin contratos de permanencia. Trabajamos mes a mes. Si en 90 días no ves resultados medibles, lo platicamos y ajustamos — o terminamos sin penalizaciones. <strong class="kw">Nuestro modelo depende de que renueves porque funciona</strong>, no porque firmaste un contrato.',
+    q: '¿Puedo cancelar cuando quiero?',
+    a: 'Sin contratos. Mes a mes. Sin penalizaciones ni letras pequeñas.',
   },
   {
-    q: '¿Trabajan con doctores fuera de Durango?',
-    a: 'Sí. Tenemos clientes en Monterrey, CDMX y Guadalajara. La producción audiovisual presencial requiere planificación de viajes, pero todo lo demás (estrategia, gestión, contenido digital) lo hacemos remoto sin problema.',
+    q: '¿Trabajan fuera de Durango?',
+    a: 'Sí — Monterrey, CDMX, Guadalajara y cualquier ciudad donde operes. El sistema es 100% remoto.',
+  },
+  {
+    q: '¿Cuánto tarda en estar activo?',
+    a: 'El sistema completo está operando en 14 días. La presencia digital toma 30 días para tener momentum visible. Los arrancamos en paralelo.',
+  },
+  {
+    q: '¿Necesito saber de tecnología?',
+    a: 'No. Nosotros configuramos, instalamos y mantenemos todo. Tú solo revisas el reporte mensual.',
+  },
+  {
+    q: '¿Primero la presencia o primero el sistema?',
+    a: 'Los dos desde el inicio — con velocidades distintas. La presencia tarda 30 días en tener momentum. El sistema está activo en 14 días.',
+  },
+  {
+    q: '¿Vale la pena si parto de cero en redes?',
+    a: 'Especialmente si partes de cero. La ventaja del que construye desde el principio con estrategia es enorme vs quien lleva años posteando sin dirección.',
   },
 ];
 ---
@@ -31,10 +47,10 @@ const faqs = [
   <div class="max-w-4xl mx-auto px-6 lg:px-8">
     <!-- Header -->
     <div class="mb-14 text-center">
-      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 reveal">
+      <p class="text-[11px] font-bold tracking-[0.22em] uppercase mb-4 text-charcoal/40 blur-reveal">
         Preguntas frecuentes
       </p>
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal blur-reveal" style="--brd:1">
         Lo que probablemente estás pensando.
       </h2>
     </div>
@@ -43,7 +59,8 @@ const faqs = [
     <div class="space-y-3">
       {faqs.map((f, i) => (
         <article
-          class={`reveal-up reveal-delay-${(i % 4) + 1} med-faq-item med-glass-ghost rounded-2xl overflow-hidden relative`}
+          class={`blur-reveal med-faq-item med-glass-ghost rounded-2xl overflow-hidden relative`}
+          style={`--brd:${i % 4}`}
         >
           <div class="med-grain absolute inset-0"></div>
           <button
