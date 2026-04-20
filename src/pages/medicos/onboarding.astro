@@ -459,15 +459,21 @@ const description = 'Cuestionario de onboarding para diseñar tu sistema de auto
         <div class="space-y-2 mb-5">
           <div class="flex items-baseline gap-3">
             <span class="ob-q-num">18</span>
-            <label class="text-sm font-bold text-charcoal">¿Tienes algo que puedas regalar a un paciente a cambio de su contacto?</label>
+            <label class="text-sm font-bold text-charcoal">Imagina que alguien ve tu contenido en Instagram y te escribe. ¿Tienes algo útil que puedas enviarle de inmediato — gratis — para que confíe en ti antes de agendar?</label>
           </div>
-          <p class="ob-hint pl-8">Por ejemplo: una guía en PDF sobre tu especialidad, un video explicando un procedimiento común, un checklist de síntomas, consejos de cuidado post-consulta, etc. Algo útil que el paciente descargue o reciba — y a cambio te deja su WhatsApp o correo para darle seguimiento.</p>
+          <p class="ob-hint pl-8">
+            Puede ser algo tan simple como:<br/>
+            · "Los 5 síntomas que no debes ignorar si tienes X" en PDF<br/>
+            · Un video corto tuyo explicando cuándo es momento de consultar un especialista<br/>
+            · Una guía de cuidados antes o después de un procedimiento<br/><br/>
+            La idea es que ese recurso llegue automático al paciente en cuanto escribe — y tú quedas como la autoridad antes de que hable con alguien más.
+          </p>
           <div class="ob-radio-group pl-8">
-            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="tengo"> Sí, ya tengo algo así</label>
-            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="crear"> No tengo, pero podría crearlo</label>
-            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="no"> No, prefiero no hacerlo por ahora</label>
+            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="tengo"> Sí, ya tengo algo que podría funcionar</label>
+            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="crear"> No tengo, pero me parece buena idea crearlo</label>
+            <label class="ob-radio-label"><input type="radio" name="q18_leadmagnet_radio" value="no"> Por ahora prefiero no incluir esto</label>
           </div>
-          <textarea name="q18_leadmagnet_detalle" rows="2" class="ob-input" placeholder="Si ya tienes algo o tienes idea de qué podría ser, descríbelo aquí..."></textarea>
+          <textarea name="q18_leadmagnet_detalle" rows="2" class="ob-input" placeholder="Si ya tienes algo o se te ocurre una idea, cuéntanos..."></textarea>
         </div>
         <div class="ob-divider"></div>
 
