@@ -32,9 +32,9 @@
 
     <!-- Masked line-by-line reveal -->
     <h1 class="hero-title text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6">
-      <span class="hmask"><span class="hrise" style="--l:0">Tu competencia ya está publicando.</span></span>
+      <span class="hmask"><span class="hrise" style="--l:0">Tu competencia ya está <em class="serif-it">publicando.</em></span></span>
       <span class="hmask"><span class="hrise" style="--l:1">Y se está quedando</span></span>
-      <span class="hmask"><span class="hrise" style="--l:2">con tus <span class="hl-accent">clientes</span>.</span></span>
+      <span class="hmask"><span class="hrise" style="--l:2">con tus <em class="serif-it">clientes.</em></span></span>
     </h1>
 
     <p class="hero-sub text-lg sm:text-xl text-white/70 font-medium max-w-2xl mx-auto mb-10">
@@ -60,6 +60,14 @@
           Quiero una propuesta
         </a>
       </span>
+    </div>
+  </div>
+
+  <!-- Kinetic type strip — giant, half-cropped at the hero's bottom edge -->
+  <div class="hero-kinetic" aria-hidden="true">
+    <div class="hk-track">
+      <span class="hk-seq">producción <i>/</i> estrategia <i>/</i> contenido <i>/</i> <em>resultados</em> <i>/</i>&nbsp;</span>
+      <span class="hk-seq">producción <i>/</i> estrategia <i>/</i> contenido <i>/</i> <em>resultados</em> <i>/</i>&nbsp;</span>
     </div>
   </div>
 
@@ -152,27 +160,45 @@
     100% { transform: translateY(0); opacity: 1; }
   }
 
-  /* Accent word — drawn underline */
-  .hl-accent {
-    position: relative;
-    white-space: nowrap;
-  }
-  .hl-accent::after {
-    content: '';
+  /* ── Kinetic type strip (Blu-style cropped giant type) ── */
+  .hero-kinetic {
     position: absolute;
+    bottom: -0.16em;
     left: 0;
     right: 0;
-    bottom: 0.04em;
-    height: 0.085em;
-    background: currentColor;
-    border-radius: 2px;
-    transform: scaleX(0);
-    transform-origin: left center;
+    overflow: hidden;
+    pointer-events: none;
+    line-height: 1;
+    z-index: 1;
   }
-  html.intro-done .hl-accent::after {
-    animation: hlDraw 0.7s var(--ease-out-expo) 1.05s forwards;
+  .hk-track {
+    display: flex;
+    width: max-content;
+    animation: hkDrift 80s linear infinite;
+    will-change: transform;
   }
-  @keyframes hlDraw { to { transform: scaleX(1); } }
+  .hk-seq {
+    display: inline-block;
+    font-size: clamp(4.5rem, 11vw, 10rem);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.055);
+  }
+  .hk-seq em {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.075);
+  }
+  .hk-seq i {
+    font-style: normal;
+    color: rgba(255, 255, 255, 0.035);
+    padding: 0 0.12em;
+  }
+  @keyframes hkDrift {
+    to { transform: translateX(-50%); }
+  }
 
   /* ── Eyebrow / sub / CTA entrance (gated) ── */
   .hero-eyebrow,
@@ -220,9 +246,10 @@
   @media (prefers-reduced-motion: reduce) {
     .hero-gradient, .scroll-indicator { animation: none !important; }
     .hrise { opacity: 1; transform: none; animation: none; }
-    .hl-accent::after { transform: scaleX(1); animation: none; }
     .hero-eyebrow, .hero-sub, .hero-cta { opacity: 1; transform: none; animation: none; }
     .hero-brand-px { transform: none !important; }
+    .hk-track { animation: none; }
+    .hmask { transform: none !important; opacity: 1 !important; }
   }
 </style>
 
@@ -263,5 +290,35 @@
       tx = 0; ty = 0; active = false;
       if (!raf) raf = requestAnimationFrame(loop);
     });
+  }
+
+  // ─── Scroll-scrubbed hero exit: lines split apart as you leave ───────
+  // Fade is applied to #hero-content (no CSS animation there, so inline
+  // styles win); the line masks slide horizontally for the split effect.
+  if (section && content && !reduced) {
+    const masks = Array.from(section.querySelectorAll<HTMLElement>('.hmask'));
+    const indicator = section.querySelector<HTMLElement>('.scroll-indicator');
+    let exRaf = 0;
+    let lastP = -1;
+
+    function heroExit() {
+      exRaf = 0;
+      const vh = window.innerHeight;
+      const p = Math.min(Math.max(window.scrollY / (vh * 0.85), 0), 1);
+      if (p === lastP) return;
+      lastP = p;
+      const e = p * p; // ease-in: starts gentle, accelerates away
+
+      masks.forEach((m, i) => {
+        const dir = i === 0 ? -1 : i === 2 ? 1 : 0;
+        m.style.transform = `translateX(${(dir * e * 110).toFixed(1)}px)`;
+      });
+      content!.style.opacity = String(1 - e * 0.95);
+      if (indicator) indicator.style.opacity = String(Math.max(0, 1 - p * 2.5));
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!exRaf) exRaf = requestAnimationFrame(heroExit);
+    }, { passive: true });
   }
 </script>

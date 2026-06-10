@@ -31,20 +31,11 @@ const lines = [
 </section>
 
 <style>
-  .problem-line {
-    opacity: 0;
-    transform: translateY(60px);
-    filter: blur(8px);
-    transition:
-      opacity 1s var(--ease-out-expo),
-      transform 1.1s var(--ease-out-expo),
-      filter 0.9s var(--ease-out-expo);
-    will-change: opacity, transform, filter;
-  }
-  .problem-line.emerged {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
+  /* Words start as faint ink and fill to full charcoal, scrubbed by
+     scroll position (reversible) — the section reads itself as you move. */
+  .problem-line :global(.pw) {
+    opacity: 0.13;
+    will-change: opacity;
   }
   .problem-cta {
     opacity: 0;
@@ -57,30 +48,86 @@ const lines = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .problem-line, .problem-cta {
+    .problem-line :global(.pw) { opacity: 1 !important; }
+    .problem-cta {
       opacity: 1 !important;
       transform: none !important;
-      filter: none !important;
     }
   }
 </style>
 
 <script>
-  const lines = document.querySelectorAll<HTMLElement>('.problem-line');
+  const lines = Array.from(document.querySelectorAll<HTMLElement>('.problem-line'));
   const cta = document.querySelector<HTMLElement>('.problem-cta');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('emerged');
-          io.unobserve(entry.target);
-        }
+  // ── CTA: simple one-time reveal ────────────────────────────────────
+  if (cta) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('emerged'); io.disconnect(); }
       });
-    },
-    { threshold: 0.55, rootMargin: '0px 0px -10% 0px' }
-  );
+    }, { threshold: 0.5 });
+    io.observe(cta);
+  }
 
-  lines.forEach((l) => io.observe(l));
-  if (cta) io.observe(cta);
+  // ── Scroll-scrubbed word-by-word ink fill ──────────────────────────
+  if (!reduced && lines.length) {
+    // Wrap every word in a span (preserving <strong class="kw"> children)
+    function wrapWords(el: HTMLElement) {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const nodes: Text[] = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+      nodes.forEach((node) => {
+        const parts = (node.textContent || '').split(/(\s+)/);
+        if (parts.length <= 1) return;
+        const frag = document.createDocumentFragment();
+        parts.forEach((part) => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) {
+            frag.appendChild(document.createTextNode(part));
+          } else {
+            const s = document.createElement('span');
+            s.className = 'pw';
+            s.textContent = part;
+            frag.appendChild(s);
+          }
+        });
+        node.parentNode?.replaceChild(frag, node);
+      });
+    }
+
+    const lineWords = new Map<HTMLElement, HTMLElement[]>();
+    lines.forEach((line) => {
+      wrapWords(line);
+      lineWords.set(line, Array.from(line.querySelectorAll<HTMLElement>('.pw')));
+    });
+
+    let raf = 0;
+    function paint() {
+      raf = 0;
+      const vh = window.innerHeight;
+      lines.forEach((line) => {
+        const r = line.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) return;
+        // Progress: line starts filling in the lower third of the
+        // viewport and completes just above center.
+        const p = Math.min(Math.max((vh * 0.85 - r.top) / (vh * 0.45), 0), 1);
+        const ws = lineWords.get(line)!;
+        const n = ws.length;
+        ws.forEach((w, i) => {
+          const wp = Math.min(Math.max(p * n - i, 0), 1);
+          w.style.opacity = (0.13 + 0.87 * wp).toFixed(3);
+        });
+      });
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!raf) raf = requestAnimationFrame(paint);
+    }, { passive: true });
+    window.addEventListener('resize', () => {
+      if (!raf) raf = requestAnimationFrame(paint);
+    }, { passive: true });
+    paint();
+  }
 </script>

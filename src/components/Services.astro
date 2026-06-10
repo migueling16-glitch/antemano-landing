@@ -67,15 +67,20 @@ const services = [
 ];
 ---
 
-<section id="servicios" class="py-24 lg:py-32 bg-offwhite">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+<section id="servicios" class="py-24 lg:py-32 bg-offwhite relative overflow-hidden">
+  <!-- Giant scroll-linked watermark -->
+  <div class="wm top-4" aria-hidden="true">
+    <span class="wm-track">Servicios — Servicios</span>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 relative">
     <!-- Header -->
     <div class="max-w-2xl mb-16">
       <p class="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-3 reveal">
         Lo que hacemos por ti
       </p>
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
-        Cómo funciona nuestra alianza
+        Cómo funciona nuestra <em class="serif-it">alianza</em>
       </h2>
     </div>
 

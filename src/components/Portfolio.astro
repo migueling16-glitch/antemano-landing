@@ -179,8 +179,13 @@ const projects: Project[] = [
 ];
 ---
 
-<section id="portafolio" class="py-24 lg:py-32 bg-white">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+<section id="portafolio" class="py-24 lg:py-32 bg-white relative overflow-hidden">
+  <!-- Giant scroll-linked watermark -->
+  <div class="wm top-4" aria-hidden="true">
+    <span class="wm-track" data-dir="rtl">Portafolio — Portafolio</span>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 relative">
 
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
@@ -189,7 +194,7 @@ const projects: Project[] = [
           Nuestro Trabajo
         </p>
         <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-charcoal reveal reveal-delay-1">
-          Trabajos que hablan por sí solos
+          Trabajos que <em class="serif-it">hablan</em> por sí solos
         </h2>
       </div>
 
@@ -245,7 +250,7 @@ const projects: Project[] = [
               <img
                 src={project.image}
                 alt={`${project.title} — ${project.client}`}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                class="pf-img w-full h-full object-cover"
                 loading="lazy"
               />
               <span class="glare" aria-hidden="true"></span>
@@ -303,9 +308,19 @@ const projects: Project[] = [
     box-shadow: 0 28px 56px -18px rgba(0,0,0,0.22);
   }
 
-  /* Inner wrapper (image) — subtle zoom */
-  .portfolio-item .group-hover\:scale-105 {
-    transition: transform 0.7s var(--ease-out-expo);
+  /* Image: scroll-linked parallax (translate) + hover zoom (scale).
+     Individual transform properties keep the two independent. */
+  .pf-img {
+    translate: 0 var(--py, 0px);
+    scale: 1.14;
+    transition: scale 0.7s var(--ease-out-expo);
+    will-change: translate;
+  }
+  .portfolio-item:hover .pf-img {
+    scale: 1.2;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pf-img { translate: 0 0; scale: 1; }
   }
 
   /* Overlay caption */
@@ -372,6 +387,27 @@ const projects: Project[] = [
         card.style.transform = '';
       });
     });
+  }
+
+  // ─── Scroll-linked image parallax inside cards ─────────────────────────────
+  if (!reducedMotion) {
+    const medias = document.querySelectorAll<HTMLElement>('.pf-media');
+    let plxRaf = 0;
+    function plx() {
+      plxRaf = 0;
+      const vh = window.innerHeight;
+      medias.forEach((m) => {
+        const r = m.getBoundingClientRect();
+        if (r.bottom < -40 || r.top > vh + 40) return;
+        const p = (vh - r.top) / (vh + r.height) - 0.5;
+        const img = m.querySelector<HTMLElement>('.pf-img');
+        if (img) img.style.setProperty('--py', (p * r.height * 0.12).toFixed(1) + 'px');
+      });
+    }
+    window.addEventListener('scroll', () => {
+      if (!plxRaf) plxRaf = requestAnimationFrame(plx);
+    }, { passive: true });
+    plx();
   }
 
   // ─── Filter ───────────────────────────────────────────────────────────────

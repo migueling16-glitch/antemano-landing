@@ -1,13 +1,15 @@
 ---
+// Editorial kinetic band — alternates black sans and serif italic,
+// Blu-style "ideas // brands." typography mixing, adapted to B&W.
 const items = [
-  'Producción de video',
-  'Fotografía',
-  'Estrategia digital',
-  'Reels',
-  'Branding',
-  'Community management',
-  'Spots publicitarios',
-  'Contenido que vende',
+  { t: 'Producción de video', serif: false },
+  { t: 'fotografía', serif: true },
+  { t: 'Estrategia digital', serif: false },
+  { t: 'reels', serif: true },
+  { t: 'Branding', serif: false },
+  { t: 'marca persona', serif: true },
+  { t: 'Spots publicitarios', serif: false },
+  { t: 'contenido que vende', serif: true },
 ];
 ---
 
@@ -15,18 +17,18 @@ const items = [
   <div class="marquee-skew sv-skew">
     <div class="marquee-row" id="marquee-row">
       <div class="marquee-group">
-        {items.map((t) => (
-          <span class="marquee-item">
-            {t}
-            <span class="marquee-star">✦</span>
+        {items.map((it) => (
+          <span class={`marquee-item ${it.serif ? 'mq-serif' : 'mq-sans'}`}>
+            {it.t}
+            <span class="mq-sep">/</span>
           </span>
         ))}
       </div>
       <div class="marquee-group">
-        {items.map((t) => (
-          <span class="marquee-item">
-            {t}
-            <span class="marquee-star">✦</span>
+        {items.map((it) => (
+          <span class={`marquee-item ${it.serif ? 'mq-serif' : 'mq-sans'}`}>
+            {it.t}
+            <span class="mq-sep">/</span>
           </span>
         ))}
       </div>
@@ -39,7 +41,7 @@ const items = [
     background: #1a1a1a;
     color: #fff;
     overflow: hidden;
-    padding: 1.6rem 0;
+    padding: 2rem 0 2.2rem;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
@@ -54,34 +56,35 @@ const items = [
   .marquee-group {
     display: flex;
     flex-shrink: 0;
+    align-items: baseline;
   }
   .marquee-item {
     display: inline-flex;
-    align-items: center;
-    font-size: clamp(1.5rem, 4vw, 2.75rem);
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
+    align-items: baseline;
+    font-size: clamp(2rem, 5vw, 3.6rem);
     white-space: nowrap;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.55);
-    transition: color 0.3s var(--ease-out-quart), -webkit-text-stroke-color 0.3s;
-  }
-  /* Alternate solid / outline for rhythm */
-  .marquee-item:nth-child(even) {
     color: #fff;
-    -webkit-text-stroke: 1px transparent;
   }
-  .marquee-band:hover .marquee-item {
-    color: #fff;
-    -webkit-text-stroke-color: transparent;
+  .mq-sans {
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
   }
-  .marquee-star {
-    display: inline-block;
-    margin: 0 1.4rem;
-    font-size: 0.55em;
-    color: rgba(255, 255, 255, 0.4);
-    transform: translateY(-0.15em);
+  .mq-serif {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(2.1rem, 5.4vw, 3.9rem);
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .mq-sep {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 200;
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.22);
+    margin: 0 1.5rem;
+    transform: translateY(-0.05em);
   }
 
   @media (prefers-reduced-motion: reduce) {

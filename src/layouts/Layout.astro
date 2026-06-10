@@ -47,7 +47,7 @@ const ogImage = `${origin}/og-image.jpg`;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap"
       rel="stylesheet"
     />
 
@@ -98,6 +98,45 @@ const ogImage = `${origin}/og-image.jpg`;
       ::selection {
         background: #1a1a1a;
         color: #fff;
+      }
+
+      /* ─── Editorial serif accent (Blu-style type mixing) ─────────────── */
+      .serif-it {
+        font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: 1.06em;
+        line-height: 1;
+        letter-spacing: -0.01em;
+      }
+
+      /* ─── Giant scroll-linked section watermarks ─────────────────────── */
+      .wm {
+        position: absolute;
+        left: 0;
+        right: 0;
+        overflow: hidden;
+        pointer-events: none;
+        user-select: none;
+        display: flex;
+      }
+      .wm-track {
+        font-weight: 900;
+        font-size: clamp(5.5rem, 16vw, 14rem);
+        line-height: 0.92;
+        letter-spacing: -0.045em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        margin-left: -3vw;
+        color: transparent;
+        -webkit-text-stroke: 1.5px rgba(26, 26, 26, 0.07);
+        will-change: transform;
+      }
+      .wm-track.wm-light {
+        -webkit-text-stroke-color: rgba(255, 255, 255, 0.06);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .wm-track { transform: none !important; }
       }
 
       /* ─── Keyword highlight ──────────────────────────────────────────── */
@@ -662,6 +701,27 @@ const ogImage = `${origin}/og-image.jpg`;
           window.addEventListener('scroll', () => {
             if (!running) { running = true; lastY = window.scrollY; requestAnimationFrame(svLoop); }
           }, { passive: true });
+        }
+
+        /* ── Scroll-linked giant watermarks ──────────────────────────── */
+        const wmTracks = Array.from(document.querySelectorAll<HTMLElement>('.wm-track'));
+        if (wmTracks.length && !reduce) {
+          let wmRaf = 0;
+          function wmUpdate() {
+            wmRaf = 0;
+            const vh = window.innerHeight;
+            wmTracks.forEach((el) => {
+              const r = el.getBoundingClientRect();
+              if (r.bottom < -120 || r.top > vh + 120) return;
+              const p = (vh - r.top) / (vh + r.height);
+              const dir = el.dataset.dir === 'rtl' ? -1 : 1;
+              el.style.transform = `translateX(${(dir * (p - 0.5) * 24).toFixed(2)}vw)`;
+            });
+          }
+          window.addEventListener('scroll', () => {
+            if (!wmRaf) wmRaf = requestAnimationFrame(wmUpdate);
+          }, { passive: true });
+          wmUpdate();
         }
 
         /* ── Custom cursor ───────────────────────────────────────────── */
