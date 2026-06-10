@@ -391,6 +391,21 @@ const ogImage = `${origin}/og-image.jpg`;
       /* ── Velocity-reactive skew utility ────────────────────────────── */
       .sv-skew { transform: skewY(var(--sv-skew, 0deg)); will-change: transform; }
 
+      /* ── Lenis smooth scroll ───────────────────────────────────────── */
+      html.has-lenis { scroll-behavior: auto !important; }
+      [data-lenis-prevent] { overscroll-behavior: contain; }
+
+      /* ── Tactile press on CTAs (fast in, gives weight) ─────────────── */
+      .hero-btn:active,
+      .nav-cta:active,
+      .filter-btn:active,
+      .med-cta-textured:active,
+      button[type="submit"]:active,
+      #back-to-top:active {
+        transform: scale(0.96) !important;
+        transition-duration: 0.08s !important;
+      }
+
       /* ── Extra reveal variants ─────────────────────────────────────── */
       .reveal-blur {
         opacity: 0;
@@ -534,7 +549,9 @@ const ogImage = `${origin}/og-image.jpg`;
       }
       window.addEventListener('scroll', updateBackToTop, { passive: true });
       backToTop.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const l = (window as any).lenis;
+        if (l) l.scrollTo(0, { duration: 1.1 });
+        else window.scrollTo({ top: 0, behavior: 'smooth' });
       });
       updateBackToTop();
 
@@ -690,6 +707,51 @@ const ogImage = `${origin}/og-image.jpg`;
             });
           });
         }
+      })();
+    </script>
+
+    <!-- ═══ Lenis smooth scroll (premium feel; reduced-motion safe) ═══ -->
+    <script>
+      import Lenis from 'lenis';
+
+      (() => {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce) return;
+
+        const lenis = new Lenis({
+          duration: 1.1,
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+        });
+        (window as any).lenis = lenis;
+        document.documentElement.classList.add('has-lenis');
+
+        function raf(time: number) {
+          lenis.raf(time);
+          requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Pause while body scroll is locked (preloader, modal, mobile menu)
+        if (document.body.style.overflow === 'hidden') lenis.stop();
+        const mo = new MutationObserver(() => {
+          if (document.body.style.overflow === 'hidden') lenis.stop();
+          else lenis.start();
+        });
+        mo.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+
+        // Smooth anchor navigation through Lenis
+        document.addEventListener('click', (e) => {
+          const a = (e.target as HTMLElement).closest?.('a[href^="#"]') as HTMLAnchorElement | null;
+          if (!a) return;
+          const hash = a.getAttribute('href');
+          if (!hash || hash.length < 2) return;
+          const target = document.querySelector(hash);
+          if (!target) return;
+          e.preventDefault();
+          lenis.scrollTo(target as HTMLElement, { duration: 1.25 });
+          history.pushState(null, '', hash);
+        });
       })();
     </script>
   </body>

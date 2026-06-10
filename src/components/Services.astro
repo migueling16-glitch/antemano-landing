@@ -48,6 +48,22 @@ const services = [
       'Parrilla de contenido semanal',
     ],
   },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>`,
+    title: 'Marca Persona',
+    description: 'La gente no conecta con logos — conecta con personas. Convertimos tu cara, tu historia y tu forma de hablar en <strong class="kw">el activo comercial más fuerte de tu negocio.</strong>',
+    expandedText: [
+      'Detrás de cada negocio que la gente recuerda hay una persona que da la cara. Construimos tu marca personal con <strong class="kw">estrategia, producción y dirección</strong> — no con poses frente a un espejo.',
+      'Tú pones la experiencia. Nosotros la convertimos en <strong class="kw">contenido que te posiciona como referente.</strong>',
+    ],
+    deliverables: [
+      'Definición de narrativa y posicionamiento personal',
+      'Sesiones de foto y video dirigidas (no improvisadas)',
+      'Guiones para hablar a cámara con naturalidad',
+      'Calendario de contenido personal alineado a tu negocio',
+      'Dirección de imagen y tono de comunicación',
+    ],
+  },
 ];
 ---
 
@@ -64,7 +80,7 @@ const services = [
     </div>
 
     <!-- Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       {services.map((service, i) => (
         <article
           class={`reveal-up reveal-delay-${i + 1} service-card p-8 bg-white border border-gray-100 rounded-2xl flex flex-col gap-5`}
@@ -134,13 +150,9 @@ const services = [
           >
             <span class="toggle-label">Conocer más</span>
             <span class="toggle-icon" aria-hidden="true">
-              <!-- Arrow right (collapsed) -->
-              <svg class="arrow-right w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-              <!-- Arrow up (expanded) -->
-              <svg class="arrow-up w-4 h-4 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+              <!-- Chevron — rotates 180° when open -->
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
               </svg>
             </span>
           </button>
@@ -186,42 +198,33 @@ const services = [
     transform: rotate(-6deg) scale(1.06);
   }
 
-  /* ── Accordion ── */
+  /* ── Accordion — real height animation (JS-driven, no max-height hack) ── */
   .service-expanded {
-    max-height: 0;
+    height: 0;
     overflow: hidden;
-    transition: max-height 0.4s var(--ease-out-quart, cubic-bezier(.25,.46,.45,.94));
+    transition: height 0.45s var(--ease-out-quart);
+    will-change: height;
   }
   .service-expanded-inner {
     opacity: 0;
-    transition: opacity 0.25s ease 0.1s;
-  }
-  .service-card.is-open .service-expanded {
-    max-height: 600px;
+    transform: translateY(8px);
+    transition:
+      opacity 0.3s ease 0.12s,
+      transform 0.35s var(--ease-out-quart) 0.12s;
   }
   .service-card.is-open .service-expanded-inner {
     opacity: 1;
+    transform: none;
   }
 
-  /* ── Hint animation: nudge arrow after card reveals ── */
-  @keyframes arrowNudge {
-    0%   { transform: translateX(0); }
-    25%  { transform: translateX(6px); }
-    55%  { transform: translateX(-2px); }
-    75%  { transform: translateX(5px); }
-    100% { transform: translateX(0); }
-  }
+  /* ── Hint: a single restrained pulse after reveal (no wiggle) ── */
   @keyframes cardPulse {
     0%   { box-shadow: 0 0 0 0 rgba(26,26,26,0); }
     40%  { box-shadow: 0 0 0 6px rgba(26,26,26,0.12); }
     100% { box-shadow: 0 0 0 0 rgba(26,26,26,0); }
   }
-
   .service-card.hint-active:not(.is-open) {
     animation: cardPulse 0.9s ease forwards;
-  }
-  .service-card.hint-active:not(.is-open) .arrow-right {
-    animation: arrowNudge 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
   }
   .service-card.hint-active:not(.is-open) .toggle-label {
     color: #1a1a1a;
@@ -246,11 +249,14 @@ const services = [
     border-radius: 4px;
   }
 
-  .arrow-right, .arrow-up {
-    transition: transform 0.3s var(--ease-out-quart);
+  /* Chevron rotates 180° on open — ease-out, deliberate */
+  .toggle-icon {
+    display: inline-flex;
+    transition: transform 0.35s var(--ease-out-quart);
   }
-  .arrow-right.hidden { display: none; }
-  .arrow-up.hidden    { display: none; }
+  .service-card.is-open .toggle-icon {
+    transform: rotate(180deg);
+  }
 
   /* CTA hover */
   .service-cta {
@@ -265,35 +271,52 @@ const services = [
     .service-card:not(.is-open):hover { transform: none; }
     .service-card:hover .service-icon { transform: none; }
     .service-expanded { transition: none; }
-    .service-expanded-inner { transition: none; opacity: 1; }
+    .service-expanded-inner { transition: none; opacity: 1; transform: none; }
+    .toggle-icon { transition: none; }
   }
 </style>
 
 <script>
   const cards = document.querySelectorAll<HTMLElement>('.service-card');
 
+  // Animate real height: 0 → scrollHeight → auto (and back)
+  function expandBody(body: HTMLElement) {
+    body.style.height = body.scrollHeight + 'px';
+    const toAuto = () => { body.style.height = 'auto'; };
+    body.addEventListener('transitionend', function onEnd(e) {
+      if (e.propertyName !== 'height') return;
+      body.removeEventListener('transitionend', onEnd);
+      toAuto();
+    });
+    // Fallback (reduced-motion / missed event)
+    window.setTimeout(() => {
+      if (body.style.height !== 'auto' && body.closest('.is-open')) toAuto();
+    }, 550);
+  }
+
+  function collapseBody(body: HTMLElement) {
+    if (body.style.height === 'auto' || body.style.height === '') {
+      body.style.height = body.scrollHeight + 'px';
+      void body.offsetHeight; // force reflow so the transition has a start value
+    }
+    body.style.height = '0px';
+  }
+
   function openCard(card: HTMLElement) {
     card.classList.add('is-open');
     const btn = card.querySelector<HTMLButtonElement>('.service-toggle')!;
-    const label = btn.querySelector<HTMLElement>('.toggle-label')!;
-    const arrowRight = btn.querySelector<HTMLElement>('.arrow-right')!;
-    const arrowUp = btn.querySelector<HTMLElement>('.arrow-up')!;
     btn.setAttribute('aria-expanded', 'true');
-    label.textContent = 'Cerrar';
-    arrowRight.classList.add('hidden');
-    arrowUp.classList.remove('hidden');
+    btn.querySelector<HTMLElement>('.toggle-label')!.textContent = 'Cerrar';
+    expandBody(card.querySelector<HTMLElement>('.service-expanded')!);
   }
 
   function closeCard(card: HTMLElement) {
+    const wasOpen = card.classList.contains('is-open');
     card.classList.remove('is-open');
     const btn = card.querySelector<HTMLButtonElement>('.service-toggle')!;
-    const label = btn.querySelector<HTMLElement>('.toggle-label')!;
-    const arrowRight = btn.querySelector<HTMLElement>('.arrow-right')!;
-    const arrowUp = btn.querySelector<HTMLElement>('.arrow-up')!;
     btn.setAttribute('aria-expanded', 'false');
-    label.textContent = 'Conocer más';
-    arrowRight.classList.remove('hidden');
-    arrowUp.classList.add('hidden');
+    btn.querySelector<HTMLElement>('.toggle-label')!.textContent = 'Conocer más';
+    if (wasOpen) collapseBody(card.querySelector<HTMLElement>('.service-expanded')!);
   }
 
   cards.forEach((card, idx) => {

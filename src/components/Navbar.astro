@@ -65,6 +65,7 @@
     id="mobile-menu"
     class="md:hidden fixed inset-0 top-16 bg-offwhite px-6 py-10 pointer-events-none"
     aria-hidden="true"
+    data-lenis-prevent
   >
     <ul class="flex flex-col gap-1 text-2xl font-bold text-charcoal">
       <li class="mm-item" style="--i:0"><a href="#inicio"     class="mobile-link block py-3 border-b border-gray-100">Inicio</a></li>
@@ -90,6 +91,21 @@
       background-color 0.35s var(--ease-out-quart),
       box-shadow 0.35s var(--ease-out-quart),
       backdrop-filter 0.35s;
+  }
+  /* Entrance on the inner nav (NOT #navbar — a transform there would
+     create a containing block and break the fixed mobile menu) */
+  #navbar > nav {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  :global(html.intro-done) #navbar > nav {
+    animation: navIn 0.8s var(--ease-out-expo) 0.15s both;
+  }
+  @keyframes navIn {
+    to { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #navbar > nav { opacity: 1; transform: none; animation: none !important; }
   }
   #navbar.scrolled {
     background-color: rgba(250, 250, 250, 0.82);
