@@ -10,9 +10,11 @@
     <!-- Subtle animated gradient -->
     <div class="hero-gradient absolute inset-0"></div>
 
-    <!-- Giant "a" brand mark -->
+    <!-- Giant "a" brand mark (parallax wrapper keeps the float animation intact) -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      <img src="/logo-a.png" alt="" class="hero-brand-logo select-none" />
+      <div class="hero-brand-px" id="hero-brand-px">
+        <img src="/logo-a.png" alt="" class="hero-brand-logo select-none" />
+      </div>
     </div>
 
     <!-- Vignette overlay -->
@@ -24,18 +26,21 @@
     id="hero-content"
     class="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center text-white"
   >
-    <p class="hero-line text-gray-400 text-sm font-semibold tracking-widest uppercase mb-6" style="--i: 0;">
+    <p class="hero-eyebrow text-gray-400 text-sm font-semibold tracking-widest uppercase mb-6">
       Durango, México
     </p>
-    <h1 class="hero-line text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6" style="--i: 1;">
-      Tu competencia ya está publicando.<br class="hidden sm:block" />
-      Y se está quedando<br class="hidden sm:block" />
-      con tus clientes.
+
+    <!-- Masked line-by-line reveal -->
+    <h1 class="hero-title text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6">
+      <span class="hmask"><span class="hrise" style="--l:0">Tu competencia ya está publicando.</span></span>
+      <span class="hmask"><span class="hrise" style="--l:1">Y se está quedando</span></span>
+      <span class="hmask"><span class="hrise" style="--l:2">con tus <span class="hl-accent">clientes</span>.</span></span>
     </h1>
-    <p class="hero-line text-lg sm:text-xl text-white/70 font-medium max-w-2xl mx-auto mb-10" style="--i: 2;">
+
+    <p class="hero-sub text-lg sm:text-xl text-white/70 font-medium max-w-2xl mx-auto mb-10">
       Producimos el contenido. Diseñamos la estrategia. Tú recibes los clientes.
     </p>
-    <div class="hero-line flex flex-col sm:flex-row gap-4 justify-center" style="--i: 3;">
+    <div class="hero-cta flex flex-col sm:flex-row gap-4 justify-center">
       <span class="magnetic inline-block" data-magnetic="0.3">
         <a
           href="#resultados"
@@ -73,6 +78,11 @@
 
 <style>
   /* ── Giant "a" brand mark ── */
+  .hero-brand-px {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
   .hero-brand-logo {
     position: absolute;
     top: 50%;
@@ -121,16 +131,65 @@
     50%      { transform: translate(-50%, 6px); }
   }
 
-  /* ── Hero text stagger entry ── */
-  .hero-line {
+  /* ── H1 masked line reveal (gated until intro finishes) ── */
+  .hmask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
+  }
+  .hrise {
+    display: block;
+    transform: translateY(112%);
     opacity: 0;
-    transform: translateY(24px);
-    animation: heroIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: calc(0.2s + var(--i, 0) * 0.12s);
+    animation: hRise 1s var(--ease-out-expo) both;
+    animation-play-state: paused;
+    animation-delay: calc(0.15s + var(--l, 0) * 0.12s);
   }
-  @keyframes heroIn {
-    to { opacity: 1; transform: translateY(0); }
+  html.intro-done .hrise { animation-play-state: running; }
+  @keyframes hRise {
+    0%   { transform: translateY(112%); opacity: 0; }
+    32%  { opacity: 1; }
+    100% { transform: translateY(0); opacity: 1; }
   }
+
+  /* Accent word — drawn underline */
+  .hl-accent {
+    position: relative;
+    white-space: nowrap;
+  }
+  .hl-accent::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.04em;
+    height: 0.085em;
+    background: currentColor;
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  html.intro-done .hl-accent::after {
+    animation: hlDraw 0.7s var(--ease-out-expo) 1.05s forwards;
+  }
+  @keyframes hlDraw { to { transform: scaleX(1); } }
+
+  /* ── Eyebrow / sub / CTA entrance (gated) ── */
+  .hero-eyebrow,
+  .hero-sub,
+  .hero-cta {
+    opacity: 0;
+    transform: translateY(22px);
+    animation: heroFade 0.9s var(--ease-out-expo) both;
+    animation-play-state: paused;
+  }
+  .hero-eyebrow { animation-delay: 0.1s; }
+  .hero-sub     { animation-delay: 0.62s; }
+  .hero-cta     { animation-delay: 0.78s; }
+  html.intro-done .hero-eyebrow,
+  html.intro-done .hero-sub,
+  html.intro-done .hero-cta { animation-play-state: running; }
+  @keyframes heroFade { to { opacity: 1; transform: translateY(0); } }
 
   /* ── Buttons ── */
   .hero-btn {
@@ -153,6 +212,49 @@
 
   @media (prefers-reduced-motion: reduce) {
     .hero-gradient, .scroll-indicator { animation: none !important; }
-    .hero-line { opacity: 1; transform: none; animation: none; }
+    .hrise { opacity: 1; transform: none; animation: none; }
+    .hl-accent::after { transform: scaleX(1); animation: none; }
+    .hero-eyebrow, .hero-sub, .hero-cta { opacity: 1; transform: none; animation: none; }
+    .hero-brand-px { transform: none !important; }
   }
 </style>
+
+<script>
+  // ─── Hero mouse parallax (desktop, non-reduced) ──────────────────────
+  const section = document.getElementById('inicio');
+  const brand = document.getElementById('hero-brand-px');
+  const content = document.getElementById('hero-content');
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (section && brand && fine && !reduced) {
+    let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, active = false;
+
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    function loop() {
+      cx = lerp(cx, tx, 0.07);
+      cy = lerp(cy, ty, 0.07);
+      brand!.style.transform = `translate(${cx * 0.022}px, ${cy * 0.022}px)`;
+      if (content) content.style.transform = `translate(${cx * 0.008}px, ${cy * 0.008}px)`;
+      if (active || Math.abs(cx - tx) > 0.5 || Math.abs(cy - ty) > 0.5) {
+        raf = requestAnimationFrame(loop);
+      } else {
+        raf = 0;
+      }
+    }
+
+    section.addEventListener('mousemove', (e: MouseEvent) => {
+      const r = section.getBoundingClientRect();
+      tx = e.clientX - r.left - r.width / 2;
+      ty = e.clientY - r.top - r.height / 2;
+      active = true;
+      if (!raf) raf = requestAnimationFrame(loop);
+    }, { passive: true });
+
+    section.addEventListener('mouseleave', () => {
+      tx = 0; ty = 0; active = false;
+      if (!raf) raf = requestAnimationFrame(loop);
+    });
+  }
+</script>

@@ -56,6 +56,20 @@ const ogImage = `${origin}/og-image.jpg`;
     <!-- Per-page head extras (schema.org, tracking pixels, etc.) -->
     <slot name="head" />
 
+    <!-- Intro gate: skip the preloader when already seen, on inner pages, or reduced-motion -->
+    <script is:inline>
+      (function () {
+        try {
+          var seen = sessionStorage.getItem('am_intro') === '1';
+          var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          var home = location.pathname === '/' || location.pathname === '/index.html';
+          if (seen || rm || !home) document.documentElement.classList.add('intro-done');
+        } catch (e) {
+          document.documentElement.classList.add('intro-done');
+        }
+      })();
+    </script>
+
     <style is:global>
       /* ─── Base ───────────────────────────────────────────────────────── */
       :root {
@@ -236,6 +250,171 @@ const ogImage = `${origin}/og-image.jpg`;
         will-change: transform;
       }
 
+      /* ════════════════════════════════════════════════════════════════
+         ENHANCED MOTION LAYER
+         ════════════════════════════════════════════════════════════════ */
+
+      /* ── Cinematic intro preloader ─────────────────────────────────── */
+      #preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #1a1a1a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        will-change: transform;
+      }
+      html.intro-done #preloader { display: none !important; }
+      .pre-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+      }
+      .pre-mark {
+        width: clamp(64px, 12vw, 104px);
+        height: auto;
+        filter: brightness(0) invert(1);
+        opacity: 0;
+        transform: translateY(10px) scale(0.94);
+        animation: preMarkIn 0.8s var(--ease-out-expo) 0.05s forwards;
+      }
+      .pre-track {
+        width: clamp(120px, 22vw, 200px);
+        height: 2px;
+        background: rgba(255, 255, 255, 0.14);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .pre-fill {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: #fff;
+        border-radius: 2px;
+      }
+      .pre-count {
+        position: fixed;
+        right: 6vw;
+        bottom: 6vh;
+        font-variant-numeric: tabular-nums;
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        color: rgba(255, 255, 255, 0.45);
+      }
+      #preloader.lift {
+        transform: translateY(-100%);
+        transition: transform 0.9s var(--ease-in-out-quart);
+      }
+      #preloader.lift .pre-inner,
+      #preloader.lift .pre-count {
+        opacity: 0;
+        transition: opacity 0.35s ease;
+      }
+      @keyframes preMarkIn { to { opacity: 1; transform: none; } }
+
+      /* ── Custom cursor (desktop fine-pointer only) ─────────────────── */
+      .cursor-dot,
+      .cursor-ring {
+        position: fixed;
+        top: 0;
+        left: 0;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9990;
+        mix-blend-mode: difference;
+        opacity: 0;
+        will-change: transform;
+      }
+      .cursor-dot {
+        width: 6px;
+        height: 6px;
+        margin: -3px 0 0 -3px;
+        background: #fff;
+        transition: opacity 0.3s;
+      }
+      .cursor-ring {
+        width: 38px;
+        height: 38px;
+        margin: -19px 0 0 -19px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        transition:
+          width 0.28s var(--ease-out-quart),
+          height 0.28s var(--ease-out-quart),
+          margin 0.28s var(--ease-out-quart),
+          background 0.28s,
+          border-color 0.28s,
+          opacity 0.3s;
+      }
+      body.cursor-ready .cursor-dot,
+      body.cursor-ready .cursor-ring { opacity: 1; }
+      .cursor-ring.hover {
+        width: 66px;
+        height: 66px;
+        margin: -33px 0 0 -33px;
+        background: rgba(255, 255, 255, 0.10);
+        border-color: transparent;
+      }
+      .cursor-ring.down { border-color: rgba(255, 255, 255, 1); }
+      .cursor-dot.hide,
+      .cursor-ring.hide { opacity: 0 !important; }
+      body.cursor-on { cursor: none; }
+      body.cursor-on a,
+      body.cursor-on button,
+      body.cursor-on [role="button"],
+      body.cursor-on label,
+      body.cursor-on .portfolio-item { cursor: none; }
+      body.cursor-on input,
+      body.cursor-on textarea,
+      body.cursor-on select { cursor: text; }
+      .cursor-label {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9991;
+        pointer-events: none;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #fff;
+        mix-blend-mode: difference;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+        transition: opacity 0.25s, transform 0.25s var(--ease-out-quart);
+        will-change: transform;
+      }
+      .cursor-label.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+      /* ── Velocity-reactive skew utility ────────────────────────────── */
+      .sv-skew { transform: skewY(var(--sv-skew, 0deg)); will-change: transform; }
+
+      /* ── Extra reveal variants ─────────────────────────────────────── */
+      .reveal-blur {
+        opacity: 0;
+        transform: translateY(42px) scale(0.985);
+        filter: blur(16px);
+        will-change: opacity, transform, filter;
+        transition:
+          opacity 0.95s var(--ease-out-expo),
+          transform 1.05s var(--ease-out-expo),
+          filter 0.75s var(--ease-out-quart);
+        transition-delay: calc(var(--rd, 0) * 0.08s);
+      }
+      .reveal-blur.visible { opacity: 1; transform: none; filter: blur(0); }
+      .reveal-clip {
+        clip-path: inset(0 0 100% 0);
+        opacity: 0.001;
+        transition:
+          clip-path 1.05s var(--ease-out-expo),
+          opacity 0.2s;
+        transition-delay: calc(var(--rd, 0) * 0.08s);
+        will-change: clip-path;
+      }
+      .reveal-clip.visible { clip-path: inset(0 0 0 0); opacity: 1; }
+
       /* ─── Reduced motion ─────────────────────────────────────────────── */
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
@@ -253,11 +432,35 @@ const ogImage = `${origin}/og-image.jpg`;
           opacity: 1 !important;
           transform: none !important;
         }
+        #preloader { display: none !important; }
+        .cursor-dot, .cursor-ring, .cursor-label { display: none !important; }
+        body.cursor-on { cursor: auto !important; }
+        .reveal-blur, .reveal-clip {
+          opacity: 1 !important;
+          transform: none !important;
+          filter: none !important;
+          clip-path: none !important;
+        }
+        .sv-skew { transform: none !important; }
       }
     </style>
   </head>
 
   <body>
+    <!-- Cinematic intro preloader (home only, session-gated) -->
+    <div id="preloader" aria-hidden="true">
+      <div class="pre-inner">
+        <img src="/logo-a.png" alt="" class="pre-mark" />
+        <span class="pre-track"><span class="pre-fill" id="pre-fill"></span></span>
+      </div>
+      <span class="pre-count" id="pre-count">00</span>
+    </div>
+
+    <!-- Custom cursor -->
+    <div class="cursor-ring" id="cursor-ring" aria-hidden="true"></div>
+    <div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>
+    <span class="cursor-label" id="cursor-label" aria-hidden="true"></span>
+
     <!-- Scroll progress bar -->
     <div id="scroll-progress" aria-hidden="true"></div>
 
@@ -282,6 +485,8 @@ const ogImage = `${origin}/og-image.jpg`;
         '.reveal-right',
         '.reveal-scale',
         '.reveal-fade',
+        '.reveal-blur',
+        '.reveal-clip',
       ].join(',');
 
       const revealObserver = new IntersectionObserver(
@@ -364,6 +569,128 @@ const ogImage = `${origin}/og-image.jpg`;
           });
         });
       }
+    </script>
+
+    <!-- ═══ Enhanced motion engine: preloader · velocity · cursor ═══ -->
+    <script>
+      (() => {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const root = document.documentElement;
+        (window as any).__sv = 0;
+
+        /* ── Intro preloader ─────────────────────────────────────────── */
+        const pre = document.getElementById('preloader');
+        function finishIntro() {
+          if (root.classList.contains('intro-done')) return;
+          root.classList.add('intro-done');
+          try { sessionStorage.setItem('am_intro', '1'); } catch (e) {}
+          document.body.style.overflow = '';
+        }
+        if (pre && !root.classList.contains('intro-done') && !reduce) {
+          document.body.style.overflow = 'hidden';
+          const fill = document.getElementById('pre-fill');
+          const count = document.getElementById('pre-count');
+          const startT = performance.now();
+          const DUR = 1050;
+          let lifted = false;
+          function lift() {
+            if (lifted) return;
+            lifted = true;
+            pre!.classList.add('lift');
+            const done = () => { finishIntro(); pre!.remove(); };
+            pre!.addEventListener('transitionend', done, { once: true });
+            setTimeout(done, 1100); // safety in case transitionend never fires
+          }
+          function tick(now: number) {
+            const t = Math.min((now - startT) / DUR, 1);
+            const e = 1 - Math.pow(1 - t, 3);
+            const pct = Math.round(e * 100);
+            if (fill) fill.style.width = pct + '%';
+            if (count) count.textContent = String(pct).padStart(2, '0');
+            if (t < 1) requestAnimationFrame(tick);
+            else setTimeout(lift, 140);
+          }
+          requestAnimationFrame(tick);
+          const skip = () => lift();
+          window.addEventListener('wheel', skip, { once: true, passive: true });
+          window.addEventListener('touchstart', skip, { once: true, passive: true });
+          window.addEventListener('keydown', skip, { once: true });
+          pre.addEventListener('click', skip);
+          setTimeout(lift, 2600); // hard safety
+        } else if (pre) {
+          pre.remove();
+          finishIntro();
+        }
+
+        /* ── Scroll velocity engine (drives marquee + skews) ─────────── */
+        let lastY = window.scrollY, vel = 0, running = false;
+        function svLoop() {
+          const y = window.scrollY;
+          const dy = y - lastY;
+          lastY = y;
+          vel += (dy - vel) * 0.18;
+          (window as any).__sv = vel;
+          const skew = Math.max(-3.2, Math.min(3.2, vel * 0.09));
+          root.style.setProperty('--sv-skew', skew.toFixed(2) + 'deg');
+          if (Math.abs(vel) > 0.06) {
+            requestAnimationFrame(svLoop);
+          } else {
+            running = false;
+            vel = 0;
+            (window as any).__sv = 0;
+            root.style.setProperty('--sv-skew', '0deg');
+          }
+        }
+        if (!reduce) {
+          window.addEventListener('scroll', () => {
+            if (!running) { running = true; lastY = window.scrollY; requestAnimationFrame(svLoop); }
+          }, { passive: true });
+        }
+
+        /* ── Custom cursor ───────────────────────────────────────────── */
+        const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const ring = document.getElementById('cursor-ring');
+        const dot = document.getElementById('cursor-dot');
+        const label = document.getElementById('cursor-label');
+        if (fine && !reduce && ring && dot) {
+          document.body.classList.add('cursor-on');
+          let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+          let rx = mx, ry = my;
+          let ready = false;
+
+          window.addEventListener('mousemove', (e) => {
+            mx = e.clientX; my = e.clientY;
+            dot.style.transform = `translate(${mx}px, ${my}px)`;
+            if (label) { label.style.left = mx + 'px'; label.style.top = (my + 30) + 'px'; }
+            if (!ready) { ready = true; document.body.classList.add('cursor-ready'); }
+          }, { passive: true });
+
+          (function loop() {
+            rx += (mx - rx) * 0.18;
+            ry += (my - ry) * 0.18;
+            ring.style.transform = `translate(${rx}px, ${ry}px)`;
+            requestAnimationFrame(loop);
+          })();
+
+          window.addEventListener('mousedown', () => ring.classList.add('down'));
+          window.addEventListener('mouseup', () => ring.classList.remove('down'));
+          document.addEventListener('mouseleave', () => { ring.classList.add('hide'); dot.classList.add('hide'); });
+          document.addEventListener('mouseenter', () => { ring.classList.remove('hide'); dot.classList.remove('hide'); });
+
+          const hoverSel = 'a, button, [role="button"], .portfolio-item, input, select, textarea, label, .magnetic';
+          document.querySelectorAll<HTMLElement>(hoverSel).forEach((el) => {
+            el.addEventListener('mouseenter', () => {
+              ring.classList.add('hover');
+              const txt = el.getAttribute('data-cursor');
+              if (txt && label) { label.textContent = txt; label.classList.add('show'); }
+            });
+            el.addEventListener('mouseleave', () => {
+              ring.classList.remove('hover');
+              if (label) label.classList.remove('show');
+            });
+          });
+        }
+      })();
     </script>
   </body>
 </html>
