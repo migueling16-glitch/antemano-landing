@@ -1,0 +1,1819 @@
+---
+// Proposal page: Manual Vivo™ × Grupo Caribe
+// noindex — private proposal URL, not for public indexing
+
+const subrecetas = [
+  { id: 1,  name: 'Salsa de tomate',    count: 4 },
+  { id: 2,  name: 'Adobo caribeño',     count: 4 },
+  { id: 3,  name: 'Sofrito base',        count: 6 },
+  { id: 4,  name: 'Frijoles negros',     count: 3 },
+  { id: 5,  name: 'Arroz blanco',        count: 2 },
+  { id: 6,  name: 'Mojo de ajo',         count: 5 },
+  { id: 7,  name: 'Crema chipotle',      count: 4 },
+  { id: 8,  name: 'Guacamole base',      count: 3 },
+  { id: 9,  name: 'Pico de gallo',       count: 4 },
+  { id: 10, name: 'Base de mariscos',    count: 8 },
+  { id: 11, name: 'Caldo de pollo',      count: 5 },
+  { id: 12, name: 'Masa para tortilla',  count: 2 },
+];
+
+const platillos = [
+  { id: 'p1',  name: 'Tacos de cochinita',     subs: [2, 3, 9]       },
+  { id: 'p2',  name: 'Tostadas de tinga',       subs: [3, 7, 4]       },
+  { id: 'p3',  name: 'Enchiladas verdes',        subs: [1, 7, 11]      },
+  { id: 'p4',  name: 'Quesadillas',              subs: [12, 8, 3]      },
+  { id: 'p5',  name: 'Burrito clásico',          subs: [5, 4, 8, 9]    },
+  { id: 'p6',  name: 'Sopa de mariscos',         subs: [11, 10, 6]     },
+  { id: 'p7',  name: 'Arroz a la tumbada',       subs: [5, 11, 10]     },
+  { id: 'p8',  name: 'Camarones al ajillo',      subs: [10, 6, 1]      },
+  { id: 'p9',  name: 'Tacos de camarón',         subs: [10, 9, 7]      },
+  { id: 'p10', name: 'Pozole rojo',              subs: [11, 2, 3]      },
+  { id: 'p11', name: 'Enfrijoladas',             subs: [4, 7, 3]       },
+  { id: 'p12', name: 'Molcajete especial',       subs: [6, 1, 10, 2]   },
+  { id: 'p13', name: 'Caldo de mariscos',        subs: [10, 11, 6]     },
+  { id: 'p14', name: 'Mariscos al mojo',         subs: [10, 6, 1]      },
+  { id: 'p15', name: 'Ceviche a la plancha',     subs: [10, 9, 3]      },
+];
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Manual Vivo™ — Grupo Caribe × Antemano</title>
+  <link rel="icon" href="/logo-a.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & tokens ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --c: #1A1A1A;
+      --w: #FAFAFA;
+      --ww: #FFFFFF;
+      --g: #F3F3F3;
+      --mid: #6B7280;
+      --border: rgba(26,26,26,.10);
+      --ease-out-expo: cubic-bezier(0.16,1,0.3,1);
+      --ease-out-quart: cubic-bezier(0.25,1,0.5,1);
+    }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      background: var(--ww);
+      color: var(--c);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+    ::selection { background: #1a1a1a; color: #fff; }
+    :focus-visible { outline: 2px solid #1a1a1a; outline-offset: 3px; border-radius: 4px; }
+
+    /* ── Typography helpers ──────────────────────────────────── */
+    .si {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.06em;
+      line-height: 1;
+      letter-spacing: -.01em;
+    }
+    .eyebrow {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 1.25rem;
+    }
+    .eyebrow-dark {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Container ───────────────────────────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ── Sections ────────────────────────────────────────────── */
+    .s-dark  { background: var(--c);  color: #fff;      padding: 6rem 0; }
+    .s-light { background: var(--w);  color: var(--c);  padding: 6rem 0; }
+    .s-white { background: var(--ww); color: var(--c);  padding: 6rem 0; }
+    .s-gray  { background: var(--g);  color: var(--c);  padding: 6rem 0; }
+
+    /* ── Section headings ────────────────────────────────────── */
+    .h1 {
+      font-size: clamp(2.5rem, 6.5vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -.03em;
+      max-width: 15ch;
+    }
+    .h2 {
+      font-size: clamp(2rem, 4.5vw, 3.75rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -.025em;
+      max-width: 20ch;
+    }
+    .h2-center { text-align: center; margin: 0 auto; }
+    .section-sub {
+      font-size: 1.15rem;
+      color: var(--mid);
+      margin-top: .75rem;
+      max-width: 44ch;
+    }
+    .section-sub-center { text-align: center; margin: .75rem auto 0; }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .95rem;
+      font-weight: 700;
+      padding: .85rem 1.75rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .2s var(--ease-out-quart), box-shadow .2s var(--ease-out-quart), background .15s;
+      white-space: nowrap;
+    }
+    .btn:hover  { transform: scale(1.025); }
+    .btn:active { transform: scale(0.96); transition-duration: .08s; }
+
+    .btn-light { background: #fff; color: var(--c); }
+    .btn-light:hover { box-shadow: 0 12px 28px -8px rgba(0,0,0,.22); }
+
+    .btn-dark { background: var(--c); color: #fff; }
+    .btn-dark:hover { box-shadow: 0 12px 28px -8px rgba(0,0,0,.35); }
+
+    .btn-outline-light {
+      background: transparent;
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,.35);
+    }
+    .btn-outline-light:hover { border-color: #fff; background: rgba(255,255,255,.06); }
+
+    /* ── Reveal animations ───────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .7s var(--ease-out-expo), transform .7s var(--ease-out-expo);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-d1 { transition-delay: .12s; }
+    .reveal-d2 { transition-delay: .22s; }
+    .reveal-d3 { transition-delay: .32s; }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* NAV                                                         */
+    /* ─────────────────────────────────────────────────────────── */
+    #pnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background .4s, backdrop-filter .4s, border-color .4s;
+    }
+    #pnav.scrolled {
+      background: rgba(26,26,26,.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .pnav-inner {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pnav-logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: -.03em;
+    }
+    .pnav-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.35);
+    }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S1: HERO                                                    */
+    /* ─────────────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8rem 0 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,.03) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.35);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .hero-tag::before {
+      content: '';
+      display: block;
+      width: 2rem;
+      height: 1px;
+      background: rgba(255,255,255,.25);
+    }
+    .hero-h1 {
+      font-size: clamp(2.75rem, 7.5vw, 6.5rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -.035em;
+      color: #fff;
+      margin-bottom: 2rem;
+      max-width: 18ch;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+      color: rgba(255,255,255,.6);
+      max-width: 52ch;
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+    .hero-teaser {
+      font-size: 1rem;
+      color: rgba(255,255,255,.45);
+      max-width: 50ch;
+      line-height: 1.65;
+      margin-bottom: 2.5rem;
+    }
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      right: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+      color: rgba(255,255,255,.2);
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .hero-scroll-hint svg { animation: bounce 1.8s ease-in-out infinite; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(5px); }
+    }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S2: PROBLEM                                                 */
+    /* ─────────────────────────────────────────────────────────── */
+    .prob-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      margin-top: 3rem;
+    }
+    @media (min-width: 768px) {
+      .prob-grid { grid-template-columns: 1fr 1fr; align-items: start; }
+    }
+    .prob-body p {
+      font-size: 1.1rem;
+      color: #4B5563;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .prob-list {
+      list-style: none;
+      margin: 1rem 0 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+    }
+    .prob-list li {
+      font-size: 1.05rem;
+      color: #374151;
+      line-height: 1.6;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .prob-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--c);
+      font-weight: 700;
+    }
+    .prob-remate {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--c);
+      line-height: 1.65;
+      border-left: 3px solid var(--c);
+      padding-left: 1rem;
+      margin-top: 1.5rem;
+    }
+    .stat-chips {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .stat-chip {
+      background: var(--c);
+      color: #fff;
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .stat-chip-n {
+      font-size: 2.25rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+    .stat-chip-l {
+      font-size: .8rem;
+      color: rgba(255,255,255,.55);
+      line-height: 1.4;
+    }
+    .stat-chip:nth-child(1) { grid-column: 1 / -1; background: var(--c); }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S3: CALCULADORA                                             */
+    /* ─────────────────────────────────────────────────────────── */
+    .calc-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      margin-top: 3.5rem;
+    }
+    @media (min-width: 900px) {
+      .calc-layout { grid-template-columns: 1fr 1fr; align-items: start; }
+    }
+
+    /* Inputs */
+    .calc-inputs { display: flex; flex-direction: column; gap: 1.5rem; }
+    .input-group { display: flex; flex-direction: column; gap: .5rem; }
+    .input-label {
+      font-size: .8rem;
+      font-weight: 700;
+      color: #374151;
+      letter-spacing: .02em;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .input-val {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--c);
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 3px;
+      background: #E5E7EB;
+      border-radius: 9999px;
+      cursor: pointer;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--c);
+      border: 2px solid #fff;
+      box-shadow: 0 1px 6px rgba(0,0,0,.2);
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--c);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .input-hint {
+      font-size: .72rem;
+      color: #9CA3AF;
+      font-style: italic;
+    }
+
+    /* Output */
+    .calc-output {
+      position: sticky;
+      top: 6rem;
+      background: var(--c);
+      color: #fff;
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .star-label-top {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .star-number {
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1;
+      color: #fff;
+    }
+    .star-sub {
+      font-size: .85rem;
+      color: rgba(255,255,255,.45);
+      margin-top: .25rem;
+    }
+    .breakdown { display: flex; flex-direction: column; gap: 1rem; }
+    .br-row { display: flex; flex-direction: column; gap: .35rem; }
+    .br-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+    .br-label-name { color: rgba(255,255,255,.65); }
+    .br-label-val  { color: #fff; }
+    .br-bar-bg {
+      height: 4px;
+      background: rgba(255,255,255,.12);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .br-bar-fill {
+      height: 100%;
+      background: rgba(255,255,255,.7);
+      border-radius: 9999px;
+      transition: width .6s var(--ease-out-expo);
+      width: 0;
+    }
+    .calc-disclaimer {
+      font-size: .72rem;
+      color: rgba(255,255,255,.3);
+      line-height: 1.5;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .calc-remate {
+      margin-top: 2.5rem;
+      font-size: 1.1rem;
+      color: #374151;
+      line-height: 1.7;
+      max-width: 52ch;
+    }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S4: WHY MANUALS FAIL                                        */
+    /* ─────────────────────────────────────────────────────────── */
+    .fail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    @media (min-width: 640px) { .fail-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 900px) { .fail-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .fail-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .fail-card-n {
+      font-size: 2rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.15);
+      letter-spacing: -.04em;
+      margin-bottom: .75rem;
+    }
+    .fail-card-t {
+      font-size: .95rem;
+      color: rgba(255,255,255,.7);
+      line-height: 1.6;
+    }
+    .fail-remate {
+      margin-top: 2.5rem;
+      font-size: 1.15rem;
+      color: rgba(255,255,255,.55);
+      line-height: 1.7;
+      max-width: 52ch;
+    }
+    .fail-remate strong { color: #fff; }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S5: SYSTEM / MODULAR EXPLORER                               */
+    /* ─────────────────────────────────────────────────────────── */
+    .explorer-intro {
+      margin-top: 3.5rem;
+      display: grid;
+      gap: 3rem;
+    }
+    .layers-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .75rem;
+    }
+    @media (min-width: 640px) { .layers-grid { grid-template-columns: 1fr 1fr; } }
+    .layer-card {
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      transition: border-color .2s, background .2s;
+    }
+    .layer-card:hover { border-color: var(--c); background: rgba(26,26,26,.02); }
+    .layer-n {
+      font-size: 2rem;
+      font-weight: 900;
+      color: rgba(26,26,26,.12);
+      letter-spacing: -.04em;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .layer-body { display: flex; flex-direction: column; gap: .3rem; }
+    .layer-title { font-size: .95rem; font-weight: 800; color: var(--c); }
+    .layer-desc  { font-size: .88rem; color: #6B7280; line-height: 1.5; }
+
+    /* Explorer */
+    #explorer {
+      margin-top: 4rem;
+      background: var(--c);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      color: #fff;
+    }
+    .explorer-h {
+      font-size: 1rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.45);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .75rem;
+      margin-bottom: 1.5rem;
+    }
+    .explorer-cols {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    @media (min-width: 700px) { .explorer-cols { grid-template-columns: 1fr 1fr; } }
+    .explorer-col-title {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.35);
+      margin-bottom: 1rem;
+    }
+    .sub-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .sub-chip {
+      font-size: .8rem;
+      font-weight: 600;
+      padding: .45rem .9rem;
+      border-radius: 9999px;
+      border: 1.5px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.55);
+      cursor: pointer;
+      transition: all .2s;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .sub-chip:hover { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.85); }
+    .sub-chip.active {
+      background: #fff;
+      color: var(--c);
+      border-color: #fff;
+    }
+    .sub-chip .chip-badge {
+      font-size: .68rem;
+      font-weight: 800;
+      background: rgba(255,255,255,.15);
+      color: rgba(255,255,255,.6);
+      padding: .1rem .4rem;
+      border-radius: 9999px;
+    }
+    .sub-chip.active .chip-badge {
+      background: rgba(26,26,26,.1);
+      color: var(--c);
+    }
+    .plat-list {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+    .plat-item {
+      font-size: .9rem;
+      padding: .6rem .9rem;
+      border-radius: 10px;
+      color: rgba(255,255,255,.45);
+      border: 1px solid transparent;
+      transition: all .2s;
+      cursor: pointer;
+      user-select: none;
+    }
+    .plat-item:hover { color: rgba(255,255,255,.8); background: rgba(255,255,255,.05); }
+    .plat-item.active {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      border-color: rgba(255,255,255,.15);
+    }
+    .plat-item.dimmed { opacity: .25; }
+    .plat-item .plat-subs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+      margin-top: .35rem;
+    }
+    .plat-sub-tag {
+      font-size: .66rem;
+      font-weight: 600;
+      padding: .15rem .5rem;
+      border-radius: 9999px;
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.4);
+      transition: all .2s;
+    }
+    .plat-sub-tag.highlight {
+      background: rgba(255,255,255,.2);
+      color: rgba(255,255,255,.85);
+    }
+    .explorer-punchline {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,.08);
+      font-size: .9rem;
+      color: rgba(255,255,255,.4);
+      text-align: center;
+    }
+    .explorer-punchline strong {
+      color: #fff;
+      font-size: 1.1rem;
+    }
+    .explorer-punchline.has-selection { color: rgba(255,255,255,.65); }
+    .explorer-punchline.has-selection strong { font-size: 1.3rem; }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S6: PRODUCCIÓN (star section)                               */
+    /* ─────────────────────────────────────────────────────────── */
+    .prod-body {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,.6);
+      line-height: 1.7;
+      max-width: 52ch;
+      margin: 2rem 0;
+    }
+    .prod-body p + p { margin-top: 1rem; }
+    .prod-features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1px;
+      background: rgba(255,255,255,.07);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 3rem;
+    }
+    @media (min-width: 640px) { .prod-features { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 900px) { .prod-features { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+    .prod-feat {
+      background: var(--c);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      transition: background .2s;
+    }
+    .prod-feat:hover { background: #252525; }
+    .prod-feat-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+    .prod-feat-title {
+      font-size: .95rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .prod-feat-desc {
+      font-size: .82rem;
+      color: rgba(255,255,255,.45);
+      line-height: 1.55;
+    }
+    .prod-result {
+      margin-top: 3rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 56ch;
+    }
+    .prod-result p {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,.75);
+      line-height: 1.65;
+    }
+    .prod-result strong { color: #fff; }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S7: DEMO                                                    */
+    /* ─────────────────────────────────────────────────────────── */
+    .demo-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      margin-top: 3.5rem;
+      align-items: center;
+    }
+    @media (min-width: 768px) { .demo-layout { grid-template-columns: 1fr 1fr; } }
+    .qr-mock {
+      aspect-ratio: 1;
+      max-width: 280px;
+      margin: 0 auto;
+      border: 2px dashed var(--border);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: #9CA3AF;
+      background: var(--g);
+    }
+    .qr-icon { font-size: 3rem; }
+    .qr-label { font-size: .8rem; font-weight: 600; text-align: center; line-height: 1.5; }
+    .demo-steps { display: flex; flex-direction: column; gap: 1.25rem; }
+    .demo-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .demo-step-n {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--c);
+      color: #fff;
+      font-size: .8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .demo-step-body { display: flex; flex-direction: column; gap: .25rem; padding-top: .25rem; }
+    .demo-step-title { font-size: .95rem; font-weight: 700; color: var(--c); }
+    .demo-step-desc  { font-size: .88rem; color: #6B7280; line-height: 1.5; }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S8: OFERTA                                                  */
+    /* ─────────────────────────────────────────────────────────── */
+    .offer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 3.5rem;
+    }
+    @media (min-width: 900px) { .offer-grid { grid-template-columns: 1fr 1fr 1fr; align-items: start; } }
+    .offer-card {
+      border-radius: 20px;
+      padding: 2rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .offer-card-1 {
+      background: var(--w);
+      border: 2px solid var(--c);
+    }
+    .offer-card-2 { background: var(--w); border: 1.5px solid var(--border); }
+    .offer-card-3 { background: var(--c); color: #fff; }
+    .offer-step {
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+    .offer-card-3 .offer-step { color: rgba(255,255,255,.4); }
+    .offer-h {
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: -.025em;
+      line-height: 1.15;
+    }
+    .offer-card-3 .offer-h { color: #fff; }
+    .offer-price {
+      font-size: 1.75rem;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      line-height: 1;
+    }
+    .offer-price-placeholder {
+      display: inline-block;
+      padding: .25rem .75rem;
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--mid);
+    }
+    .offer-card-3 .offer-price-placeholder {
+      border-color: rgba(255,255,255,.2);
+      color: rgba(255,255,255,.5);
+    }
+    .offer-desc {
+      font-size: .9rem;
+      color: #4B5563;
+      line-height: 1.65;
+    }
+    .offer-card-3 .offer-desc { color: rgba(255,255,255,.6); }
+    .offer-tag {
+      font-size: .75rem;
+      font-weight: 700;
+      padding: .35rem .8rem;
+      border-radius: 9999px;
+      align-self: flex-start;
+    }
+    .offer-tag-risk {
+      background: rgba(26,26,26,.08);
+      color: var(--c);
+    }
+    .offer-anchor {
+      margin-top: 2.5rem;
+      padding: 2rem;
+      background: rgba(26,26,26,.04);
+      border-radius: 16px;
+      max-width: 56ch;
+    }
+    .offer-anchor p {
+      font-size: 1rem;
+      color: #374151;
+      line-height: 1.65;
+    }
+    .offer-anchor strong { color: var(--c); font-weight: 800; }
+    #star-anchor {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--c);
+      letter-spacing: -.03em;
+    }
+    .offer-property {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 56ch;
+      font-size: .9rem;
+      color: #4B5563;
+      line-height: 1.65;
+    }
+    .offer-property strong { color: var(--c); }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S9: CTA FINAL                                               */
+    /* ─────────────────────────────────────────────────────────── */
+    #piloto {
+      text-align: center;
+    }
+    .cta-big {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -.03em;
+      color: #fff;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      max-width: 20ch;
+      margin: 0 auto 1.5rem;
+    }
+    .cta-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.5);
+      max-width: 44ch;
+      margin: 0 auto 2.5rem;
+      line-height: 1.65;
+    }
+    .cta-btns {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    @media (min-width: 480px) { .cta-btns { flex-direction: row; justify-content: center; } }
+    .cta-note {
+      margin-top: 1.5rem;
+      font-size: .82rem;
+      color: rgba(255,255,255,.3);
+      max-width: 44ch;
+      margin: 1.5rem auto 0;
+      line-height: 1.55;
+    }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* S10: ABOUT FOOTER                                           */
+    /* ─────────────────────────────────────────────────────────── */
+    #about-footer {
+      padding: 4rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .about-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    @media (min-width: 640px) {
+      .about-inner {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+    .about-logo { font-size: 1.5rem; font-weight: 900; color: var(--c); letter-spacing: -.04em; }
+    .about-text { font-size: .85rem; color: #6B7280; line-height: 1.6; max-width: 52ch; }
+    .about-link { color: var(--c); font-weight: 600; text-decoration: none; }
+    .about-link:hover { text-decoration: underline; }
+
+    /* ─────────────────────────────────────────────────────────── */
+    /* PRINT LEAVE-BEHIND                                          */
+    /* ─────────────────────────────────────────────────────────── */
+    #print-page { display: none; }
+
+    @media print {
+      #pnav, #hero, #problema, #calculadora, #fallan, #sistema,
+      #produccion, #demo, #oferta, #piloto, #about-footer {
+        display: none !important;
+      }
+      #print-page {
+        display: block !important;
+        font-family: 'Inter', system-ui, sans-serif;
+        color: #1a1a1a;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .pr-logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -.04em; margin-bottom: .5rem; }
+      .pr-date  { font-size: .75rem; color: #9CA3AF; margin-bottom: 2.5rem; }
+      .pr-title { font-size: 2rem; font-weight: 900; letter-spacing: -.03em; margin-bottom: .5rem; }
+      .pr-sub   { font-size: 1rem; color: #4B5563; margin-bottom: 2.5rem; }
+      .pr-box {
+        border: 2px solid #1a1a1a;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+      .pr-box-l { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9CA3AF; margin-bottom: .5rem; }
+      .pr-star  { font-size: 3.5rem; font-weight: 900; letter-spacing: -.04em; }
+      .pr-steps { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
+      .pr-step  { display: flex; gap: 1rem; align-items: flex-start; padding: 1.25rem; border: 1px solid #E5E7EB; border-radius: 12px; }
+      .pr-step-n { font-size: 1.5rem; font-weight: 900; color: #E5E7EB; flex-shrink: 0; }
+      .pr-step-t { font-size: .9rem; font-weight: 700; }
+      .pr-step-d { font-size: .82rem; color: #4B5563; line-height: 1.5; margin-top: .25rem; }
+      .pr-cta    { font-size: 1rem; font-weight: 700; text-align: center; padding: 1rem; background: #1a1a1a; color: #fff; border-radius: 10px; }
+      .pr-foot   { margin-top: 2rem; font-size: .72rem; color: #9CA3AF; text-align: center; border-top: 1px solid #F3F3F3; padding-top: 1rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ─── NAVBAR ───────────────────────────────────────────────────────── -->
+<nav id="pnav">
+  <div class="pnav-inner">
+    <a href="/" class="pnav-logo">A.</a>
+    <span class="pnav-label">Manual Vivo™ × Grupo Caribe</span>
+    <a href="#piloto" class="btn btn-light" style="font-size:.8rem;padding:.6rem 1.25rem;">Quiero el Piloto</a>
+  </div>
+</nav>
+
+<!-- ─── S1: HERO ──────────────────────────────────────────────────────── -->
+<section id="hero" class="s-dark">
+  <div class="container">
+    <p class="hero-tag reveal">Grupo Caribe × Antemano</p>
+    <h1 class="hero-h1 reveal reveal-d1">
+      Cada vez que renuncia un cocinero, tu mejor receta se va <em class="si">con él.</em>
+    </h1>
+    <p class="hero-sub reveal reveal-d2">
+      Y no está anotada en ningún lado. Vive en su cabeza, en la de tu chef, en la de dos personas más. El día que faltan, el platillo sale distinto. O no sale.
+    </p>
+    <p class="hero-teaser reveal reveal-d2">
+      Hay un costo en tu operación que no aparece en el P&L.<br>
+      No lo ve tu contador. Nadie lo factura. Pero te cuesta más que cualquier proveedor.
+    </p>
+    <a href="#calculadora" class="btn btn-light reveal reveal-d3">
+      Ver cuánto me está costando
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+    </a>
+  </div>
+  <div class="hero-scroll-hint" aria-hidden="true">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+    <span>scroll</span>
+  </div>
+</section>
+
+<!-- ─── S2: PROBLEMA ─────────────────────────────────────────────────── -->
+<section id="problema" class="s-light">
+  <div class="container">
+    <p class="eyebrow-dark reveal">Diagnóstico</p>
+    <div class="prob-grid">
+      <div>
+        <h2 class="h2 reveal">
+          No tienes un problema de capacitación.<br>
+          Tienes un problema de <em class="si">memoria.</em>
+        </h2>
+        <div class="prob-body">
+          <p>Tu conocimiento más valioso —cómo se hace cada platillo, exactamente igual, todos los días— vive en la memoria de poca gente. Y esa memoria renuncia, se enferma, se va a otro restaurante.</p>
+          <p>Mientras tanto:</p>
+          <ul class="prob-list">
+            <li>El que entrena es tu persona más cara, fuera de la línea, repitiendo lo mismo con cada nuevo.</li>
+            <li>El platillo sale distinto según quién esté en turno. El cliente lo nota.</li>
+            <li>Cada cocinero porciona "al ojo". Ahí se va tu food cost, gramo por gramo, sin que lo veas.</li>
+            <li>Y cuando cambias la carta, tardas semanas en que salga parejo en toda la cocina.</li>
+          </ul>
+          <p class="prob-remate">
+            Lo normal es aceptar esto como "así es el negocio restaurantero".<br>
+            No lo es. Es un costo que se puede medir. Y que se puede bajar.
+          </p>
+        </div>
+        <a href="#calculadora" class="btn btn-dark" style="margin-top:2rem;">Medirlo con mis números →</a>
+      </div>
+
+      <div class="stat-chips reveal reveal-d2">
+        <div class="stat-chip">
+          <span class="stat-chip-n">75%</span>
+          <span class="stat-chip-l">rotación anual promedio en la industria restaurantera mexicana</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-n">3 sem</span>
+          <span class="stat-chip-l">para que un cocinero nuevo opere al estándar del restaurante</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-n">+3%</span>
+          <span class="stat-chip-l">gap típico en food cost entre cocinas con y sin estándares documentados</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-n">0</span>
+          <span class="stat-chip-l">restaurantes que realmente usan sus manuales de capacitación</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── S3: CALCULADORA ──────────────────────────────────────────────── -->
+<section id="calculadora" class="s-white">
+  <div class="container">
+    <p class="eyebrow-dark reveal">Calculadora de impacto</p>
+    <h2 class="h2 reveal reveal-d1">
+      Mete tus números.<br>
+      Mira lo que estás <em class="si">dejando en la mesa.</em>
+    </h2>
+    <p class="section-sub reveal reveal-d2">Sin trampa. Son tus cifras. Nosotros solo ponemos las fórmulas.</p>
+
+    <div class="calc-layout">
+      <!-- INPUTS -->
+      <div class="calc-inputs">
+        <div class="input-group reveal">
+          <label class="input-label">
+            Cocineros en cocina
+            <span class="input-val" id="v-cocineros">8</span>
+          </label>
+          <input type="range" id="s-cocineros" min="2" max="40" value="8" step="1" />
+          <span class="input-hint">¿Cuántas personas trabajan en tu cocina en total?</span>
+        </div>
+
+        <div class="input-group reveal reveal-d1">
+          <label class="input-label">
+            Contrataciones por año
+            <span class="input-val" id="v-rotacion">6</span>
+          </label>
+          <input type="range" id="s-rotacion" min="1" max="30" value="6" step="1" />
+          <span class="input-hint">¿Cuántos cocineros nuevos contratas en un año?</span>
+        </div>
+
+        <div class="input-group reveal reveal-d1">
+          <label class="input-label">
+            Días hasta que opera solo
+            <span class="input-val" id="v-dias">21 días</span>
+          </label>
+          <input type="range" id="s-dias" min="7" max="60" value="21" step="1" />
+          <span class="input-hint">¿Cuántos días tarda un nuevo en ser autónomo en su estación?</span>
+        </div>
+
+        <div class="input-group reveal reveal-d2">
+          <label class="input-label">
+            Costo-hora del entrenador
+            <span class="input-val" id="v-hora">$120/hr</span>
+          </label>
+          <input type="range" id="s-hora" min="60" max="400" value="120" step="10" />
+          <span class="input-hint">¿Cuánto te cuesta por hora la persona que entrena al nuevo?</span>
+        </div>
+
+        <div class="input-group reveal reveal-d2">
+          <label class="input-label">
+            Food cost actual vs. objetivo
+            <span class="input-val" id="v-fc">35% vs 30%</span>
+          </label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+            <div>
+              <input type="range" id="s-fc-actual" min="20" max="60" value="35" step="1" />
+              <span class="input-hint">Actual</span>
+            </div>
+            <div>
+              <input type="range" id="s-fc-obj" min="15" max="55" value="30" step="1" />
+              <span class="input-hint">Objetivo</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group reveal reveal-d2">
+          <label class="input-label">
+            Venta mensual de cocina
+            <span class="input-val" id="v-venta">$300,000</span>
+          </label>
+          <input type="range" id="s-venta" min="50000" max="2000000" value="300000" step="10000" />
+          <span class="input-hint">¿Cuánto vende tu cocina en un mes normal?</span>
+        </div>
+
+        <div class="input-group reveal reveal-d3">
+          <label class="input-label">
+            Platillos devueltos o rehechos / semana
+            <span class="input-val" id="v-dev">5</span>
+          </label>
+          <input type="range" id="s-dev" min="0" max="30" value="5" step="1" />
+          <span class="input-hint">Por inconsistencia, error de preparación o estándar diferente.</span>
+        </div>
+      </div>
+
+      <!-- OUTPUT -->
+      <div class="calc-output reveal reveal-d1">
+        <div>
+          <p class="star-label-top">Costo anual del sistema actual</p>
+          <p class="star-number" id="star-num">$374,780</p>
+          <p class="star-sub">por año — estimado con tus datos</p>
+        </div>
+
+        <div class="breakdown" id="breakdown">
+          <div class="br-row">
+            <div class="br-label-row">
+              <span class="br-label-name">Capacitación</span>
+              <span class="br-label-val" id="br-cap">$91,980</span>
+            </div>
+            <div class="br-bar-bg"><div class="br-bar-fill" id="bar-cap" style="width:0"></div></div>
+          </div>
+          <div class="br-row">
+            <div class="br-label-row">
+              <span class="br-label-name">Rotación</span>
+              <span class="br-label-val" id="br-rot">$30,000</span>
+            </div>
+            <div class="br-bar-bg"><div class="br-bar-fill" id="bar-rot" style="width:0"></div></div>
+          </div>
+          <div class="br-row">
+            <div class="br-label-row">
+              <span class="br-label-name">Merma / food cost</span>
+              <span class="br-label-val" id="br-mer">$180,000</span>
+            </div>
+            <div class="br-bar-bg"><div class="br-bar-fill" id="bar-mer" style="width:0"></div></div>
+          </div>
+          <div class="br-row">
+            <div class="br-label-row">
+              <span class="br-label-name">Devoluciones</span>
+              <span class="br-label-val" id="br-dev">$72,800</span>
+            </div>
+            <div class="br-bar-bg"><div class="br-bar-fill" id="bar-dev" style="width:0"></div></div>
+          </div>
+        </div>
+
+        <p class="calc-disclaimer">
+          Estimado basado en benchmarks de la industria. Ajusta los sliders con tus cifras reales para mayor precisión.
+        </p>
+      </div>
+    </div>
+
+    <p class="calc-remate reveal">
+      Ese número de arriba es lo que cuesta el sistema actual. Cada año.<br>
+      Hoy ya lo estás pagando — solo que no lo ves en ningún reporte.
+    </p>
+    <a href="#fallan" class="btn btn-dark reveal" style="margin-top:2rem;">Lo que sigue es cómo dejas de pagarlo →</a>
+  </div>
+</section>
+
+<!-- ─── S4: POR QUÉ FALLAN LOS MANUALES ─────────────────────────────── -->
+<section id="fallan" class="s-dark">
+  <div class="container">
+    <p class="eyebrow reveal">El problema con lo que existe</p>
+    <h2 class="h2 reveal reveal-d1" style="color:#fff;">
+      El 88 % de la gente que ve un manual de capacitación,<br><em class="si">lo odia.</em>
+    </h2>
+    <div class="fail-grid" style="margin-top:3rem;">
+      {[
+        { n: '01', t: 'Un PDF de 80 páginas que nadie abre. Si lo abren, no lo terminan. Si lo terminan, no lo aplican.' },
+        { n: '02', t: 'Un video corporativo plano: cámara fija, cocinero hablando, 8 minutos, cero edición. Nadie lo ve completo.' },
+        { n: '03', t: 'Una carpeta en Drive con archivos sin orden. Nadie sabe qué buscar ni dónde. El que sabe, ya renunció.' },
+        { n: '04', t: 'Tu personal ya consume short-form vertical todo el día. Darles capacitación de 2009 es garantizar que no la usen.' },
+        { n: '05', t: 'El entrenamiento verbal no escala. Cada quien lo aprende diferente. El estándar muere con quien lo enseñó.' },
+        { n: '06', t: 'Un sistema que nadie usa no es un sistema. Es un cementerio de buenas intenciones.' },
+      ].map(c => (
+        <div class="fail-card reveal">
+          <div class="fail-card-n">{c.n}</div>
+          <p class="fail-card-t">{c.t}</p>
+        </div>
+      ))}
+    </div>
+    <p class="fail-remate reveal">
+      <strong>Una carpeta de videos en Drive no es un sistema.</strong><br>
+      Es un cementerio de buenas intenciones.<br>
+      Nosotros no hacemos eso.
+    </p>
+    <a href="#sistema" class="btn btn-light reveal" style="margin-top:2.5rem;">Entonces qué hacemos →</a>
+  </div>
+</section>
+
+<!-- ─── S5: EL SISTEMA ───────────────────────────────────────────────── -->
+<section id="sistema" class="s-light">
+  <div class="container">
+    <p class="eyebrow-dark reveal">La solución</p>
+    <h2 class="h2 reveal reveal-d1">
+      No te vendemos 250 videos.<br>
+      Te construimos un <em class="si">sistema.</em>
+    </h2>
+    <div class="explorer-intro">
+      <div>
+        <p class="section-sub reveal" style="max-width:60ch;">
+          Una cocina no son 250 recetas independientes. Son un puñado de salsas, masas y técnicas base que se combinan. La misma salsa vive en 6 platillos. El mismo corte, en 12. Por eso el sistema se arma en capas que se reutilizan entre platillos y entre tus 5 marcas. Cerca del 40 % del contenido sirve a más de un lugar.
+        </p>
+        <div class="layers-grid" style="margin-top:2.5rem;">
+          {[
+            { n: '01', t: 'Contenido', d: 'Protocolos de apertura, subrecetas base, platillos. Todo el conocimiento de tu cocina, filmado al estándar.' },
+            { n: '02', t: 'Acceso', d: 'El nuevo sigue una ruta por puesto. El experimentado escanea un QR en su estación y cae al video exacto en 3 segundos.' },
+            { n: '03', t: 'Vivo', d: 'Cambias la receta, actualizamos el video. El mismo QR ya apunta a la versión nueva. No se pudre.' },
+            { n: '04', t: 'Medible', d: 'Sabes qué se está usando, qué módulos se completan y cuánto baja tu tiempo de capacitación.' },
+          ].map(l => (
+            <div class="layer-card reveal">
+              <div class="layer-n">{l.n}</div>
+              <div class="layer-body">
+                <div class="layer-title">{l.t}</div>
+                <div class="layer-desc">{l.d}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Modular Explorer -->
+      <div id="explorer">
+        <p class="explorer-h">Explorador modular — El Caribeño</p>
+        <div class="explorer-cols">
+          <div>
+            <p class="explorer-col-title">Subrecetas base ({subrecetas.length})</p>
+            <div class="sub-chips" id="sub-chips">
+              {subrecetas.map(s => (
+                <button
+                  class="sub-chip"
+                  data-sub-id={s.id}
+                  aria-pressed="false"
+                >
+                  {s.name}
+                  <span class="chip-badge">{s.count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p class="explorer-col-title">Platillos ({platillos.length} de ~40)</p>
+            <div class="plat-list" id="plat-list">
+              {platillos.map(p => (
+                <div
+                  class="plat-item"
+                  data-plat-id={p.id}
+                  data-subs={p.subs.join(',')}
+                >
+                  <div>{p.name}</div>
+                  <div class="plat-subs">
+                    {p.subs.map(sid => {
+                      const sr = subrecetas.find(s => s.id === sid);
+                      return (
+                        <span class="plat-sub-tag" data-tag-sub={sid}>
+                          {sr?.name}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div class="explorer-punchline" id="explorer-punchline">
+          <strong>Toca una subreceta</strong> para ver en cuántos platillos aparece.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── S6: PRODUCCIÓN ⭐ ─────────────────────────────────────────────── -->
+<section id="produccion" class="s-dark">
+  <div class="container">
+    <p class="eyebrow reveal">Lo que nos diferencia</p>
+    <h2 class="h2 reveal reveal-d1" style="color:#fff;">
+      Si tu personal lo abandona a los 10 segundos,<br>
+      <em class="si">no sirve.</em> Punto.
+    </h2>
+    <div class="prod-body reveal reveal-d1">
+      <p>La mayoría de las "empresas de capacitación" te entregan video plano: una cámara fija, un cocinero hablando, 8 minutos, cero edición. Nadie lo ve completo.</p>
+      <p>Nosotros somos productora. Editamos contenido para que se consuma, no para que se archive. Cada video se hace como el contenido que tu equipo ya ve todo el día.</p>
+    </div>
+
+    <div class="prod-features reveal">
+      {[
+        { icon: '📱', t: 'Vertical, para el celular', d: 'Se ve en la estación, con una mano, en la pantalla que ya traen en la bolsa.' },
+        { icon: '⚡', t: 'Una sola cosa por video', d: '30 a 90 segundos. Una técnica. Si no, lo partimos. Sin tiempo muerto, sin intro de 10 segundos.' },
+        { icon: '🎯', t: 'Engancha en 3 segundos', d: 'Arranca con el resultado final. El plato montado, el corte perfecto. Saben a dónde van.' },
+        { icon: '📝', t: 'Texto y gramajes en pantalla', d: 'La cocina es ruidosa y a veces sin sonido. Todo lo crítico se lee, no solo se escucha.' },
+        { icon: '✅', t: '"Así se ve bien / así se ve mal"', d: 'No solo el paso — el criterio de qué es correcto. Tu estándar, visible.' },
+        { icon: '🎬', t: 'Lo sensorial vende', d: 'El sizzle, el queso fundiendo, el corte limpio. La comida retiene por lo que se siente.' },
+        { icon: '🎨', t: 'Plantilla de marca fija', d: 'Cada marca tiene su identidad visual. Reconocible al instante, coherente en todos los puntos de venta.' },
+        { icon: '🎥', t: 'Color de cine — DaVinci Resolve', d: 'Edición de nivel cinematográfico. Se ve premium, no se ve celular grabado sin pensar.' },
+      ].map(f => (
+        <div class="prod-feat reveal">
+          <div class="prod-feat-icon">{f.icon}</div>
+          <div class="prod-feat-title">{f.t}</div>
+          <div class="prod-feat-desc">{f.d}</div>
+        </div>
+      ))}
+    </div>
+
+    <div class="prod-result reveal">
+      <p>
+        El resultado: capacitación que tu personal <strong>ve hasta el final.</strong><br>
+        Porque por fin se parece a algo que sí querrían ver.
+      </p>
+    </div>
+    <a href="#demo" class="btn btn-light reveal" style="margin-top:2rem;">Ver un ejemplo →</a>
+  </div>
+</section>
+
+<!-- ─── S7: DEMO ──────────────────────────────────────────────────────── -->
+<section id="demo" class="s-light">
+  <div class="container">
+    <p class="eyebrow-dark reveal">Demo funcional</p>
+    <h2 class="h2 reveal reveal-d1">
+      Escanéalo.<br>
+      Es <em class="si">de verdad.</em>
+    </h2>
+    <p class="section-sub reveal reveal-d2">Esto no es una promesa. Es un módulo terminado. Saca tu celular, escanea el código y mira lo que tu cocinero vería en su estación.</p>
+
+    <div class="demo-layout">
+      <div class="qr-mock reveal">
+        <div class="qr-icon">⬛</div>
+        <p class="qr-label">
+          Video demo<br>
+          <strong style="color:#374151;">próximamente</strong><br>
+          <span style="font-size:.7rem;color:#9CA3AF;">se activa con el piloto</span>
+        </p>
+      </div>
+
+      <div class="demo-steps reveal reveal-d1">
+        <p style="font-size:1rem;color:#374151;font-weight:600;margin-bottom:.5rem;">Así funciona en la operación:</p>
+        {[
+          { n: '1', t: 'QR en la estación', d: 'Un código QR pegado en cada área de trabajo. Sin apps que descargar, sin contraseñas, sin capacitación para usar la capacitación.' },
+          { n: '2', t: 'Video en 3 segundos', d: 'El cocinero escanea y cae directamente al video exacto que necesita. No navega, no busca, no se pierde.' },
+          { n: '3', t: 'Aprende y sigue', d: 'El video dura menos de 90 segundos. Lo ve, lo aplica, listo. Puede repetirlo cuantas veces quiera.' },
+          { n: '4', t: 'Siempre actualizado', d: 'Cuando cambia la receta, actualizamos el video. El mismo QR ya apunta a la nueva versión sin cambiar nada en la cocina.' },
+        ].map(s => (
+          <div class="demo-step reveal">
+            <div class="demo-step-n">{s.n}</div>
+            <div class="demo-step-body">
+              <p class="demo-step-title">{s.t}</p>
+              <p class="demo-step-desc">{s.d}</p>
+            </div>
+          </div>
+        ))}
+        <p style="margin-top:1rem;font-size:.9rem;color:#6B7280;font-style:italic;">
+          Eso que acabas de ver, multiplicado por tu carta y organizado para que nunca se pierda. Eso es <strong style="color:#1a1a1a;font-style:normal;">Manual Vivo.</strong>
+        </p>
+      </div>
+    </div>
+
+    <a href="#oferta" class="btn btn-dark reveal" style="margin-top:3rem;">Ver cómo empezamos →</a>
+  </div>
+</section>
+
+<!-- ─── S8: OFERTA ───────────────────────────────────────────────────── -->
+<section id="oferta" class="s-white">
+  <div class="container">
+    <p class="eyebrow-dark reveal">La propuesta</p>
+    <h2 class="h2 reveal reveal-d1">
+      Manual Vivo, en tres pasos.<br>
+      Empiezas con <em class="si">riesgo casi cero.</em>
+    </h2>
+
+    <div class="offer-grid">
+      <div class="offer-card offer-card-1 reveal">
+        <div>
+          <p class="offer-step">Paso 01</p>
+          <h3 class="offer-h">El Piloto</h3>
+        </div>
+        <div>
+          <span class="offer-price-placeholder">Precio a definir</span>
+        </div>
+        <p class="offer-desc">
+          Producimos 3 videos terminados en una de tus marcas: un protocolo de apertura, una subreceta base, un platillo. Ves el formato, la calidad, el sistema funcionando. Antes de comprometerte a nada grande.
+        </p>
+        <span class="offer-tag offer-tag-risk">← Empieza aquí. Sin riesgo.</span>
+        <a href="#piloto" class="btn btn-dark" style="align-self:flex-start;margin-top:.5rem;">Quiero el Piloto</a>
+      </div>
+
+      <div class="offer-card offer-card-2 reveal reveal-d1">
+        <div>
+          <p class="offer-step">Paso 02</p>
+          <h3 class="offer-h">La Biblioteca</h3>
+        </div>
+        <div>
+          <span class="offer-price-placeholder">Por fases — a definir</span>
+        </div>
+        <p class="offer-desc">
+          Construimos el sistema completo de la marca: todos los protocolos, subrecetas y platillos, codificados con QR por estación y rutas de aprendizaje por puesto. Producción por estación, no por platillo — por eso es eficiente y escalable entre tus 5 marcas.
+        </p>
+      </div>
+
+      <div class="offer-card offer-card-3 reveal reveal-d2">
+        <div>
+          <p class="offer-step">Paso 03</p>
+          <h3 class="offer-h">Mantenimiento</h3>
+        </div>
+        <div>
+          <span class="offer-price-placeholder">Retainer mensual</span>
+        </div>
+        <p class="offer-desc">
+          El sistema no se pudre. Cambias la carta, actualizamos los videos. Entra un proceso nuevo, lo grabamos. Auditoría trimestral del uso. Nosotros somos los dueños de que tu estándar siga vivo — y ese es exactamente el nombre del sistema.
+        </p>
+      </div>
+    </div>
+
+    <div class="offer-anchor reveal" style="margin-top:2.5rem;">
+      <p>
+        Arriba calculaste que el sistema actual te cuesta <span id="star-anchor">$374,780</span> al año.
+        Manual Vivo cuesta una fracción de eso. Y a diferencia de ese costo, este sí lo ves, lo controlas,
+        y <strong>construye un activo que es tuyo.</strong>
+      </p>
+    </div>
+
+    <div class="offer-property reveal">
+      <strong>El contenido —tus recetas— es tuyo.</strong> Tu IP, en tu cuenta, lo ves cuando quieras.
+      Nosotros aportamos el sistema y la producción. No te tenemos de rehén; te tenemos como socio.
+    </div>
+  </div>
+</section>
+
+<!-- ─── S9: CTA ───────────────────────────────────────────────────────── -->
+<section id="piloto" class="s-dark">
+  <div class="container" style="text-align:center;">
+    <p class="eyebrow" style="text-align:center;" >Siguiente paso</p>
+    <h2 class="h2 h2-center reveal reveal-d1" style="color:#fff;">
+      No tienes que decidir todo hoy.<br>
+      Solo el <em class="si">primer paso.</em>
+    </h2>
+    <p class="cta-sub reveal reveal-d2">
+      El siguiente movimiento no es firmar la biblioteca completa. Es el Piloto: 3 videos, una marca, y lo ves con tus propios ojos.<br>
+      Si no te convence lo que producimos, no seguimos. Así de simple.
+    </p>
+    <div class="cta-btns reveal reveal-d2">
+      <a href="https://wa.me/526181234567" class="btn btn-light">
+        Quiero el Piloto →
+      </a>
+      <button class="btn btn-outline-light" id="btn-print" type="button">
+        Descargar resumen para mis socios
+      </button>
+    </div>
+    <p class="cta-note reveal reveal-d3">
+      El piloto es tu reversión de riesgo. Pruebas antes de creer.<br>
+      Tres videos terminados. Ves el sistema funcionando. Luego decides.
+    </p>
+  </div>
+</section>
+
+<!-- ─── S10: ABOUT ────────────────────────────────────────────────────── -->
+<section id="about-footer" class="s-white">
+  <div class="container">
+    <div class="about-inner">
+      <div>
+        <p class="about-logo">Antemano.</p>
+        <p style="font-size:.75rem;color:#9CA3AF;font-weight:600;letter-spacing:.08em;margin-top:.25rem;">TALLER CREATIVO · DURANGO, MX</p>
+      </div>
+      <p class="about-text">
+        Somos un taller creativo de producción audiovisual y estrategia digital. No somos "los del video". Operamos como un departamento dentro de tu negocio: medimos, producimos y mantenemos. Esta propuesta que estás usando la construimos nosotros — para que veas exactamente cómo trabajamos antes de contratarnos.<br>
+        <a href="https://antemanoc.com" class="about-link">antemanoc.com</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRINT LEAVE-BEHIND (hidden — visible on print) ──────────────── -->
+<div id="print-page">
+  <p class="pr-logo">Antemano.</p>
+  <p class="pr-date">Propuesta: Manual Vivo™ × Grupo Caribe — <span id="pr-date-val"></span></p>
+  <h1 class="pr-title">Manual Vivo™</h1>
+  <p class="pr-sub">El sistema operativo de capacitación de tu grupo.</p>
+
+  <div class="pr-box">
+    <p class="pr-box-l">Costo anual del sistema actual</p>
+    <p class="pr-star" id="pr-star">$374,780</p>
+    <p style="font-size:.8rem;color:#9CA3AF;margin-top:.5rem;">Calculado con tus datos. Esto ya lo estás pagando — solo que no aparece en ningún reporte.</p>
+  </div>
+
+  <div class="pr-steps">
+    <div class="pr-step">
+      <span class="pr-step-n">01</span>
+      <div>
+        <p class="pr-step-t">El Piloto</p>
+        <p class="pr-step-d">3 videos terminados en una de tus marcas. Ves el formato, la calidad y el sistema funcionando antes de comprometerte a algo mayor.</p>
+      </div>
+    </div>
+    <div class="pr-step">
+      <span class="pr-step-n">02</span>
+      <div>
+        <p class="pr-step-t">La Biblioteca</p>
+        <p class="pr-step-d">Sistema completo de la marca: protocolos, subrecetas y platillos con QR por estación y rutas por puesto. Escalable entre las 5 marcas del grupo.</p>
+      </div>
+    </div>
+    <div class="pr-step">
+      <span class="pr-step-n">03</span>
+      <div>
+        <p class="pr-step-t">Mantenimiento (Manual Vivo)</p>
+        <p class="pr-step-d">El sistema se mantiene vivo: actualizaciones de carta, nuevos procesos, auditoría trimestral. Retainer mensual.</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="pr-cta">Próximo paso: el Piloto — antemanoc.com</p>
+  <p class="pr-foot">Propuesta privada preparada por Antemano Taller Creativo · Durango, México · antemanoc.com</p>
+</div>
+
+<!-- ─── JAVASCRIPT ─────────────────────────────────────────────────────── -->
+<script is:inline>
+(function () {
+  /* ── Scroll-reveal ─────────────────────────────────────────── */
+  const io = new IntersectionObserver(
+    (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }),
+    { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+  );
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* ── Sticky nav ────────────────────────────────────────────── */
+  const nav = document.getElementById('pnav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  /* ── Calculator ────────────────────────────────────────────── */
+  let displayedTotal = 0;
+  let rafId = null;
+  let savedTotal = 374780;
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString('es-MX');
+  }
+
+  function get(id)  { return parseFloat(document.getElementById(id).value); }
+  function setText(id, val) { document.getElementById(id).textContent = val; }
+
+  function calcAll() {
+    const cocineros = get('s-cocineros');
+    const rotacion  = get('s-rotacion');
+    const dias      = get('s-dias');
+    const hora      = get('s-hora');
+    const fcAct     = get('s-fc-actual');
+    const fcObj     = get('s-fc-obj');
+    const venta     = get('s-venta');
+    const dev       = get('s-dev');
+
+    // Labels
+    setText('v-cocineros', cocineros);
+    setText('v-rotacion',  rotacion);
+    setText('v-dias',      dias + ' días');
+    setText('v-hora',      '$' + hora + '/hr');
+    setText('v-fc',        fcAct + '% vs ' + fcObj + '%');
+    setText('v-venta',     '$' + Math.round(venta / 1000) + 'k');
+    setText('v-dev',       dev);
+
+    // Calculations
+    const horasEntrenador = dias * 4;
+    const salarioDiarioNuevo = 250;
+    const cap = (horasEntrenador * hora + dias * salarioDiarioNuevo) * rotacion;
+    const rot = rotacion * 5000;
+    const gap = Math.max(0, fcAct - fcObj) / 100;
+    const mer = gap * venta * 12;
+    const devCost = dev * 280 * 52;
+    const total = cap + rot + mer + devCost;
+
+    // Bars
+    setText('br-cap', fmt(cap));
+    setText('br-rot', fmt(rot));
+    setText('br-mer', fmt(mer));
+    setText('br-dev', fmt(devCost));
+
+    const max = Math.max(cap, rot, mer, devCost, 1);
+    document.getElementById('bar-cap').style.width = (cap / max * 100) + '%';
+    document.getElementById('bar-rot').style.width = (rot / max * 100) + '%';
+    document.getElementById('bar-mer').style.width = (mer / max * 100) + '%';
+    document.getElementById('bar-dev').style.width = (devCost / max * 100) + '%';
+
+    // Animate star number
+    savedTotal = total;
+    animateTo(total);
+
+    // Sync offer anchor & print
+    const prEl = document.getElementById('pr-star');
+    const anEl = document.getElementById('star-anchor');
+    if (prEl) prEl.textContent = fmt(total);
+    if (anEl) anEl.textContent = fmt(total);
+  }
+
+  function animateTo(target) {
+    if (rafId) cancelAnimationFrame(rafId);
+    const start = displayedTotal;
+    const diff  = target - start;
+    const dur   = 600;
+    const t0    = performance.now();
+    function tick(now) {
+      const p = Math.min((now - t0) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      displayedTotal = start + diff * eased;
+      document.getElementById('star-num').textContent = fmt(displayedTotal);
+      if (p < 1) rafId = requestAnimationFrame(tick);
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  ['s-cocineros','s-rotacion','s-dias','s-hora','s-fc-actual','s-fc-obj','s-venta','s-dev']
+    .forEach(id => document.getElementById(id).addEventListener('input', calcAll));
+
+  calcAll(); // initial
+
+  /* ── Modular Explorer ──────────────────────────────────────── */
+  const platillosData = {
+    'p1':  { subs: [2, 3, 9]       },
+    'p2':  { subs: [3, 7, 4]       },
+    'p3':  { subs: [1, 7, 11]      },
+    'p4':  { subs: [12, 8, 3]      },
+    'p5':  { subs: [5, 4, 8, 9]    },
+    'p6':  { subs: [11, 10, 6]     },
+    'p7':  { subs: [5, 11, 10]     },
+    'p8':  { subs: [10, 6, 1]      },
+    'p9':  { subs: [10, 9, 7]      },
+    'p10': { subs: [11, 2, 3]      },
+    'p11': { subs: [4, 7, 3]       },
+    'p12': { subs: [6, 1, 10, 2]   },
+    'p13': { subs: [10, 11, 6]     },
+    'p14': { subs: [10, 6, 1]      },
+    'p15': { subs: [10, 9, 3]      },
+  };
+
+  const subNames = {
+    1: 'Salsa de tomate', 2: 'Adobo caribeño', 3: 'Sofrito base',
+    4: 'Frijoles negros', 5: 'Arroz blanco', 6: 'Mojo de ajo',
+    7: 'Crema chipotle', 8: 'Guacamole base', 9: 'Pico de gallo',
+    10: 'Base de mariscos', 11: 'Caldo de pollo', 12: 'Masa para tortilla',
+  };
+
+  let activeSubId = null;
+  let activePlatId = null;
+
+  const chips    = document.querySelectorAll('.sub-chip');
+  const platItems = document.querySelectorAll('.plat-item');
+  const punchline = document.getElementById('explorer-punchline');
+
+  function clearAll() {
+    chips.forEach(c => { c.classList.remove('active'); c.setAttribute('aria-pressed','false'); });
+    platItems.forEach(p => { p.classList.remove('active','dimmed'); });
+    document.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.remove('highlight'));
+    activeSubId = null; activePlatId = null;
+    punchline.innerHTML = '<strong>Toca una subreceta</strong> para ver en cuántos platillos aparece.';
+    punchline.classList.remove('has-selection');
+  }
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const sid = parseInt(chip.dataset.subId);
+      if (activeSubId === sid) { clearAll(); return; }
+      clearAll();
+      activeSubId = sid;
+      chip.classList.add('active');
+      chip.setAttribute('aria-pressed','true');
+
+      let matchCount = 0;
+      platItems.forEach(p => {
+        const platSubs = platillosData[p.dataset.platId]?.subs || [];
+        if (platSubs.includes(sid)) {
+          p.classList.add('active');
+          matchCount++;
+          p.querySelectorAll('.plat-sub-tag').forEach(tag => {
+            if (parseInt(tag.dataset.tagSub) === sid) tag.classList.add('highlight');
+          });
+        } else {
+          p.classList.add('dimmed');
+        }
+      });
+
+      punchline.classList.add('has-selection');
+      punchline.innerHTML = `<strong>1 video de "${subNames[sid]}" = ${matchCount} platillos</strong> — el mismo estándar, reutilizado.`;
+    });
+  });
+
+  platItems.forEach(platEl => {
+    platEl.addEventListener('click', () => {
+      const pid = platEl.dataset.platId;
+      if (activePlatId === pid) { clearAll(); return; }
+      clearAll();
+      activePlatId = pid;
+      platEl.classList.add('active');
+
+      const platSubs = platillosData[pid]?.subs || [];
+      chips.forEach(c => {
+        if (platSubs.includes(parseInt(c.dataset.subId))) {
+          c.classList.add('active');
+        }
+      });
+      platEl.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.add('highlight'));
+
+      punchline.classList.add('has-selection');
+      punchline.innerHTML = `Este platillo usa <strong>${platSubs.length} subrecetas base</strong> — cada una, un video compartido con otros platillos.`;
+    });
+  });
+
+  /* ── Print leave-behind ─────────────────────────────────────── */
+  const printBtn = document.getElementById('btn-print');
+  if (printBtn) {
+    printBtn.addEventListener('click', () => {
+      const dateEl = document.getElementById('pr-date-val');
+      if (dateEl) dateEl.textContent = new Date().toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' });
+      const prStar = document.getElementById('pr-star');
+      if (prStar) prStar.textContent = document.getElementById('star-num').textContent;
+      window.print();
+    });
+  }
+
+  /* ── Date in print page ─────────────────────────────────────── */
+  const dateEl = document.getElementById('pr-date-val');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' });
+
+})();
+</script>
+</body>
+</html>
