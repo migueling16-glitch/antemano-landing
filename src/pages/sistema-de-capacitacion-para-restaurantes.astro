@@ -228,6 +228,33 @@
     .layer-t{font-size:.95rem;font-weight:800;color:var(--c)}
     .layer-d{font-size:.85rem;color:#6B7280;line-height:1.5;margin-top:.3rem}
 
+    /* Sistema — subhead, bloque de bondades, label, cierre crescendo */
+    .sys-lead{font-size:clamp(1.05rem,1.9vw,1.3rem);color:#374151;line-height:1.6;
+      margin-top:1.1rem;max-width:56ch}
+    .sys-lead strong{color:var(--c);font-weight:800}
+    .sys-block-h{font-size:clamp(1.3rem,2.4vw,1.75rem);font-weight:900;letter-spacing:-.025em;
+      color:var(--c);margin-top:3.5rem}
+    .sys-label{font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+      color:var(--mid);margin:3.5rem 0 0;display:inline-flex;align-items:center;gap:.7rem}
+    .sys-label::before{content:'';width:1.6rem;height:1px;background:currentColor;opacity:.4;display:block}
+    .benefit-grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1.75rem}
+    @media(min-width:640px){.benefit-grid{grid-template-columns:1fr 1fr}}
+    @media(min-width:900px){.benefit-grid{grid-template-columns:1fr 1fr 1fr}}
+    .benefit-card{background:var(--ww);border:1.5px solid var(--border);border-radius:16px;
+      padding:1.6rem;transition:border-color .25s,transform .4s var(--ease-out-quart),box-shadow .4s var(--ease-out-quart)}
+    .benefit-card:hover{border-color:var(--c);transform:translateY(-3px);
+      box-shadow:0 16px 34px -18px rgba(0,0,0,.16)}
+    .benefit-t{font-size:1rem;font-weight:800;color:var(--c);line-height:1.28;margin-bottom:.55rem}
+    .benefit-d{font-size:.88rem;color:#4B5563;line-height:1.6}
+    .sys-close{margin-top:1.75rem;padding:2.25rem;background:var(--c);color:#fff;
+      border-radius:24px;max-width:72ch}
+    .sys-close-lead{font-size:clamp(1.5rem,3.2vw,2.35rem);font-weight:900;letter-spacing:-.03em;
+      line-height:1.12;color:#fff;text-wrap:balance}
+    .sys-close-body{font-size:1.05rem;color:rgba(255,255,255,.6);line-height:1.7;margin-top:1.5rem}
+    .sys-close-kicker{font-size:clamp(1.1rem,2vw,1.35rem);font-weight:700;color:#fff;
+      line-height:1.45;margin-top:1.75rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.12)}
+    .sys-close-kicker .si{color:rgba(255,255,255,.85)}
+
     #explorer{margin-top:4rem;background:var(--c);border-radius:24px;
       padding:2.5rem 2rem;color:#fff;position:relative;z-index:2}
     .exp-top{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.75rem}
@@ -570,11 +597,8 @@
     <div class="fail-grid">
       {[
         { n:'01', t:'Se imprime una sola vez. La carta cambia, sale un platillo nuevo, se ajusta un gramaje — y el papel sigue diciendo lo de antes.' },
-        { n:'02', t:'Anda bailando por la cocina. Se mancha de salsa, se moja, se dobla, se traspapela. A las dos semanas ya no se lee.' },
-        { n:'03', t:'Es una sola copia. El de la mañana la tiene en su estación; el del turno de la noche se quedó sin nada.' },
-        { n:'04', t:'Una foto no enseña el movimiento. El punto del capeado, la muñeca del emplatado, el momento exacto del sellado — eso no cabe en una hoja.' },
-        { n:'05', t:'Nadie carga un fólder a la estación. Pero todos traen el celular en la bolsa. El recetario está donde nadie lo busca.' },
-        { n:'06', t:'No te dice si sirve. No sabes si alguien lo abrió, si lo siguió, si ayudó. Es un papel que diste y del que nunca supiste más.' },
+        { n:'02', t:'Una foto no enseña el movimiento. El punto del capeado, la muñeca del emplatado, el momento exacto del sellado — eso no cabe en una hoja.' },
+        { n:'03', t:'Nadie carga un fólder a la estación. Pero todos traen el celular en la bolsa. El recetario está donde nadie lo busca.' },
       ].map(c => (
         <div class="fail-card reveal">
           <div class="fail-n">{c.n}</div>
@@ -597,16 +621,39 @@
   <div class="container">
     <p class="eyebrow-dark reveal">La solución</p>
     <h2 class="h2 reveal">No te entregamos videos sueltos.<br>Te construimos un <em class="si">sistema.</em></h2>
+    <p class="sys-lead reveal reveal-d1">
+      Ya sabes lo que cuesta que el estándar viva en pocas cabezas. <strong>Esto es lo que cambia en tu operación</strong> el día que deja de ser así.
+    </p>
     <p class="ssub reveal reveal-d2" style="max-width:62ch;">
       Spiral no tiene 30 platillos independientes. Tiene una masa de 48 horas que vive en las 8 pizzas, una salsa pomodoro que está en 5, una pasta fresca que arma 8 platillos más. Lo mismo pasa en Yasuko —el shari aparece en todos los rolls— y en El Caribeño con sus salsas base. Por eso el sistema se construye en capas que se reutilizan: cerca del 40 % del contenido sirve a más de un platillo, y se comparte entre las 5 marcas.
     </p>
 
+    <!-- Bloque de bondades: lo que cambia en la cocina -->
+    <h3 class="sys-block-h reveal">Lo que cambia en tu cocina</h3>
+    <div class="benefit-grid">
+      {[
+        { t:'Tu chef deja de ser el cuello de botella.', d:'Hoy el estándar depende de que tu chef esté presente. Con el sistema vive en cada estación, todos los turnos. Tu chef pasa de repetir lo mismo cada semana a hacer lo que solo él puede hacer: crear, costear, subir el nivel.' },
+        { t:'El cocinero nuevo llega al estándar en días, no en semanas.', d:'La ruta de aprendizaje lo guía y el QR de su estación le resuelve la duda en el momento. Llega al punto de la vinagreta negra sin que saques a tu senior de la línea para enseñárselo.' },
+        { t:'El aguachile sabe igual en la mañana, en la noche y en las cinco marcas.', d:'La consistencia deja de depender de quién esté en turno. Un solo estándar, visible, idéntico en El Caribeño, Yasuko, Spiral, Ototo y Risco.' },
+        { t:'Si renuncia tu mejor cocinero, su técnica se queda.', d:'Hoy cada salida se lleva un pedazo de tu estándar. Con el sistema el conocimiento deja de vivir en una cabeza que se puede ir — vive en tu biblioteca, y es tuyo.' },
+        { t:'Dejas de sangrar food cost al ojo.', d:'Cuando cada gramaje está en pantalla, el porcionado deja de ser interpretación. Esos puntos de food cost que hoy se van sin que los veas, se cierran.' },
+        { t:'Abrir la marca seis deja de ser un salto al vacío.', d:'Risco ya viene. La que sigue también. Con el estándar filmado y documentado, replicar una cocina deja de depender de clonar a tu chef.' },
+      ].map(b => (
+        <div class="benefit-card reveal">
+          <p class="benefit-t">{b.t}</p>
+          <p class="benefit-d">{b.d}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Las 4 capas: y así funciona -->
+    <p class="sys-label reveal">Y así funciona</p>
     <div class="layers-grid">
       {[
-        { n:'01', t:'Contenido', d:'Protocolos, subrecetas base y platillos de cada marca. El estándar de tu cocina, filmado al nivel de Antemano.' },
-        { n:'02', t:'Acceso', d:'QR en cada estación. Tu cocinero escanea y cae al video exacto en 3 segundos. Sin apps, sin login, sin buscar.' },
-        { n:'03', t:'Vivo', d:'Cambias la carta, actualizamos el video. El mismo QR ya apunta a la versión nueva. A diferencia del papel, no se queda viejo.' },
-        { n:'04', t:'Medible', d:'Sabes qué módulos se usan, qué rutas se completan y cuánto baja tu tiempo de onboarding. Lo que el recetario nunca te dijo.' },
+        { n:'01', t:'Contenido — Tu estándar, filmado para que no se interprete.', d:'Protocolos, subrecetas base y platillos de cada marca, al nivel de producción de Antemano.' },
+        { n:'02', t:'Acceso — La respuesta en la estación, en 3 segundos.', d:'QR en cada puesto. El cocinero escanea y cae al video exacto. Sin apps, sin login, sin buscar.' },
+        { n:'03', t:'Vivo — Cambias la carta el martes, sale parejo el jueves.', d:'Actualizamos el video, el mismo QR apunta a la versión nueva. A diferencia del papel, nunca se queda viejo.' },
+        { n:'04', t:'Medible — Por fin sabes si la capacitación sirve.', d:'Qué módulos se usan, qué rutas se completan, cuánto baja tu onboarding. Lo que el recetario nunca te dijo.' },
       ].map(l => (
         <div class="layer-card reveal">
           <div class="layer-n">{l.n}</div>
@@ -636,9 +683,13 @@
         </div>
       </div>
       <div class="exp-punch" id="exp-punch"></div>
-      <div class="exp-note">
-        <strong>El mismo principio en cada cocina:</strong> en Spiral, una masa de 48 horas vive en las 8 pizzas. En Yasuko y Ototo, 1 video del shari = todos los rolls. En El Caribeño, una vinagreta sirve a varios platillos. Filmas la base una vez, sirve a media carta — y el ahorro se multiplica entre las 5 marcas.
-      </div>
+    </div>
+
+    <!-- Cierre crescendo: el pico emocional de la sección -->
+    <div class="sys-close reveal">
+      <p class="sys-close-lead">Esto no es solo arreglar lo que se rompe. Es construir la máquina que te deja <em class="si">crecer.</em></p>
+      <p class="sys-close-body">La misma vinagreta sirve a tres platillos. El mismo shari, a todos los rolls de Yasuko. La masa de 48 horas, a las ocho pizzas de Spiral. Por eso cada marca nueva cuesta menos que la anterior — el sistema se vuelve más eficiente mientras más creces.</p>
+      <p class="sys-close-kicker">Un recetario te ayuda a operar el restaurante que ya tienes. Un sistema te da la infraestructura para abrir <em class="si">el que sigue.</em></p>
     </div>
   </div>
 </section>
