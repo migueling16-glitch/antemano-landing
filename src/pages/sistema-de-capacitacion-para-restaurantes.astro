@@ -1,43 +1,7 @@
 ---
 // Manual Vivo™ × Grupo Caribe — Sistema de Capacitación
 // noindex — propuesta privada, no indexar
-
-const marcas = ['Yasuko', 'Spiral', 'Ototo', 'El Caribeño', 'Risco'];
-
-// El Caribeño — mariscos estilo Sinaloa. Subrecetas base reales que se reutilizan.
-const subrecetas = [
-  { id: 1, name: 'Vinagreta negra',              count: 3 },
-  { id: 2, name: 'Costra de queso a la plancha', count: 3 },
-  { id: 3, name: 'Salsa macha coctelera',         count: 3 },
-  { id: 4, name: 'Machaca de marisco',            count: 3 },
-  { id: 5, name: 'Capeado / tempura',             count: 3 },
-  { id: 6, name: 'Salsa de ostión "El Preferido"',count: 2 },
-  { id: 7, name: 'Crema de chile de árbol',       count: 2 },
-  { id: 8, name: 'Base de aguachile',             count: 2 },
-];
-
-const platillos = [
-  { id: 'p1',  name: 'Marlín a la vinagreta',        subs: [1]    },
-  { id: 'p2',  name: 'Pulpo a la vinagreta',          subs: [1]    },
-  { id: 'p3',  name: 'Tostada "La Sabrosa"',          subs: [1]    },
-  { id: 'p4',  name: 'Costra de camarón',             subs: [2]    },
-  { id: 'p5',  name: 'Costra de pulpo',               subs: [2]    },
-  { id: 'p6',  name: 'Costra de marlín',              subs: [2]    },
-  { id: 'p7',  name: 'Cóctel de camarón "U16"',       subs: [3]    },
-  { id: 'p8',  name: 'Cóctel de camarón y pulpo',     subs: [3]    },
-  { id: 'p9',  name: 'Torre de "Don Billy"',          subs: [3]    },
-  { id: 'p10', name: 'Tacos dorados de camarón',      subs: [4, 7] },
-  { id: 'p11', name: 'Machaca de camarón',            subs: [4]    },
-  { id: 'p12', name: 'Machaca de marlín',             subs: [4]    },
-  { id: 'p13', name: 'Camarones roca yuzu',           subs: [5]    },
-  { id: 'p14', name: 'Camarones empanizados',         subs: [5]    },
-  { id: 'p15', name: 'Camarones franciscanos',        subs: [5]    },
-  { id: 'p16', name: 'Sashimi "El Preferido"',        subs: [6]    },
-  { id: 'p17', name: 'Tostada "La Preferida"',        subs: [6]    },
-  { id: 'p18', name: 'Camarón tatemado',              subs: [7]    },
-  { id: 'p19', name: 'Aguachile Caribeño',            subs: [8]    },
-  { id: 'p20', name: 'Aguachile Mazatlán',            subs: [8]    },
-];
+// Explorador modular y datos de marca: ver objeto BRANDS en el <script> al pie.
 ---
 
 <!DOCTYPE html>
@@ -51,7 +15,8 @@ const platillos = [
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-  <style>
+  <!-- is:global so JS-rendered explorer elements (innerHTML) also get styled -->
+  <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --c:#1A1A1A;--w:#FAFAFA;--ww:#FFFFFF;--g:#F3F3F3;
@@ -69,7 +34,7 @@ const platillos = [
     [data-lenis-prevent]{overscroll-behavior:contain}
 
     .si{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;
-      font-size:1.06em;line-height:1;letter-spacing:-.01em}
+      font-size:1.14em;line-height:1.02;letter-spacing:0;padding-right:.02em}
 
     .container{max-width:1100px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:2}
     .s-dark {background:var(--c);color:#fff;padding:6.5rem 0;position:relative;overflow:hidden}
@@ -83,8 +48,10 @@ const platillos = [
     .eyebrow::before,.eyebrow-dark::before{content:'';width:1.6rem;height:1px;
       background:currentColor;opacity:.4;display:block}
 
-    .h2{font-size:clamp(1.9rem,4.5vw,3.5rem);font-weight:900;line-height:1.05;letter-spacing:-.025em}
-    .h2-c{text-align:center;margin:0 auto}
+    .h2{font-size:clamp(1.85rem,4.2vw,3.3rem);font-weight:900;line-height:1.08;
+      letter-spacing:-.025em;text-wrap:balance;max-width:20ch}
+    .h2 .si{letter-spacing:-.005em}
+    .h2-c{text-align:center;margin:0 auto;max-width:24ch}
     .ssub{font-size:1.1rem;color:var(--mid);margin-top:.75rem;max-width:46ch;line-height:1.6}
 
     .btn{display:inline-flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:700;
@@ -106,9 +73,6 @@ const platillos = [
       transition:opacity .8s var(--ease-out-expo),transform .8s var(--ease-out-expo)}
     .reveal.visible{opacity:1;transform:none}
     .reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}
-    .reveal-clip{clip-path:inset(0 100% 0 0);opacity:0;
-      transition:clip-path .9s var(--ease-out-expo),opacity .5s ease}
-    .reveal-clip.visible{clip-path:inset(0 0 0 0);opacity:1}
 
     /* Giant outline watermarks (landing-style) */
     .wm{position:absolute;left:0;right:0;overflow:hidden;pointer-events:none;
@@ -138,7 +102,7 @@ const platillos = [
       padding:0 .2rem}
 
     @media(prefers-reduced-motion:reduce){
-      .reveal,.reveal-clip{opacity:1!important;transform:none!important;clip-path:none!important}
+      .reveal{opacity:1!important;transform:none!important}
       .hrise{animation:none;opacity:1;transform:none}
       .wm-track{transform:none!important}
       .mq{animation:none}
@@ -266,8 +230,16 @@ const platillos = [
 
     #explorer{margin-top:4rem;background:var(--c);border-radius:24px;
       padding:2.5rem 2rem;color:#fff;position:relative;z-index:2}
+    .exp-top{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.75rem}
+    @media(min-width:640px){.exp-top{flex-direction:row;align-items:center;justify-content:space-between}}
     .exp-h{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-      color:rgba(255,255,255,.35);margin-bottom:1.5rem}
+      color:rgba(255,255,255,.35);max-width:30ch}
+    .exp-tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+    .exp-tab{font-size:.78rem;font-weight:700;padding:.42rem .95rem;border-radius:9999px;
+      border:1.5px solid rgba(255,255,255,.14);background:transparent;color:rgba(255,255,255,.5);
+      cursor:pointer;transition:all .2s;white-space:nowrap}
+    .exp-tab:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+    .exp-tab.active{background:#fff;color:#1a1a1a;border-color:#fff}
     .exp-cols{display:grid;grid-template-columns:1fr;gap:2rem}
     @media(min-width:700px){.exp-cols{grid-template-columns:1fr 1fr}}
     .exp-col-t{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
@@ -428,7 +400,7 @@ const platillos = [
       <span class="hmask"><span class="hrise" style="--l:3">que ya se <em class="si">manchó.</em></span></span>
     </h1>
     <p class="hero-sub">
-      El recetario existe. Lo imprimieron una vez. Hoy anda bailando por la cocina —con salsa encima, hojas sueltas, ya desactualizado— y el estándar real, el que hace que un aguachile de El Caribeño sepa igual siempre, sigue viviendo en la cabeza de tu chef.
+      El recetario existe. Lo imprimieron una vez. Hoy anda bailando por la cocina —con salsa encima, hojas sueltas, ya desactualizado— y el estándar real, el que hace que una pizza de Spiral o un roll de Yasuko salgan idénticos siempre, sigue viviendo en la cabeza de tu chef.
     </p>
     <div class="hero-cta-wrap">
       <a href="#calculadora" class="btn btn-light">
@@ -464,12 +436,12 @@ const platillos = [
     <p class="eyebrow-dark reveal">El diagnóstico</p>
     <div class="prob-grid">
       <div>
-        <h2 class="h2 reveal-clip">
+        <h2 class="h2 reveal">
           Tu cocina sabe hacerlo.<br>
           El saber no tiene <em class="si">dónde vivir.</em>
         </h2>
         <div class="prob-body" style="margin-top:2rem;">
-          <p>El talento está. La mano de tu chef arma el aguachile, el shari, la masa de 48 horas, el corte exacto. Eso no es el problema, y nunca lo fue.</p>
+          <p>El talento está. La mano de tu chef arma la masa de 48 horas, el shari, el corte exacto, el punto de cada salsa. Eso no es el problema, y nunca lo fue.</p>
           <p>El problema es <strong style="color:#1a1a1a;">dónde vive ese conocimiento</strong>: en la cabeza de pocas personas y en un recetario impreso que ya no aguanta el ritmo de la cocina. Y cuando el saber no tiene un lugar firme donde vivir, pasa esto en cada una de tus marcas:</p>
           <ul class="prob-list">
             <li>El cocinero nuevo no tiene una referencia confiable que seguir, entonces aprende a medias —o aprende lo que vio una vez.</li>
@@ -491,8 +463,8 @@ const platillos = [
           <span class="stat-l">Yasuko, Spiral, Ototo, El Caribeño y Risco. Cinco cocinas distintas, un mismo reto: que el estándar no dependa de quién esté en turno.</span>
         </div>
         <div class="stat-chip">
-          <span class="stat-n">8 bases</span>
-          <span class="stat-l">En El Caribeño, un puñado de salsas base —vinagreta, costra, macha— arman buena parte de la carta de mariscos</span>
+          <span class="stat-n">1 → 8</span>
+          <span class="stat-l">En Spiral, una sola masa de 48 horas vive en las 8 pizzas de la carta. Una base, filmada una vez</span>
         </div>
         <div class="stat-chip">
           <span class="stat-n">1 copia</span>
@@ -511,7 +483,7 @@ const platillos = [
 <section id="calculadora" class="s-white">
   <div class="container">
     <p class="eyebrow-dark reveal">Calculadora de impacto — Grupo Caribe</p>
-    <h2 class="h2 reveal-clip">Mete los números del grupo.<br>Mira lo que se queda <em class="si">en la mesa.</em></h2>
+    <h2 class="h2 reveal">Mete los números del grupo.<br>Mira lo que se queda <em class="si">en la mesa.</em></h2>
     <p class="ssub reveal reveal-d2">Los defaults son estimados para un grupo de 5 marcas. Ajústalos con tus cifras reales.</p>
 
     <div class="calc-layout">
@@ -593,7 +565,7 @@ const platillos = [
   <div class="wm" style="top:-1rem;"><span class="wm-track wm-light">Papel</span></div>
   <div class="container">
     <p class="eyebrow reveal">No es que no lo hayan intentado</p>
-    <h2 class="h2 reveal-clip" style="color:#fff;">El recetario no falló por flojera.<br>Falló porque es <em class="si">papel.</em></h2>
+    <h2 class="h2 reveal" style="color:#fff;">El recetario no falló por flojera.<br>Falló porque es <em class="si">papel.</em></h2>
     <p class="prod-body reveal reveal-d1" style="margin-bottom:1rem;">Ya tienen recetarios. La chef los armó. El problema es lo que le pasa a una hoja impresa dentro de una cocina real:</p>
     <div class="fail-grid">
       {[
@@ -624,9 +596,9 @@ const platillos = [
   <div class="wm" style="top:-2rem;"><span class="wm-track">Sistema</span></div>
   <div class="container">
     <p class="eyebrow-dark reveal">La solución</p>
-    <h2 class="h2 reveal-clip">No te entregamos videos sueltos.<br>Te construimos un <em class="si">sistema.</em></h2>
+    <h2 class="h2 reveal">No te entregamos videos sueltos.<br>Te construimos un <em class="si">sistema.</em></h2>
     <p class="ssub reveal reveal-d2" style="max-width:62ch;">
-      El Caribeño no tiene 60 platillos independientes. Tiene un puñado de bases —la vinagreta negra, la costra de queso, la macha coctelera— que se combinan. La misma vinagreta vive en el marlín, el pulpo y la tostada "La Sabrosa". La misma costra, en tres platillos más. Por eso el sistema se arma en capas que se reutilizan — y cerca del 40 % del contenido sirve a más de un platillo.
+      Spiral no tiene 30 platillos independientes. Tiene una masa de 48 horas que vive en las 8 pizzas, una salsa pomodoro que está en 5, una pasta fresca que arma 8 platillos más. Lo mismo pasa en Yasuko —el shari aparece en todos los rolls— y en El Caribeño con sus salsas base. Por eso el sistema se construye en capas que se reutilizan: cerca del 40 % del contenido sirve a más de un platillo, y se comparte entre las 5 marcas.
     </p>
 
     <div class="layers-grid">
@@ -643,42 +615,29 @@ const platillos = [
       ))}
     </div>
 
-    <!-- Explorador modular -->
+    <!-- Explorador modular (multi-marca) -->
     <div id="explorer">
-      <p class="exp-h">Explorador modular — El Caribeño · toca una base para ver dónde se reutiliza</p>
+      <div class="exp-top">
+        <p class="exp-h">Explorador modular — toca una marca, luego una base para ver dónde se reutiliza</p>
+        <div class="exp-tabs" id="exp-tabs">
+          <button class="exp-tab active" data-brand="spiral" type="button">Spiral</button>
+          <button class="exp-tab" data-brand="yasuko" type="button">Yasuko</button>
+          <button class="exp-tab" data-brand="caribeno" type="button">El Caribeño</button>
+        </div>
+      </div>
       <div class="exp-cols">
         <div>
-          <p class="exp-col-t">Subrecetas base ({subrecetas.length})</p>
-          <div class="sub-chips" id="sub-chips">
-            {subrecetas.map(s => (
-              <button class="sub-chip" data-sub-id={s.id} aria-pressed="false">
-                {s.name}<span class="chip-badge">{s.count}</span>
-              </button>
-            ))}
-          </div>
+          <p class="exp-col-t">Subrecetas base <span id="exp-sub-count"></span></p>
+          <div class="sub-chips" id="sub-chips"></div>
         </div>
         <div>
-          <p class="exp-col-t">Platillos (muestra de la carta)</p>
-          <div class="plat-list" id="plat-list" data-lenis-prevent>
-            {platillos.map(p => (
-              <div class="plat-item" data-plat-id={p.id} data-subs={p.subs.join(',')}>
-                <div>{p.name}</div>
-                <div class="plat-subs">
-                  {p.subs.map(sid => {
-                    const sr = subrecetas.find(s => s.id === sid);
-                    return <span class="plat-sub-tag" data-tag-sub={sid}>{sr?.name}</span>;
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+          <p class="exp-col-t" id="exp-plat-label">Platillos</p>
+          <div class="plat-list" id="plat-list" data-lenis-prevent></div>
         </div>
       </div>
-      <div class="exp-punch" id="exp-punch">
-        <strong>Toca "Costra de queso"</strong> — el mejor ejemplo del sistema.
-      </div>
+      <div class="exp-punch" id="exp-punch"></div>
       <div class="exp-note">
-        <strong>En Spiral pasa igual:</strong> la masa de 48 horas es una sola base — y vive en las 8 pizzas de la carta. La salsa pomodoro, en 6 de ellas. <strong>En Yasuko y Ototo:</strong> 1 video del shari (arroz de sushi) = todos los rolls. Filmas la base una vez, sirve a media carta.
+        <strong>El mismo principio en cada cocina:</strong> en Spiral, una masa de 48 horas vive en las 8 pizzas. En Yasuko y Ototo, 1 video del shari = todos los rolls. En El Caribeño, una vinagreta sirve a varios platillos. Filmas la base una vez, sirve a media carta — y el ahorro se multiplica entre las 5 marcas.
       </div>
     </div>
   </div>
@@ -689,7 +648,7 @@ const platillos = [
   <div class="wm" style="top:-1rem;"><span class="wm-track wm-light">Producción</span></div>
   <div class="container">
     <p class="eyebrow reveal">Lo que nos diferencia</p>
-    <h2 class="h2 reveal-clip" style="color:#fff;">Si tu personal lo abandona a los 10 segundos,<br><em class="si">no sirve.</em> Punto.</h2>
+    <h2 class="h2 reveal" style="color:#fff;">Si lo abandonan a los diez segundos,<br>ya <em class="si">no sirve.</em></h2>
     <div class="prod-body reveal reveal-d1">
       <p>Cualquiera pone una cámara fija frente al cocinero y graba 8 minutos planos. Nadie los ve completo. Eso no es capacitación, es archivo.</p>
       <p>Antemano es productora audiovisual. Producimos contenido para que se consuma, no para que se guarde. Lo mismo que hacemos para las redes de tus marcas, lo aplicamos a la cocina.</p>
@@ -701,7 +660,7 @@ const platillos = [
         { icon:'🎯', t:'Hook en 3 segundos', d:'Arranca con el resultado final —el platillo montado, el corte perfecto— para que sepan a dónde van.' },
         { icon:'📝', t:'Texto y gramajes en pantalla', d:'La cocina es ruidosa y a veces sin sonido. El gramaje y la temperatura se leen, no solo se escuchan.' },
         { icon:'✅', t:'"Así se ve bien / así se ve mal"', d:'No solo el paso: el criterio. Tu estándar visible, no interpretable por quien esté en turno.' },
-        { icon:'🎬', t:'Color de cine — DaVinci Resolve', d:'El aguachile de El Caribeño y el sashimi de Yasuko merecen producción a la altura de su calidad.' },
+        { icon:'🎬', t:'Color de cine — DaVinci Resolve', d:'La pasta de Spiral y el sashimi de Yasuko merecen producción a la altura de su calidad.' },
         { icon:'🏷️', t:'Plantilla por marca', d:'Cada restaurante con su identidad. El cocinero sabe al instante si está viendo Yasuko, Spiral o Risco.' },
         { icon:'🔁', t:'Nunca se queda viejo', d:'Cambia la carta, actualizamos el video. El mismo QR apunta a la versión nueva. Lo contrario del papel.' },
       ].map(f => (
@@ -724,12 +683,12 @@ const platillos = [
   <div class="wm" style="top:-2rem;"><span class="wm-track">Manual Vivo</span></div>
   <div class="container">
     <p class="eyebrow-dark reveal">La propuesta</p>
-    <h2 class="h2 reveal-clip">Manual Vivo, en tres pasos.<br>Empiezas con <em class="si">riesgo casi cero.</em></h2>
+    <h2 class="h2 reveal">Manual Vivo, en tres pasos.<br>Empiezas con <em class="si">riesgo casi cero.</em></h2>
     <div class="offer-grid">
       <div class="offer-card oc1 reveal">
         <div><p class="offer-step">Paso 01</p><h3 class="offer-h">El Piloto</h3></div>
         <span class="offer-pp">Precio a definir</span>
-        <p class="offer-d">Producimos 3 videos terminados en una de tus marcas —sugerimos El Caribeño por el caso modular—: un protocolo, una subreceta base (ej. la vinagreta negra) y un platillo completo. Ves el formato, la calidad y el sistema antes de comprometerte a nada mayor.</p>
+        <p class="offer-d">Producimos 3 videos terminados en una de tus marcas —sugerimos Spiral, donde una sola masa arma toda la carta de pizzas—: un protocolo, una subreceta base (ej. la masa de 48 horas) y un platillo completo. Ves el formato, la calidad y el sistema antes de comprometerte a nada mayor.</p>
         <span class="offer-tag">← Sin riesgo. Empieza aquí.</span>
         <a href="#piloto" class="btn btn-dark" style="align-self:flex-start;margin-top:.5rem;">Quiero el Piloto</a>
       </div>
@@ -757,7 +716,7 @@ const platillos = [
 <section id="piloto" class="s-dark">
   <div class="container">
     <p class="eyebrow reveal" style="justify-content:center;">Siguiente paso</p>
-    <h2 class="h2 h2-c reveal-clip" style="color:#fff;">
+    <h2 class="h2 h2-c reveal" style="color:#fff;">
       No tienes que decidir todo hoy.<br>
       Solo el <em class="si">primer paso.</em>
     </h2>
@@ -797,7 +756,7 @@ const platillos = [
     <p class="pr-note">Calculado con tus datos. Ya lo estás pagando — no aparece en ningún reporte.</p>
   </div>
   <div class="pr-steps">
-    <div class="pr-step"><span class="pr-step-n">01</span><div><p class="pr-step-t">El Piloto</p><p class="pr-step-d">3 videos en una de tus marcas (sugerido: El Caribeño). Ves la calidad y el sistema funcionando antes de comprometerte a más.</p></div></div>
+    <div class="pr-step"><span class="pr-step-n">01</span><div><p class="pr-step-t">El Piloto</p><p class="pr-step-d">3 videos en una de tus marcas (sugerido: Spiral, donde una sola masa arma toda la carta). Ves la calidad y el sistema funcionando antes de comprometerte a más.</p></div></div>
     <div class="pr-step"><span class="pr-step-n">02</span><div><p class="pr-step-t">La Biblioteca</p><p class="pr-step-d">Sistema completo por marca con QR por estación. Se escala a las 5 marcas en fases. Por reutilización de bases, cada marca cuesta menos que la anterior.</p></div></div>
     <div class="pr-step"><span class="pr-step-n">03</span><div><p class="pr-step-t">Mantenimiento (Manual Vivo)</p><p class="pr-step-d">El sistema se mantiene actualizado: cambios de carta, nuevos platillos, auditoría trimestral. A diferencia del papel, no se queda viejo. Retainer mensual.</p></div></div>
   </div>
@@ -841,7 +800,7 @@ const platillos = [
       es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }),
       { threshold: .12, rootMargin: '0px 0px -50px 0px' }
     );
-    document.querySelectorAll('.reveal, .reveal-clip').forEach(el => io.observe(el));
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
     /* ── Sticky nav ── */
     const nav = document.getElementById('pnav');
@@ -945,64 +904,179 @@ const platillos = [
       .forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', calc); });
     calc();
 
-    /* ── Modular explorer ── */
-    const platData = {};
-    document.querySelectorAll('.plat-item').forEach(el => {
-      platData[el.dataset.platId] = (el.dataset.subs || '').split(',').filter(Boolean).map(Number);
-    });
-    const subNames = {};
-    document.querySelectorAll('.sub-chip').forEach(c => {
-      subNames[c.dataset.subId] = c.childNodes[0].textContent.trim();
-    });
+    /* ── Modular explorer (multi-marca) ── */
+    const BRANDS = {
+      spiral: {
+        platLabel: '(pizzas y pastas de la carta)',
+        cta: 'Toca "Masa de 48 horas" — vive en las 8 pizzas.',
+        subs: [
+          { id: 1, name: 'Masa de 48 horas', count: 8 },
+          { id: 2, name: 'Salsa pomodoro', count: 5 },
+          { id: 3, name: 'Pasta fresca de la casa', count: 8 },
+          { id: 4, name: 'Stracciatella', count: 4 },
+          { id: 5, name: 'Salsa spicy vodka', count: 2 },
+          { id: 6, name: 'Bechamel', count: 3 },
+        ],
+        plats: [
+          { name: 'Pizza Margherita', subs: [1, 2] },
+          { name: 'Pizza Pepperoni clásica', subs: [1, 2] },
+          { name: 'Pizza Prosciutto balsámico', subs: [1, 2] },
+          { name: 'Pizza Spicy honey pepperoni', subs: [1, 2] },
+          { name: 'Pizza Nduja pomodoro', subs: [1, 2, 4] },
+          { name: 'Pizza Vodka Spiral', subs: [1, 5, 4] },
+          { name: 'Pizza Salame pepperoncino', subs: [1, 6] },
+          { name: 'Pizza Alcachofa espinaca trufa', subs: [1, 6] },
+          { name: 'Spaghetti al limón', subs: [3] },
+          { name: 'Carbonara', subs: [3] },
+          { name: 'Bucatini arrabiata con nduja', subs: [3, 4] },
+          { name: 'Spicy vodka rigatoni', subs: [3, 5, 4] },
+          { name: 'Short rib pappardelle', subs: [3] },
+          { name: 'Lasagna', subs: [3, 6] },
+          { name: 'Ravioles de ricotta y albahaca', subs: [3] },
+          { name: 'White truffle mafalde', subs: [3] },
+        ],
+      },
+      yasuko: {
+        platLabel: '(rollos y especiales)',
+        cta: 'Toca "Shari (arroz de sushi)" — está en 10 rolls.',
+        subs: [
+          { id: 1, name: 'Shari (arroz de sushi)', count: 10 },
+          { id: 2, name: 'Spicy mayo', count: 5 },
+          { id: 3, name: 'Tempura', count: 3 },
+          { id: 4, name: 'Salsa de anguila', count: 3 },
+          { id: 5, name: 'Aderezo cítrico ponzu', count: 2 },
+        ],
+        plats: [
+          { name: 'Spicy Tuna Roll', subs: [1, 2] },
+          { name: 'Spicy Salmon Roll', subs: [1, 2] },
+          { name: 'Yasuko Roll', subs: [1, 2, 4] },
+          { name: 'Hot Salmon Roll', subs: [1, 2] },
+          { name: 'Crunchy Salmon', subs: [1, 3] },
+          { name: 'Camarón Tempura Roll', subs: [1, 3] },
+          { name: 'Ebi Maguro Roll', subs: [1, 3] },
+          { name: 'Anguila Roll', subs: [1, 4] },
+          { name: 'Fire Roll', subs: [1, 4] },
+          { name: 'Tekka Maki', subs: [1] },
+          { name: 'Hamachi Spicy Citrus', subs: [2, 5] },
+          { name: 'Atún Serrano Ponzu', subs: [5] },
+        ],
+      },
+      caribeno: {
+        platLabel: '(muestra de la carta de mariscos)',
+        cta: 'Toca "Costra de queso" — sirve a 3 platillos.',
+        subs: [
+          { id: 1, name: 'Vinagreta negra', count: 3 },
+          { id: 2, name: 'Costra de queso a la plancha', count: 3 },
+          { id: 3, name: 'Salsa macha coctelera', count: 3 },
+          { id: 4, name: 'Machaca de marisco', count: 3 },
+          { id: 5, name: 'Capeado / tempura', count: 3 },
+          { id: 6, name: 'Salsa de ostión "El Preferido"', count: 2 },
+          { id: 7, name: 'Crema de chile de árbol', count: 2 },
+          { id: 8, name: 'Base de aguachile', count: 2 },
+        ],
+        plats: [
+          { name: 'Marlín a la vinagreta', subs: [1] },
+          { name: 'Pulpo a la vinagreta', subs: [1] },
+          { name: 'Tostada "La Sabrosa"', subs: [1] },
+          { name: 'Costra de camarón', subs: [2] },
+          { name: 'Costra de pulpo', subs: [2] },
+          { name: 'Costra de marlín', subs: [2] },
+          { name: 'Cóctel de camarón "U16"', subs: [3] },
+          { name: 'Cóctel de camarón y pulpo', subs: [3] },
+          { name: 'Torre de "Don Billy"', subs: [3] },
+          { name: 'Tacos dorados de camarón', subs: [4, 7] },
+          { name: 'Machaca de camarón', subs: [4] },
+          { name: 'Machaca de marlín', subs: [4] },
+          { name: 'Camarones roca yuzu', subs: [5] },
+          { name: 'Camarones empanizados', subs: [5] },
+          { name: 'Camarones franciscanos', subs: [5] },
+          { name: 'Sashimi "El Preferido"', subs: [6] },
+          { name: 'Tostada "La Preferida"', subs: [6] },
+          { name: 'Camarón tatemado', subs: [7] },
+          { name: 'Aguachile Caribeño', subs: [8] },
+          { name: 'Aguachile Mazatlán', subs: [8] },
+        ],
+      },
+    };
 
-    let activeSub = null, activePlat = null;
-    const chips = document.querySelectorAll('.sub-chip');
-    const plats = document.querySelectorAll('.plat-item');
+    const subChipsEl = document.getElementById('sub-chips');
+    const platListEl = document.getElementById('plat-list');
+    const subCountEl = document.getElementById('exp-sub-count');
+    const platLabelEl = document.getElementById('exp-plat-label');
     const punch = document.getElementById('exp-punch');
+    const tabs = document.querySelectorAll('.exp-tab');
+    let cur = null, activeSub = null, activePlat = null;
 
-    function clearAll() {
-      chips.forEach(c => { c.classList.remove('active'); c.setAttribute('aria-pressed', 'false'); });
-      plats.forEach(p => p.classList.remove('active', 'dimmed'));
-      document.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.remove('hl'));
-      activeSub = null; activePlat = null;
-      punch.innerHTML = '<strong>Toca "Costra de queso"</strong> — el mejor ejemplo del sistema.';
+    function resetPunch() {
       punch.classList.remove('sel');
+      punch.innerHTML = '<strong>' + cur.cta + '</strong>';
     }
 
-    chips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        const sid = parseInt(chip.dataset.subId);
-        if (activeSub === sid) { clearAll(); return; }
-        clearAll(); activeSub = sid;
-        chip.classList.add('active'); chip.setAttribute('aria-pressed', 'true');
-        let count = 0;
-        plats.forEach(p => {
-          const subs = platData[p.dataset.platId] || [];
-          if (subs.includes(sid)) {
-            p.classList.add('active'); count++;
-            p.querySelectorAll('.plat-sub-tag').forEach(t => {
-              if (parseInt(t.dataset.tagSub) === sid) t.classList.add('hl');
-            });
-          } else { p.classList.add('dimmed'); }
-        });
-        punch.classList.add('sel');
-        punch.innerHTML = `<strong>1 video de "${subNames[sid]}" = ${count} platillos</strong> — el mismo estándar, reutilizado.`;
+    function render(key) {
+      cur = BRANDS[key];
+      activeSub = null; activePlat = null;
+      subCountEl.textContent = '(' + cur.subs.length + ')';
+      platLabelEl.innerHTML = 'Platillos <span style="color:rgba(255,255,255,.3);font-weight:600;text-transform:none;letter-spacing:0;">' + cur.platLabel + '</span>';
+      subChipsEl.innerHTML = cur.subs.map(s =>
+        `<button class="sub-chip" data-sub-id="${s.id}" aria-pressed="false">${s.name}<span class="chip-badge">${s.count}</span></button>`
+      ).join('');
+      platListEl.innerHTML = cur.plats.map((p, i) => {
+        const tags = p.subs.map(sid => {
+          const sr = cur.subs.find(s => s.id === sid);
+          return `<span class="plat-sub-tag" data-tag-sub="${sid}">${sr ? sr.name : ''}</span>`;
+        }).join('');
+        return `<div class="plat-item" data-plat-id="${i}" data-subs="${p.subs.join(',')}"><div>${p.name}</div><div class="plat-subs">${tags}</div></div>`;
+      }).join('');
+      resetPunch();
+    }
+
+    function clearSel() {
+      subChipsEl.querySelectorAll('.sub-chip').forEach(c => { c.classList.remove('active'); c.setAttribute('aria-pressed', 'false'); });
+      platListEl.querySelectorAll('.plat-item').forEach(p => p.classList.remove('active', 'dimmed'));
+      platListEl.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.remove('hl'));
+      activeSub = null; activePlat = null;
+      resetPunch();
+    }
+
+    subChipsEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.sub-chip'); if (!chip) return;
+      const sid = parseInt(chip.dataset.subId);
+      if (activeSub === sid) { clearSel(); return; }
+      clearSel(); activeSub = sid;
+      chip.classList.add('active'); chip.setAttribute('aria-pressed', 'true');
+      let count = 0;
+      platListEl.querySelectorAll('.plat-item').forEach(p => {
+        const subs = (p.dataset.subs || '').split(',').filter(Boolean).map(Number);
+        if (subs.includes(sid)) {
+          p.classList.add('active'); count++;
+          p.querySelectorAll('.plat-sub-tag').forEach(t => { if (parseInt(t.dataset.tagSub) === sid) t.classList.add('hl'); });
+        } else { p.classList.add('dimmed'); }
       });
+      const sname = cur.subs.find(s => s.id === sid).name;
+      punch.classList.add('sel');
+      punch.innerHTML = `<strong>1 video de "${sname}" = ${count} ${count === 1 ? 'platillo' : 'platillos'}</strong> — el mismo estándar, reutilizado.`;
     });
 
-    plats.forEach(platEl => {
-      platEl.addEventListener('click', () => {
-        const pid = platEl.dataset.platId;
-        if (activePlat === pid) { clearAll(); return; }
-        clearAll(); activePlat = pid;
-        platEl.classList.add('active');
-        const subs = platData[pid] || [];
-        chips.forEach(c => { if (subs.includes(parseInt(c.dataset.subId))) c.classList.add('active'); });
-        platEl.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.add('hl'));
-        punch.classList.add('sel');
-        punch.innerHTML = `Este platillo se arma con <strong>${subs.length} ${subs.length === 1 ? 'base' : 'bases'}</strong> — cada una compartida con otros platillos de la carta.`;
-      });
+    platListEl.addEventListener('click', (e) => {
+      const platEl = e.target.closest('.plat-item'); if (!platEl) return;
+      const pid = platEl.dataset.platId;
+      if (activePlat === pid) { clearSel(); return; }
+      clearSel(); activePlat = pid;
+      platEl.classList.add('active');
+      const subs = (platEl.dataset.subs || '').split(',').filter(Boolean).map(Number);
+      subChipsEl.querySelectorAll('.sub-chip').forEach(c => { if (subs.includes(parseInt(c.dataset.subId))) c.classList.add('active'); });
+      platEl.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.add('hl'));
+      punch.classList.add('sel');
+      punch.innerHTML = `Este platillo se arma con <strong>${subs.length} ${subs.length === 1 ? 'base' : 'bases'}</strong> — cada una compartida con otros platillos.`;
     });
+
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      render(tab.dataset.brand);
+    }));
+
+    render('spiral');
 
     /* ── Print ── */
     const stamp = () => {
