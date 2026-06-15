@@ -1,0 +1,219 @@
+---
+import SpiralLayout from '../../../layouts/SpiralLayout.astro';
+import {
+  getAllModulos,
+  getModuloBySlug,
+  getEstacionBySlug,
+  getRelatedModulos,
+  getTipoBadge,
+  getRutasForModulo,
+  getNextInRuta,
+} from '../../../data/content';
+import type { Modulo } from '../../../data/content';
+
+export async function getStaticPaths() {
+  return getAllModulos().map((m) => ({
+    params: { slug: m.slug },
+    props: { modulo: m },
+  }));
+}
+
+interface Props { modulo: Modulo; }
+const { modulo } = Astro.props;
+
+const estacion = getEstacionBySlug(modulo.estacion)!;
+const badge    = getTipoBadge(modulo.tipo);
+const usa      = getRelatedModulos(modulo.usaRecetas);
+const aparece  = getRelatedModulos(modulo.usadaEn);
+const rutas    = getRutasForModulo(modulo.slug);
+const siguiente = rutas.length > 0 ? getNextInRuta(modulo.slug, rutas[0].slug) : undefined;
+
+const fichEntradas = modulo.ficha ? Object.entries(modulo.ficha) : [];
+---
+
+<SpiralLayout
+  title={modulo.titulo}
+  description={modulo.descripcion}
+  backHref={`/spiral/estacion/${modulo.estacion}`}
+  backLabel={estacion.titulo}
+>
+
+  <!-- ── Video placeholder 9:16 ───────────────────────────────────────────── -->
+  <div style="width:100%;max-width:400px;margin:0 auto;">
+    <div style="position:relative;width:100%;aspect-ratio:9/16;background:#1A0F0A;overflow:hidden;">
+
+      {modulo.videoUrl ? (
+        <iframe
+          src={modulo.videoUrl}
+          style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+          allowfullscreen
+        />
+      ) : (
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;">
+          <!-- Fondo textural sutil -->
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, rgba(196,82,42,0.07) 0%, transparent 70%);pointer-events:none;"></div>
+
+          <!-- Play circle -->
+          <div style="width:4rem;height:4rem;border-radius:50%;border:2px solid rgba(196,82,42,0.7);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;">
+            <svg width="18" height="22" viewBox="0 0 18 22" fill="none">
+              <path d="M2 1.5L16 11 2 20.5V1.5z" fill="#C4522A"/>
+            </svg>
+          </div>
+
+          <!-- Label -->
+          <div style="text-align:center;position:relative;z-index:1;">
+            <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:rgba(196,82,42,0.7);margin-bottom:0.35rem;">
+              Video en producción
+            </p>
+            <p style="font-size:0.75rem;color:rgba(237,233,208,0.3);letter-spacing:0.06em;">{modulo.duracion}</p>
+          </div>
+
+          <!-- Título watermark -->
+          <p class="serif" style="position:absolute;bottom:1.5rem;left:0;right:0;text-align:center;font-size:0.85rem;font-style:italic;color:rgba(196,82,42,0.2);letter-spacing:0.04em;padding:0 1.5rem;line-height:1.4;">
+            {modulo.titulo}
+          </p>
+        </div>
+      )}
+
+    </div>
+  </div>
+
+  <!-- ── Contenido ─────────────────────────────────────────────────────────── -->
+  <div style="max-width:680px;margin:0 auto;padding:0 1.25rem;">
+
+    <!-- Título y badges -->
+    <div style="padding-top:1.75rem;padding-bottom:1.5rem;border-bottom:1px solid var(--sc-border);">
+      <h1 class="serif" style="font-size:clamp(2rem,8vw,2.8rem);font-weight:600;line-height:1.08;color:#2C1810;letter-spacing:-0.01em;margin-bottom:0.9rem;">
+        {modulo.titulo}
+      </h1>
+
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+        <span class={`badge ${badge.cls}`}>{badge.label}</span>
+        <span class="badge" style="border:1px solid rgba(44,24,16,0.2);color:rgba(44,24,16,0.5);background:transparent;">
+          {modulo.duracion}
+        </span>
+        <span class="badge" style="border:1px solid rgba(196,82,42,0.25);color:rgba(196,82,42,0.6);background:transparent;">
+          {estacion.titulo}
+        </span>
+      </div>
+
+      <p style="font-size:1rem;color:rgba(44,24,16,0.65);line-height:1.65;">{modulo.descripcion}</p>
+    </div>
+
+    <!-- Ficha técnica -->
+    {fichEntradas.length > 0 && (
+      <div style="padding:1.5rem 0;border-bottom:1px solid var(--sc-border);">
+        <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(44,24,16,0.4);margin-bottom:1.1rem;">
+          Ficha técnica <span style="color:rgba(196,82,42,0.5);">†</span>
+        </p>
+
+        <div style="display:grid;grid-template-columns:1fr;gap:0;">
+          {fichEntradas.map(([key, val], i) => (
+            <div style={`display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:0.6rem 0;${i > 0 ? 'border-top:1px solid rgba(196,82,42,0.1);' : ''}`}>
+              <span style="font-size:0.82rem;color:rgba(44,24,16,0.45);font-weight:400;flex-shrink:0;">{key}</span>
+              <span style="font-size:0.88rem;color:#2C1810;font-weight:500;text-align:right;">{val}</span>
+            </div>
+          ))}
+        </div>
+
+        <p style="margin-top:1rem;font-size:0.72rem;color:rgba(44,24,16,0.38);line-height:1.5;padding-top:0.75rem;border-top:1px solid rgba(196,82,42,0.08);">
+          † Gramajes sujetos a validación con el chef — en producción.
+        </p>
+      </div>
+    )}
+
+    <!-- Criterio de calidad -->
+    {modulo.criterio && (
+      <div style="padding:1.5rem 0;border-bottom:1px solid var(--sc-border);">
+        <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(44,24,16,0.4);margin-bottom:1.25rem;">
+          Criterio de calidad
+        </p>
+
+        <div style="display:grid;grid-template-columns:1fr;gap:0.75rem;">
+
+          <!-- Bien -->
+          <div style="background:var(--sc-warm);border-radius:12px;padding:1.1rem 1.1rem 1.1rem 1.35rem;border-left:3px solid var(--sc);border:1px solid rgba(196,82,42,0.15);border-left:3px solid var(--sc);">
+            <p style="font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--sc);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem;">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.5 9 10 3" stroke="#C4522A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Cuando está bien
+            </p>
+            <p style="font-size:0.88rem;color:rgba(44,24,16,0.72);line-height:1.65;">{modulo.criterio.bien}</p>
+          </div>
+
+          <!-- Mal -->
+          <div style="background:var(--sc-warm);border-radius:12px;padding:1.1rem 1.1rem 1.1rem 1.35rem;border:1px solid rgba(44,24,16,0.1);border-left:3px solid rgba(44,24,16,0.3);">
+            <p style="font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(44,24,16,0.45);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem;">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="rgba(44,24,16,0.45)" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Cuando está mal
+            </p>
+            <p style="font-size:0.88rem;color:rgba(44,24,16,0.6);line-height:1.65;">{modulo.criterio.mal}</p>
+          </div>
+
+        </div>
+      </div>
+    )}
+
+    <!-- Esta receta usa → (dependencias) -->
+    <div style="padding:1.5rem 0;border-bottom:1px solid var(--sc-border);">
+      <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(44,24,16,0.4);margin-bottom:0.9rem;">
+        Esta receta usa →
+      </p>
+
+      {usa.length > 0 ? (
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          {usa.map((m) => (
+            <a href={`/spiral/modulo/${m.slug}`} class="btn-pill" style="font-size:0.82rem;padding:0.45rem 1rem;">
+              {m.titulo}
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p style="font-size:0.85rem;color:rgba(44,24,16,0.38);font-style:italic;">
+          Receta base — no depende de otras preparaciones.
+        </p>
+      )}
+    </div>
+
+    <!-- Aparece en → (quién me usa) -->
+    {aparece.length > 0 && (
+      <div style="padding:1.5rem 0;border-bottom:1px solid var(--sc-border);">
+        <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(44,24,16,0.4);margin-bottom:0.9rem;">
+          Aparece en →
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          {aparece.map((m) => (
+            <a href={`/spiral/modulo/${m.slug}`} class="btn-pill" style="font-size:0.82rem;padding:0.45rem 1rem;">
+              {m.titulo}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Siguiente en la ruta -->
+    <div style="padding:2rem 0 3.5rem;">
+      {siguiente ? (
+        <div>
+          <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(44,24,16,0.35);margin-bottom:0.9rem;">
+            Siguiente en tu ruta
+          </p>
+          <a href={`/spiral/modulo/${siguiente.slug}`} class="card" style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.25rem;gap:1rem;">
+            <div>
+              <p style="font-size:0.7rem;color:rgba(196,82,42,0.55);font-weight:500;margin-bottom:0.25rem;">{siguiente.duracion}</p>
+              <p class="serif" style="font-size:1.2rem;font-weight:600;color:#2C1810;">{siguiente.titulo}</p>
+            </div>
+            <div style="flex-shrink:0;width:2.25rem;height:2.25rem;border-radius:50%;border:1.5px solid var(--sc);display:flex;align-items:center;justify-content:center;color:var(--sc);">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3L10.5 6.5 7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </a>
+        </div>
+      ) : (
+        <a href="/spiral/ruta/cocinero-de-pizzas" class="btn-pill-filled" style="width:100%;justify-content:center;padding:0.85rem 1.5rem;font-size:0.9rem;">
+          Ver la ruta completa →
+        </a>
+      )}
+    </div>
+
+  </div>
+
+</SpiralLayout>

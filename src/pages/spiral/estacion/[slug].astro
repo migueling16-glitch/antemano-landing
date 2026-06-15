@@ -1,0 +1,114 @@
+---
+import SpiralLayout from '../../../layouts/SpiralLayout.astro';
+import {
+  getAllEstaciones,
+  getEstacionBySlug,
+  getModulosByEstacion,
+  getTipoBadge,
+} from '../../../data/content';
+
+export async function getStaticPaths() {
+  return getAllEstaciones().map((e) => ({
+    params: { slug: e.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const estacion = getEstacionBySlug(slug!)!;
+const modulos = getModulosByEstacion(slug!);
+const tipos = ['todos', 'subreceta', 'platillo', 'protocolo'] as const;
+---
+
+<SpiralLayout
+  title={estacion.titulo}
+  backHref="/spiral/"
+  backLabel="Estaciones"
+>
+
+  <!-- ── Header de estación ────────────────────────────────────────────────── -->
+  <section style="padding:2.25rem 1.25rem 1.5rem;max-width:680px;margin:0 auto;">
+    <h1 class="serif" style="font-size:clamp(2rem,8vw,3rem);font-weight:600;line-height:1.1;color:#2C1810;margin-bottom:0.5rem;">
+      {estacion.titulo}
+    </h1>
+    <p style="font-size:0.9rem;color:rgba(44,24,16,0.55);margin-bottom:1.5rem;">{estacion.descripcion}</p>
+
+    <!-- Filtros -->
+    <div id="filtros" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      {tipos.map((t) => (
+        <button
+          data-filtro={t}
+          class={`filtro-btn ${t === 'todos' ? 'activo' : ''}`}
+          style="padding:0.35rem 0.85rem;border-radius:999px;border:1.5px solid;font-size:0.75rem;font-weight:500;letter-spacing:0.04em;cursor:pointer;transition:all 0.18s;"
+        >
+          {t === 'todos' ? 'Todos' : t.charAt(0).toUpperCase() + t.slice(1)}
+        </button>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── Grid de módulos ───────────────────────────────────────────────────── -->
+  <section style="padding:0 1.25rem 4rem;max-width:680px;margin:0 auto;">
+    <div id="modulos-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+      {modulos.map((m) => {
+        const badge = getTipoBadge(m.tipo);
+        return (
+          <a
+            href={`/spiral/modulo/${m.slug}`}
+            class="card modulo-card"
+            data-tipo={m.tipo}
+            style="display:block;padding:0;"
+          >
+            <!-- Poster del video -->
+            <div style="aspect-ratio:16/9;background:#1A0F0A;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:center;position:relative;">
+              <div style="width:2.2rem;height:2.2rem;border-radius:50%;border:1.5px solid rgba(196,82,42,0.7);display:flex;align-items:center;justify-content:center;">
+                <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+                  <path d="M1.5 1.5L8.5 6 1.5 10.5V1.5z" fill="#C4522A"/>
+                </svg>
+              </div>
+              <span style="position:absolute;bottom:0.55rem;right:0.65rem;font-size:0.65rem;color:rgba(196,82,42,0.6);letter-spacing:0.06em;">{m.duracion}</span>
+            </div>
+            <!-- Info -->
+            <div style="padding:0.9rem 0.9rem 1rem;">
+              <span class={`badge ${badge.cls}`} style="margin-bottom:0.5rem;">{badge.label}</span>
+              <p class="serif" style="font-size:1.05rem;font-weight:600;color:#2C1810;line-height:1.25;margin-top:0.3rem;">
+                {m.titulo}
+              </p>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+</SpiralLayout>
+
+<style>
+  .filtro-btn {
+    border-color: rgba(196,82,42,0.35);
+    color: rgba(44,24,16,0.55);
+    background: transparent;
+  }
+  .filtro-btn:hover, .filtro-btn.activo {
+    border-color: #C4522A;
+    color: #C4522A;
+    background: rgba(196,82,42,0.06);
+  }
+  .modulo-card.oculto { display: none; }
+</style>
+
+<script>
+  const botones = document.querySelectorAll<HTMLButtonElement>('.filtro-btn');
+  const tarjetas = document.querySelectorAll<HTMLElement>('.modulo-card');
+
+  botones.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filtro = btn.dataset.filtro!;
+      botones.forEach((b) => b.classList.remove('activo'));
+      btn.classList.add('activo');
+      tarjetas.forEach((card) => {
+        const tipo = card.dataset.tipo!;
+        card.classList.toggle('oculto', filtro !== 'todos' && tipo !== filtro);
+      });
+    });
+  });
+</script>

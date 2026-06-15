@@ -1,0 +1,172 @@
+---
+import SpiralLayout from '../../../layouts/SpiralLayout.astro';
+import {
+  getAllRutas,
+  getRutaBySlug,
+  getModuloBySlug,
+  getTipoBadge,
+} from '../../../data/content';
+import type { Ruta } from '../../../data/content';
+
+export async function getStaticPaths() {
+  return getAllRutas().map((r) => ({
+    params: { slug: r.slug },
+    props: { ruta: r },
+  }));
+}
+
+interface Props { ruta: Ruta; }
+const { ruta } = Astro.props;
+
+const pasos = ruta.modulos
+  .map((slug, idx) => ({ modulo: getModuloBySlug(slug), orden: idx + 1 }))
+  .filter((p): p is { modulo: NonNullable<typeof p.modulo>; orden: number } => p.modulo !== undefined);
+---
+
+<SpiralLayout
+  title={ruta.titulo}
+  backHref="/spiral/"
+  backLabel="Inicio"
+>
+
+  <!-- ── Header de ruta ───────────────────────────────────────────────────── -->
+  <section style="padding:2.25rem 1.25rem 1.25rem;max-width:680px;margin:0 auto;">
+    <p style="font-size:0.65rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(196,82,42,0.5);margin-bottom:0.6rem;">
+      {ruta.puesto}
+    </p>
+    <h1 class="serif" style="font-size:clamp(1.9rem,7vw,2.8rem);font-weight:600;line-height:1.1;color:#2C1810;margin-bottom:0.6rem;">
+      {ruta.titulo}
+    </h1>
+    <p style="font-size:0.9rem;color:rgba(44,24,16,0.55);line-height:1.6;margin-bottom:1.5rem;">{ruta.descripcion}</p>
+
+    <!-- Barra de progreso -->
+    <div style="background:rgba(196,82,42,0.12);border-radius:999px;height:4px;margin-bottom:0.5rem;overflow:hidden;">
+      <div id="barra-progreso" style="height:100%;background:var(--sc);border-radius:999px;transition:width 0.4s;width:0%;"></div>
+    </div>
+    <p id="texto-progreso" style="font-size:0.75rem;color:rgba(44,24,16,0.45);">0 de {pasos.length} completados</p>
+  </section>
+
+  <!-- ── Lista de pasos ────────────────────────────────────────────────────── -->
+  <section style="padding:0.5rem 1.25rem 4rem;max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:0.6rem;">
+
+    {pasos.map(({ modulo: m, orden }) => {
+      const badge = getTipoBadge(m.tipo);
+      return (
+        <div class="paso-card" data-slug={m.slug} style="background:var(--sc-warm);border:1px solid var(--sc-border);border-radius:14px;overflow:hidden;">
+
+          <!-- Fila principal clicable al módulo -->
+          <a href={`/spiral/modulo/${m.slug}`} style="display:flex;align-items:center;gap:1rem;padding:1rem 1.1rem 0.8rem;text-decoration:none;">
+
+            <!-- Número / check -->
+            <div class="paso-num" data-slug={m.slug} style="flex-shrink:0;width:2rem;height:2rem;border-radius:50%;border:1.5px solid rgba(196,82,42,0.35);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:rgba(44,24,16,0.4);transition:all 0.2s;position:relative;">
+              <span class="num-label">{orden}</span>
+              <span class="check-label" style="display:none;">
+                <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#C4522A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+
+            <!-- Info -->
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.3rem;">
+                <span class={`badge ${badge.cls}`}>{badge.label}</span>
+                <span style="font-size:0.7rem;color:rgba(44,24,16,0.38);">{m.duracion}</span>
+              </div>
+              <p class="serif" style="font-size:1.05rem;font-weight:600;color:#2C1810;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                {m.titulo}
+              </p>
+            </div>
+
+            <!-- Arrow -->
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:rgba(196,82,42,0.5);"><path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+
+          <!-- Nota + marcar completado -->
+          <div style="padding:0 1.1rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+            <p style="font-size:0.72rem;color:rgba(44,24,16,0.38);line-height:1.45;flex:1;">
+              Practícalo con tu supervisor antes de marcar completo.
+            </p>
+            <button
+              class="marcar-btn"
+              data-slug={m.slug}
+              style="flex-shrink:0;padding:0.3rem 0.75rem;border-radius:999px;border:1px solid rgba(196,82,42,0.4);background:transparent;font-size:0.7rem;font-weight:500;color:rgba(196,82,42,0.65);cursor:pointer;white-space:nowrap;transition:all 0.18s;"
+            >
+              Marcar
+            </button>
+          </div>
+        </div>
+      );
+    })}
+
+  </section>
+
+</SpiralLayout>
+
+<script define:vars={{ totalPasos: pasos.length, slugsOrden: ruta.modulos }}>
+  const KEY = 'spiral_completados';
+
+  function getCompletados() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function setCompletados(list) {
+    localStorage.setItem(KEY, JSON.stringify(list));
+  }
+
+  function actualizarUI() {
+    const completados = getCompletados();
+
+    // checkmarks
+    document.querySelectorAll('.paso-num').forEach((el) => {
+      const slug = el.dataset.slug;
+      const hecho = completados.includes(slug);
+      const num = el.querySelector('.num-label');
+      const check = el.querySelector('.check-label');
+      if (hecho) {
+        el.style.borderColor = '#C4522A';
+        el.style.background = 'rgba(196,82,42,0.08)';
+        if (num) num.style.display = 'none';
+        if (check) check.style.display = 'flex';
+      } else {
+        el.style.borderColor = 'rgba(196,82,42,0.35)';
+        el.style.background = 'transparent';
+        if (num) num.style.display = 'block';
+        if (check) check.style.display = 'none';
+      }
+    });
+
+    // botones
+    document.querySelectorAll('.marcar-btn').forEach((btn) => {
+      const slug = btn.dataset.slug;
+      const hecho = completados.includes(slug);
+      btn.textContent = hecho ? 'Desmarcar' : 'Marcar';
+      btn.style.color = hecho ? '#C4522A' : 'rgba(196,82,42,0.65)';
+      btn.style.borderColor = hecho ? '#C4522A' : 'rgba(196,82,42,0.4)';
+      btn.style.background = hecho ? 'rgba(196,82,42,0.06)' : 'transparent';
+    });
+
+    // progreso
+    const relevantes = slugsOrden.filter((s) => completados.includes(s));
+    const done = relevantes.length;
+    const barra = document.getElementById('barra-progreso');
+    const texto = document.getElementById('texto-progreso');
+    if (barra) barra.style.width = `${(done / totalPasos) * 100}%`;
+    if (texto) texto.textContent = `${done} de ${totalPasos} completados`;
+  }
+
+  // toggle al marcar
+  document.querySelectorAll('.marcar-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const slug = btn.dataset.slug;
+      const completados = getCompletados();
+      const idx = completados.indexOf(slug);
+      if (idx === -1) completados.push(slug);
+      else completados.splice(idx, 1);
+      setCompletados(completados);
+      actualizarUI();
+    });
+  });
+
+  // inicializar
+  actualizarUI();
+</script>
