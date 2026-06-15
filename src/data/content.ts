@@ -49,6 +49,10 @@ export interface Ruta {
   modulos: string[];
 }
 
+// Video de demostración — reemplazar por URL definitiva de cada módulo
+// cuando los videos reales estén listos (ver GUIA-CONTENIDO.md).
+const DEMO_VIDEO_URL = 'https://www.youtube.com/embed/RkIhIuhGMZM?rel=0';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ESTACIONES
 // ─────────────────────────────────────────────────────────────────────────────
@@ -355,11 +359,12 @@ export const RUTAS: Ruta[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function getAllModulos(): Modulo[] {
-  return MODULOS;
+  return MODULOS.map((m) => ({ ...m, videoUrl: m.videoUrl ?? DEMO_VIDEO_URL }));
 }
 
 export function getModuloBySlug(slug: string): Modulo | undefined {
-  return MODULOS.find((m) => m.slug === slug);
+  const m = MODULOS.find((m) => m.slug === slug);
+  return m ? { ...m, videoUrl: m.videoUrl ?? DEMO_VIDEO_URL } : undefined;
 }
 
 export function getModulosByEstacion(estacionSlug: string): Modulo[] {
