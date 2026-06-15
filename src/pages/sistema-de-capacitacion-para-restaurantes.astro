@@ -2,40 +2,41 @@
 // Manual Vivo™ × Grupo Caribe — Sistema de Capacitación
 // noindex — propuesta privada, no indexar
 
-const marcas = ['Yasuko', 'Spiral', 'Ototo', 'El Caribeño'];
+const marcas = ['Yasuko', 'Spiral', 'Ototo', 'El Caribeño', 'Risco'];
 
-// El Caribeño — subrecetas base reales (cocina yucateca / caribeña)
+// El Caribeño — mariscos estilo Sinaloa. Subrecetas base reales que se reutilizan.
 const subrecetas = [
-  { id: 1,  name: 'Recado negro',            count: 3  },
-  { id: 2,  name: 'Recado rojo / achiote',   count: 7  },
-  { id: 3,  name: 'Cebolla morada curtida',  count: 10 },
-  { id: 4,  name: 'Habanero tatemado',       count: 5  },
-  { id: 5,  name: 'Frijoles negros colados', count: 4  },
-  { id: 6,  name: 'Arroz con epazote',       count: 3  },
-  { id: 7,  name: 'Xnipec (salsa habanero)', count: 5  },
-  { id: 8,  name: 'Masa nixtamalizada',      count: 9  },
-  { id: 9,  name: 'Chipotle adobado',        count: 2  },
-  { id: 10, name: 'Mojo de ajo caribeño',    count: 4  },
-  { id: 11, name: 'Escabeche oriental',      count: 2  },
-  { id: 12, name: 'Salpicón de rábanos',     count: 3  },
+  { id: 1, name: 'Vinagreta negra',              count: 3 },
+  { id: 2, name: 'Costra de queso a la plancha', count: 3 },
+  { id: 3, name: 'Salsa macha coctelera',         count: 3 },
+  { id: 4, name: 'Machaca de marisco',            count: 3 },
+  { id: 5, name: 'Capeado / tempura',             count: 3 },
+  { id: 6, name: 'Salsa de ostión "El Preferido"',count: 2 },
+  { id: 7, name: 'Crema de chile de árbol',       count: 2 },
+  { id: 8, name: 'Base de aguachile',             count: 2 },
 ];
 
 const platillos = [
-  { id: 'p1',  name: 'Taco de cochinita pibil',    subs: [2, 3, 8]    },
-  { id: 'p2',  name: 'Panuchos de cochinita',       subs: [2, 3, 5, 8] },
-  { id: 'p3',  name: 'Salbutes de cochinita',       subs: [2, 3, 8]    },
-  { id: 'p4',  name: 'Tostada de cochinita',        subs: [2, 3, 7]    },
-  { id: 'p5',  name: 'Burrito de cochinita',        subs: [2, 3, 6]    },
-  { id: 'p6',  name: 'Taco de poc chuc',            subs: [2, 11, 3]   },
-  { id: 'p7',  name: 'Taco de relleno negro',       subs: [1, 5, 8]    },
-  { id: 'p8',  name: 'Tacos de camarón al mojo',   subs: [10, 7, 8]   },
-  { id: 'p9',  name: 'Tostada de camarón',          subs: [10, 7, 3]   },
-  { id: 'p10', name: 'Quesadilla de camarón',       subs: [10, 9, 8]   },
-  { id: 'p11', name: 'Papadzules',                  subs: [1, 4, 5, 8] },
-  { id: 'p12', name: 'Sopa de lima',                subs: [4, 12, 6]   },
-  { id: 'p13', name: 'Taco de lechón asado',        subs: [2, 3, 7]    },
-  { id: 'p14', name: 'Panuchos de pollo pibil',     subs: [1, 5, 3, 8] },
-  { id: 'p15', name: 'Tacos de pulpo',              subs: [10, 7, 3]   },
+  { id: 'p1',  name: 'Marlín a la vinagreta',        subs: [1]    },
+  { id: 'p2',  name: 'Pulpo a la vinagreta',          subs: [1]    },
+  { id: 'p3',  name: 'Tostada "La Sabrosa"',          subs: [1]    },
+  { id: 'p4',  name: 'Costra de camarón',             subs: [2]    },
+  { id: 'p5',  name: 'Costra de pulpo',               subs: [2]    },
+  { id: 'p6',  name: 'Costra de marlín',              subs: [2]    },
+  { id: 'p7',  name: 'Cóctel de camarón "U16"',       subs: [3]    },
+  { id: 'p8',  name: 'Cóctel de camarón y pulpo',     subs: [3]    },
+  { id: 'p9',  name: 'Torre de "Don Billy"',          subs: [3]    },
+  { id: 'p10', name: 'Tacos dorados de camarón',      subs: [4, 7] },
+  { id: 'p11', name: 'Machaca de camarón',            subs: [4]    },
+  { id: 'p12', name: 'Machaca de marlín',             subs: [4]    },
+  { id: 'p13', name: 'Camarones roca yuzu',           subs: [5]    },
+  { id: 'p14', name: 'Camarones empanizados',         subs: [5]    },
+  { id: 'p15', name: 'Camarones franciscanos',        subs: [5]    },
+  { id: 'p16', name: 'Sashimi "El Preferido"',        subs: [6]    },
+  { id: 'p17', name: 'Tostada "La Preferida"',        subs: [6]    },
+  { id: 'p18', name: 'Camarón tatemado',              subs: [7]    },
+  { id: 'p19', name: 'Aguachile Caribeño',            subs: [8]    },
+  { id: 'p20', name: 'Aguachile Mazatlán',            subs: [8]    },
 ];
 ---
 
@@ -58,79 +59,131 @@ const platillos = [
       --ease-out-expo:cubic-bezier(0.16,1,0.3,1);
       --ease-out-quart:cubic-bezier(0.25,1,0.5,1);
     }
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+    html{-webkit-text-size-adjust:100%}
+    html:not(.has-lenis){scroll-behavior:smooth}
+    html.has-lenis{scroll-behavior:auto}
     body{background:var(--ww);color:var(--c);font-family:'Inter',system-ui,sans-serif;
       -webkit-font-smoothing:antialiased;overflow-x:hidden}
     ::selection{background:#1a1a1a;color:#fff}
     :focus-visible{outline:2px solid #1a1a1a;outline-offset:3px;border-radius:4px}
+    [data-lenis-prevent]{overscroll-behavior:contain}
 
     .si{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;
       font-size:1.06em;line-height:1;letter-spacing:-.01em}
 
-    .container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
-    .s-dark {background:var(--c);color:#fff;padding:6rem 0}
-    .s-light{background:var(--w);color:var(--c);padding:6rem 0}
-    .s-white{background:var(--ww);color:var(--c);padding:6rem 0}
+    .container{max-width:1100px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:2}
+    .s-dark {background:var(--c);color:#fff;padding:6.5rem 0;position:relative;overflow:hidden}
+    .s-light{background:var(--w);color:var(--c);padding:6.5rem 0;position:relative;overflow:hidden}
+    .s-white{background:var(--ww);color:var(--c);padding:6.5rem 0;position:relative;overflow:hidden}
 
     .eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
-      color:rgba(255,255,255,.4);margin-bottom:1.25rem}
+      color:rgba(255,255,255,.4);margin-bottom:1.25rem;display:inline-flex;align-items:center;gap:.7rem}
     .eyebrow-dark{font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
-      color:var(--mid);margin-bottom:1.25rem}
+      color:var(--mid);margin-bottom:1.25rem;display:inline-flex;align-items:center;gap:.7rem}
+    .eyebrow::before,.eyebrow-dark::before{content:'';width:1.6rem;height:1px;
+      background:currentColor;opacity:.4;display:block}
 
-    .h1{font-size:clamp(2.5rem,6.5vw,5.5rem);font-weight:900;line-height:1;letter-spacing:-.03em}
     .h2{font-size:clamp(1.9rem,4.5vw,3.5rem);font-weight:900;line-height:1.05;letter-spacing:-.025em}
     .h2-c{text-align:center;margin:0 auto}
-    .ssub{font-size:1.1rem;color:var(--mid);margin-top:.75rem;max-width:44ch;line-height:1.6}
-    .ssub-c{text-align:center;margin:.75rem auto 0}
+    .ssub{font-size:1.1rem;color:var(--mid);margin-top:.75rem;max-width:46ch;line-height:1.6}
 
     .btn{display:inline-flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:700;
       padding:.85rem 1.75rem;border-radius:9999px;border:none;cursor:pointer;text-decoration:none;
-      transition:transform .2s var(--ease-out-quart),box-shadow .2s var(--ease-out-quart)}
-    .btn:hover{transform:scale(1.025)}
+      transition:transform .25s var(--ease-out-quart),box-shadow .25s var(--ease-out-quart)}
+    .btn:hover{transform:scale(1.03)}
     .btn:active{transform:scale(0.96);transition-duration:.08s}
+    .btn svg{transition:transform .3s var(--ease-out-expo)}
+    .btn:hover svg{transform:translateY(3px)}
     .btn-light{background:#fff;color:var(--c)}
-    .btn-light:hover{box-shadow:0 12px 28px -8px rgba(0,0,0,.22)}
+    .btn-light:hover{box-shadow:0 14px 32px -10px rgba(0,0,0,.25)}
     .btn-dark{background:var(--c);color:#fff}
-    .btn-dark:hover{box-shadow:0 12px 28px -8px rgba(0,0,0,.35)}
+    .btn-dark:hover{box-shadow:0 14px 32px -10px rgba(0,0,0,.4)}
     .btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.35)}
     .btn-outline:hover{border-color:#fff;background:rgba(255,255,255,.06)}
 
-    .reveal{opacity:0;transform:translateY(24px);
-      transition:opacity .7s var(--ease-out-expo),transform .7s var(--ease-out-expo)}
+    /* Reveals */
+    .reveal{opacity:0;transform:translateY(26px);
+      transition:opacity .8s var(--ease-out-expo),transform .8s var(--ease-out-expo)}
     .reveal.visible{opacity:1;transform:none}
-    .reveal-d1{transition-delay:.12s}.reveal-d2{transition-delay:.22s}.reveal-d3{transition-delay:.32s}
+    .reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}
+    .reveal-clip{clip-path:inset(0 100% 0 0);opacity:0;
+      transition:clip-path .9s var(--ease-out-expo),opacity .5s ease}
+    .reveal-clip.visible{clip-path:inset(0 0 0 0);opacity:1}
+
+    /* Giant outline watermarks (landing-style) */
+    .wm{position:absolute;left:0;right:0;overflow:hidden;pointer-events:none;
+      user-select:none;display:flex;z-index:0}
+    .wm-track{font-weight:900;font-size:clamp(5rem,15vw,13rem);line-height:.9;
+      letter-spacing:-.045em;text-transform:uppercase;white-space:nowrap;margin-left:-3vw;
+      color:transparent;-webkit-text-stroke:1.5px rgba(26,26,26,.06);will-change:transform}
+    .wm-track.wm-light{-webkit-text-stroke-color:rgba(255,255,255,.05)}
+
+    /* Hero masked line reveal */
+    .hmask{display:block;overflow:hidden;padding-bottom:.05em}
+    .hrise{display:block;transform:translateY(112%);opacity:0;
+      animation:hRise 1s var(--ease-out-expo) both;
+      animation-delay:calc(.25s + var(--l,0) * .13s)}
+    @keyframes hRise{0%{transform:translateY(112%);opacity:0}32%{opacity:1}100%{transform:translateY(0);opacity:1}}
+
+    /* Brand marquee */
+    #marquee{background:var(--c);border-top:1px solid rgba(255,255,255,.07);
+      border-bottom:1px solid rgba(255,255,255,.07);overflow:hidden;padding:1.4rem 0}
+    .mq{display:flex;white-space:nowrap;width:max-content}
+    .mq-grp{display:inline-flex;align-items:center}
+    .mq-item{font-size:clamp(1.4rem,3.4vw,2.5rem);font-weight:900;text-transform:uppercase;
+      letter-spacing:-.02em;color:#fff;padding:0 1.4rem}
+    .mq-item.serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+      text-transform:none;letter-spacing:0;color:rgba(255,255,255,.85)}
+    .mq-sep{font-size:clamp(1.2rem,3vw,2rem);font-weight:200;color:rgba(255,255,255,.22);
+      padding:0 .2rem}
+
+    @media(prefers-reduced-motion:reduce){
+      .reveal,.reveal-clip{opacity:1!important;transform:none!important;clip-path:none!important}
+      .hrise{animation:none;opacity:1;transform:none}
+      .wm-track{transform:none!important}
+      .mq{animation:none}
+      .btn:hover{transform:none}
+    }
 
     /* ── NAV ── */
-    #pnav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 1.5rem;
-      transition:background .4s,backdrop-filter .4s}
+    #pnav{position:fixed;top:0;left:0;right:0;z-index:100;padding:.9rem 1.5rem;
+      transition:background .4s,backdrop-filter .4s,padding .4s}
     #pnav.scrolled{background:rgba(26,26,26,.85);backdrop-filter:blur(16px);
-      border-bottom:1px solid rgba(255,255,255,.07)}
+      -webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);padding:.7rem 1.5rem}
     .pnav-inner{max-width:1100px;width:100%;margin:0 auto;display:flex;
-      align-items:center;justify-content:space-between}
-    .pnav-logo img{height:28px;width:auto;display:block;filter:invert(1)}
-    .pnav-tag{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-      color:rgba(255,255,255,.3);display:none}
-    @media(min-width:640px){.pnav-tag{display:block}}
+      align-items:center;justify-content:space-between;gap:1rem}
+    .pnav-logo{display:flex;align-items:center;flex-shrink:0}
+    .pnav-logo img{width:150px;height:44px;object-fit:cover;object-position:center 52%;
+      filter:invert(1);mix-blend-mode:screen;display:block;
+      transition:transform .3s var(--ease-out-quart)}
+    .pnav-logo:hover img{transform:scale(1.04)}
+    @media(max-width:520px){.pnav-logo img{width:120px;height:36px}}
+    .pnav-tag{font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:rgba(255,255,255,.32);display:none}
+    @media(min-width:720px){.pnav-tag{display:block}}
 
     /* ── HERO ── */
     #hero{min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;
-      padding:8rem 0 5rem;position:relative;overflow:hidden;background:var(--c)}
+      padding:8rem 0 4.5rem;position:relative;overflow:hidden;background:var(--c)}
     #hero::before{content:'';position:absolute;inset:0;
-      background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(255,255,255,.03) 0%,transparent 70%);
+      background:radial-gradient(ellipse 80% 55% at 50% 0%,rgba(255,255,255,.035) 0%,transparent 70%);
       pointer-events:none}
     .hero-tag{font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
-      color:rgba(255,255,255,.3);margin-bottom:2rem;display:flex;align-items:center;gap:.75rem}
+      color:rgba(255,255,255,.32);margin-bottom:2rem;display:flex;align-items:center;gap:.75rem;
+      opacity:0;animation:fadeUp .9s var(--ease-out-expo) .1s both}
     .hero-tag::before{content:'';display:block;width:2rem;height:1px;background:rgba(255,255,255,.2)}
-    .hero-h1{font-size:clamp(2.6rem,7vw,6rem);font-weight:900;line-height:1;
-      letter-spacing:-.035em;color:#fff;margin-bottom:2rem;max-width:18ch}
-    .hero-sub{font-size:clamp(.95rem,1.8vw,1.2rem);color:rgba(255,255,255,.55);
-      max-width:54ch;line-height:1.65;margin-bottom:1.25rem}
-    .hero-brands{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.5rem 0 2.5rem}
-    .hero-brand-pill{font-size:.72rem;font-weight:700;padding:.35rem .8rem;border-radius:9999px;
-      border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);letter-spacing:.04em}
-    .scroll-hint{position:absolute;bottom:2rem;right:2rem;display:flex;flex-direction:column;
-      align-items:center;gap:.4rem;color:rgba(255,255,255,.2);font-size:.68rem;font-weight:600;
-      letter-spacing:.1em;text-transform:uppercase}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    .hero-h1{font-size:clamp(2.3rem,6.4vw,5.4rem);font-weight:900;line-height:1.02;
+      letter-spacing:-.035em;color:#fff;margin-bottom:2rem;max-width:19ch}
+    .hero-sub{font-size:clamp(.98rem,1.7vw,1.2rem);color:rgba(255,255,255,.58);
+      max-width:56ch;line-height:1.65;margin-bottom:2.5rem;
+      opacity:0;animation:fadeUp 1s var(--ease-out-expo) .95s both}
+    .hero-sub .si{color:rgba(255,255,255,.85)}
+    .hero-cta-wrap{opacity:0;animation:fadeUp 1s var(--ease-out-expo) 1.15s both}
+    .scroll-hint{position:absolute;bottom:1.6rem;right:2rem;display:flex;flex-direction:column;
+      align-items:center;gap:.4rem;color:rgba(255,255,255,.2);font-size:.66rem;font-weight:600;
+      letter-spacing:.1em;text-transform:uppercase;
+      opacity:0;animation:fadeUp 1s ease 1.6s both}
     .scroll-hint svg{animation:bounce 1.8s ease-in-out infinite}
     @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
 
@@ -145,9 +198,10 @@ const platillos = [
       border-left:3px solid var(--c);padding-left:1rem;margin-top:1.5rem}
     .stat-chips{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
     .stat-chip{background:var(--c);color:#fff;border-radius:16px;padding:1.5rem;
-      display:flex;flex-direction:column;gap:.5rem}
+      display:flex;flex-direction:column;gap:.5rem;transition:transform .4s var(--ease-out-quart)}
+    .stat-chip:hover{transform:translateY(-4px)}
     .stat-chip:first-child{grid-column:1/-1}
-    .stat-n{font-size:2.25rem;font-weight:900;letter-spacing:-.04em;line-height:1}
+    .stat-n{font-size:2.1rem;font-weight:900;letter-spacing:-.04em;line-height:1}
     .stat-l{font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.4}
 
     /* ── CALC ── */
@@ -155,14 +209,14 @@ const platillos = [
     @media(min-width:900px){.calc-layout{grid-template-columns:1fr 1fr;align-items:start}}
     .calc-inputs{display:flex;flex-direction:column;gap:1.5rem}
     .ig{display:flex;flex-direction:column;gap:.5rem}
-    .il{font-size:.8rem;font-weight:700;color:#374151;display:flex;justify-content:space-between}
-    .iv{font-size:1rem;font-weight:800;color:var(--c)}
+    .il{font-size:.8rem;font-weight:700;color:#374151;display:flex;justify-content:space-between;gap:1rem}
+    .iv{font-size:1rem;font-weight:800;color:var(--c);white-space:nowrap}
     input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;
       background:#E5E7EB;border-radius:9999px;cursor:pointer;outline:none}
     input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;
       border-radius:50%;background:var(--c);border:2px solid #fff;
       box-shadow:0 1px 6px rgba(0,0,0,.2);cursor:pointer;transition:transform .15s}
-    input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+    input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25)}
     input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;
       background:var(--c);border:2px solid #fff;cursor:pointer}
     .ih{font-size:.72rem;color:#9CA3AF;font-style:italic}
@@ -170,46 +224,48 @@ const platillos = [
       padding:2.5rem 2rem;display:flex;flex-direction:column;gap:1.5rem}
     .star-ltop{font-size:.72rem;font-weight:700;letter-spacing:.15em;
       text-transform:uppercase;color:rgba(255,255,255,.4)}
-    .star-num{font-size:clamp(2.75rem,7vw,4.5rem);font-weight:900;letter-spacing:-.04em;
-      line-height:1;color:#fff}
+    .star-num{font-size:clamp(2.6rem,7vw,4.3rem);font-weight:900;letter-spacing:-.04em;
+      line-height:1;color:#fff;font-variant-numeric:tabular-nums}
     .star-sub{font-size:.82rem;color:rgba(255,255,255,.4);margin-top:.25rem}
     .breakdown{display:flex;flex-direction:column;gap:1rem}
     .br-row{display:flex;flex-direction:column;gap:.35rem}
     .br-lr{display:flex;justify-content:space-between;font-size:.78rem;font-weight:600}
-    .br-ln{color:rgba(255,255,255,.6)}.br-lv{color:#fff}
+    .br-ln{color:rgba(255,255,255,.6)}.br-lv{color:#fff;font-variant-numeric:tabular-nums}
     .br-bg{height:4px;background:rgba(255,255,255,.1);border-radius:9999px;overflow:hidden}
     .br-fill{height:100%;background:rgba(255,255,255,.7);border-radius:9999px;
       transition:width .6s var(--ease-out-expo);width:0}
     .calc-disc{font-size:.72rem;color:rgba(255,255,255,.28);line-height:1.5;
       padding-top:1rem;border-top:1px solid rgba(255,255,255,.08)}
-    .calc-remate{margin-top:2.5rem;font-size:1.05rem;color:#374151;line-height:1.7;max-width:52ch}
+    .calc-remate{margin-top:2.5rem;font-size:1.05rem;color:#374151;line-height:1.7;max-width:54ch}
 
     /* ── WHY FAIL ── */
     .fail-grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:3rem}
     @media(min-width:640px){.fail-grid{grid-template-columns:1fr 1fr}}
     @media(min-width:900px){.fail-grid{grid-template-columns:1fr 1fr 1fr}}
     .fail-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-      border-radius:16px;padding:1.5rem}
+      border-radius:16px;padding:1.5rem;transition:background .3s,border-color .3s,transform .4s var(--ease-out-quart)}
+    .fail-card:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18);transform:translateY(-3px)}
     .fail-n{font-size:2rem;font-weight:900;color:rgba(255,255,255,.12);
       letter-spacing:-.04em;margin-bottom:.75rem}
     .fail-t{font-size:.92rem;color:rgba(255,255,255,.65);line-height:1.6}
     .fail-remate{margin-top:2.5rem;font-size:1.1rem;color:rgba(255,255,255,.5);
-      line-height:1.7;max-width:52ch}
+      line-height:1.7;max-width:54ch}
     .fail-remate strong{color:#fff}
 
     /* ── SISTEMA / EXPLORER ── */
     .layers-grid{display:grid;grid-template-columns:1fr;gap:.75rem;margin-top:2.5rem}
     @media(min-width:640px){.layers-grid{grid-template-columns:1fr 1fr}}
     .layer-card{border:1.5px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;
-      display:flex;gap:1rem;align-items:flex-start;transition:border-color .2s,background .2s}
-    .layer-card:hover{border-color:var(--c);background:rgba(26,26,26,.02)}
+      display:flex;gap:1rem;align-items:flex-start;
+      transition:border-color .25s,background .25s,transform .4s var(--ease-out-quart)}
+    .layer-card:hover{border-color:var(--c);background:rgba(26,26,26,.02);transform:translateX(4px)}
     .layer-n{font-size:2rem;font-weight:900;color:rgba(26,26,26,.1);
       letter-spacing:-.04em;line-height:1;flex-shrink:0}
     .layer-t{font-size:.95rem;font-weight:800;color:var(--c)}
     .layer-d{font-size:.85rem;color:#6B7280;line-height:1.5;margin-top:.3rem}
 
     #explorer{margin-top:4rem;background:var(--c);border-radius:24px;
-      padding:2.5rem 2rem;color:#fff}
+      padding:2.5rem 2rem;color:#fff;position:relative;z-index:2}
     .exp-h{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
       color:rgba(255,255,255,.35);margin-bottom:1.5rem}
     .exp-cols{display:grid;grid-template-columns:1fr;gap:2rem}
@@ -221,17 +277,20 @@ const platillos = [
       border:1.5px solid rgba(255,255,255,.14);color:rgba(255,255,255,.5);
       cursor:pointer;transition:all .2s;user-select:none;display:flex;align-items:center;gap:.4rem}
     .sub-chip:hover{border-color:rgba(255,255,255,.38);color:rgba(255,255,255,.8)}
-    .sub-chip.active{background:#fff;color:var(--c);border-color:#fff}
+    .sub-chip.active{background:#fff;color:var(--c);border-color:#fff;transform:scale(1.04)}
     .chip-badge{font-size:.65rem;font-weight:800;background:rgba(255,255,255,.13);
       color:rgba(255,255,255,.55);padding:.1rem .38rem;border-radius:9999px}
-    .sub-chip.active .chip-badge{background:rgba(26,26,26,.1);color:var(--c)}
-    .plat-list{display:flex;flex-direction:column;gap:.35rem}
+    .sub-chip.active .chip-badge{background:rgba(26,26,26,.12);color:var(--c)}
+    .plat-list{display:flex;flex-direction:column;gap:.35rem;max-height:340px;overflow-y:auto;
+      padding-right:.4rem}
+    .plat-list::-webkit-scrollbar{width:4px}
+    .plat-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:9999px}
     .plat-item{font-size:.88rem;padding:.55rem .85rem;border-radius:10px;
       color:rgba(255,255,255,.42);border:1px solid transparent;
-      transition:all .2s;cursor:pointer;user-select:none}
+      transition:all .25s var(--ease-out-quart);cursor:pointer;user-select:none}
     .plat-item:hover{color:rgba(255,255,255,.78);background:rgba(255,255,255,.05)}
     .plat-item.active{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.14)}
-    .plat-item.dimmed{opacity:.22}
+    .plat-item.dimmed{opacity:.2}
     .plat-subs{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.3rem}
     .plat-sub-tag{font-size:.63rem;font-weight:600;padding:.12rem .45rem;border-radius:9999px;
       background:rgba(255,255,255,.07);color:rgba(255,255,255,.38);transition:all .2s}
@@ -241,20 +300,20 @@ const platillos = [
     .exp-punch strong{color:#fff;font-size:1.05rem}
     .exp-punch.sel{color:rgba(255,255,255,.6)}
     .exp-punch.sel strong{font-size:1.2rem}
-    .exp-yasu-note{margin-top:1rem;padding:.85rem 1rem;background:rgba(255,255,255,.04);
-      border-radius:10px;font-size:.8rem;color:rgba(255,255,255,.4);line-height:1.55}
-    .exp-yasu-note strong{color:rgba(255,255,255,.7)}
+    .exp-note{margin-top:1rem;padding:.9rem 1.1rem;background:rgba(255,255,255,.04);
+      border-radius:12px;font-size:.8rem;color:rgba(255,255,255,.42);line-height:1.6}
+    .exp-note strong{color:rgba(255,255,255,.72)}
 
     /* ── PRODUCCIÓN ── */
     .prod-body{font-size:1.05rem;color:rgba(255,255,255,.55);line-height:1.7;
-      max-width:52ch;margin:2rem 0}
+      max-width:54ch;margin:2rem 0}
     .prod-body p+p{margin-top:1rem}
     .prod-feats{display:grid;grid-template-columns:1fr;gap:1px;
       background:rgba(255,255,255,.07);border-radius:20px;overflow:hidden;margin-top:3rem}
     @media(min-width:640px){.prod-feats{grid-template-columns:1fr 1fr}}
     @media(min-width:900px){.prod-feats{grid-template-columns:repeat(4,1fr)}}
     .prod-feat{background:var(--c);padding:1.75rem 1.5rem;
-      display:flex;flex-direction:column;gap:.65rem;transition:background .2s}
+      display:flex;flex-direction:column;gap:.65rem;transition:background .25s}
     .prod-feat:hover{background:#252525}
     .pf-icon{font-size:1.4rem;line-height:1}
     .pf-t{font-size:.92rem;font-weight:800;color:#fff;line-height:1.3}
@@ -264,27 +323,14 @@ const platillos = [
     .prod-result p{font-size:1.1rem;color:rgba(255,255,255,.7);line-height:1.65}
     .prod-result strong{color:#fff}
 
-    /* ── DEMO ── */
-    .demo-layout{display:grid;grid-template-columns:1fr;gap:3rem;margin-top:3.5rem;align-items:center}
-    @media(min-width:768px){.demo-layout{grid-template-columns:1fr 1fr}}
-    .qr-mock{aspect-ratio:1;max-width:260px;margin:0 auto;border:2px dashed var(--border);
-      border-radius:20px;display:flex;flex-direction:column;align-items:center;
-      justify-content:center;gap:1rem;color:#9CA3AF;background:var(--g)}
-    .qr-icon{font-size:2.75rem;line-height:1}
-    .qr-label{font-size:.78rem;font-weight:600;text-align:center;line-height:1.5}
-    .demo-steps{display:flex;flex-direction:column;gap:1.25rem}
-    .demo-step{display:flex;gap:1rem;align-items:flex-start}
-    .demo-step-n{width:2rem;height:2rem;border-radius:50%;background:var(--c);color:#fff;
-      font-size:.78rem;font-weight:800;display:flex;align-items:center;
-      justify-content:center;flex-shrink:0}
-    .demo-step-t{font-size:.92rem;font-weight:700;color:var(--c);padding-top:.25rem}
-    .demo-step-d{font-size:.85rem;color:#6B7280;line-height:1.5;margin-top:.2rem}
-
     /* ── OFERTA ── */
     .offer-grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:3.5rem}
     @media(min-width:900px){.offer-grid{grid-template-columns:1fr 1fr 1fr;align-items:start}}
-    .offer-card{border-radius:20px;padding:2rem 1.75rem;display:flex;flex-direction:column;gap:1rem}
+    .offer-card{border-radius:20px;padding:2rem 1.75rem;display:flex;flex-direction:column;gap:1rem;
+      transition:transform .4s var(--ease-out-quart),box-shadow .4s var(--ease-out-quart)}
+    .offer-card:hover{transform:translateY(-5px)}
     .oc1{background:var(--w);border:2px solid var(--c)}
+    .oc1:hover{box-shadow:0 20px 44px -16px rgba(0,0,0,.22)}
     .oc2{background:var(--w);border:1.5px solid var(--border)}
     .oc3{background:var(--c);color:#fff}
     .offer-step{font-size:.7rem;font-weight:800;letter-spacing:.12em;
@@ -299,45 +345,43 @@ const platillos = [
     .offer-d{font-size:.88rem;color:#4B5563;line-height:1.65}
     .oc3 .offer-d{color:rgba(255,255,255,.55)}
     .offer-tag{font-size:.73rem;font-weight:700;padding:.32rem .75rem;
-      border-radius:9999px;align-self:flex-start;
-      background:rgba(26,26,26,.07);color:var(--c)}
+      border-radius:9999px;align-self:flex-start;background:rgba(26,26,26,.07);color:var(--c)}
     .offer-anchor{margin-top:2.5rem;padding:2rem;background:rgba(26,26,26,.04);
-      border-radius:16px;max-width:58ch}
+      border-radius:16px;max-width:60ch}
     .offer-anchor p{font-size:1rem;color:#374151;line-height:1.65}
     .offer-anchor strong{color:var(--c);font-weight:800}
-    #star-anchor{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;color:var(--c)}
+    #star-anchor{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;color:var(--c);
+      font-variant-numeric:tabular-nums}
     .offer-prop{margin-top:1.5rem;padding:1.5rem;border:1px solid var(--border);
-      border-radius:16px;max-width:58ch;font-size:.88rem;color:#4B5563;line-height:1.65}
+      border-radius:16px;max-width:60ch;font-size:.88rem;color:#4B5563;line-height:1.65}
     .offer-prop strong{color:var(--c)}
 
     /* ── CTA ── */
     #piloto{text-align:center}
-    .cta-big{font-size:clamp(1.9rem,5vw,3.75rem);font-weight:900;letter-spacing:-.03em;
-      color:#fff;line-height:1.05;max-width:22ch;margin:0 auto 1.5rem}
-    .cta-sub{font-size:1rem;color:rgba(255,255,255,.48);max-width:44ch;
+    .cta-sub{font-size:1rem;color:rgba(255,255,255,.48);max-width:46ch;
       margin:0 auto 2.5rem;line-height:1.65}
     .cta-btns{display:flex;flex-direction:column;align-items:center;gap:1rem}
     @media(min-width:480px){.cta-btns{flex-direction:row;justify-content:center}}
     .cta-note{margin:1.5rem auto 0;font-size:.8rem;color:rgba(255,255,255,.28);
-      max-width:44ch;line-height:1.55}
+      max-width:46ch;line-height:1.55}
 
     /* ── FOOTER ── */
     #foot{padding:3.5rem 0;border-top:1px solid var(--border);background:var(--ww)}
     .foot-inner{display:flex;flex-direction:column;gap:1.25rem;align-items:flex-start}
     @media(min-width:640px){.foot-inner{flex-direction:row;align-items:center;justify-content:space-between}}
-    .foot-logo img{height:26px;width:auto;display:block}
-    .foot-copy{font-size:.83rem;color:#6B7280;line-height:1.6;max-width:52ch}
+    .foot-logo img{width:160px;height:46px;object-fit:cover;object-position:center 52%;display:block}
+    .foot-copy{font-size:.83rem;color:#6B7280;line-height:1.6;max-width:54ch}
     .foot-link{color:var(--c);font-weight:600;text-decoration:none}
     .foot-link:hover{text-decoration:underline}
 
     /* ── PRINT ── */
     #print-pg{display:none}
     @media print{
-      #pnav,#hero,#problema,#calculadora,#fallan,#sistema,
-      #produccion,#demo,#oferta,#piloto,#foot{display:none!important}
+      #pnav,#hero,#marquee,#problema,#calculadora,#fallan,#sistema,
+      #produccion,#oferta,#piloto,#foot{display:none!important}
       #print-pg{display:block!important;font-family:'Inter',system-ui,sans-serif;
         color:#1a1a1a;padding:2rem;max-width:780px;margin:0 auto}
-      .pr-logo{font-size:1.25rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.25rem}
+      .pr-logo img{width:150px;height:44px;object-fit:cover;object-position:center 52%;margin-bottom:.5rem}
       .pr-date{font-size:.72rem;color:#9CA3AF;margin-bottom:2.5rem}
       .pr-title{font-size:1.9rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.4rem}
       .pr-sub{font-size:.9rem;color:#4B5563;margin-bottom:2.5rem}
@@ -365,7 +409,7 @@ const platillos = [
 <!-- NAV -->
 <nav id="pnav">
   <div class="pnav-inner">
-    <a href="https://antemano.com.mx" class="pnav-logo">
+    <a href="https://antemano.com.mx" class="pnav-logo" aria-label="Antemano">
       <img src="/logo.png" alt="Antemano" />
     </a>
     <span class="pnav-tag">Sistema de Capacitación para Restaurantes</span>
@@ -376,20 +420,22 @@ const platillos = [
 <!-- S1: HERO -->
 <section id="hero">
   <div class="container">
-    <p class="hero-tag reveal">Propuesta para Grupo Caribe</p>
-    <h1 class="hero-h1 reveal reveal-d1">
-      Cada vez que renuncia un cocinero, tu mejor receta se va <em class="si">con él.</em>
+    <p class="hero-tag">Propuesta para Grupo Caribe</p>
+    <h1 class="hero-h1" aria-label="Tu receta no se pierde por tu gente. Se pierde en una hoja que ya se manchó.">
+      <span class="hmask"><span class="hrise" style="--l:0">Tu receta no se pierde</span></span>
+      <span class="hmask"><span class="hrise" style="--l:1">por tu <em class="si">gente.</em></span></span>
+      <span class="hmask"><span class="hrise" style="--l:2">Se pierde en una hoja</span></span>
+      <span class="hmask"><span class="hrise" style="--l:3">que ya se <em class="si">manchó.</em></span></span>
     </h1>
-    <p class="hero-sub reveal reveal-d2">
-      En Yasuko, en Spiral, en Ototo, en El Caribeño. Cuatro cocinas distintas, cuatro cartas que viven en la memoria de personas que pueden renunciar mañana.
+    <p class="hero-sub">
+      El recetario existe. Lo imprimieron una vez. Hoy anda bailando por la cocina —con salsa encima, hojas sueltas, ya desactualizado— y el estándar real, el que hace que un aguachile de El Caribeño sepa igual siempre, sigue viviendo en la cabeza de tu chef.
     </p>
-    <div class="hero-brands reveal reveal-d2">
-      {marcas.map(m => <span class="hero-brand-pill">{m}</span>)}
+    <div class="hero-cta-wrap">
+      <a href="#calculadora" class="btn btn-light">
+        Ver cuánto le cuesta al grupo
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </a>
     </div>
-    <a href="#calculadora" class="btn btn-light reveal reveal-d3">
-      Ver cuánto le está costando al grupo
-      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-    </a>
   </div>
   <div class="scroll-hint" aria-hidden="true">
     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
@@ -397,49 +443,64 @@ const platillos = [
   </div>
 </section>
 
+<!-- BRAND MARQUEE -->
+<div id="marquee" aria-hidden="true">
+  <div class="mq" id="mq">
+    <div class="mq-grp" id="mq-grp">
+      <span class="mq-item">Yasuko</span><span class="mq-sep">/</span>
+      <span class="mq-item serif">Spiral</span><span class="mq-sep">/</span>
+      <span class="mq-item">Ototo</span><span class="mq-sep">/</span>
+      <span class="mq-item serif">El Caribeño</span><span class="mq-sep">/</span>
+      <span class="mq-item">Risco</span><span class="mq-sep">/</span>
+      <span class="mq-item serif">un solo sistema</span><span class="mq-sep">/</span>
+    </div>
+  </div>
+</div>
+
 <!-- S2: PROBLEMA -->
 <section id="problema" class="s-light">
+  <div class="wm" style="top:-2rem;"><span class="wm-track">Recetario</span></div>
   <div class="container">
     <p class="eyebrow-dark reveal">El diagnóstico</p>
     <div class="prob-grid">
       <div>
-        <h2 class="h2 reveal">
-          No es un problema de capacitación.<br>
-          Es un problema de <em class="si">memoria.</em>
+        <h2 class="h2 reveal-clip">
+          Tu cocina sabe hacerlo.<br>
+          El saber no tiene <em class="si">dónde vivir.</em>
         </h2>
         <div class="prob-body" style="margin-top:2rem;">
-          <p>El reto de Grupo Caribe no es capacitar en un restaurante. Es mantener el estándar en cuatro conceptos completamente distintos —desde el shari de Yasuko hasta el recado negro de El Caribeño— con equipos que rotan y cocinas que no comparten ni una sola receta.</p>
-          <p>Mientras tanto, en cada marca:</p>
+          <p>El talento está. La mano de tu chef arma el aguachile, el shari, la masa de 48 horas, el corte exacto. Eso no es el problema, y nunca lo fue.</p>
+          <p>El problema es <strong style="color:#1a1a1a;">dónde vive ese conocimiento</strong>: en la cabeza de pocas personas y en un recetario impreso que ya no aguanta el ritmo de la cocina. Y cuando el saber no tiene un lugar firme donde vivir, pasa esto en cada una de tus marcas:</p>
           <ul class="prob-list">
-            <li>El que entrena es tu chef o cocinero más caro, fuera de la línea, repitiendo lo mismo con cada nuevo.</li>
-            <li>El roll o el platillo sale diferente según quién esté en turno. El cliente lo nota — y no regresa.</li>
-            <li>Cada cocinero porciona "al ojo". Ahí se va el food cost, gramo por gramo, en las cuatro marcas.</li>
-            <li>Cuando cambias la carta, tardas semanas en que el nuevo platillo salga parejo en toda la cocina.</li>
+            <li>El cocinero nuevo no tiene una referencia confiable que seguir, entonces aprende a medias —o aprende lo que vio una vez.</li>
+            <li>Tu chef se vuelve el único respaldo del estándar. No puede estar en cinco cocinas a la vez.</li>
+            <li>El platillo sale distinto según el turno, no porque la gente sea mala, sino porque nadie les dejó el estándar a la mano.</li>
+            <li>Cambias la carta y el estándar nuevo tarda semanas en llegar parejo a toda la cocina.</li>
           </ul>
           <p class="prob-remate">
-            Cuatro marcas sin sistema documentado = cuatro veces el mismo problema.<br>
-            Ese costo se puede medir. Y se puede bajar.
+            No es un problema de gente. Es un problema de dónde guardas lo que tu gente ya sabe.<br>
+            Y eso sí se puede resolver.
           </p>
         </div>
-        <a href="#calculadora" class="btn btn-dark" style="margin-top:2rem;">Calcular el costo real →</a>
+        <a href="#calculadora" class="btn btn-dark" style="margin-top:2rem;">Ponerle número al problema →</a>
       </div>
 
       <div class="stat-chips reveal reveal-d2">
         <div class="stat-chip">
-          <span class="stat-n">4 marcas</span>
-          <span class="stat-l">Yasuko, Spiral, Ototo, El Caribeño — cuatro cocinas distintas, un solo problema sin resolver</span>
+          <span class="stat-n">5 marcas</span>
+          <span class="stat-l">Yasuko, Spiral, Ototo, El Caribeño y Risco. Cinco cocinas distintas, un mismo reto: que el estándar no dependa de quién esté en turno.</span>
         </div>
         <div class="stat-chip">
-          <span class="stat-n">~40</span>
-          <span class="stat-l">SKUs solo en El Caribeño. De esos, 12 guisos base generan el 100 % de la carta</span>
+          <span class="stat-n">8 bases</span>
+          <span class="stat-l">En El Caribeño, un puñado de salsas base —vinagreta, costra, macha— arman buena parte de la carta de mariscos</span>
         </div>
         <div class="stat-chip">
-          <span class="stat-n">3 sem</span>
-          <span class="stat-l">Lo que tarda un cocinero nuevo en ejecutar al estándar sin material de apoyo</span>
+          <span class="stat-n">1 copia</span>
+          <span class="stat-l">El recetario impreso es una sola: el del turno de la mañana lo tiene, el de la noche no</span>
         </div>
         <div class="stat-chip">
           <span class="stat-n">75 %</span>
-          <span class="stat-l">Rotación anual en la industria restaurantera. El conocimiento renuncia con las personas</span>
+          <span class="stat-l">Rotación anual en la industria. Cada salida se lleva un pedazo de estándar que no quedó documentado</span>
         </div>
       </div>
     </div>
@@ -450,20 +511,20 @@ const platillos = [
 <section id="calculadora" class="s-white">
   <div class="container">
     <p class="eyebrow-dark reveal">Calculadora de impacto — Grupo Caribe</p>
-    <h2 class="h2 reveal reveal-d1">Mete los números del grupo.<br>Mira lo que estás <em class="si">dejando en la mesa.</em></h2>
-    <p class="ssub reveal reveal-d2">Los defaults son estimados para un grupo de 4 marcas. Ajústalos con tus cifras reales.</p>
+    <h2 class="h2 reveal-clip">Mete los números del grupo.<br>Mira lo que se queda <em class="si">en la mesa.</em></h2>
+    <p class="ssub reveal reveal-d2">Los defaults son estimados para un grupo de 5 marcas. Ajústalos con tus cifras reales.</p>
 
     <div class="calc-layout">
       <div class="calc-inputs">
         <div class="ig reveal">
-          <label class="il">Cocineros en el grupo (total 4 marcas)<span class="iv" id="v-cocineros">20</span></label>
-          <input type="range" id="s-cocineros" min="4" max="80" value="20" step="1" />
-          <span class="ih">Total de personas en cocina sumando las 4 marcas</span>
+          <label class="il">Cocineros en el grupo (5 marcas)<span class="iv" id="v-cocineros">24</span></label>
+          <input type="range" id="s-cocineros" min="5" max="100" value="24" step="1" />
+          <span class="ih">Total de personas en cocina sumando las 5 marcas</span>
         </div>
         <div class="ig reveal reveal-d1">
-          <label class="il">Contrataciones por año (grupo)<span class="iv" id="v-rotacion">15</span></label>
-          <input type="range" id="s-rotacion" min="2" max="60" value="15" step="1" />
-          <span class="ih">¿Cuántos cocineros nuevos contratas en total al año?</span>
+          <label class="il">Contrataciones por año (grupo)<span class="iv" id="v-rotacion">18</span></label>
+          <input type="range" id="s-rotacion" min="3" max="70" value="18" step="1" />
+          <span class="ih">¿Cuántos cocineros nuevos entran en total al año?</span>
         </div>
         <div class="ig reveal reveal-d1">
           <label class="il">Días hasta que opera al estándar<span class="iv" id="v-dias">21 días</span></label>
@@ -473,7 +534,7 @@ const platillos = [
         <div class="ig reveal reveal-d2">
           <label class="il">Costo-hora del que entrena<span class="iv" id="v-hora">$150/hr</span></label>
           <input type="range" id="s-hora" min="80" max="500" value="150" step="10" />
-          <span class="ih">Chef o cocinero senior que saca de la línea para capacitar</span>
+          <span class="ih">Chef o cocinero senior que sale de la línea para capacitar</span>
         </div>
         <div class="ig reveal reveal-d2">
           <label class="il">Food cost actual vs. objetivo<span class="iv" id="v-fc">35% vs 30%</span></label>
@@ -483,13 +544,13 @@ const platillos = [
           </div>
         </div>
         <div class="ig reveal reveal-d2">
-          <label class="il">Venta mensual del grupo<span class="iv" id="v-venta">$800k</span></label>
-          <input type="range" id="s-venta" min="100000" max="5000000" value="800000" step="50000" />
-          <span class="ih">Suma de ventas mensuales de las 4 marcas</span>
+          <label class="il">Venta mensual del grupo<span class="iv" id="v-venta">$1,000k</span></label>
+          <input type="range" id="s-venta" min="200000" max="6000000" value="1000000" step="50000" />
+          <span class="ih">Suma de ventas mensuales de las 5 marcas</span>
         </div>
         <div class="ig reveal reveal-d3">
-          <label class="il">Platillos rehechos o devueltos / semana<span class="iv" id="v-dev">12</span></label>
-          <input type="range" id="s-dev" min="0" max="60" value="12" step="1" />
+          <label class="il">Platillos rehechos o devueltos / semana<span class="iv" id="v-dev">14</span></label>
+          <input type="range" id="s-dev" min="0" max="70" value="14" step="1" />
           <span class="ih">Suma de devoluciones en todas las marcas por inconsistencia</span>
         </div>
       </div>
@@ -497,49 +558,51 @@ const platillos = [
       <div class="calc-out reveal reveal-d1">
         <div>
           <p class="star-ltop">Costo anual del sistema actual — Grupo Caribe</p>
-          <p class="star-num" id="star-num">$1,144,560</p>
+          <p class="star-num" id="star-num">$1,215,140</p>
           <p class="star-sub">por año — estimado con tus datos del grupo</p>
         </div>
         <div class="breakdown">
           <div class="br-row">
-            <div class="br-lr"><span class="br-ln">Capacitación</span><span class="br-lv" id="br-cap">$267,750</span></div>
+            <div class="br-lr"><span class="br-ln">Capacitación</span><span class="br-lv" id="br-cap">$321,300</span></div>
             <div class="br-bg"><div class="br-fill" id="bar-cap"></div></div>
           </div>
           <div class="br-row">
-            <div class="br-lr"><span class="br-ln">Rotación</span><span class="br-lv" id="br-rot">$75,000</span></div>
+            <div class="br-lr"><span class="br-ln">Rotación</span><span class="br-lv" id="br-rot">$90,000</span></div>
             <div class="br-bg"><div class="br-fill" id="bar-rot"></div></div>
           </div>
           <div class="br-row">
-            <div class="br-lr"><span class="br-ln">Merma / food cost</span><span class="br-lv" id="br-mer">$480,000</span></div>
+            <div class="br-lr"><span class="br-ln">Merma / food cost</span><span class="br-lv" id="br-mer">$600,000</span></div>
             <div class="br-bg"><div class="br-fill" id="bar-mer"></div></div>
           </div>
           <div class="br-row">
-            <div class="br-lr"><span class="br-ln">Devoluciones</span><span class="br-lv" id="br-dev">$174,720</span></div>
+            <div class="br-lr"><span class="br-ln">Devoluciones</span><span class="br-lv" id="br-dev">$203,840</span></div>
             <div class="br-bg"><div class="br-fill" id="bar-dev"></div></div>
           </div>
         </div>
-        <p class="calc-disc">Estimado con benchmarks de la industria. Ajusta los sliders con cifras reales para mayor precisión. El número de capacitación asume 4 horas diarias de entrenador por nuevo contratado.</p>
+        <p class="calc-disc">Estimado con benchmarks de la industria. Ajusta los sliders con cifras reales para mayor precisión. El cálculo de capacitación asume 4 horas diarias de entrenador por nuevo contratado.</p>
       </div>
     </div>
 
-    <p class="calc-remate reveal">Ese número ya lo estás pagando cada año — solo que no aparece en ningún reporte. No está en el P&L. No lo ve tu contador. Pero está ahí.</p>
+    <p class="calc-remate reveal">Ese número ya lo estás pagando cada año — solo que no aparece en ningún reporte. No está en el P&amp;L, no lo ve tu contador. Pero ahí está, repartido entre las cinco cocinas.</p>
     <a href="#fallan" class="btn btn-dark reveal" style="margin-top:2rem;">Ver cómo dejas de pagarlo →</a>
   </div>
 </section>
 
-<!-- S4: POR QUÉ FALLAN -->
+<!-- S4: POR QUÉ FALLA EL RECETARIO -->
 <section id="fallan" class="s-dark">
+  <div class="wm" style="top:-1rem;"><span class="wm-track wm-light">Papel</span></div>
   <div class="container">
-    <p class="eyebrow reveal">El problema con lo que existe</p>
-    <h2 class="h2 reveal reveal-d1" style="color:#fff;">El 88 % abandona la capacitación.<br>Y con <em class="si">razón.</em></h2>
+    <p class="eyebrow reveal">No es que no lo hayan intentado</p>
+    <h2 class="h2 reveal-clip" style="color:#fff;">El recetario no falló por flojera.<br>Falló porque es <em class="si">papel.</em></h2>
+    <p class="prod-body reveal reveal-d1" style="margin-bottom:1rem;">Ya tienen recetarios. La chef los armó. El problema es lo que le pasa a una hoja impresa dentro de una cocina real:</p>
     <div class="fail-grid">
       {[
-        { n:'01', t:'Un PDF de 80 páginas que nadie abre. Si lo abren, no lo terminan. Si lo terminan, no lo aplican en la línea.' },
-        { n:'02', t:'Un video corporativo plano grabado con un celular fijo. Tu equipo consume short-form todo el día — eso no lo van a ver.' },
-        { n:'03', t:'Una carpeta en Drive sin orden. Nadie sabe qué buscar, nadie sabe dónde está. El que sabía ya renunció.' },
-        { n:'04', t:'El entrenamiento verbal no escala entre marcas. En Yasuko se aprende diferente que en El Caribeño. El estándar muere con quien lo enseñó.' },
-        { n:'05', t:'Capacitación que se ve mal en el celular. Tu personal está en la cocina, con una mano, sin tiempo. Si no carga en 3 segundos, no sirve.' },
-        { n:'06', t:'Material que se pudre. Cambias la carta, y el video sigue mostrando el platillo viejo. Nadie lo actualiza. El sistema muere.' },
+        { n:'01', t:'Se imprime una sola vez. La carta cambia, sale un platillo nuevo, se ajusta un gramaje — y el papel sigue diciendo lo de antes.' },
+        { n:'02', t:'Anda bailando por la cocina. Se mancha de salsa, se moja, se dobla, se traspapela. A las dos semanas ya no se lee.' },
+        { n:'03', t:'Es una sola copia. El de la mañana la tiene en su estación; el del turno de la noche se quedó sin nada.' },
+        { n:'04', t:'Una foto no enseña el movimiento. El punto del capeado, la muñeca del emplatado, el momento exacto del sellado — eso no cabe en una hoja.' },
+        { n:'05', t:'Nadie carga un fólder a la estación. Pero todos traen el celular en la bolsa. El recetario está donde nadie lo busca.' },
+        { n:'06', t:'No te dice si sirve. No sabes si alguien lo abrió, si lo siguió, si ayudó. Es un papel que diste y del que nunca supiste más.' },
       ].map(c => (
         <div class="fail-card reveal">
           <div class="fail-n">{c.n}</div>
@@ -548,29 +611,30 @@ const platillos = [
       ))}
     </div>
     <p class="fail-remate reveal">
-      <strong>Una carpeta de videos en Drive no es un sistema.</strong><br>
-      Es un cementerio de buenas intenciones.<br>
-      Nosotros no hacemos eso.
+      <strong>No es que el recetario esté mal hecho.</strong><br>
+      Es que el papel no puede competir contra una cocina en movimiento.<br>
+      El estándar necesita vivir donde tu gente ya está mirando.
     </p>
-    <a href="#sistema" class="btn btn-light reveal" style="margin-top:2.5rem;">Entonces qué hacen →</a>
+    <a href="#sistema" class="btn btn-light reveal" style="margin-top:2.5rem;">Entonces qué proponemos →</a>
   </div>
 </section>
 
 <!-- S5: EL SISTEMA -->
 <section id="sistema" class="s-light">
+  <div class="wm" style="top:-2rem;"><span class="wm-track">Sistema</span></div>
   <div class="container">
     <p class="eyebrow-dark reveal">La solución</p>
-    <h2 class="h2 reveal reveal-d1">No te vendemos videos.<br>Te construimos un <em class="si">sistema.</em></h2>
-    <p class="ssub reveal reveal-d2" style="max-width:60ch;">
-      El Caribeño no tiene 40 recetas independientes. Tiene 12 guisos base que se sirven en 5 formatos. La misma cebolla curtida vive en 10 platillos. El mismo recado rojo, en 7. Por eso el sistema se arma en capas que se reutilizan — y cerca del 40 % del contenido sirve a más de un platillo.
+    <h2 class="h2 reveal-clip">No te entregamos videos sueltos.<br>Te construimos un <em class="si">sistema.</em></h2>
+    <p class="ssub reveal reveal-d2" style="max-width:62ch;">
+      El Caribeño no tiene 60 platillos independientes. Tiene un puñado de bases —la vinagreta negra, la costra de queso, la macha coctelera— que se combinan. La misma vinagreta vive en el marlín, el pulpo y la tostada "La Sabrosa". La misma costra, en tres platillos más. Por eso el sistema se arma en capas que se reutilizan — y cerca del 40 % del contenido sirve a más de un platillo.
     </p>
 
     <div class="layers-grid">
       {[
-        { n:'01', t:'Contenido', d:'Protocolos, subrecetas base y platillos de cada marca. El conocimiento de tu cocina, filmado al estándar de Antemano.' },
+        { n:'01', t:'Contenido', d:'Protocolos, subrecetas base y platillos de cada marca. El estándar de tu cocina, filmado al nivel de Antemano.' },
         { n:'02', t:'Acceso', d:'QR en cada estación. Tu cocinero escanea y cae al video exacto en 3 segundos. Sin apps, sin login, sin buscar.' },
-        { n:'03', t:'Vivo', d:'Cambias la carta, actualizamos el video. El mismo QR ya apunta a la versión nueva. El sistema no se pudre.' },
-        { n:'04', t:'Medible', d:'Sabes qué módulos se están usando, qué rutas se completan y cuánto baja tu tiempo de onboarding.' },
+        { n:'03', t:'Vivo', d:'Cambias la carta, actualizamos el video. El mismo QR ya apunta a la versión nueva. A diferencia del papel, no se queda viejo.' },
+        { n:'04', t:'Medible', d:'Sabes qué módulos se usan, qué rutas se completan y cuánto baja tu tiempo de onboarding. Lo que el recetario nunca te dijo.' },
       ].map(l => (
         <div class="layer-card reveal">
           <div class="layer-n">{l.n}</div>
@@ -581,7 +645,7 @@ const platillos = [
 
     <!-- Explorador modular -->
     <div id="explorer">
-      <p class="exp-h">Explorador modular — El Caribeño (toca una subreceta)</p>
+      <p class="exp-h">Explorador modular — El Caribeño · toca una base para ver dónde se reutiliza</p>
       <div class="exp-cols">
         <div>
           <p class="exp-col-t">Subrecetas base ({subrecetas.length})</p>
@@ -594,8 +658,8 @@ const platillos = [
           </div>
         </div>
         <div>
-          <p class="exp-col-t">Platillos ({platillos.length} de ~40)</p>
-          <div class="plat-list" id="plat-list">
+          <p class="exp-col-t">Platillos (muestra de la carta)</p>
+          <div class="plat-list" id="plat-list" data-lenis-prevent>
             {platillos.map(p => (
               <div class="plat-item" data-plat-id={p.id} data-subs={p.subs.join(',')}>
                 <div>{p.name}</div>
@@ -611,10 +675,10 @@ const platillos = [
         </div>
       </div>
       <div class="exp-punch" id="exp-punch">
-        <strong>Toca "Cebolla morada curtida"</strong> — el mejor ejemplo del sistema.
+        <strong>Toca "Costra de queso"</strong> — el mejor ejemplo del sistema.
       </div>
-      <div class="exp-yasu-note">
-        <strong>En Yasuko aplica igual:</strong> el arroz de sushi (shari) aparece en los 30+ rolls de la carta. 1 video de cómo preparar el shari = todos los rolls. La spicy mayo: 8 platillos. La tempura batter: 5. El sistema es el mismo — el contenido es de Yasuko.
+      <div class="exp-note">
+        <strong>En Spiral pasa igual:</strong> la masa de 48 horas es una sola base — y vive en las 8 pizzas de la carta. La salsa pomodoro, en 6 de ellas. <strong>En Yasuko y Ototo:</strong> 1 video del shari (arroz de sushi) = todos los rolls. Filmas la base una vez, sirve a media carta.
       </div>
     </div>
   </div>
@@ -622,23 +686,24 @@ const platillos = [
 
 <!-- S6: PRODUCCIÓN ⭐ -->
 <section id="produccion" class="s-dark">
+  <div class="wm" style="top:-1rem;"><span class="wm-track wm-light">Producción</span></div>
   <div class="container">
     <p class="eyebrow reveal">Lo que nos diferencia</p>
-    <h2 class="h2 reveal reveal-d1" style="color:#fff;">Si tu personal lo abandona a los 10 segundos,<br><em class="si">no sirve.</em> Punto.</h2>
+    <h2 class="h2 reveal-clip" style="color:#fff;">Si tu personal lo abandona a los 10 segundos,<br><em class="si">no sirve.</em> Punto.</h2>
     <div class="prod-body reveal reveal-d1">
-      <p>La mayoría de quienes hacen "videos de capacitación" ponen una cámara fija frente al cocinero y graban 8 minutos planos. Nadie los ve completo.</p>
-      <p>Antemano es productora audiovisual. Producimos contenido para que se consuma, no para que se archive. Lo mismo que hacemos para las redes de tus marcas, lo aplicamos a la capacitación.</p>
+      <p>Cualquiera pone una cámara fija frente al cocinero y graba 8 minutos planos. Nadie los ve completo. Eso no es capacitación, es archivo.</p>
+      <p>Antemano es productora audiovisual. Producimos contenido para que se consuma, no para que se guarde. Lo mismo que hacemos para las redes de tus marcas, lo aplicamos a la cocina.</p>
     </div>
     <div class="prod-feats reveal">
       {[
         { icon:'📱', t:'Vertical, para el celular', d:'Se ve en la estación, con una mano, en la pantalla que tu equipo ya trae en la bolsa.' },
         { icon:'⚡', t:'30–90 segundos por video', d:'Una técnica, un paso, una subreceta. Si es más largo, lo partimos. Cero relleno.' },
-        { icon:'🎯', t:'Hook en 3 segundos', d:'Arranca con el resultado final — el platillo terminado, el corte perfecto — para que sepan a dónde van antes de ver el proceso.' },
-        { icon:'📝', t:'Texto y gramajes en pantalla', d:'La cocina es ruidosa y a veces sin sonido. El gramaje del recado, la temperatura del aceite: se lee, no solo se escucha.' },
-        { icon:'✅', t:'"Así se ve bien / así se ve mal"', d:'No solo el paso: el criterio de qué es correcto. Tu estándar visible, no interpretable.' },
-        { icon:'🎬', t:'Color de cine — DaVinci Resolve', d:'La cochinita pibil de El Caribeño y el sashimi de Yasuko merecen producción que haga honor a su calidad.' },
-        { icon:'🏷️', t:'Plantilla por marca', d:'Cada restaurante tiene su identidad: tipografía, color, intro. El cocinero sabe al instante si está en Yasuko o en El Caribeño.' },
-        { icon:'🔁', t:'Sistema que no se pudre', d:'Cambia la carta, actualizamos el video. El mismo QR ya apunta a la versión nueva. No hay nada que descargar.' },
+        { icon:'🎯', t:'Hook en 3 segundos', d:'Arranca con el resultado final —el platillo montado, el corte perfecto— para que sepan a dónde van.' },
+        { icon:'📝', t:'Texto y gramajes en pantalla', d:'La cocina es ruidosa y a veces sin sonido. El gramaje y la temperatura se leen, no solo se escuchan.' },
+        { icon:'✅', t:'"Así se ve bien / así se ve mal"', d:'No solo el paso: el criterio. Tu estándar visible, no interpretable por quien esté en turno.' },
+        { icon:'🎬', t:'Color de cine — DaVinci Resolve', d:'El aguachile de El Caribeño y el sashimi de Yasuko merecen producción a la altura de su calidad.' },
+        { icon:'🏷️', t:'Plantilla por marca', d:'Cada restaurante con su identidad. El cocinero sabe al instante si está viendo Yasuko, Spiral o Risco.' },
+        { icon:'🔁', t:'Nunca se queda viejo', d:'Cambia la carta, actualizamos el video. El mismo QR apunta a la versión nueva. Lo contrario del papel.' },
       ].map(f => (
         <div class="prod-feat reveal">
           <div class="pf-icon">{f.icon}</div>
@@ -648,75 +713,39 @@ const platillos = [
       ))}
     </div>
     <div class="prod-result reveal">
-      <p>El resultado: capacitación que tu personal <strong>ve hasta el final</strong>, en cualquiera de las cuatro marcas, porque por fin se parece a algo que sí querrían ver.</p>
+      <p>El resultado: capacitación que tu personal <strong>ve hasta el final</strong>, en cualquiera de las cinco marcas, porque por fin se parece a algo que sí querrían ver.</p>
     </div>
-    <a href="#demo" class="btn btn-light reveal" style="margin-top:2rem;">Ver cómo se ve →</a>
+    <a href="#oferta" class="btn btn-light reveal" style="margin-top:2rem;">Ver cómo empezamos →</a>
   </div>
 </section>
 
-<!-- S7: DEMO -->
-<section id="demo" class="s-light">
-  <div class="container">
-    <p class="eyebrow-dark reveal">Demo funcional</p>
-    <h2 class="h2 reveal reveal-d1">Escanéalo.<br>Es <em class="si">de verdad.</em></h2>
-    <p class="ssub reveal reveal-d2">No es una promesa. Es un módulo terminado — lo que vería tu cocinero en la estación de El Caribeño o Yasuko al escanear el QR.</p>
-    <div class="demo-layout">
-      <div class="qr-mock reveal">
-        <div class="qr-icon">⬛</div>
-        <p class="qr-label">
-          Video demo<br>
-          <strong style="color:#374151;">próximamente</strong><br>
-          <span style="font-size:.68rem;color:#9CA3AF;">se activa con el piloto</span>
-        </p>
-      </div>
-      <div class="demo-steps reveal reveal-d1">
-        <p style="font-size:.95rem;color:#374151;font-weight:600;margin-bottom:.5rem;">Así funciona en la operación:</p>
-        {[
-          { n:'1', t:'QR pegado en la estación', d:'Sin apps que descargar, sin contraseñas, sin capacitación para usar la capacitación. Un código en la pared.' },
-          { n:'2', t:'Video en 3 segundos', d:'El cocinero escanea y cae directo al video que necesita. En Yasuko: cómo preparar el shari. En El Caribeño: cómo hacer el recado negro.' },
-          { n:'3', t:'30–90 segundos y a trabajar', d:'Ve el video, lo aplica, sigue. Si necesita verlo otra vez, lo escanea otra vez. Sin preguntar al chef.' },
-          { n:'4', t:'Siempre actualizado', d:'Cuando El Caribeño cambia su cochinita o Yasuko lanza un roll nuevo, actualizamos el video. El mismo QR ya apunta a la versión correcta.' },
-        ].map(s => (
-          <div class="demo-step reveal">
-            <div class="demo-step-n">{s.n}</div>
-            <div><p class="demo-step-t">{s.t}</p><p class="demo-step-d">{s.d}</p></div>
-          </div>
-        ))}
-        <p style="margin-top:1rem;font-size:.85rem;color:#6B7280;font-style:italic;">
-          Eso que acabas de ver, multiplicado por la carta completa de cada una de tus marcas y organizado para que nunca se pierda. Eso es <strong style="color:#1a1a1a;font-style:normal;">Manual Vivo.</strong>
-        </p>
-      </div>
-    </div>
-    <a href="#oferta" class="btn btn-dark reveal" style="margin-top:3rem;">Ver cómo empezamos →</a>
-  </div>
-</section>
-
-<!-- S8: OFERTA -->
+<!-- S7: OFERTA -->
 <section id="oferta" class="s-white">
+  <div class="wm" style="top:-2rem;"><span class="wm-track">Manual Vivo</span></div>
   <div class="container">
     <p class="eyebrow-dark reveal">La propuesta</p>
-    <h2 class="h2 reveal reveal-d1">Manual Vivo, en tres pasos.<br>Empiezas con <em class="si">riesgo casi cero.</em></h2>
+    <h2 class="h2 reveal-clip">Manual Vivo, en tres pasos.<br>Empiezas con <em class="si">riesgo casi cero.</em></h2>
     <div class="offer-grid">
       <div class="offer-card oc1 reveal">
         <div><p class="offer-step">Paso 01</p><h3 class="offer-h">El Piloto</h3></div>
         <span class="offer-pp">Precio a definir</span>
-        <p class="offer-d">Producimos 3 videos terminados en una de tus marcas — sugerimos empezar con El Caribeño por el caso modular. Un protocolo, una subreceta base (ej: recado rojo) y un platillo completo. Ves el formato, la calidad y el sistema antes de comprometerte a nada mayor.</p>
+        <p class="offer-d">Producimos 3 videos terminados en una de tus marcas —sugerimos El Caribeño por el caso modular—: un protocolo, una subreceta base (ej. la vinagreta negra) y un platillo completo. Ves el formato, la calidad y el sistema antes de comprometerte a nada mayor.</p>
         <span class="offer-tag">← Sin riesgo. Empieza aquí.</span>
         <a href="#piloto" class="btn btn-dark" style="align-self:flex-start;margin-top:.5rem;">Quiero el Piloto</a>
       </div>
       <div class="offer-card oc2 reveal reveal-d1">
         <div><p class="offer-step">Paso 02</p><h3 class="offer-h">La Biblioteca</h3></div>
         <span class="offer-pp">Por fases — a definir</span>
-        <p class="offer-d">Sistema completo por marca: todas las subrecetas base, protocolos y platillos filmados con QR por estación y rutas de aprendizaje por puesto. Empezamos con una marca, escalamos a las cuatro. Cerca del 40 % del sistema de El Caribeño ya está listo con 12 guisos base.</p>
+        <p class="offer-d">Sistema completo por marca: todas las subrecetas base, protocolos y platillos filmados con QR por estación y rutas de aprendizaje por puesto. Empezamos con una marca y escalamos a las cinco. Por la reutilización de bases, cada marca nueva cuesta menos que la anterior.</p>
       </div>
       <div class="offer-card oc3 reveal reveal-d2">
         <div><p class="offer-step">Paso 03</p><h3 class="offer-h">Mantenimiento</h3></div>
         <span class="offer-pp">Retainer mensual</span>
-        <p class="offer-d offer-d">El sistema no se pudre. Cambias la carta en Yasuko, actualizamos los videos de esa marca. Entra un guiso nuevo a El Caribeño, lo filmamos. Auditoría trimestral de uso. Nosotros somos los dueños de que tu estándar siga vivo en las cuatro marcas.</p>
+        <p class="offer-d">Aquí está la diferencia con el recetario impreso: esto no se queda viejo. Cambias la carta en Spiral, actualizamos sus videos. Entra un platillo nuevo a El Caribeño, lo filmamos. Auditoría trimestral de uso. Nosotros mantenemos vivo tu estándar en las cinco marcas.</p>
       </div>
     </div>
     <div class="offer-anchor reveal" style="margin-top:2.5rem;">
-      <p>Arriba calculaste que el sistema actual le cuesta al grupo <span id="star-anchor">$1,144,560</span> al año. Manual Vivo cuesta una fracción de eso. Y a diferencia de ese costo, este sí lo ves, lo controlas y <strong>construye un activo que es de Grupo Caribe.</strong></p>
+      <p>Arriba calculaste que el sistema actual le cuesta al grupo <span id="star-anchor">$1,215,140</span> al año. Manual Vivo cuesta una fracción de eso. Y a diferencia de ese costo, este sí lo ves, lo controlas y <strong>construye un activo que es de Grupo Caribe.</strong></p>
     </div>
     <div class="offer-prop reveal">
       <strong>Las recetas son de Grupo Caribe.</strong> Tu IP, en tu cuenta, la ves cuando quieras. Nosotros aportamos el sistema, la producción y el mantenimiento. No te tenemos de rehén; te tenemos como socio.
@@ -724,15 +753,15 @@ const platillos = [
   </div>
 </section>
 
-<!-- S9: CTA -->
+<!-- S8: CTA -->
 <section id="piloto" class="s-dark">
   <div class="container">
-    <p class="eyebrow" style="text-align:center;">Siguiente paso</p>
-    <h2 class="h2 h2-c reveal reveal-d1" style="color:#fff;">
+    <p class="eyebrow reveal" style="justify-content:center;">Siguiente paso</p>
+    <h2 class="h2 h2-c reveal-clip" style="color:#fff;">
       No tienes que decidir todo hoy.<br>
       Solo el <em class="si">primer paso.</em>
     </h2>
-    <p class="cta-sub reveal reveal-d2">El siguiente movimiento no es firmar la biblioteca completa. Es el Piloto: 3 videos en una de tus marcas, y lo ves con tus propios ojos.<br>Si no te convence lo que producimos, no seguimos. Así de simple.</p>
+    <p class="cta-sub reveal reveal-d2" style="margin-top:1.25rem;">El siguiente movimiento no es firmar la biblioteca completa. Es el Piloto: 3 videos en una de tus marcas, y lo ves con tus propios ojos.<br>Si no te convence lo que producimos, no seguimos. Así de simple.</p>
     <div class="cta-btns reveal reveal-d2">
       <a href="https://wa.me/526181234567" class="btn btn-light">Quiero el Piloto →</a>
       <button class="btn btn-outline" id="btn-print" type="button">Descargar resumen para mis socios</button>
@@ -741,13 +770,13 @@ const platillos = [
   </div>
 </section>
 
-<!-- S10: FOOTER -->
+<!-- FOOTER -->
 <footer id="foot">
   <div class="container">
     <div class="foot-inner">
       <div>
         <div class="foot-logo"><img src="/logo.png" alt="Antemano" /></div>
-        <p style="font-size:.7rem;color:#9CA3AF;font-weight:600;letter-spacing:.08em;margin-top:.3rem;">TALLER CREATIVO · DURANGO, MX</p>
+        <p style="font-size:.7rem;color:#9CA3AF;font-weight:600;letter-spacing:.08em;margin-top:.4rem;">TALLER CREATIVO · DURANGO, MX</p>
       </div>
       <p class="foot-copy">Producción audiovisual y estrategia digital. Esta propuesta la construimos nosotros — para que veas exactamente cómo trabajamos antes de contratarnos.<br>
         <a href="https://antemano.com.mx" class="foot-link">antemano.com.mx</a>
@@ -758,172 +787,237 @@ const platillos = [
 
 <!-- PRINT PAGE -->
 <div id="print-pg">
-  <p class="pr-logo">Antemano.</p>
+  <p class="pr-logo"><img src="/logo.png" alt="Antemano" /></p>
   <p class="pr-date">Propuesta: Manual Vivo™ para Grupo Caribe — <span id="pr-date-val"></span></p>
   <h1 class="pr-title">Manual Vivo™</h1>
-  <p class="pr-sub">El sistema operativo de capacitación para Yasuko, Spiral, Ototo y El Caribeño.</p>
+  <p class="pr-sub">El sistema operativo de capacitación para Yasuko, Spiral, Ototo, El Caribeño y Risco.</p>
   <div class="pr-box">
     <p class="pr-box-l">Costo anual del sistema actual — Grupo Caribe</p>
-    <p class="pr-star" id="pr-star">$1,144,560</p>
+    <p class="pr-star" id="pr-star">$1,215,140</p>
     <p class="pr-note">Calculado con tus datos. Ya lo estás pagando — no aparece en ningún reporte.</p>
   </div>
   <div class="pr-steps">
     <div class="pr-step"><span class="pr-step-n">01</span><div><p class="pr-step-t">El Piloto</p><p class="pr-step-d">3 videos en una de tus marcas (sugerido: El Caribeño). Ves la calidad y el sistema funcionando antes de comprometerte a más.</p></div></div>
-    <div class="pr-step"><span class="pr-step-n">02</span><div><p class="pr-step-t">La Biblioteca</p><p class="pr-step-d">Sistema completo por marca con QR por estación. Se escala a las 4 marcas en fases. ~40 % del contenido es reutilizable dentro de El Caribeño.</p></div></div>
-    <div class="pr-step"><span class="pr-step-n">03</span><div><p class="pr-step-t">Mantenimiento (Manual Vivo)</p><p class="pr-step-d">El sistema se mantiene actualizado. Cambios de carta, nuevos platillos, auditoría trimestral. Retainer mensual.</p></div></div>
+    <div class="pr-step"><span class="pr-step-n">02</span><div><p class="pr-step-t">La Biblioteca</p><p class="pr-step-d">Sistema completo por marca con QR por estación. Se escala a las 5 marcas en fases. Por reutilización de bases, cada marca cuesta menos que la anterior.</p></div></div>
+    <div class="pr-step"><span class="pr-step-n">03</span><div><p class="pr-step-t">Mantenimiento (Manual Vivo)</p><p class="pr-step-d">El sistema se mantiene actualizado: cambios de carta, nuevos platillos, auditoría trimestral. A diferencia del papel, no se queda viejo. Retainer mensual.</p></div></div>
   </div>
   <p class="pr-cta">Próximo paso: el Piloto — antemano.com.mx</p>
   <p class="pr-foot">Propuesta privada preparada por Antemano Taller Creativo · Durango, México · antemano.com.mx</p>
 </div>
 
-<script is:inline>
-(function(){
-  /* Reveal */
-  const io = new IntersectionObserver(
-    es => es.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)} }),
-    {threshold:.08,rootMargin:'0px 0px -40px 0px'}
-  );
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+<script>
+  import Lenis from 'lenis';
 
-  /* Sticky nav */
-  const nav = document.getElementById('pnav');
-  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 60), {passive:true});
+  (function () {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Calculator */
-  let displayed = 0, rafId = null, savedTotal = 0;
-  const fmt = n => '$' + Math.round(n).toLocaleString('es-MX');
-  const get = id => parseFloat(document.getElementById(id).value);
-  const setText = (id,v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
-
-  function calc(){
-    const cocineros = get('s-cocineros'), rotacion = get('s-rotacion'),
-          dias = get('s-dias'), hora = get('s-hora'),
-          fcA = get('s-fc-actual'), fcO = get('s-fc-obj'),
-          venta = get('s-venta'), dev = get('s-dev');
-
-    setText('v-cocineros', cocineros);
-    setText('v-rotacion', rotacion);
-    setText('v-dias', dias + ' días');
-    setText('v-hora', '$' + hora + '/hr');
-    setText('v-fc', fcA + '% vs ' + fcO + '%');
-    setText('v-venta', '$' + Math.round(venta/1000) + 'k');
-    setText('v-dev', dev);
-
-    const cap = (dias * 4 * hora + dias * 250) * rotacion;
-    const rot = rotacion * 5000;
-    const mer = Math.max(0, (fcA - fcO) / 100) * venta * 12;
-    const dv  = dev * 280 * 52;
-    const total = cap + rot + mer + dv;
-
-    setText('br-cap', fmt(cap)); setText('br-rot', fmt(rot));
-    setText('br-mer', fmt(mer)); setText('br-dev', fmt(dv));
-
-    const mx = Math.max(cap, rot, mer, dv, 1);
-    ['cap','rot','mer','dev'].forEach((k,i) => {
-      const v = [cap,rot,mer,dv][i];
-      const el = document.getElementById('bar-' + k);
-      if(el) el.style.width = (v/mx*100) + '%';
-    });
-
-    savedTotal = total;
-    animateTo(total);
-    setText('pr-star', fmt(total));
-    setText('star-anchor', fmt(total));
-  }
-
-  function animateTo(target){
-    if(rafId) cancelAnimationFrame(rafId);
-    const start = displayed, diff = target - start, dur = 600, t0 = performance.now();
-    function tick(now){
-      const p = Math.min((now-t0)/dur,1), e = 1-Math.pow(1-p,3);
-      displayed = start + diff*e;
-      setText('star-num', fmt(displayed));
-      if(p<1) rafId = requestAnimationFrame(tick);
-    }
-    rafId = requestAnimationFrame(tick);
-  }
-
-  ['s-cocineros','s-rotacion','s-dias','s-hora','s-fc-actual','s-fc-obj','s-venta','s-dev']
-    .forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('input', calc); });
-  calc();
-
-  /* Explorer */
-  const platData = {
-    'p1':{subs:[2,3,8]},'p2':{subs:[2,3,5,8]},'p3':{subs:[2,3,8]},
-    'p4':{subs:[2,3,7]},'p5':{subs:[2,3,6]},'p6':{subs:[2,11,3]},
-    'p7':{subs:[1,5,8]},'p8':{subs:[10,7,8]},'p9':{subs:[10,7,3]},
-    'p10':{subs:[10,9,8]},'p11':{subs:[1,4,5,8]},'p12':{subs:[4,12,6]},
-    'p13':{subs:[2,3,7]},'p14':{subs:[1,5,3,8]},'p15':{subs:[10,7,3]},
-  };
-  const subNames = {
-    1:'Recado negro',2:'Recado rojo / achiote',3:'Cebolla morada curtida',
-    4:'Habanero tatemado',5:'Frijoles negros colados',6:'Arroz con epazote',
-    7:'Xnipec (salsa habanero)',8:'Masa nixtamalizada',9:'Chipotle adobado',
-    10:'Mojo de ajo caribeño',11:'Escabeche oriental',12:'Salpicón de rábanos',
-  };
-
-  let activeSub = null, activePlat = null;
-  const chips = document.querySelectorAll('.sub-chip');
-  const plats = document.querySelectorAll('.plat-item');
-  const punch = document.getElementById('exp-punch');
-
-  function clearAll(){
-    chips.forEach(c => { c.classList.remove('active'); c.setAttribute('aria-pressed','false'); });
-    plats.forEach(p => { p.classList.remove('active','dimmed'); });
-    document.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.remove('hl'));
-    activeSub = null; activePlat = null;
-    punch.innerHTML = '<strong>Toca "Cebolla morada curtida"</strong> — el mejor ejemplo del sistema.';
-    punch.classList.remove('sel');
-  }
-
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const sid = parseInt(chip.dataset.subId);
-      if(activeSub === sid){ clearAll(); return; }
-      clearAll(); activeSub = sid;
-      chip.classList.add('active'); chip.setAttribute('aria-pressed','true');
-      let count = 0;
-      plats.forEach(p => {
-        const subs = platData[p.dataset.platId]?.subs || [];
-        if(subs.includes(sid)){
-          p.classList.add('active'); count++;
-          p.querySelectorAll('.plat-sub-tag').forEach(t => {
-            if(parseInt(t.dataset.tagSub) === sid) t.classList.add('hl');
-          });
-        } else { p.classList.add('dimmed'); }
+    /* ── Lenis smooth scroll ── */
+    if (!reduce) {
+      const lenis = new Lenis({
+        duration: 1.1,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
       });
-      punch.classList.add('sel');
-      punch.innerHTML = `<strong>1 video de "${subNames[sid]}" = ${count} platillos</strong> — el mismo estándar, reutilizado.`;
+      window.lenis = lenis;
+      document.documentElement.classList.add('has-lenis');
+      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+
+      document.addEventListener('click', (e) => {
+        const a = e.target.closest && e.target.closest('a[href^="#"]');
+        if (!a) return;
+        const hash = a.getAttribute('href');
+        if (!hash || hash.length < 2) return;
+        const target = document.querySelector(hash);
+        if (!target) return;
+        e.preventDefault();
+        lenis.scrollTo(target, { duration: 1.25, offset: -10 });
+        history.pushState(null, '', hash);
+      });
+    }
+
+    /* ── Reveal observer ── */
+    const io = new IntersectionObserver(
+      es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }),
+      { threshold: .12, rootMargin: '0px 0px -50px 0px' }
+    );
+    document.querySelectorAll('.reveal, .reveal-clip').forEach(el => io.observe(el));
+
+    /* ── Sticky nav ── */
+    const nav = document.getElementById('pnav');
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 60);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    /* ── Watermark drift ── */
+    const wms = Array.from(document.querySelectorAll('.wm-track'));
+    if (!reduce && wms.length) {
+      let ticking = false;
+      const driftWM = () => {
+        const vh = window.innerHeight;
+        wms.forEach(wm => {
+          const rect = wm.getBoundingClientRect();
+          if (rect.bottom < -200 || rect.top > vh + 200) return;
+          const p = (vh - rect.top) / (vh + rect.height); // 0..1
+          wm.style.transform = `translateX(${(p - 0.5) * 14}vw)`;
+        });
+        ticking = false;
+      };
+      window.addEventListener('scroll', () => {
+        if (!ticking) { requestAnimationFrame(driftWM); ticking = true; }
+      }, { passive: true });
+      driftWM();
+    }
+
+    /* ── Brand marquee ── */
+    const mq = document.getElementById('mq');
+    const grp = document.getElementById('mq-grp');
+    if (mq && grp && !reduce) {
+      // duplicate enough groups to cover width
+      const clone = () => { const c = grp.cloneNode(true); c.removeAttribute('id'); mq.appendChild(c); };
+      clone(); clone();
+      let x = 0;
+      let groupW = grp.getBoundingClientRect().width;
+      const speed = 0.4;
+      function tick() {
+        x -= speed;
+        if (groupW && Math.abs(x) >= groupW) x += groupW;
+        mq.style.transform = `translateX(${x}px)`;
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(() => { groupW = grp.getBoundingClientRect().width; tick(); });
+      window.addEventListener('resize', () => { groupW = grp.getBoundingClientRect().width; });
+    }
+
+    /* ── Calculator ── */
+    let displayed = 0, rafId = null;
+    const fmt = n => '$' + Math.round(n).toLocaleString('es-MX');
+    const get = id => parseFloat(document.getElementById(id).value);
+    const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+    function calc() {
+      const cocineros = get('s-cocineros'), rotacion = get('s-rotacion'),
+            dias = get('s-dias'), hora = get('s-hora'),
+            fcA = get('s-fc-actual'), fcO = get('s-fc-obj'),
+            venta = get('s-venta'), dev = get('s-dev');
+
+      setText('v-cocineros', cocineros);
+      setText('v-rotacion', rotacion);
+      setText('v-dias', dias + ' días');
+      setText('v-hora', '$' + hora + '/hr');
+      setText('v-fc', fcA + '% vs ' + fcO + '%');
+      setText('v-venta', '$' + Math.round(venta / 1000).toLocaleString('es-MX') + 'k');
+      setText('v-dev', dev);
+
+      const cap = (dias * 4 * hora + dias * 250) * rotacion;
+      const rot = rotacion * 5000;
+      const mer = Math.max(0, (fcA - fcO) / 100) * venta * 12;
+      const dv  = dev * 280 * 52;
+      const total = cap + rot + mer + dv;
+
+      setText('br-cap', fmt(cap)); setText('br-rot', fmt(rot));
+      setText('br-mer', fmt(mer)); setText('br-dev', fmt(dv));
+
+      const mx = Math.max(cap, rot, mer, dv, 1);
+      [['cap', cap], ['rot', rot], ['mer', mer], ['dev', dv]].forEach(([k, v]) => {
+        const el = document.getElementById('bar-' + k);
+        if (el) el.style.width = (v / mx * 100) + '%';
+      });
+
+      animateTo(total);
+      setText('pr-star', fmt(total));
+      setText('star-anchor', fmt(total));
+    }
+
+    function animateTo(target) {
+      if (rafId) cancelAnimationFrame(rafId);
+      const start = displayed, diff = target - start, dur = 600, t0 = performance.now();
+      function step(now) {
+        const p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+        displayed = start + diff * e;
+        setText('star-num', fmt(displayed));
+        if (p < 1) rafId = requestAnimationFrame(step);
+      }
+      rafId = requestAnimationFrame(step);
+    }
+
+    ['s-cocineros','s-rotacion','s-dias','s-hora','s-fc-actual','s-fc-obj','s-venta','s-dev']
+      .forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', calc); });
+    calc();
+
+    /* ── Modular explorer ── */
+    const platData = {};
+    document.querySelectorAll('.plat-item').forEach(el => {
+      platData[el.dataset.platId] = (el.dataset.subs || '').split(',').filter(Boolean).map(Number);
     });
-  });
-
-  plats.forEach(platEl => {
-    platEl.addEventListener('click', () => {
-      const pid = platEl.dataset.platId;
-      if(activePlat === pid){ clearAll(); return; }
-      clearAll(); activePlat = pid;
-      platEl.classList.add('active');
-      const subs = platData[pid]?.subs || [];
-      chips.forEach(c => { if(subs.includes(parseInt(c.dataset.subId))) c.classList.add('active'); });
-      platEl.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.add('hl'));
-      punch.classList.add('sel');
-      punch.innerHTML = `Este platillo usa <strong>${subs.length} subrecetas base</strong> — cada una compartida con otros platillos de la carta.`;
+    const subNames = {};
+    document.querySelectorAll('.sub-chip').forEach(c => {
+      subNames[c.dataset.subId] = c.childNodes[0].textContent.trim();
     });
-  });
 
-  /* Print */
-  const pBtn = document.getElementById('btn-print');
-  if(pBtn) pBtn.addEventListener('click', () => {
-    const d = document.getElementById('pr-date-val');
-    if(d) d.textContent = new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
-    const ps = document.getElementById('pr-star');
-    if(ps) ps.textContent = document.getElementById('star-num').textContent;
-    window.print();
-  });
+    let activeSub = null, activePlat = null;
+    const chips = document.querySelectorAll('.sub-chip');
+    const plats = document.querySelectorAll('.plat-item');
+    const punch = document.getElementById('exp-punch');
 
-  const dv = document.getElementById('pr-date-val');
-  if(dv) dv.textContent = new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
-})();
+    function clearAll() {
+      chips.forEach(c => { c.classList.remove('active'); c.setAttribute('aria-pressed', 'false'); });
+      plats.forEach(p => p.classList.remove('active', 'dimmed'));
+      document.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.remove('hl'));
+      activeSub = null; activePlat = null;
+      punch.innerHTML = '<strong>Toca "Costra de queso"</strong> — el mejor ejemplo del sistema.';
+      punch.classList.remove('sel');
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const sid = parseInt(chip.dataset.subId);
+        if (activeSub === sid) { clearAll(); return; }
+        clearAll(); activeSub = sid;
+        chip.classList.add('active'); chip.setAttribute('aria-pressed', 'true');
+        let count = 0;
+        plats.forEach(p => {
+          const subs = platData[p.dataset.platId] || [];
+          if (subs.includes(sid)) {
+            p.classList.add('active'); count++;
+            p.querySelectorAll('.plat-sub-tag').forEach(t => {
+              if (parseInt(t.dataset.tagSub) === sid) t.classList.add('hl');
+            });
+          } else { p.classList.add('dimmed'); }
+        });
+        punch.classList.add('sel');
+        punch.innerHTML = `<strong>1 video de "${subNames[sid]}" = ${count} platillos</strong> — el mismo estándar, reutilizado.`;
+      });
+    });
+
+    plats.forEach(platEl => {
+      platEl.addEventListener('click', () => {
+        const pid = platEl.dataset.platId;
+        if (activePlat === pid) { clearAll(); return; }
+        clearAll(); activePlat = pid;
+        platEl.classList.add('active');
+        const subs = platData[pid] || [];
+        chips.forEach(c => { if (subs.includes(parseInt(c.dataset.subId))) c.classList.add('active'); });
+        platEl.querySelectorAll('.plat-sub-tag').forEach(t => t.classList.add('hl'));
+        punch.classList.add('sel');
+        punch.innerHTML = `Este platillo se arma con <strong>${subs.length} ${subs.length === 1 ? 'base' : 'bases'}</strong> — cada una compartida con otros platillos de la carta.`;
+      });
+    });
+
+    /* ── Print ── */
+    const stamp = () => {
+      const d = document.getElementById('pr-date-val');
+      if (d) d.textContent = new Date().toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric' });
+    };
+    stamp();
+    const pBtn = document.getElementById('btn-print');
+    if (pBtn) pBtn.addEventListener('click', () => {
+      stamp();
+      const ps = document.getElementById('pr-star');
+      if (ps) ps.textContent = document.getElementById('star-num').textContent;
+      window.print();
+    });
+  })();
 </script>
 </body>
 </html>
