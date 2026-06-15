@@ -12,3 +12,8 @@ Thumbs.db
 .vercel
 .env*.local
 public/WEB ANTEMANO/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
