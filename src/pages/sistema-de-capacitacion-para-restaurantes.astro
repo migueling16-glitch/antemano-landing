@@ -314,7 +314,7 @@
     .prod-feat{background:var(--c);padding:1.75rem 1.5rem;
       display:flex;flex-direction:column;gap:.65rem;transition:background .25s}
     .prod-feat:hover{background:#252525}
-    .pf-icon{font-size:1.4rem;line-height:1}
+    .pf-icon{display:flex;align-items:center;width:22px;height:22px;color:rgba(255,255,255,.65)}
     .pf-t{font-size:.92rem;font-weight:800;color:#fff;line-height:1.3}
     .pf-d{font-size:.8rem;color:rgba(255,255,255,.42);line-height:1.5}
     .prod-result{margin-top:3rem;background:rgba(255,255,255,.04);
@@ -569,10 +569,10 @@
           <span class="ih">Chef o cocinero senior que sale de la línea para capacitar</span>
         </div>
         <div class="ig reveal reveal-d2">
-          <label class="il">Food cost actual vs. objetivo<span class="iv" id="v-fc">35% vs 30%</span></label>
+          <label class="il">Food cost actual vs. objetivo<span class="iv" id="v-fc">35% vs 33%</span></label>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
             <div><input type="range" id="s-fc-actual" min="20" max="60" value="35" step="1" /><span class="ih">Actual</span></div>
-            <div><input type="range" id="s-fc-obj" min="15" max="55" value="30" step="1" /><span class="ih">Objetivo</span></div>
+            <div><input type="range" id="s-fc-obj" min="15" max="55" value="33" step="1" /><span class="ih">Objetivo</span></div>
           </div>
         </div>
         <div class="ig reveal reveal-d2">
@@ -590,7 +590,7 @@
       <div class="calc-out reveal reveal-d1">
         <div>
           <p class="star-ltop">Costo anual del sistema actual — Grupo Caribe</p>
-          <p class="star-num" id="star-num">$1,215,140</p>
+          <p class="star-num" id="star-num">$855,140</p>
           <p class="star-sub">por año — estimado con tus datos del grupo</p>
         </div>
         <div class="breakdown">
@@ -684,9 +684,9 @@
     <div class="layers-grid">
       {[
         { n:'01', t:'Contenido — Tu estándar, filmado para que no se interprete.', d:'Protocolos, subrecetas base y platillos de cada marca, al nivel de producción de Antemano.' },
-        { n:'02', t:'Acceso — La respuesta en la estación, en 3 segundos.', d:'QR en cada puesto. El cocinero escanea y cae al video exacto. Sin apps, sin login, sin buscar.' },
-        { n:'03', t:'Vivo — Cambias la carta el martes, sale parejo el jueves.', d:'Actualizamos el video, el mismo QR apunta a la versión nueva. A diferencia del papel, nunca se queda viejo.' },
-        { n:'04', t:'Medible — Por fin sabes si la capacitación sirve.', d:'Qué módulos se usan, qué rutas se completan, cuánto baja tu onboarding. Lo que el recetario nunca te dijo.' },
+        { n:'02', t:'Acceso — La respuesta en la estación, cuando la necesitan.', d:'QR en cada estación. Tu cocinero escanea y cae al video exacto. Sin apps, sin buscar. El contenido es privado de Grupo Caribe —protegido para que no salga de tus cocinas— sin contraseñas que estorben en la línea.' },
+        { n:'03', t:'Vivo — El estándar siempre actualizado.', d:'Cambias un gramaje o un texto, se actualiza al instante. ¿Platillo nuevo? Se filma en la siguiente ventana de producción y entra al sistema. A diferencia del papel, nunca se queda viejo.' },
+        { n:'04', t:'Medible — Por fin sabes dónde está la fricción.', d:'Sabes qué subrecetas se consultan más —dónde está la fricción real de tu cocina— y qué estaciones necesitan refuerzo. No para vigilar gente: para mejorar procesos. Lo que el recetario nunca te dijo.' },
       ].map(l => (
         <div class="layer-card reveal">
           <div class="layer-n">{l.n}</div>
@@ -739,17 +739,17 @@
     </div>
     <div class="prod-feats reveal">
       {[
-        { icon:'📱', t:'Vertical, para el celular', d:'Se ve en la estación, con una mano, en la pantalla que tu equipo ya trae en la bolsa.' },
-        { icon:'⚡', t:'30–90 segundos por video', d:'Una técnica, un paso, una subreceta. Si es más largo, lo partimos. Cero relleno.' },
-        { icon:'🎯', t:'Hook en 3 segundos', d:'Arranca con el resultado final —el platillo montado, el corte perfecto— para que sepan a dónde van.' },
-        { icon:'📝', t:'Texto y gramajes en pantalla', d:'La cocina es ruidosa y a veces sin sonido. El gramaje y la temperatura se leen, no solo se escuchan.' },
-        { icon:'✅', t:'"Así se ve bien / así se ve mal"', d:'No solo el paso: el criterio. Tu estándar visible, no interpretable por quien esté en turno.' },
-        { icon:'🎬', t:'Color de cine — DaVinci Resolve', d:'La pasta de Spiral y el sashimi de Yasuko merecen producción a la altura de su calidad.' },
-        { icon:'🏷️', t:'Plantilla por marca', d:'Cada restaurante con su identidad. El cocinero sabe al instante si está viendo Yasuko, Spiral o Risco.' },
-        { icon:'🔁', t:'Nunca se queda viejo', d:'Cambia la carta, actualizamos el video. El mismo QR apunta a la versión nueva. Lo contrario del papel.' },
+        { icon:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>', t:'Vertical, para el celular', d:'Se ve en la estación, con una mano, en la pantalla que tu equipo ya trae en la bolsa.' },
+        { icon:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', t:'30–90 segundos por video', d:'Una técnica, un paso, una subreceta. Si es más largo, lo partimos. Cero relleno.' },
+        { icon:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>', t:'Hook en 3 segundos', d:'Arranca con el resultado final —el platillo montado, el corte perfecto— para que sepan a dónde van.' },
+        { icon:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>', t:'Texto y gramajes en pantalla', d:'La cocina es ruidosa y a veces sin sonido. El gramaje y la temperatura se leen, no solo se escuchan.' },
+        { icon:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>', t:'"Así se ve bien / así se ve mal"', d:'No solo el paso: el criterio. Tu estándar visible, no interpretable por quien esté en turno.' },
+        { icon:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>', t:'Color de cine — DaVinci Resolve', d:'La pasta de Spiral y el sashimi de Yasuko merecen producción a la altura de su calidad.' },
+        { icon:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg>', t:'Plantilla por marca', d:'Cada restaurante con su identidad. El cocinero sabe al instante si está viendo Yasuko, Spiral o Risco.' },
+        { icon:'<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>', t:'Nunca se queda viejo', d:'Cambias un gramaje o un texto, el sistema se actualiza. Para platillos nuevos, los filmamos en la siguiente ventana de producción. Lo contrario del papel.' },
       ].map(f => (
         <div class="prod-feat reveal">
-          <div class="pf-icon">{f.icon}</div>
+          <div class="pf-icon" set:html={f.icon}></div>
           <div class="pf-t">{f.t}</div>
           <div class="pf-d">{f.d}</div>
         </div>
@@ -788,7 +788,7 @@
       </div>
     </div>
     <div class="offer-anchor reveal" style="margin-top:2.5rem;">
-      <p>Arriba calculaste que el sistema actual le cuesta al grupo <span id="star-anchor">$1,215,140</span> al año. Manual Vivo cuesta una fracción de eso. Y a diferencia de ese costo, este sí lo ves, lo controlas y <strong>construye un activo que es de Grupo Caribe.</strong></p>
+      <p>Arriba calculaste que el sistema actual le cuesta al grupo <span id="star-anchor">$855,140</span> al año. Manual Vivo cuesta una fracción de eso. Y a diferencia de ese costo, este sí lo ves, lo controlas y <strong>construye un activo que es de Grupo Caribe.</strong></p>
     </div>
     <div class="offer-prop reveal">
       <strong>Las recetas son de Grupo Caribe.</strong> Tu IP, en tu cuenta, la ves cuando quieras. Nosotros aportamos el sistema, la producción y el mantenimiento. No te tenemos de rehén; te tenemos como socio.
@@ -806,7 +806,7 @@
     </h2>
     <p class="cta-sub reveal reveal-d2" style="margin-top:1.25rem;">El siguiente movimiento no es firmar la biblioteca completa. Es el Piloto: 3 videos en una de tus marcas, y lo ves con tus propios ojos.<br>Si no te convence lo que producimos, no seguimos. Así de simple.</p>
     <div class="cta-btns reveal reveal-d2">
-      <a href="https://wa.me/526181234567" class="btn btn-light">Quiero el Piloto →</a>
+      <a href="https://wa.me/5216181539643?text=Hola%2C%20vi%20la%20propuesta%20de%20Manual%20Vivo%20y%20quiero%20el%20Piloto" class="btn btn-light">Quiero el Piloto →</a>
       <button class="btn btn-outline" id="btn-print" type="button">Descargar resumen para mis socios</button>
     </div>
     <p class="cta-note reveal reveal-d3">Tres videos terminados. Ves el sistema funcionando. Ves la calidad. Luego decides si escalamos.</p>
@@ -836,7 +836,7 @@
   <p class="pr-sub">El sistema operativo de capacitación para Yasuko, Spiral, Ototo, El Caribeño y Risco.</p>
   <div class="pr-box">
     <p class="pr-box-l">Costo anual del sistema actual — Grupo Caribe</p>
-    <p class="pr-star" id="pr-star">$1,215,140</p>
+    <p class="pr-star" id="pr-star">$855,140</p>
     <p class="pr-note">Calculado con tus datos. Ya lo estás pagando — no aparece en ningún reporte.</p>
   </div>
   <div class="pr-steps">
