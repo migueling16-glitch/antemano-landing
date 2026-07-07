@@ -1,181 +1,506 @@
 ---
 import WomenaLayout from '../../layouts/WomenaLayout.astro';
 import ProductGrid from '../../components/womena/ProductGrid.astro';
+import CartDrawer from '../../components/womena/CartDrawer.astro';
+import products from '../../data/products.json';
+
+// Trazo "W" del isotipo para el hero (ref. brandbook p. 25/26)
+const heroSquiggle =
+  'M40 200 C70 60, 130 40, 150 130 C168 210, 220 220, 250 120 C270 55, 320 50, 335 120 C350 190, 400 175, 430 90 C450 35, 500 40, 510 80';
 ---
 
 <WomenaLayout>
 
-  <!-- ─── HEADER ────────────────────────────────────────────────────── -->
-  <header class="sticky top-0 z-50 bg-womena-cream/95 backdrop-blur-sm border-b border-womena-olive/25">
-    <nav class="max-w-6xl mx-auto px-6 lg:px-16 h-16 flex items-center justify-between">
-      <a href="/womena" class="block" aria-label="Womena — inicio">
-        <img
-          src="/womena-logo-terra.png"
-          alt="Womena"
-          class="h-8 w-auto mix-blend-multiply"
-        />
+  <!-- ═══ ANNOUNCEMENT BAR ═══════════════════════════════════════════ -->
+  <div class="bg-womena-terra text-center py-2.5 px-4">
+    <p class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-womena-cream/90">
+      Envío gratis en pedidos +$999 MXN &nbsp;·&nbsp; Hecho en México
+    </p>
+  </div>
+
+  <!-- ═══ HEADER (sticky, hide-on-scroll) ═══════════════════════════ -->
+  <header id="w-header" class="sticky top-0 z-[70] bg-womena-cream/95 backdrop-blur-sm border-b border-womena-olive/25">
+    <nav class="max-w-6xl mx-auto px-6 lg:px-16 h-16 flex items-center justify-between gap-6">
+      <a href="/womena" class="block shrink-0" aria-label="Womena — inicio">
+        <img src="/womena-logo-terra.png" alt="Womena" class="h-8 w-auto mix-blend-multiply" />
       </a>
-      <div class="hidden md:flex items-center gap-8">
-        <a href="#productos" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-stone-500 hover:text-womena-terra transition-colors duration-300">
-          Productos
-        </a>
-        <a href="#nosotros" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-stone-500 hover:text-womena-terra transition-colors duration-300">
-          Nosotros
-        </a>
-        <a href="#" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] border border-stone-900 text-stone-900 px-5 py-2.5 hover:bg-stone-900 hover:text-womena-cream transition-colors duration-300">
-          Tienda
-        </a>
+
+      <div class="hidden md:flex items-center gap-9">
+        <a href="#productos" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-womena-dark/55 hover:text-womena-terra transition-colors duration-300">Tienda</a>
+        <a href="#ritual" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-womena-dark/55 hover:text-womena-terra transition-colors duration-300">Rituales</a>
+        <a href="#nosotros" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-womena-dark/55 hover:text-womena-terra transition-colors duration-300">Nosotros</a>
       </div>
-      <!-- Mobile menu icon -->
-      <button class="md:hidden font-womena-mono text-[10px] uppercase tracking-widest text-stone-500" aria-label="Menú">
-        ☰
-      </button>
+
+      <div class="flex items-center gap-2">
+        <!-- Cart trigger -->
+        <button
+          type="button"
+          id="cart-open"
+          class="relative w-10 h-10 flex items-center justify-center text-womena-dark hover:text-womena-terra transition-colors cursor-pointer"
+          aria-label="Abrir carrito"
+        >
+          <svg viewBox="0 0 22 22" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M5 7h12l-1 11H6L5 7z" stroke-linejoin="round" />
+            <path d="M8 9V6a3 3 0 016 0v3" stroke-linecap="round" />
+          </svg>
+          <span
+            id="cart-count"
+            class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-womena-terra text-womena-cream font-womena-mono text-[9px] leading-4 text-center rounded-full scale-0 transition-transform duration-300"
+          >0</span>
+        </button>
+
+        <!-- Mobile menu trigger -->
+        <button
+          type="button"
+          id="menu-open"
+          class="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-[5px] cursor-pointer"
+          aria-label="Abrir menú"
+          aria-expanded="false"
+        >
+          <span class="block w-5 h-px bg-womena-dark"></span>
+          <span class="block w-5 h-px bg-womena-dark"></span>
+        </button>
+      </div>
     </nav>
   </header>
 
-  <!-- ─── HERO ──────────────────────────────────────────────────────── -->
-  <section class="bg-womena-olive min-h-[88vh] flex items-center px-6 lg:px-16">
-    <div class="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-24 items-center py-24 lg:py-32">
-
-      <!-- Left: tagline -->
-      <div>
-        <span class="font-womena-mono text-[10px] uppercase tracking-[0.25em] text-womena-cream/50 block mb-10">
-          Wellness Consciente · México
-        </span>
-        <h1 class="font-womena-serif text-[clamp(2.8rem,7vw,5.5rem)] text-womena-cream leading-[1.08] font-light">
-          For women<br />
-          who choose<br />
-          <em>conscious living.</em>
-        </h1>
-      </div>
-
-      <!-- Right: descriptor + CTA -->
-      <div class="lg:text-right flex flex-col items-start lg:items-end gap-10">
-        <p class="font-womena-mono text-xs text-womena-cream/60 leading-relaxed max-w-[300px]">
-          Un hub que reúne marcas mexicanas que comparten una misma visión: volver a lo natural con intención.
-        </p>
-        <a
-          href="#productos"
-          class="font-womena-mono text-[10px] uppercase tracking-[0.22em] border border-womena-cream text-womena-cream px-8 py-4 hover:bg-womena-cream hover:text-stone-900 transition-colors duration-300"
-        >
-          Explorar colección
-        </a>
-        <!-- Scroll indicator -->
-        <div class="flex items-center gap-3 text-womena-cream/30">
-          <div class="w-px h-10 bg-womena-cream/20"></div>
-          <span class="font-womena-mono text-[9px] uppercase tracking-widest">Scroll</span>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ─── VALUES MARQUEE ────────────────────────────────────────────── -->
-  <div class="bg-womena-terra py-4 overflow-hidden select-none" aria-hidden="true">
-    <div class="flex animate-womena-marquee whitespace-nowrap">
-      {Array.from({ length: 2 }).map(() => (
-        <span class="font-womena-mono text-[9px] uppercase tracking-[0.28em] text-womena-cream/70 shrink-0 pr-12">
-          Cuerpo &nbsp;·&nbsp; Mente &nbsp;·&nbsp; Ritual &nbsp;·&nbsp; Equilibrio &nbsp;·&nbsp; Natural &nbsp;·&nbsp; México &nbsp;·&nbsp; Intención &nbsp;·&nbsp; Bienestar &nbsp;·&nbsp; Sin químicos &nbsp;·&nbsp; Hecho en México &nbsp;·&nbsp; Energía femenina &nbsp;·&nbsp;
-        </span>
-      ))}
-    </div>
+  <!-- Mobile menu panel -->
+  <div id="mobile-menu" class="fixed top-0 inset-x-0 z-[60] bg-womena-cream border-b border-womena-olive/30 pt-28 pb-10 px-8 md:hidden">
+    <nav class="flex flex-col gap-7">
+      <a href="#productos" class="menu-link w-display text-3xl text-womena-dark hover:text-womena-terra transition-colors">Tienda</a>
+      <a href="#ritual" class="menu-link w-display text-3xl text-womena-dark hover:text-womena-terra transition-colors">Rituales</a>
+      <a href="#nosotros" class="menu-link w-display text-3xl text-womena-dark hover:text-womena-terra transition-colors">Nosotros</a>
+      <span class="font-womena-mono text-[9px] uppercase tracking-[0.24em] text-womena-dark/40 mt-4">For women who choose conscious living.</span>
+    </nav>
   </div>
 
-  <!-- ─── PRODUCT GRID ──────────────────────────────────────────────── -->
-  <ProductGrid />
+  <main>
 
-  <!-- ─── ABOUT / CONTEXTO ──────────────────────────────────────────── -->
-  <section id="nosotros" class="py-28 px-6 lg:px-16 bg-white">
-    <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-28 items-center">
+    <!-- ═══ HERO — composición del brandbook (p. 26) ═════════════════ -->
+    <section class="relative bg-womena-olive min-h-[92vh] flex items-center justify-center overflow-hidden px-6">
+      <!-- Squiggle W dibujándose -->
+      <svg
+        viewBox="0 0 560 260"
+        class="absolute w-[130%] max-w-none sm:w-[85%] sm:max-w-3xl opacity-80"
+        style="top: 50%; left: 50%; transform: translate(-50%, -62%);"
+        aria-hidden="true"
+        fill="none"
+      >
+        <path d={heroSquiggle} class="squiggle-path" stroke="#94523E" stroke-width="2.5" stroke-linecap="round" />
+      </svg>
 
-      <!-- Text side -->
-      <div>
-        <span class="font-womena-mono text-[10px] uppercase tracking-[0.22em] text-womena-terra/50 block mb-8">
-          Contexto
-        </span>
-        <h2 class="font-womena-serif text-4xl lg:text-5xl text-stone-900 font-light leading-tight mb-10">
-          Reconectar con tu<br />
-          <em>naturaleza más pura.</em>
-        </h2>
-        <div class="space-y-5">
-          <p class="font-womena-mono text-[11px] text-stone-500 leading-[1.9]">
-            Womena nace del deseo de reconectar a la mujer con su naturaleza más pura. Un espacio que celebra el bienestar desde lo esencial: el cuerpo, la mente y los rituales que los unen.
-          </p>
-          <p class="font-womena-mono text-[11px] text-stone-500 leading-[1.9]">
-            Aquí, cada producto cuenta una historia consciente —libre de químicos, de prisas y de ruido— creada para cuidar desde el origen.
-          </p>
+      <div class="relative max-w-4xl mx-auto text-center py-32">
+        <!-- Tagline disperso en mono (composición staggered del brandbook) -->
+        <div class="font-womena-mono text-[11px] sm:text-xs uppercase tracking-[0.2em] text-womena-cream/85 mb-10 leading-none" aria-label="For women who choose conscious living">
+          <span class="hero-in inline-block" style="animation-delay:.15s" aria-hidden="true">For women</span><br />
+          <span class="hero-in inline-block mt-3 ml-[14vw] sm:ml-36" style="animation-delay:.3s" aria-hidden="true">who choose</span><br />
+          <span class="hero-in inline-block mt-3 -ml-[8vw] sm:-ml-16" style="animation-delay:.45s" aria-hidden="true">conscious</span>
+          <span class="hero-in inline-block mt-3 ml-[16vw] sm:ml-40" style="animation-delay:.6s" aria-hidden="true">living.</span>
+        </div>
+
+        <!-- Título display -->
+        <h1 class="hero-in w-display text-[clamp(3rem,10vw,7rem)] text-womena-cream leading-none" style="animation-delay:.75s; letter-spacing:0.08em;">
+          Wellness Hub
+        </h1>
+
+        <!-- Isotipo: dos soles -->
+        <div class="hero-in flex items-center justify-center gap-1 mt-8 text-womena-terra" style="animation-delay:.95s" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current"><path d="M12 2c1 3-1 4 0 6s3 1 4-1c0 3-2 4-1 6s3 2 5 1c-2 2-4 1-5 3s0 4 2 5c-3 0-4-2-6-1s-2 3-1 5c-2-2-1-4-3-5s-4 0-5 2c0-3 2-4 1-6s-3-2-5-1c2-2 4-1 5-3s0-4-2-5c3 0 4 2 6 1s2-3 1-5c2 2 1 4 3 5z"/></svg>
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current rotate-45"><path d="M12 2c1 3-1 4 0 6s3 1 4-1c0 3-2 4-1 6s3 2 5 1c-2 2-4 1-5 3s0 4 2 5c-3 0-4-2-6-1s-2 3-1 5c-2-2-1-4-3-5s-4 0-5 2c0-3 2-4 1-6s-3-2-5-1c2-2 4-1 5-3s0-4-2-5c3 0 4 2 6 1s2-3 1-5c2 2 1 4 3 5z"/></svg>
+        </div>
+
+        <!-- CTAs -->
+        <div class="hero-in flex flex-col sm:flex-row items-center justify-center gap-4 mt-12" style="animation-delay:1.1s">
+          <a
+            href="#productos"
+            class="font-womena-mono text-[10px] uppercase tracking-[0.22em] bg-womena-dark text-womena-cream px-9 py-4 hover:bg-womena-terra transition-colors duration-300"
+          >
+            Explorar colección
+          </a>
+          <a
+            href="#nosotros"
+            class="font-womena-mono text-[10px] uppercase tracking-[0.22em] text-womena-cream/80 border-b border-womena-cream/40 pb-1 hover:text-womena-cream hover:border-womena-cream transition-colors duration-300"
+          >
+            Nuestra visión
+          </a>
         </div>
       </div>
 
-      <!-- Quote block -->
-      <div class="bg-womena-cream/50 border border-womena-olive/20 p-14 lg:p-16 flex flex-col justify-between min-h-[320px]">
-        <div class="w-6 h-px bg-womena-terra/40 mb-10"></div>
-        <blockquote class="font-womena-serif text-2xl lg:text-3xl text-stone-700 italic font-light leading-snug">
-          "La de volver a lo natural con intención."
-        </blockquote>
-        <div class="mt-10">
-          <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-400">— Visión Womena</span>
+      <!-- Scroll cue -->
+      <div class="hero-in absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-womena-cream/40" style="animation-delay:1.4s" aria-hidden="true">
+        <span class="font-womena-mono text-[8px] uppercase tracking-[0.3em]">Scroll</span>
+        <span class="block w-px h-8 bg-womena-cream/30"></span>
+      </div>
+    </section>
+
+    <!-- ═══ MARQUEE — wordmark outline (brandbook p. 22) ══════════════ -->
+    <div class="bg-womena-cream border-b border-womena-olive/25 py-5 overflow-hidden select-none" aria-hidden="true">
+      <div class="marquee-track flex animate-womena-marquee-slow whitespace-nowrap items-center">
+        {Array.from({ length: 2 }).map(() => (
+          <span class="shrink-0 flex items-center">
+            {Array.from({ length: 4 }).map(() => (
+              <>
+                <span class="w-display w-outline text-4xl lg:text-5xl px-6">Womena</span>
+                <svg viewBox="0 0 24 24" class="w-4 h-4 fill-womena-terra shrink-0"><path d="M12 2c1 3-1 4 0 6s3 1 4-1c0 3-2 4-1 6s3 2 5 1c-2 2-4 1-5 3s0 4 2 5c-3 0-4-2-6-1s-2 3-1 5c-2-2-1-4-3-5s-4 0-5 2c0-3 2-4 1-6s-3-2-5-1c2-2 4-1 5-3s0-4-2-5c3 0 4 2 6 1s2-3 1-5c2 2 1 4 3 5z"/></svg>
+              </>
+            ))}
+          </span>
+        ))}
+      </div>
+    </div>
+
+    <!-- ═══ PRODUCT GRID ══════════════════════════════════════════════ -->
+    <ProductGrid />
+
+    <!-- ═══ WORDMARK CROP — recurso de packaging (brandbook p. 39) ════ -->
+    <section class="bg-womena-terra overflow-hidden relative h-44 lg:h-64" aria-hidden="true">
+      <img
+        src="/womena-logo-terra.png"
+        alt=""
+        class="absolute left-1/2 top-1/2 w-[140%] max-w-none -translate-x-1/2 -translate-y-[30%] brightness-0 invert opacity-[0.92] pointer-events-none"
+        style="filter: brightness(0) saturate(100%) invert(94%) sepia(18%) saturate(486%) hue-rotate(15deg) brightness(103%);"
+        loading="lazy"
+      />
+    </section>
+
+    <!-- ═══ NOSOTROS / CONTEXTO ═══════════════════════════════════════ -->
+    <section id="nosotros" class="py-24 lg:py-32 px-6 lg:px-16 bg-white">
+      <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 lg:gap-24 items-center">
+
+        <div>
+          <span class="rv font-womena-mono text-[10px] uppercase tracking-[0.24em] text-womena-terra/60 block mb-6">✳ Contexto</span>
+          <h2 class="rv w-display text-3xl lg:text-5xl text-womena-dark mb-9" style="--d:1">
+            Rooted in<br />femininity
+          </h2>
+          <div class="space-y-5 max-w-lg">
+            <p class="rv font-womena-mono text-[11px] text-womena-dark/55 leading-[2]" style="--d:2">
+              Womena nace del deseo de reconectar a la mujer con su naturaleza más pura. Un espacio que celebra el bienestar desde lo esencial: el cuerpo, la mente y los rituales que los unen.
+            </p>
+            <p class="rv font-womena-mono text-[11px] text-womena-dark/55 leading-[2]" style="--d:3">
+              Cada producto cuenta una historia consciente —libre de químicos, de prisas y de ruido— creada para cuidar desde el origen.
+            </p>
+          </div>
+        </div>
+
+        <!-- Bloque visual: wordmark oversized recortado sobre olive -->
+        <div class="rv-scale relative bg-womena-olive overflow-hidden aspect-[4/3] flex items-end" style="--d:2">
+          <img
+            src="/womena-logo-terra.png"
+            alt=""
+            class="absolute w-[135%] max-w-none -left-[12%] -top-[10%] mix-blend-multiply opacity-90 pointer-events-none"
+            loading="lazy"
+            aria-hidden="true"
+          />
+          <div class="relative p-8 w-full bg-gradient-to-t from-womena-dark/45 to-transparent">
+            <p class="font-womena-mono text-[10px] uppercase tracking-[0.22em] text-womena-cream leading-[2.2]">
+              Marcas mexicanas.<br />Una misma visión:<br />volver a lo natural con intención.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══ RITUAL / BENEFICIOS ═══════════════════════════════════════ -->
+    <section id="ritual" class="py-20 lg:py-24 px-6 lg:px-16 bg-womena-olive/15 border-y border-womena-olive/25">
+      <div class="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8 text-center">
+        {[
+          ['Libre de químicos', 'Fórmulas limpias, sin ruido'],
+          ['Hecho en México', 'Marcas locales con propósito'],
+          ['Ingredientes reales', 'Procesos nobles y trazables'],
+          ['Envíos nacionales', 'Gratis desde $999 MXN'],
+        ].map(([title, sub], i) => (
+          <div class="rv flex flex-col items-center gap-4" style={`--d:${i}`}>
+            <svg viewBox="0 0 24 24" class="w-6 h-6 fill-womena-terra" aria-hidden="true"><path d="M12 2c1 3-1 4 0 6s3 1 4-1c0 3-2 4-1 6s3 2 5 1c-2 2-4 1-5 3s0 4 2 5c-3 0-4-2-6-1s-2 3-1 5c-2-2-1-4-3-5s-4 0-5 2c0-3 2-4 1-6s-3-2-5-1c2-2 4-1 5-3s0-4-2-5c3 0 4 2 6 1s2-3 1-5c2 2 1 4 3 5z"/></svg>
+            <h3 class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-womena-dark">{title}</h3>
+            <p class="font-womena-serif italic text-sm text-womena-dark/50 font-light">{sub}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ═══ VISIÓN (fondo dark cálido — brandbook pp. 19/37) ══════════ -->
+    <section class="bg-womena-dark py-28 lg:py-36 px-6 lg:px-16 relative overflow-hidden">
+      <svg viewBox="0 0 560 260" class="absolute -right-24 -bottom-16 w-[420px] opacity-[0.13]" aria-hidden="true" fill="none">
+        <path d={heroSquiggle} stroke="#EFECBD" stroke-width="3" stroke-linecap="round" />
+      </svg>
+      <div class="max-w-3xl mx-auto text-center relative">
+        <span class="rv font-womena-mono text-[10px] uppercase tracking-[0.26em] text-womena-cream/40 block mb-8">Visión</span>
+        <p class="rv font-womena-serif text-2xl lg:text-4xl text-womena-cream/90 font-light italic leading-snug" style="--d:1">
+          "Ser un espacio que conecta a mujeres conscientes, inspirándolas a cuidarse desde la autenticidad y el equilibrio."
+        </p>
+        <div class="rv flex items-center justify-center gap-1 mt-10 text-womena-terra" style="--d:2" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current"><path d="M12 2c1 3-1 4 0 6s3 1 4-1c0 3-2 4-1 6s3 2 5 1c-2 2-4 1-5 3s0 4 2 5c-3 0-4-2-6-1s-2 3-1 5c-2-2-1-4-3-5s-4 0-5 2c0-3 2-4 1-6s-3-2-5-1c2-2 4-1 5-3s0-4-2-5c3 0 4 2 6 1s2-3 1-5c2 2 1 4 3 5z"/></svg>
         </div>
       </div>
+    </section>
 
-    </div>
-  </section>
+    <!-- ═══ NEWSLETTER ════════════════════════════════════════════════ -->
+    <section class="py-24 lg:py-28 px-6 lg:px-16 bg-womena-cream">
+      <div class="max-w-xl mx-auto text-center">
+        <h2 class="rv w-display text-2xl lg:text-4xl text-womena-dark mb-4">Únete al ritual</h2>
+        <p class="rv font-womena-serif italic text-womena-dark/50 font-light text-lg mb-10" style="--d:1">
+          Lanzamientos, rituales y 10% en tu primer pedido.
+        </p>
+        <form id="newsletter-form" class="rv flex flex-col sm:flex-row gap-3" style="--d:2" novalidate>
+          <label class="sr-only" for="nl-email">Correo electrónico</label>
+          <input
+            id="nl-email"
+            type="email"
+            required
+            placeholder="TU@CORREO.COM"
+            class="flex-1 bg-white border border-womena-olive/30 px-5 py-4 font-womena-mono text-[11px] tracking-[0.14em] uppercase text-womena-dark placeholder:text-womena-dark/30 focus:border-womena-terra transition-colors"
+          />
+          <button
+            type="submit"
+            class="bg-womena-dark text-womena-cream font-womena-mono text-[10px] uppercase tracking-[0.22em] px-8 py-4 hover:bg-womena-terra transition-colors duration-300 cursor-pointer"
+          >
+            Suscribirme
+          </button>
+        </form>
+        <p id="newsletter-ok" class="hidden font-womena-mono text-[10px] uppercase tracking-[0.2em] text-womena-terra mt-6">
+          ✳ Bienvenida al ritual. Revisa tu correo.
+        </p>
+      </div>
+    </section>
 
-  <!-- ─── VISION STRIP ──────────────────────────────────────────────── -->
-  <section class="bg-womena-olive/20 border-y border-womena-olive/20 py-20 px-6 lg:px-16">
-    <div class="max-w-6xl mx-auto text-center">
-      <span class="font-womena-mono text-[10px] uppercase tracking-[0.22em] text-womena-terra/50 block mb-6">
-        Visión
-      </span>
-      <p class="font-womena-serif text-2xl lg:text-3xl text-stone-800 font-light italic leading-relaxed max-w-3xl mx-auto">
-        "Ser un espacio que conecta a mujeres conscientes, inspirándolas a cuidarse desde la autenticidad y el equilibrio."
-      </p>
-    </div>
-  </section>
+  </main>
 
-  <!-- ─── FOOTER ────────────────────────────────────────────────────── -->
-  <footer class="bg-stone-900 py-16 px-6 lg:px-16">
+  <!-- ═══ FOOTER (dark cálido Pantone 5747C) ══════════════════════════ -->
+  <footer class="bg-womena-dark py-16 lg:py-20 px-6 lg:px-16">
     <div class="max-w-6xl mx-auto">
 
-      <div class="flex flex-col md:flex-row justify-between items-start gap-12 pb-12 border-b border-stone-700/50">
-        <!-- Brand -->
+      <div class="flex flex-col md:flex-row justify-between items-start gap-12 pb-12 border-b border-womena-cream/10">
         <div>
-          <img
-          src="/womena-logo-terra.png"
-          alt="Womena"
-          class="h-8 w-auto mb-3 brightness-0 invert opacity-80"
-        />
-          <p class="font-womena-mono text-[10px] text-stone-400 max-w-xs leading-[1.8] uppercase tracking-wider">
-            Wellness consciente.<br />
-            Marcas mexicanas con propósito.
+          <img src="/womena-logo-terra.png" alt="Womena" class="h-9 w-auto mb-4 brightness-0 invert opacity-90" loading="lazy" />
+          <p class="font-womena-mono text-[10px] text-womena-cream/40 max-w-xs leading-[2] uppercase tracking-wider">
+            Wellness hub.<br />
+            For women who choose conscious living.
           </p>
         </div>
 
-        <!-- Nav links -->
-        <div class="flex gap-12">
-          <div class="flex flex-col gap-3">
-            <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-500 mb-1">Tienda</span>
-            <a href="#" class="font-womena-mono text-[10px] text-stone-400 hover:text-womena-cream transition-colors">Productos</a>
-            <a href="#" class="font-womena-mono text-[10px] text-stone-400 hover:text-womena-cream transition-colors">Colección</a>
+        <div class="flex gap-14 lg:gap-20">
+          <div class="flex flex-col gap-3.5">
+            <span class="font-womena-mono text-[9px] uppercase tracking-[0.24em] text-womena-cream/30 mb-1">Tienda</span>
+            <a href="#productos" class="font-womena-mono text-[10px] uppercase tracking-wider text-womena-cream/60 hover:text-womena-cream transition-colors">Productos</a>
+            <a href="#ritual" class="font-womena-mono text-[10px] uppercase tracking-wider text-womena-cream/60 hover:text-womena-cream transition-colors">Rituales</a>
           </div>
-          <div class="flex flex-col gap-3">
-            <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-500 mb-1">Marca</span>
-            <a href="#nosotros" class="font-womena-mono text-[10px] text-stone-400 hover:text-womena-cream transition-colors">Nosotros</a>
-            <a href="#" class="font-womena-mono text-[10px] text-stone-400 hover:text-womena-cream transition-colors">Contacto</a>
+          <div class="flex flex-col gap-3.5">
+            <span class="font-womena-mono text-[9px] uppercase tracking-[0.24em] text-womena-cream/30 mb-1">Marca</span>
+            <a href="#nosotros" class="font-womena-mono text-[10px] uppercase tracking-wider text-womena-cream/60 hover:text-womena-cream transition-colors">Nosotros</a>
+            <a href="#" class="font-womena-mono text-[10px] uppercase tracking-wider text-womena-cream/60 hover:text-womena-cream transition-colors">Contacto</a>
+          </div>
+          <div class="flex flex-col gap-3.5">
+            <span class="font-womena-mono text-[9px] uppercase tracking-[0.24em] text-womena-cream/30 mb-1">Social</span>
+            <a href="#" class="font-womena-mono text-[10px] uppercase tracking-wider text-womena-cream/60 hover:text-womena-cream transition-colors">Instagram</a>
+            <a href="#" class="font-womena-mono text-[10px] uppercase tracking-wider text-womena-cream/60 hover:text-womena-cream transition-colors">TikTok</a>
           </div>
         </div>
       </div>
 
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-8">
-        <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-600">
-          © 2025 Womena · México
-        </span>
-        <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-600">
-          Hecho con intención.
-        </span>
+        <span class="font-womena-mono text-[9px] uppercase tracking-[0.24em] text-womena-cream/25">© 2025 Womena · México</span>
+        <span class="font-womena-mono text-[9px] uppercase tracking-[0.24em] text-womena-cream/25">Pago seguro · Hecho con intención</span>
       </div>
 
     </div>
   </footer>
+
+  <!-- ═══ CART DRAWER ═════════════════════════════════════════════════ -->
+  <CartDrawer />
+
+  <!-- Toast -->
+  <div id="toast" class="w-toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-womena-dark text-womena-cream font-womena-mono text-[10px] uppercase tracking-[0.18em] px-6 py-3.5 pointer-events-none whitespace-nowrap"></div>
+
+  <!-- Datos de producto para el carrito -->
+  <script type="application/json" id="womena-products" set:html={JSON.stringify(products)} />
+
+  <script>
+    // ═══ Datos ══════════════════════════════════════════════════════
+    const products = JSON.parse(document.getElementById('womena-products')!.textContent!) as
+      { id: number; name: string; category: string; price: number; weight?: string }[];
+    const byId = (id: number) => products.find((p) => p.id === id)!;
+    const FREE_SHIPPING = 999;
+    const fmt = (n: number) => `$${n.toLocaleString('es-MX')}`;
+
+    // ═══ Estado del carrito (localStorage) ═════════════════════════
+    type Cart = Record<string, number>;
+    const loadCart = (): Cart => {
+      try { return JSON.parse(localStorage.getItem('womena_cart') || '{}'); } catch { return {}; }
+    };
+    let cart: Cart = loadCart();
+    const saveCart = () => localStorage.setItem('womena_cart', JSON.stringify(cart));
+    const cartQty = () => Object.values(cart).reduce((a, b) => a + b, 0);
+    const cartTotal = () => Object.entries(cart).reduce((sum, [id, q]) => sum + byId(+id).price * q, 0);
+
+    // ═══ Referencias UI ═════════════════════════════════════════════
+    const drawer = document.getElementById('cart-drawer')!;
+    const backdrop = document.getElementById('cart-backdrop')!;
+    const itemsEl = document.getElementById('cart-items')!;
+    const emptyEl = document.getElementById('cart-empty')!;
+    const footerEl = document.getElementById('cart-footer')!;
+    const subtotalEl = document.getElementById('cart-subtotal')!;
+    const countEl = document.getElementById('cart-count')!;
+    const countLabel = document.getElementById('cart-count-label')!;
+    const shipMsg = document.getElementById('shipping-msg')!;
+    const shipBar = document.getElementById('shipping-bar')!;
+    const toast = document.getElementById('toast')!;
+
+    let toastTimer: ReturnType<typeof setTimeout>;
+    function showToast(msg: string) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // ═══ Render del carrito ═════════════════════════════════════════
+    function renderCart() {
+      const qty = cartQty();
+      const total = cartTotal();
+
+      countEl.textContent = String(qty);
+      countEl.style.transform = qty > 0 ? 'scale(1)' : 'scale(0)';
+      countLabel.textContent = qty > 0 ? `(${qty})` : '';
+
+      const isEmpty = qty === 0;
+      itemsEl.style.display = isEmpty ? 'none' : '';
+      footerEl.style.display = isEmpty ? 'none' : '';
+      emptyEl.style.display = isEmpty ? 'flex' : 'none';
+
+      // Progreso de envío gratis
+      const remaining = Math.max(0, FREE_SHIPPING - total);
+      shipBar.style.width = `${Math.min(100, (total / FREE_SHIPPING) * 100)}%`;
+      shipMsg.textContent = remaining > 0
+        ? `Te faltan ${fmt(remaining)} para envío gratis`
+        : '✳ Tienes envío gratis';
+
+      subtotalEl.textContent = fmt(total);
+
+      itemsEl.innerHTML = Object.entries(cart).map(([id, q]) => {
+        const p = byId(+id);
+        return `
+          <div class="flex gap-4 items-start">
+            <div class="w-16 h-20 bg-white border border-womena-olive/20 shrink-0 flex items-center justify-center">
+              <span class="font-womena-serif italic text-womena-terra text-lg">${p.name.charAt(0)}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-womena-mono text-[9px] uppercase tracking-[0.16em] text-womena-terra/60 mb-1">${p.category}</p>
+              <p class="w-display text-sm text-womena-dark mb-2">${p.name}</p>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center border border-womena-olive/30">
+                  <button type="button" class="qty-btn w-7 h-7 font-womena-mono text-xs text-womena-dark hover:bg-womena-olive/15 transition-colors cursor-pointer" data-id="${id}" data-delta="-1" aria-label="Reducir cantidad">−</button>
+                  <span class="w-7 text-center font-womena-mono text-[11px]">${q}</span>
+                  <button type="button" class="qty-btn w-7 h-7 font-womena-mono text-xs text-womena-dark hover:bg-womena-olive/15 transition-colors cursor-pointer" data-id="${id}" data-delta="1" aria-label="Aumentar cantidad">+</button>
+                </div>
+                <button type="button" class="rm-btn font-womena-mono text-[9px] uppercase tracking-wider text-womena-dark/35 hover:text-womena-terra transition-colors cursor-pointer" data-id="${id}">Quitar</button>
+              </div>
+            </div>
+            <span class="font-womena-serif text-base text-womena-dark shrink-0">${fmt(p.price * q)}</span>
+          </div>`;
+      }).join('');
+    }
+
+    // ═══ Drawer open/close ══════════════════════════════════════════
+    function openCart() {
+      renderCart();
+      drawer.classList.add('open');
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeCart() {
+      drawer.classList.remove('open');
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('cart-open')!.addEventListener('click', openCart);
+    document.getElementById('cart-close')!.addEventListener('click', closeCart);
+    backdrop.addEventListener('click', closeCart);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCart(); });
+    document.getElementById('cart-empty-cta')!.addEventListener('click', () => {
+      closeCart();
+      document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Delegación: steppers y quitar
+    itemsEl.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const qtyBtn = target.closest<HTMLElement>('.qty-btn');
+      const rmBtn = target.closest<HTMLElement>('.rm-btn');
+      if (qtyBtn) {
+        const id = qtyBtn.dataset.id!;
+        cart[id] = (cart[id] || 0) + Number(qtyBtn.dataset.delta);
+        if (cart[id] <= 0) delete cart[id];
+        saveCart(); renderCart();
+      } else if (rmBtn) {
+        delete cart[rmBtn.dataset.id!];
+        saveCart(); renderCart();
+      }
+    });
+
+    // ═══ Añadir al carrito ══════════════════════════════════════════
+    document.querySelectorAll<HTMLButtonElement>('.add-to-cart').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = btn.dataset.id!;
+        cart[id] = (cart[id] || 0) + 1;
+        saveCart(); renderCart();
+
+        const original = btn.textContent;
+        btn.textContent = '✓ Añadido';
+        btn.disabled = true;
+        setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 900);
+        setTimeout(openCart, 500);
+      });
+    });
+
+    // Checkout demo
+    document.getElementById('cart-checkout')!.addEventListener('click', () => {
+      showToast('Demo — el checkout se conecta con Shopify');
+    });
+
+    // ═══ Newsletter ═════════════════════════════════════════════════
+    const nlForm = document.getElementById('newsletter-form') as HTMLFormElement;
+    nlForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = (document.getElementById('nl-email') as HTMLInputElement);
+      if (!email.value || !email.checkValidity()) { email.focus(); return; }
+      nlForm.style.display = 'none';
+      document.getElementById('newsletter-ok')!.classList.remove('hidden');
+    });
+
+    // ═══ Mobile menu ════════════════════════════════════════════════
+    const menu = document.getElementById('mobile-menu')!;
+    const menuBtn = document.getElementById('menu-open')!;
+    function toggleMenu(force?: boolean) {
+      const open = force ?? !menu.classList.contains('open');
+      menu.classList.toggle('open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+    }
+    menuBtn.addEventListener('click', () => toggleMenu());
+    menu.querySelectorAll('.menu-link').forEach((a) => a.addEventListener('click', () => toggleMenu(false)));
+
+    // ═══ Header hide-on-scroll ══════════════════════════════════════
+    const header = document.getElementById('w-header')!;
+    let lastY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y > 220 && y > lastY && !menu.classList.contains('open')) header.classList.add('hidden-up');
+      else header.classList.remove('hidden-up');
+      lastY = y;
+    }, { passive: true });
+
+    // ═══ Scroll reveals ═════════════════════════════════════════════
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.rv, .rv-scale').forEach((el) => io.observe(el));
+
+    // Estado inicial
+    renderCart();
+  </script>
 
 </WomenaLayout>

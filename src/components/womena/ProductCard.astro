@@ -1,51 +1,97 @@
 ---
+import ProductVisual from './ProductVisual.astro';
+
 interface Props {
+  id: number;
   name: string;
   category: string;
   description: string;
   price: number;
   weight?: string;
+  index?: number;
 }
 
-const { name, category, description, price, weight } = Astro.props;
+const { id, name, category, description, price, weight, index = 0 } = Astro.props;
+
+// Metadatos de merchandising (mock — en Shopify vendrían de metafields/reviews app)
+const merch: Record<number, { badge?: string; rating: number; reviews: number }> = {
+  1: { badge: 'Best Seller', rating: 4.8, reviews: 124 },
+  2: { badge: 'Nuevo', rating: 4.9, reviews: 86 },
+  3: { rating: 4.7, reviews: 52 },
+  4: { badge: 'Favorito', rating: 4.8, reviews: 203 },
+};
+const { badge, rating, reviews } = merch[id] ?? { rating: 4.8, reviews: 10 };
+const priceFmt = `$${price.toLocaleString('es-MX')}`;
 ---
 
-<article class="bg-white border border-womena-olive/20 p-8 flex flex-col group transition-all duration-300 hover:border-womena-terra/40 hover:shadow-sm">
-  <!-- Category tag -->
-  <span class="font-womena-mono text-[10px] uppercase tracking-[0.2em] text-womena-terra/50 mb-5 block">
-    {category}
-  </span>
+<article
+  class="p-card group bg-white border border-womena-olive/20 flex flex-col rv"
+  style={`--d:${index + 1}`}
+  data-product-id={id}
+>
+  <!-- Visual del producto (ratio 4:5, estándar Shopify) -->
+  <a href="#productos" class="p-visual relative block aspect-[4/5] overflow-hidden" aria-label={`Ver ${name}`}>
+    <ProductVisual id={id} name={name} />
 
-  <!-- Divider -->
-  <div class="w-8 h-px bg-womena-olive/40 mb-6 group-hover:w-16 transition-all duration-500"></div>
-
-  <!-- Name -->
-  <h3 class="font-womena-mono text-sm uppercase tracking-[0.15em] text-stone-900 mb-5 leading-snug group-hover:text-womena-terra transition-colors duration-300">
-    {name}
-  </h3>
-
-  <!-- Description -->
-  <p class="font-womena-serif text-base italic text-stone-500 leading-relaxed flex-1 mb-8 font-light">
-    {description}
-  </p>
-
-  <!-- Footer: price + CTA -->
-  <div class="flex items-end justify-between gap-4 mt-auto">
-    <div class="leading-none">
-      <span class="font-womena-serif text-2xl text-stone-900 font-light block">
-        MXN {price}
+    {badge && (
+      <span class="absolute top-4 left-4 bg-womena-terra text-womena-cream font-womena-mono text-[9px] uppercase tracking-[0.18em] px-3 py-1.5">
+        {badge}
       </span>
-      {weight && (
-        <span class="font-womena-mono text-[10px] text-stone-400 tracking-widest mt-1 block">
-          {weight}
-        </span>
-      )}
+    )}
+
+    <!-- Quick add: aparece al hover en desktop, siempre visible en touch -->
+    <div class="quick-add absolute bottom-0 inset-x-0 hidden md:block">
+      <button
+        type="button"
+        class="add-to-cart w-full bg-womena-dark text-womena-cream font-womena-mono text-[10px] uppercase tracking-[0.2em] py-4 hover:bg-womena-terra transition-colors duration-300 cursor-pointer"
+        data-id={id}
+      >
+        Añadir al carrito — {priceFmt}
+      </button>
     </div>
-    <button
-      type="button"
-      class="shrink-0 border border-stone-900 text-stone-900 font-womena-mono text-[10px] uppercase tracking-[0.18em] px-5 py-3 hover:bg-stone-900 hover:text-womena-cream transition-colors duration-300 cursor-pointer"
-    >
-      Añadir
-    </button>
+  </a>
+
+  <!-- Info -->
+  <div class="flex flex-col flex-1 p-6 lg:p-7">
+    <span class="font-womena-mono text-[9px] uppercase tracking-[0.2em] text-womena-terra/60 mb-3">
+      {category}
+    </span>
+
+    <h3 class="w-display text-lg text-womena-dark mb-2 group-hover:text-womena-terra transition-colors duration-300">
+      {name}
+    </h3>
+
+    <!-- Rating (mock de app de reviews) -->
+    <div class="flex items-center gap-2 mb-4" aria-label={`Calificación ${rating} de 5, ${reviews} reseñas`}>
+      <div class="flex gap-0.5 text-womena-terra" aria-hidden="true">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <svg viewBox="0 0 12 12" class={`w-2.5 h-2.5 ${i < Math.round(rating) ? 'fill-current' : 'fill-womena-olive/30'}`}>
+            <path d="M6 0l1.8 3.9 4.2.5-3.1 2.9.8 4.2L6 9.4 2.3 11.5l.8-4.2L0 4.4l4.2-.5z" />
+          </svg>
+        ))}
+      </div>
+      <span class="font-womena-mono text-[9px] text-womena-dark/40 tracking-wider">({reviews})</span>
+    </div>
+
+    <p class="font-womena-serif text-[15px] italic text-womena-dark/55 leading-relaxed flex-1 mb-6 font-light">
+      {description}
+    </p>
+
+    <div class="flex items-center justify-between gap-3 mt-auto">
+      <div class="leading-none">
+        <span class="font-womena-serif text-xl text-womena-dark block">{priceFmt} <span class="text-xs align-top">MXN</span></span>
+        {weight && (
+          <span class="font-womena-mono text-[9px] text-womena-dark/35 tracking-widest mt-1 block">{weight}</span>
+        )}
+      </div>
+      <!-- CTA visible siempre en móvil (donde no hay hover) -->
+      <button
+        type="button"
+        class="add-to-cart md:hidden shrink-0 border border-womena-dark text-womena-dark font-womena-mono text-[9px] uppercase tracking-[0.16em] px-4 py-3 active:bg-womena-dark active:text-womena-cream transition-colors cursor-pointer"
+        data-id={id}
+      >
+        Añadir
+      </button>
+    </div>
   </div>
 </article>

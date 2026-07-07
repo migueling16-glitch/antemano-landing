@@ -7,10 +7,11 @@ export default {
         charcoal: '#1A1A1A',
         amber: '#C8963E',
         offwhite: '#FAFAFA',
-        // Womena brand palette
+        // Womena brand palette (Pantone 2302C / 7608C / 5807C / 5747C)
         'womena-olive': '#AAA967',
         'womena-terra': '#94523E',
         'womena-cream': '#EFECBD',
+        'womena-dark': '#332B14',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -26,6 +27,7 @@ export default {
       },
       animation: {
         'womena-marquee': 'marquee 18s linear infinite',
+        'womena-marquee-slow': 'marquee 40s linear infinite',
       },
       transitionTimingFunction: {
         smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',

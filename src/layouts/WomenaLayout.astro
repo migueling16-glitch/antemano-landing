@@ -5,7 +5,7 @@ interface Props {
 }
 
 const {
-  title = 'Womena — Wellness Consciente',
+  title = 'Womena — Wellness Hub · For women who choose conscious living',
   description = 'Un hub que reúne marcas mexicanas de wellness con una misma visión: volver a lo natural con intención.',
 } = Astro.props;
 ---
@@ -16,13 +16,13 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <link rel="icon" href="/logo-a.png" type="image/png" />
+    <link rel="icon" href="/womena-logo-terra.png" type="image/png" />
 
-    <!-- Google Fonts: Cormorant Garamond + Share Tech Mono -->
+    <!-- Google Fonts: Cormorant Garamond (display serif) + Share Tech Mono (cuerpos) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Share+Tech+Mono&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap"
       rel="stylesheet"
     />
 
@@ -31,28 +31,169 @@ const {
     <style is:global>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+      :root {
+        --w-olive: #AAA967;
+        --w-terra: #94523E;
+        --w-cream: #EFECBD;
+        --w-dark: #332B14;
+        --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
       html {
         scroll-behavior: smooth;
         -webkit-text-size-adjust: 100%;
       }
 
       body {
-        background-color: #EFECBD;
-        color: #1c1917;
+        background-color: var(--w-cream);
+        color: var(--w-dark);
         font-family: 'Share Tech Mono', ui-monospace, monospace;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         overflow-x: hidden;
       }
 
-      ::selection {
-        background: #94523E;
-        color: #EFECBD;
+      ::selection { background: var(--w-terra); color: var(--w-cream); }
+
+      :focus { outline: none; }
+      :focus-visible { outline: 1.5px solid var(--w-terra); outline-offset: 3px; }
+
+      /* ─── Display serif: siempre MAYÚSCULAS + tracking (Antique5 web stand-in) ── */
+      .w-display {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-weight: 500;
+        line-height: 1.05;
       }
 
-      :focus-visible {
-        outline: 1.5px solid #94523E;
-        outline-offset: 3px;
+      /* ─── Scroll reveals ──────────────────────────────────────────── */
+      .rv {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 0.9s var(--ease-expo),
+          transform 0.9s var(--ease-expo);
+        transition-delay: calc(var(--d, 0) * 90ms);
+        will-change: opacity, transform;
+      }
+      .rv.in { opacity: 1; transform: none; }
+
+      .rv-scale {
+        opacity: 0;
+        transform: scale(0.96);
+        transition: opacity 0.9s var(--ease-expo), transform 0.9s var(--ease-expo);
+        transition-delay: calc(var(--d, 0) * 90ms);
+      }
+      .rv-scale.in { opacity: 1; transform: none; }
+
+      /* ─── Hero intro (CSS keyframes, sin JS) ──────────────────────── */
+      @keyframes wFadeUp {
+        from { opacity: 0; transform: translateY(26px); }
+        to   { opacity: 1; transform: none; }
+      }
+      @keyframes wDraw {
+        to { stroke-dashoffset: 0; }
+      }
+      .hero-in { opacity: 0; animation: wFadeUp 1s var(--ease-expo) forwards; }
+
+      /* ─── Squiggle W (dibujo de trazo) ─────────────────────────────── */
+      .squiggle-path {
+        stroke-dasharray: 1200;
+        stroke-dashoffset: 1200;
+        animation: wDraw 2.4s var(--ease-quart) 0.5s forwards;
+      }
+
+      /* ─── Marquee ──────────────────────────────────────────────────── */
+      .marquee-track:hover { animation-play-state: paused; }
+
+      /* ─── Outline serif (wordmark-outline del brandbook) ───────────── */
+      .w-outline {
+        color: transparent;
+        -webkit-text-stroke: 1px var(--w-terra);
+      }
+
+      /* ─── Botón brand ──────────────────────────────────────────────── */
+      .w-btn {
+        position: relative;
+        overflow: hidden;
+        transition: color 0.35s var(--ease-quart), border-color 0.35s var(--ease-quart);
+      }
+      .w-btn::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: currentColor;
+        opacity: 0;
+        transition: opacity 0.35s var(--ease-quart);
+      }
+
+      /* ─── Card hover lift ──────────────────────────────────────────── */
+      .p-card {
+        transition:
+          transform 0.55s var(--ease-expo),
+          box-shadow 0.55s var(--ease-expo),
+          border-color 0.35s;
+      }
+      @media (hover: hover) {
+        .p-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 24px 48px -20px rgba(51, 43, 20, 0.22);
+        }
+        .p-card:hover .p-visual svg { transform: scale(1.06); }
+        .p-card .p-visual svg { transition: transform 0.8s var(--ease-expo); }
+        .p-card .quick-add {
+          transform: translateY(110%);
+          transition: transform 0.45s var(--ease-expo);
+        }
+        .p-card:hover .quick-add { transform: translateY(0); }
+      }
+
+      /* ─── Cart drawer ──────────────────────────────────────────────── */
+      #cart-drawer {
+        transform: translateX(100%);
+        transition: transform 0.55s var(--ease-expo);
+      }
+      #cart-drawer.open { transform: translateX(0); }
+      #cart-backdrop {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s var(--ease-quart);
+      }
+      #cart-backdrop.open { opacity: 1; pointer-events: auto; }
+
+      /* ─── Header hide-on-scroll ────────────────────────────────────── */
+      #w-header {
+        transition: transform 0.5s var(--ease-expo);
+      }
+      #w-header.hidden-up { transform: translateY(-100%); }
+
+      /* ─── Mobile menu ──────────────────────────────────────────────── */
+      #mobile-menu {
+        transform: translateY(-105%);
+        transition: transform 0.55s var(--ease-expo);
+      }
+      #mobile-menu.open { transform: translateY(0); }
+
+      /* ─── Toast ────────────────────────────────────────────────────── */
+      .w-toast {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.35s var(--ease-quart), transform 0.35s var(--ease-quart);
+      }
+      .w-toast.show { opacity: 1; transform: none; }
+
+      /* ─── Reduced motion ───────────────────────────────────────────── */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-delay: 0ms !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+        .rv, .rv-scale, .hero-in { opacity: 1 !important; transform: none !important; }
+        .squiggle-path { stroke-dashoffset: 0 !important; }
       }
     </style>
   </head>

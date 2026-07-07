@@ -1,0 +1,84 @@
+---
+// Cart drawer estilo Shopify: slide desde la derecha, progreso de envío gratis,
+// steppers de cantidad, subtotal y CTA de checkout. Estado en localStorage.
+const FREE_SHIPPING = 999;
+---
+
+<!-- Backdrop -->
+<div
+  id="cart-backdrop"
+  class="fixed inset-0 z-[80] bg-womena-dark/50 backdrop-blur-[2px]"
+  aria-hidden="true"
+></div>
+
+<!-- Drawer -->
+<aside
+  id="cart-drawer"
+  class="fixed top-0 right-0 z-[90] h-dvh w-full max-w-md bg-womena-cream flex flex-col shadow-2xl"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Carrito de compras"
+>
+  <!-- Header -->
+  <div class="flex items-center justify-between px-7 py-5 border-b border-womena-olive/25">
+    <h2 class="w-display text-lg text-womena-dark">
+      Tu ritual <span id="cart-count-label" class="font-womena-mono text-[10px] tracking-widest text-womena-dark/40 normal-case"></span>
+    </h2>
+    <button
+      type="button"
+      id="cart-close"
+      class="w-9 h-9 flex items-center justify-center text-womena-dark hover:text-womena-terra transition-colors cursor-pointer"
+      aria-label="Cerrar carrito"
+    >
+      <svg viewBox="0 0 20 20" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 4l12 12M16 4L4 16" stroke-linecap="round" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Progreso envío gratis -->
+  <div class="px-7 py-4 border-b border-womena-olive/25 bg-white/40">
+    <p id="shipping-msg" class="font-womena-mono text-[10px] uppercase tracking-[0.14em] text-womena-dark/60 mb-3"></p>
+    <div class="h-1 bg-womena-olive/20 overflow-hidden">
+      <div
+        id="shipping-bar"
+        class="h-full bg-womena-terra transition-[width] duration-700"
+        style="width: 0%"
+        data-threshold={FREE_SHIPPING}
+      ></div>
+    </div>
+  </div>
+
+  <!-- Items -->
+  <div id="cart-items" class="flex-1 overflow-y-auto px-7 py-6 flex flex-col gap-6"></div>
+
+  <!-- Empty state -->
+  <div id="cart-empty" class="flex-1 hidden flex-col items-center justify-center gap-6 px-7 text-center">
+    <span class="font-womena-serif italic text-2xl text-womena-dark/50 font-light">Tu ritual está vacío.</span>
+    <button
+      type="button"
+      id="cart-empty-cta"
+      class="font-womena-mono text-[10px] uppercase tracking-[0.2em] border border-womena-dark text-womena-dark px-7 py-3.5 hover:bg-womena-dark hover:text-womena-cream transition-colors duration-300 cursor-pointer"
+    >
+      Explorar colección
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <div id="cart-footer" class="border-t border-womena-olive/25 px-7 py-6 bg-white/40">
+    <div class="flex items-center justify-between mb-1">
+      <span class="font-womena-mono text-[10px] uppercase tracking-[0.2em] text-womena-dark/60">Subtotal</span>
+      <span id="cart-subtotal" class="font-womena-serif text-2xl text-womena-dark">$0</span>
+    </div>
+    <p class="font-womena-mono text-[9px] text-womena-dark/35 tracking-wider mb-5 uppercase">
+      Envío e impuestos calculados al pagar.
+    </p>
+    <button
+      type="button"
+      id="cart-checkout"
+      class="w-full bg-womena-dark text-womena-cream font-womena-mono text-[11px] uppercase tracking-[0.22em] py-4.5 py-4 hover:bg-womena-terra transition-colors duration-300 cursor-pointer"
+    >
+      Finalizar compra
+    </button>
+  </div>
+</aside>
