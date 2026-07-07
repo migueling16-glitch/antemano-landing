@@ -1,0 +1,41 @@
+---
+import ProductCard from './ProductCard.astro';
+import products from '../../data/products.json';
+---
+
+<section id="productos" class="py-28 px-6 lg:px-16 bg-womena-cream/40">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Section header -->
+    <div class="mb-16 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+      <div>
+        <span class="font-womena-mono text-[10px] uppercase tracking-[0.22em] text-womena-terra/60 block mb-4">
+          Colección
+        </span>
+        <h2 class="font-womena-serif text-4xl lg:text-5xl text-stone-900 font-light leading-tight">
+          Productos seleccionados
+        </h2>
+      </div>
+      <a
+        href="#"
+        class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-stone-500 hover:text-womena-terra transition-colors duration-300 underline-offset-4 hover:underline self-start sm:self-auto"
+      >
+        Ver todo →
+      </a>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      {products.map((product) => (
+        <ProductCard
+          name={product.name}
+          category={product.category}
+          description={product.description}
+          price={product.price}
+          weight={product.weight}
+        />
+      ))}
+    </div>
+
+  </div>
+</section>

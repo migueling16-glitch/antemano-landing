@@ -1,0 +1,181 @@
+---
+import WomenaLayout from '../../layouts/WomenaLayout.astro';
+import ProductGrid from '../../components/womena/ProductGrid.astro';
+---
+
+<WomenaLayout>
+
+  <!-- ─── HEADER ────────────────────────────────────────────────────── -->
+  <header class="sticky top-0 z-50 bg-womena-cream/95 backdrop-blur-sm border-b border-womena-olive/25">
+    <nav class="max-w-6xl mx-auto px-6 lg:px-16 h-16 flex items-center justify-between">
+      <a href="/womena" class="block" aria-label="Womena — inicio">
+        <img
+          src="/womena-logo-terra.png"
+          alt="Womena"
+          class="h-8 w-auto mix-blend-multiply"
+        />
+      </a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#productos" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-stone-500 hover:text-womena-terra transition-colors duration-300">
+          Productos
+        </a>
+        <a href="#nosotros" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] text-stone-500 hover:text-womena-terra transition-colors duration-300">
+          Nosotros
+        </a>
+        <a href="#" class="font-womena-mono text-[10px] uppercase tracking-[0.18em] border border-stone-900 text-stone-900 px-5 py-2.5 hover:bg-stone-900 hover:text-womena-cream transition-colors duration-300">
+          Tienda
+        </a>
+      </div>
+      <!-- Mobile menu icon -->
+      <button class="md:hidden font-womena-mono text-[10px] uppercase tracking-widest text-stone-500" aria-label="Menú">
+        ☰
+      </button>
+    </nav>
+  </header>
+
+  <!-- ─── HERO ──────────────────────────────────────────────────────── -->
+  <section class="bg-womena-olive min-h-[88vh] flex items-center px-6 lg:px-16">
+    <div class="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-24 items-center py-24 lg:py-32">
+
+      <!-- Left: tagline -->
+      <div>
+        <span class="font-womena-mono text-[10px] uppercase tracking-[0.25em] text-womena-cream/50 block mb-10">
+          Wellness Consciente · México
+        </span>
+        <h1 class="font-womena-serif text-[clamp(2.8rem,7vw,5.5rem)] text-womena-cream leading-[1.08] font-light">
+          For women<br />
+          who choose<br />
+          <em>conscious living.</em>
+        </h1>
+      </div>
+
+      <!-- Right: descriptor + CTA -->
+      <div class="lg:text-right flex flex-col items-start lg:items-end gap-10">
+        <p class="font-womena-mono text-xs text-womena-cream/60 leading-relaxed max-w-[300px]">
+          Un hub que reúne marcas mexicanas que comparten una misma visión: volver a lo natural con intención.
+        </p>
+        <a
+          href="#productos"
+          class="font-womena-mono text-[10px] uppercase tracking-[0.22em] border border-womena-cream text-womena-cream px-8 py-4 hover:bg-womena-cream hover:text-stone-900 transition-colors duration-300"
+        >
+          Explorar colección
+        </a>
+        <!-- Scroll indicator -->
+        <div class="flex items-center gap-3 text-womena-cream/30">
+          <div class="w-px h-10 bg-womena-cream/20"></div>
+          <span class="font-womena-mono text-[9px] uppercase tracking-widest">Scroll</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── VALUES MARQUEE ────────────────────────────────────────────── -->
+  <div class="bg-womena-terra py-4 overflow-hidden select-none" aria-hidden="true">
+    <div class="flex animate-womena-marquee whitespace-nowrap">
+      {Array.from({ length: 2 }).map(() => (
+        <span class="font-womena-mono text-[9px] uppercase tracking-[0.28em] text-womena-cream/70 shrink-0 pr-12">
+          Cuerpo &nbsp;·&nbsp; Mente &nbsp;·&nbsp; Ritual &nbsp;·&nbsp; Equilibrio &nbsp;·&nbsp; Natural &nbsp;·&nbsp; México &nbsp;·&nbsp; Intención &nbsp;·&nbsp; Bienestar &nbsp;·&nbsp; Sin químicos &nbsp;·&nbsp; Hecho en México &nbsp;·&nbsp; Energía femenina &nbsp;·&nbsp;
+        </span>
+      ))}
+    </div>
+  </div>
+
+  <!-- ─── PRODUCT GRID ──────────────────────────────────────────────── -->
+  <ProductGrid />
+
+  <!-- ─── ABOUT / CONTEXTO ──────────────────────────────────────────── -->
+  <section id="nosotros" class="py-28 px-6 lg:px-16 bg-white">
+    <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-28 items-center">
+
+      <!-- Text side -->
+      <div>
+        <span class="font-womena-mono text-[10px] uppercase tracking-[0.22em] text-womena-terra/50 block mb-8">
+          Contexto
+        </span>
+        <h2 class="font-womena-serif text-4xl lg:text-5xl text-stone-900 font-light leading-tight mb-10">
+          Reconectar con tu<br />
+          <em>naturaleza más pura.</em>
+        </h2>
+        <div class="space-y-5">
+          <p class="font-womena-mono text-[11px] text-stone-500 leading-[1.9]">
+            Womena nace del deseo de reconectar a la mujer con su naturaleza más pura. Un espacio que celebra el bienestar desde lo esencial: el cuerpo, la mente y los rituales que los unen.
+          </p>
+          <p class="font-womena-mono text-[11px] text-stone-500 leading-[1.9]">
+            Aquí, cada producto cuenta una historia consciente —libre de químicos, de prisas y de ruido— creada para cuidar desde el origen.
+          </p>
+        </div>
+      </div>
+
+      <!-- Quote block -->
+      <div class="bg-womena-cream/50 border border-womena-olive/20 p-14 lg:p-16 flex flex-col justify-between min-h-[320px]">
+        <div class="w-6 h-px bg-womena-terra/40 mb-10"></div>
+        <blockquote class="font-womena-serif text-2xl lg:text-3xl text-stone-700 italic font-light leading-snug">
+          "La de volver a lo natural con intención."
+        </blockquote>
+        <div class="mt-10">
+          <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-400">— Visión Womena</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── VISION STRIP ──────────────────────────────────────────────── -->
+  <section class="bg-womena-olive/20 border-y border-womena-olive/20 py-20 px-6 lg:px-16">
+    <div class="max-w-6xl mx-auto text-center">
+      <span class="font-womena-mono text-[10px] uppercase tracking-[0.22em] text-womena-terra/50 block mb-6">
+        Visión
+      </span>
+      <p class="font-womena-serif text-2xl lg:text-3xl text-stone-800 font-light italic leading-relaxed max-w-3xl mx-auto">
+        "Ser un espacio que conecta a mujeres conscientes, inspirándolas a cuidarse desde la autenticidad y el equilibrio."
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────────── -->
+  <footer class="bg-stone-900 py-16 px-6 lg:px-16">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="flex flex-col md:flex-row justify-between items-start gap-12 pb-12 border-b border-stone-700/50">
+        <!-- Brand -->
+        <div>
+          <img
+          src="/womena-logo-terra.png"
+          alt="Womena"
+          class="h-8 w-auto mb-3 brightness-0 invert opacity-80"
+        />
+          <p class="font-womena-mono text-[10px] text-stone-400 max-w-xs leading-[1.8] uppercase tracking-wider">
+            Wellness consciente.<br />
+            Marcas mexicanas con propósito.
+          </p>
+        </div>
+
+        <!-- Nav links -->
+        <div class="flex gap-12">
+          <div class="flex flex-col gap-3">
+            <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-500 mb-1">Tienda</span>
+            <a href="#" class="font-womena-mono text-[10px] text-stone-400 hover:text-womena-cream transition-colors">Productos</a>
+            <a href="#" class="font-womena-mono text-[10px] text-stone-400 hover:text-womena-cream transition-colors">Colección</a>
+          </div>
+          <div class="flex flex-col gap-3">
+            <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-500 mb-1">Marca</span>
+            <a href="#nosotros" class="font-womena-mono text-[10px] text-stone-400 hover:text-womena-cream transition-colors">Nosotros</a>
+            <a href="#" class="font-womena-mono text-[10px] text-stone-400 hover:text-womena-cream transition-colors">Contacto</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-8">
+        <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-600">
+          © 2025 Womena · México
+        </span>
+        <span class="font-womena-mono text-[9px] uppercase tracking-[0.22em] text-stone-600">
+          Hecho con intención.
+        </span>
+      </div>
+
+    </div>
+  </footer>
+
+</WomenaLayout>

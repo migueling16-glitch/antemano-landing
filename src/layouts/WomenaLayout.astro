@@ -1,0 +1,62 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Womena — Wellness Consciente',
+  description = 'Un hub que reúne marcas mexicanas de wellness con una misma visión: volver a lo natural con intención.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/logo-a.png" type="image/png" />
+
+    <!-- Google Fonts: Cormorant Garamond + Share Tech Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>{title}</title>
+
+    <style is:global>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        background-color: #EFECBD;
+        color: #1c1917;
+        font-family: 'Share Tech Mono', ui-monospace, monospace;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+      }
+
+      ::selection {
+        background: #94523E;
+        color: #EFECBD;
+      }
+
+      :focus-visible {
+        outline: 1.5px solid #94523E;
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

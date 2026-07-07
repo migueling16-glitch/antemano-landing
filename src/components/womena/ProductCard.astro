@@ -1,0 +1,51 @@
+---
+interface Props {
+  name: string;
+  category: string;
+  description: string;
+  price: number;
+  weight?: string;
+}
+
+const { name, category, description, price, weight } = Astro.props;
+---
+
+<article class="bg-white border border-womena-olive/20 p-8 flex flex-col group transition-all duration-300 hover:border-womena-terra/40 hover:shadow-sm">
+  <!-- Category tag -->
+  <span class="font-womena-mono text-[10px] uppercase tracking-[0.2em] text-womena-terra/50 mb-5 block">
+    {category}
+  </span>
+
+  <!-- Divider -->
+  <div class="w-8 h-px bg-womena-olive/40 mb-6 group-hover:w-16 transition-all duration-500"></div>
+
+  <!-- Name -->
+  <h3 class="font-womena-mono text-sm uppercase tracking-[0.15em] text-stone-900 mb-5 leading-snug group-hover:text-womena-terra transition-colors duration-300">
+    {name}
+  </h3>
+
+  <!-- Description -->
+  <p class="font-womena-serif text-base italic text-stone-500 leading-relaxed flex-1 mb-8 font-light">
+    {description}
+  </p>
+
+  <!-- Footer: price + CTA -->
+  <div class="flex items-end justify-between gap-4 mt-auto">
+    <div class="leading-none">
+      <span class="font-womena-serif text-2xl text-stone-900 font-light block">
+        MXN {price}
+      </span>
+      {weight && (
+        <span class="font-womena-mono text-[10px] text-stone-400 tracking-widest mt-1 block">
+          {weight}
+        </span>
+      )}
+    </div>
+    <button
+      type="button"
+      class="shrink-0 border border-stone-900 text-stone-900 font-womena-mono text-[10px] uppercase tracking-[0.18em] px-5 py-3 hover:bg-stone-900 hover:text-womena-cream transition-colors duration-300 cursor-pointer"
+    >
+      Añadir
+    </button>
+  </div>
+</article>

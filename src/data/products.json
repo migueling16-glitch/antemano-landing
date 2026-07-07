@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Gentle Relief",
+    "category": "Bálsamo para Cólicos",
+    "description": "Alivio suave y reconfortante, pensado para acompañar con cuidado y calma natural.",
+    "price": 450,
+    "weight": "50g"
+  },
+  {
+    "id": 2,
+    "name": "Intimate Balance",
+    "category": "Mist Íntimo",
+    "description": "Comunica cuidado desde la armonía. Normaliza la conversación íntima desde un lugar respetuoso, limpio y sin tabú.",
+    "price": 380
+  },
+  {
+    "id": 3,
+    "name": "Inner Flow",
+    "category": "Aceite Linfático",
+    "description": "Movimiento interno del cuerpo. Ligereza, liberación y equilibrio desde adentro.",
+    "price": 620
+  },
+  {
+    "id": 4,
+    "name": "Mineral Restore",
+    "category": "Electrolitos Sabor Naranja",
+    "description": "Reposición desde un lugar limpio y directo. Devuelve al cuerpo lo que necesita para funcionar en equilibrio.",
+    "price": 550,
+    "weight": "500g"
+  }
+]
