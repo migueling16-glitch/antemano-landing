@@ -1,0 +1,90 @@
+---
+import YasukoLayout from '../../../layouts/YasukoLayout.astro';
+import {
+  getAllModulos,
+  getEstacionBySlug,
+  getTipoBadge,
+} from '../../../data/content-yasuko';
+import type { Modulo } from '../../../data/content-yasuko';
+
+export async function getStaticPaths() {
+  return getAllModulos().map((m) => ({
+    params: { slug: m.slug },
+    props: { modulo: m },
+  }));
+}
+
+interface Props { modulo: Modulo; }
+const { modulo } = Astro.props;
+
+const estacion  = getEstacionBySlug(modulo.estacion)!;
+const badge     = getTipoBadge(modulo.tipo);
+---
+
+<YasukoLayout title={modulo.titulo}>
+
+  <!-- ── Banner QR ─────────────────────────────────────────────────────────── -->
+  <div style="background:rgba(179,135,58,0.07);border-bottom:1px solid var(--yk-border);padding:0.65rem 1.25rem;display:flex;align-items:center;gap:0.6rem;">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:rgba(179,135,58,0.7);">
+      <rect x="1" y="1" width="4" height="4" rx="0.5" stroke="currentColor" stroke-width="1.2"/>
+      <rect x="9" y="1" width="4" height="4" rx="0.5" stroke="currentColor" stroke-width="1.2"/>
+      <rect x="1" y="9" width="4" height="4" rx="0.5" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M9 9h1.5M9 11.5h5M11.5 9v5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <span style="font-size:0.72rem;color:rgba(35,40,47,0.55);letter-spacing:0.03em;">
+      Llegaste por el QR de tu estación · <strong style="color:rgba(35,40,47,0.75);">{estacion.titulo}</strong>
+    </span>
+  </div>
+
+  <!-- ── Video ────────────────────────────────────────────────────────────── -->
+  <div style="width:100%;max-width:400px;margin:0 auto;">
+    <div style="position:relative;width:100%;aspect-ratio:9/16;background:#1C2128;overflow:hidden;">
+      {modulo.videoUrl ? (
+        <iframe
+          src={modulo.videoUrl}
+          style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+          allowfullscreen
+        />
+      ) : (
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, rgba(179,135,58,0.08) 0%, transparent 70%);pointer-events:none;"></div>
+          <div style="width:4rem;height:4rem;border-radius:50%;border:2px solid rgba(179,135,58,0.8);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;">
+            <svg width="18" height="22" viewBox="0 0 18 22" fill="none">
+              <path d="M2 1.5L16 11 2 20.5V1.5z" fill="#B3873A"/>
+            </svg>
+          </div>
+          <div style="text-align:center;position:relative;z-index:1;">
+            <p style="font-size:0.65rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(179,135,58,0.8);margin-bottom:0.35rem;font-family:'Montserrat',sans-serif;">Video en producción</p>
+            <p style="font-size:0.75rem;color:rgba(255,255,255,0.3);letter-spacing:0.06em;">{modulo.duracion}</p>
+          </div>
+          <p class="display" style="position:absolute;bottom:1.5rem;left:0;right:0;text-align:center;font-size:0.82rem;color:rgba(179,135,58,0.28);letter-spacing:0.04em;padding:0 1.5rem;line-height:1.4;">
+            {modulo.titulo}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <!-- ── Info rápida ───────────────────────────────────────────────────────── -->
+  <div style="max-width:400px;margin:0 auto;padding:1.5rem 1.25rem 2.5rem;">
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.45rem;margin-bottom:0.85rem;">
+      <span class="badge" style={badge.style}>{badge.label}</span>
+      <span class="badge" style="border:1px solid rgba(35,40,47,0.2);color:rgba(35,40,47,0.5);background:transparent;">{modulo.duracion}</span>
+    </div>
+
+    <h1 class="display" style="font-size:clamp(1.6rem,6.5vw,2rem);line-height:1.15;color:#23282F;margin-bottom:0.6rem;">
+      {modulo.titulo}
+    </h1>
+
+    <p style="font-size:0.9rem;color:rgba(35,40,47,0.6);line-height:1.65;margin-bottom:1.75rem;">
+      {modulo.descripcion}
+    </p>
+
+    <a href={`/yasuko/modulo/${modulo.slug}`} class="btn-pill-filled" style="width:100%;justify-content:center;padding:0.85rem 1.5rem;font-size:0.9rem;">
+      Ver módulo completo →
+    </a>
+
+  </div>
+
+</YasukoLayout>

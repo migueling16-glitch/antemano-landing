@@ -1,0 +1,185 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  backHref?: string;
+  backLabel?: string;
+}
+const { title, description, backHref, backLabel } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>{title} · Yasuko</title>
+  {description && <meta name="description" content={description} />}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yk:        #B3873A; /* dorado del menú */
+      --yk-light:  #C9A45D;
+      --yk-dark:   #23282F; /* carbón del wordmark */
+      --yk-bg:     #FFFFFF;
+      --yk-soft:   #F8F6F1; /* marfil cálido para tarjetas */
+      --yk-border: rgba(179, 135, 58, 0.28);
+    }
+
+    html {
+      background: var(--yk-bg);
+      color: var(--yk-dark);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100dvh;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    /* Display: geométrica del menú (estilo Gotham) */
+    .display { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.015em; }
+
+    /* Encabezado de sección estilo menú: dorado, mayúsculas, regla arriba y abajo */
+    .menu-head {
+      font-family: 'Montserrat', system-ui, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--yk);
+      padding: 0.55rem 0;
+      border-top: 1px solid rgba(35, 40, 47, 0.35);
+      border-bottom: 1px solid var(--yk-border);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* pill button — outline dorado */
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.25rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--yk);
+      color: var(--yk);
+      background: transparent;
+      font-family: 'Montserrat', system-ui, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+    }
+    .btn-pill:hover { background: var(--yk); color: #fff; }
+
+    /* pill button — filled */
+    .btn-pill-filled {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.25rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--yk);
+      color: #fff;
+      background: var(--yk);
+      font-family: 'Montserrat', system-ui, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      text-decoration: none;
+    }
+    .btn-pill-filled:hover { background: var(--yk-light); border-color: var(--yk-light); }
+
+    /* badge — small pill */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: 'Montserrat', system-ui, sans-serif;
+    }
+
+    /* section cards */
+    .card {
+      background: var(--yk-soft);
+      border: 1px solid var(--yk-border);
+      border-radius: 14px;
+      transition: border-color 0.2s, transform 0.25s, box-shadow 0.25s;
+    }
+    .card:hover {
+      border-color: var(--yk);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -10px rgba(35, 40, 47, 0.14);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ───────────────────────────────────────────────────────────── -->
+  <header style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--yk-border);">
+    <div style="max-width:680px;margin:0 auto;padding:0 1rem;height:3.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+
+      {backHref ? (
+        <a href={backHref} style="display:flex;align-items:center;gap:0.4rem;color:rgba(179,135,58,0.75);font-size:0.78rem;font-weight:500;letter-spacing:0.02em;transition:color 0.18s;flex-shrink:0;" class="back-link">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M9 2.5L4.5 7 9 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {backLabel || 'Atrás'}
+        </a>
+      ) : (
+        <span style="font-size:0.62rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(179,135,58,0.65);font-family:'Montserrat',sans-serif;">Capacitación</span>
+      )}
+
+      <a href="/yasuko/" style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+        <img src="/yasuko-icon.png" alt="" style="width:1.6rem;height:1.6rem;object-fit:contain;display:block;" onerror="this.style.display='none'" />
+        <img src="/yasuko-logo.png" alt="Yasuko" style="width:6rem;height:1.6rem;object-fit:contain;display:block;" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'yasuko',style:'font-family:Montserrat;font-weight:700;font-size:1.15rem;color:#23282F;letter-spacing:0.02em;'}))" />
+      </a>
+
+      {backHref ? (
+        <span style="font-size:0.62rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(35,40,47,0.4);font-family:'Montserrat',sans-serif;">Manual Vivo™</span>
+      ) : (
+        <a href="/yasuko/ruta/sushiman-barra" style="font-size:0.72rem;font-weight:600;color:var(--yk);letter-spacing:0.04em;font-family:'Montserrat',sans-serif;">Mi ruta →</a>
+      )}
+
+    </div>
+  </header>
+
+  <!-- ── Content ──────────────────────────────────────────────────────────── -->
+  <main>
+    <slot />
+  </main>
+
+  <!-- ── Footer ───────────────────────────────────────────────────────────── -->
+  <footer style="border-top:1px solid var(--yk-border);margin-top:4rem;padding:2rem 1rem;">
+    <div style="max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+      <div style="display:flex;align-items:center;gap:0.45rem;opacity:0.55;">
+        <img src="/yasuko-icon.png" alt="" style="width:1.2rem;height:1.2rem;object-fit:contain;" onerror="this.style.display='none'" />
+        <span style="font-size:0.72rem;color:rgba(35,40,47,0.55);letter-spacing:0.05em;font-weight:500;">Yasuko · Grupo Caribe</span>
+      </div>
+      <span style="font-size:0.7rem;color:rgba(35,40,47,0.38);letter-spacing:0.06em;">Manual Vivo™ × Antemano</span>
+    </div>
+  </footer>
+
+  <style>
+    .back-link:hover { color: var(--yk) !important; }
+  </style>
+
+</body>
+</html>

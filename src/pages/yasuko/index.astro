@@ -1,0 +1,92 @@
+---
+import YasukoLayout from '../../layouts/YasukoLayout.astro';
+import { getAllEstaciones, getAllRutas, getModulosByEstacion } from '../../data/content-yasuko';
+
+const estaciones = getAllEstaciones();
+const rutas = getAllRutas();
+
+const estacionesConConteo = estaciones.map((e) => ({
+  ...e,
+  conteo: getModulosByEstacion(e.slug).length,
+}));
+---
+
+<YasukoLayout title="Inicio">
+
+  <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+  <section style="padding: 3.5rem 1.25rem 2.5rem; max-width:680px; margin:0 auto; text-align:center;">
+    <img src="/yasuko-icon.png" alt="" style="width:3.5rem;height:3.5rem;object-fit:contain;margin:0 auto 1.25rem;display:block;" onerror="this.style.display='none'" />
+    <p style="font-size:0.66rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(179,135,58,0.75);margin-bottom:1.25rem;font-family:'Montserrat',sans-serif;">
+      Tu cocina · Tu estándar · Tu sistema
+    </p>
+    <h1 class="display" style="font-size:clamp(2.1rem,8vw,3.2rem);line-height:1.1;color:#23282F;margin-bottom:1rem;">
+      Aprende a hacerlo<br />
+      como <span style="color:var(--yk);">Yasuko.</span>
+    </h1>
+    <p style="font-size:clamp(0.95rem,3vw,1.05rem);color:rgba(35,40,47,0.6);line-height:1.65;max-width:40ch;margin:0 auto 2rem;">
+      Cada receta y cada protocolo, en video, en tu estación. Sin buscar en carpetas.
+    </p>
+    <a href="/yasuko/ruta/sushiman-barra" class="btn-pill-filled">
+      Empezar mi ruta
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+  <!-- ── Estaciones ────────────────────────────────────────────────────────── -->
+  <section style="padding: 0 1.25rem 3rem; max-width:680px; margin:0 auto;">
+    <p class="menu-head" style="margin-bottom:1.25rem;">Tu cocina</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+      {estacionesConConteo.map((e) => (
+        <a href={`/yasuko/estacion/${e.slug}`} class="card" style="padding:1.25rem 1.1rem;display:block;">
+          <p style="font-size:0.62rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(179,135,58,0.75);margin-bottom:0.45rem;font-family:'Montserrat',sans-serif;">
+            {e.conteo} {e.conteo === 1 ? 'módulo' : 'módulos'}
+          </p>
+          <p class="display" style="font-size:1.05rem;color:#23282F;line-height:1.25;margin-bottom:0.4rem;">
+            {e.titulo}
+          </p>
+          <p style="font-size:0.78rem;color:rgba(35,40,47,0.55);line-height:1.5;">
+            {e.descripcion}
+          </p>
+          <div style="margin-top:0.85rem;display:flex;align-items:center;gap:0.3rem;color:var(--yk);font-size:0.76rem;font-weight:600;font-family:'Montserrat',sans-serif;">
+            Ver módulos
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── Rutas de aprendizaje ──────────────────────────────────────────────── -->
+  <section style="padding: 0 1.25rem 2.5rem; max-width:680px; margin:0 auto;">
+    <p class="menu-head" style="margin-bottom:1.25rem;">Rutas de aprendizaje</p>
+
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      {rutas.map((r) => (
+        <a href={`/yasuko/ruta/${r.slug}`} class="card" style="display:flex;align-items:center;justify-content:space-between;padding:1.35rem 1.25rem;gap:1rem;">
+          <div>
+            <p style="font-size:0.62rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(179,135,58,0.75);margin-bottom:0.3rem;font-family:'Montserrat',sans-serif;">{r.puesto}</p>
+            <p class="display" style="font-size:1.2rem;color:#23282F;line-height:1.25;margin-bottom:0.3rem;">{r.titulo}</p>
+            <p style="font-size:0.8rem;color:rgba(35,40,47,0.55);">{r.modulos.length} módulos ordenados</p>
+          </div>
+          <div style="flex-shrink:0;width:2.5rem;height:2.5rem;border-radius:50%;border:1.5px solid var(--yk);display:flex;align-items:center;justify-content:center;color:var(--yk);">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── Yasuko Namba ──────────────────────────────────────────────────────── -->
+  <section style="padding: 0 1.25rem 2rem; max-width:680px; margin:0 auto;">
+    <div style="border:1px solid var(--yk-border);border-radius:14px;padding:1.5rem 1.4rem;text-align:center;">
+      <p class="display" style="font-size:1rem;color:#23282F;margin-bottom:0.35rem;font-style:italic;">Yasuko Namba</p>
+      <p style="font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--yk);margin-bottom:0.7rem;font-family:'Montserrat',sans-serif;">1949 – 1996 · Leyenda de los Himalayas</p>
+      <p style="font-size:0.8rem;color:rgba(35,40,47,0.55);line-height:1.65;max-width:44ch;margin:0 auto;">
+        Una de las primeras mujeres en completar las Siete Cumbres, incluyendo el Everest.
+        Su nombre nos recuerda que la excelencia se construye paso a paso — igual que una estación de cocina.
+      </p>
+    </div>
+  </section>
+
+</YasukoLayout>
