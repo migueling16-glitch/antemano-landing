@@ -60,6 +60,11 @@ const DEMO_VIDEO_URL = 'https://www.youtube.com/embed/RkIhIuhGMZM?rel=0';
 
 export const ESTACIONES: Estacion[] = [
   {
+    slug: 'protocolos',
+    titulo: 'Protocolos de operación',
+    descripcion: 'Apertura, recepción, producción, crudos, servicio, limpieza y cierre. El restaurante completo, documentado.',
+  },
+  {
     slug: 'entradas-frias',
     titulo: 'Entradas frías',
     descripcion: 'Ensaladas, tostadas, battera, crispy rice y tataki. La primera impresión de la mesa.',
@@ -93,11 +98,6 @@ export const ESTACIONES: Estacion[] = [
     slug: 'bases-salsas',
     titulo: 'Bases y salsas',
     descripcion: 'Shari, spicy mayo, salsa de anguila, ponzu y las demás bases que arman la carta. El núcleo del sistema.',
-  },
-  {
-    slug: 'protocolos',
-    titulo: 'Protocolos de operación',
-    descripcion: 'Apertura, recepción, producción, crudos, servicio, limpieza y cierre. El restaurante completo, documentado.',
   },
 ];
 
@@ -1688,15 +1688,15 @@ export function getTipoBadge(tipo: TipoModulo): { label: string; style: string }
   const map: Record<TipoModulo, { label: string; style: string }> = {
     subreceta: {
       label: 'Subreceta',
-      style: 'border:1px solid #B3873A;color:#B3873A;background:transparent;',
+      style: 'border:1px solid #C9A45D;color:#C9A45D;background:transparent;',
     },
     platillo: {
       label: 'Platillo',
-      style: 'border:1px solid rgba(179,135,58,0.35);color:#B3873A;background:rgba(179,135,58,0.1);',
+      style: 'border:1px solid rgba(201,164,93,0.35);color:#C9A45D;background:rgba(201,164,93,0.1);',
     },
     protocolo: {
       label: 'Protocolo',
-      style: 'border:1px solid rgba(35,40,47,0.3);color:rgba(35,40,47,0.55);background:transparent;',
+      style: 'border:1px solid rgba(242,239,232,0.3);color:rgba(242,239,232,0.55);background:transparent;',
     },
   };
   return map[tipo];

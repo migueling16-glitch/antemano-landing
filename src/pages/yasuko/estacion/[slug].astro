@@ -27,14 +27,14 @@ const tipos = ['todos', 'subreceta', 'platillo', 'protocolo'] as const;
 
   <!-- ── Header de estación ────────────────────────────────────────────────── -->
   <section style="padding:2.25rem 1.25rem 1.5rem;max-width:680px;margin:0 auto;">
-    <h1 class="display" style="font-size:clamp(1.8rem,7vw,2.6rem);line-height:1.12;color:#23282F;margin-bottom:0.5rem;">
+    <h1 class="display" style="font-size:clamp(1.8rem,7vw,2.6rem);line-height:1.12;color:#F2EFE8;margin-bottom:0.5rem;">
       {estacion.titulo}
     </h1>
-    <p style="font-size:0.9rem;color:rgba(35,40,47,0.58);margin-bottom:1.5rem;">{estacion.descripcion}</p>
+    <p style="font-size:0.9rem;color:rgba(242,239,232,0.58);margin-bottom:1.5rem;">{estacion.descripcion}</p>
     {estacion.nota && (
-      <div style="margin-bottom:1.25rem;padding:0.65rem 1rem;background:rgba(179,135,58,0.08);border:1px solid var(--yk-border);border-radius:10px;display:flex;align-items:center;gap:0.55rem;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B3873A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.7"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span style="font-size:0.75rem;color:rgba(179,135,58,0.9);font-weight:500;">{estacion.nota}</span>
+      <div style="margin-bottom:1.25rem;padding:0.65rem 1rem;background:rgba(201,164,93,0.08);border:1px solid var(--yk-border);border-radius:10px;display:flex;align-items:center;gap:0.55rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A45D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.7"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span style="font-size:0.75rem;color:rgba(201,164,93,0.9);font-weight:500;">{estacion.nota}</span>
       </div>
     )}
 
@@ -65,18 +65,18 @@ const tipos = ['todos', 'subreceta', 'platillo', 'protocolo'] as const;
             style="display:block;padding:0;"
           >
             <!-- Poster del video -->
-            <div style="aspect-ratio:16/9;background:#1C2128;border-radius:13px 13px 0 0;display:flex;align-items:center;justify-content:center;position:relative;">
-              <div style="width:2.2rem;height:2.2rem;border-radius:50%;border:1.5px solid rgba(179,135,58,0.8);display:flex;align-items:center;justify-content:center;">
+            <div style="aspect-ratio:16/9;background:#0E1114;border-radius:13px 13px 0 0;display:flex;align-items:center;justify-content:center;position:relative;">
+              <div style="width:2.2rem;height:2.2rem;border-radius:50%;border:1.5px solid rgba(201,164,93,0.8);display:flex;align-items:center;justify-content:center;">
                 <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
-                  <path d="M1.5 1.5L8.5 6 1.5 10.5V1.5z" fill="#B3873A"/>
+                  <path d="M1.5 1.5L8.5 6 1.5 10.5V1.5z" fill="#C9A45D"/>
                 </svg>
               </div>
-              <span style="position:absolute;bottom:0.55rem;right:0.65rem;font-size:0.65rem;color:rgba(179,135,58,0.7);letter-spacing:0.06em;">{m.duracion}</span>
+              <span style="position:absolute;bottom:0.55rem;right:0.65rem;font-size:0.65rem;color:rgba(201,164,93,0.7);letter-spacing:0.06em;">{m.duracion}</span>
             </div>
             <!-- Info -->
             <div style="padding:0.9rem 0.9rem 1rem;">
               <span class="badge" style={badge.style + 'margin-bottom:0.5rem;'}>{badge.label}</span>
-              <p class="display" style="font-size:0.95rem;color:#23282F;line-height:1.3;margin-top:0.35rem;">
+              <p class="display" style="font-size:0.95rem;color:#F2EFE8;line-height:1.3;margin-top:0.35rem;">
                 {m.titulo}
               </p>
             </div>
@@ -90,14 +90,14 @@ const tipos = ['todos', 'subreceta', 'platillo', 'protocolo'] as const;
 
 <style>
   .filtro-btn {
-    border-color: rgba(179,135,58,0.4);
-    color: rgba(35,40,47,0.55);
+    border-color: rgba(201,164,93,0.4);
+    color: rgba(242,239,232,0.55);
     background: transparent;
   }
   .filtro-btn:hover, .filtro-btn.activo {
-    border-color: #B3873A;
-    color: #B3873A;
-    background: rgba(179,135,58,0.07);
+    border-color: #C9A45D;
+    color: #C9A45D;
+    background: rgba(201,164,93,0.07);
   }
   .modulo-card.oculto { display: none; }
 </style>

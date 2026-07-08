@@ -23,12 +23,12 @@ const { title, description, backHref, backLabel } = Astro.props;
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --yk:        #B3873A; /* dorado del menú */
-      --yk-light:  #C9A45D;
-      --yk-dark:   #23282F; /* carbón del wordmark */
-      --yk-bg:     #FFFFFF;
-      --yk-soft:   #F8F6F1; /* marfil cálido para tarjetas */
-      --yk-border: rgba(179, 135, 58, 0.28);
+      --yk:        #C9A45D; /* dorado del menú, aclarado para fondo oscuro */
+      --yk-light:  #DDBE7E;
+      --yk-dark:   #F2EFE8; /* texto principal — marfil */
+      --yk-bg:     #16191E; /* fondo carbón */
+      --yk-soft:   #1F242B; /* tarjetas */
+      --yk-border: rgba(201, 164, 93, 0.3);
     }
 
     html {
@@ -57,7 +57,7 @@ const { title, description, backHref, backLabel } = Astro.props;
       text-transform: uppercase;
       color: var(--yk);
       padding: 0.55rem 0;
-      border-top: 1px solid rgba(35, 40, 47, 0.35);
+      border-top: 1px solid rgba(242, 239, 232, 0.35);
       border-bottom: 1px solid var(--yk-border);
     }
 
@@ -81,7 +81,7 @@ const { title, description, backHref, backLabel } = Astro.props;
       transition: background 0.2s, color 0.2s;
       text-decoration: none;
     }
-    .btn-pill:hover { background: var(--yk); color: #fff; }
+    .btn-pill:hover { background: var(--yk); color: #16191E; }
 
     /* pill button — filled */
     .btn-pill-filled {
@@ -91,7 +91,7 @@ const { title, description, backHref, backLabel } = Astro.props;
       padding: 0.6rem 1.25rem;
       border-radius: 999px;
       border: 1.5px solid var(--yk);
-      color: #fff;
+      color: #16191E;
       background: var(--yk);
       font-family: 'Montserrat', system-ui, sans-serif;
       font-size: 0.85rem;
@@ -126,34 +126,34 @@ const { title, description, backHref, backLabel } = Astro.props;
     .card:hover {
       border-color: var(--yk);
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px -10px rgba(35, 40, 47, 0.14);
+      box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.55);
     }
   </style>
 </head>
 <body>
 
   <!-- ── Header ───────────────────────────────────────────────────────────── -->
-  <header style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--yk-border);">
+  <header style="position:sticky;top:0;z-index:50;background:rgba(22,25,30,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--yk-border);">
     <div style="max-width:680px;margin:0 auto;padding:0 1rem;height:3.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
 
       {backHref ? (
-        <a href={backHref} style="display:flex;align-items:center;gap:0.4rem;color:rgba(179,135,58,0.75);font-size:0.78rem;font-weight:500;letter-spacing:0.02em;transition:color 0.18s;flex-shrink:0;" class="back-link">
+        <a href={backHref} style="display:flex;align-items:center;gap:0.4rem;color:rgba(201,164,93,0.75);font-size:0.78rem;font-weight:500;letter-spacing:0.02em;transition:color 0.18s;flex-shrink:0;" class="back-link">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 2.5L4.5 7 9 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           {backLabel || 'Atrás'}
         </a>
       ) : (
-        <span style="font-size:0.62rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(179,135,58,0.65);font-family:'Montserrat',sans-serif;">Capacitación</span>
+        <span style="font-size:0.62rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(201,164,93,0.65);font-family:'Montserrat',sans-serif;">Capacitación</span>
       )}
 
       <a href="/yasuko/" style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
-        <img src="/yasuko-icon.png" alt="" style="width:1.6rem;height:1.6rem;object-fit:contain;display:block;" onerror="this.style.display='none'" />
-        <img src="/yasuko-logo.png" alt="Yasuko" style="width:6rem;height:1.6rem;object-fit:contain;display:block;" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'yasuko',style:'font-family:Montserrat;font-weight:700;font-size:1.15rem;color:#23282F;letter-spacing:0.02em;'}))" />
+        <img src="/yasuko-icon.png" alt="" style="width:1.6rem;height:1.6rem;object-fit:contain;display:block;filter:invert(1) hue-rotate(180deg);mix-blend-mode:screen;" onerror="this.style.display='none'" />
+        <img src="/yasuko-logo.png" alt="Yasuko" style="width:6rem;height:1.6rem;object-fit:contain;display:block;filter:invert(1);mix-blend-mode:screen;" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'yasuko',style:'font-family:Montserrat;font-weight:700;font-size:1.15rem;color:#F2EFE8;letter-spacing:0.02em;'}))" />
       </a>
 
       {backHref ? (
-        <span style="font-size:0.62rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(35,40,47,0.4);font-family:'Montserrat',sans-serif;">Manual Vivo™</span>
+        <span style="font-size:0.62rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(242,239,232,0.4);font-family:'Montserrat',sans-serif;">Manual Vivo™</span>
       ) : (
         <a href="/yasuko/ruta/sushiman-barra" style="font-size:0.72rem;font-weight:600;color:var(--yk);letter-spacing:0.04em;font-family:'Montserrat',sans-serif;">Mi ruta →</a>
       )}
@@ -170,10 +170,10 @@ const { title, description, backHref, backLabel } = Astro.props;
   <footer style="border-top:1px solid var(--yk-border);margin-top:4rem;padding:2rem 1rem;">
     <div style="max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
       <div style="display:flex;align-items:center;gap:0.45rem;opacity:0.55;">
-        <img src="/yasuko-icon.png" alt="" style="width:1.2rem;height:1.2rem;object-fit:contain;" onerror="this.style.display='none'" />
-        <span style="font-size:0.72rem;color:rgba(35,40,47,0.55);letter-spacing:0.05em;font-weight:500;">Yasuko · Grupo Caribe</span>
+        <img src="/yasuko-icon.png" alt="" style="width:1.2rem;height:1.2rem;object-fit:contain;filter:invert(1) hue-rotate(180deg);mix-blend-mode:screen;" onerror="this.style.display='none'" />
+        <span style="font-size:0.72rem;color:rgba(242,239,232,0.55);letter-spacing:0.05em;font-weight:500;">Yasuko · Grupo Caribe</span>
       </div>
-      <span style="font-size:0.7rem;color:rgba(35,40,47,0.38);letter-spacing:0.06em;">Manual Vivo™ × Antemano</span>
+      <span style="font-size:0.7rem;color:rgba(242,239,232,0.38);letter-spacing:0.06em;">Manual Vivo™ × Antemano</span>
     </div>
   </footer>
 
