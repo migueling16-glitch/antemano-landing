@@ -47,7 +47,7 @@ const pasos = ruta.modulos
   </section>
 
   <!-- ── Lista de pasos ────────────────────────────────────────────────────── -->
-  <section style="padding:0.5rem 1.25rem 4rem;max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:0.6rem;">
+  <section id="pasos-section" data-slugs={ruta.modulos.join(',')} style="padding:0.5rem 1.25rem 4rem;max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:0.6rem;">
 
     {pasos.map(({ modulo: m, orden }) => {
       const badge = getTipoBadge(m.tipo);
@@ -101,27 +101,29 @@ const pasos = ruta.modulos
 
 </YasukoLayout>
 
-<script define:vars={{ totalPasos: pasos.length, slugsOrden: ruta.modulos }}>
+<script>
+  // Se re-vincula en cada navegación (View Transitions). Los datos de la ruta
+  // viajan en data-slugs del section para evitar define:vars + re-ejecución.
   const KEY = 'yasuko_completados';
 
-  function getCompletados() {
+  function getCompletados(): string[] {
     try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
     catch { return []; }
   }
 
-  function setCompletados(list) {
+  function setCompletados(list: string[]) {
     localStorage.setItem(KEY, JSON.stringify(list));
   }
 
-  function actualizarUI() {
+  function actualizarUI(slugsOrden: string[], totalPasos: number) {
     const completados = getCompletados();
 
     // checkmarks
-    document.querySelectorAll('.paso-num').forEach((el) => {
-      const slug = el.dataset.slug;
+    document.querySelectorAll<HTMLElement>('.paso-num').forEach((el) => {
+      const slug = el.dataset.slug!;
       const hecho = completados.includes(slug);
-      const num = el.querySelector('.num-label');
-      const check = el.querySelector('.check-label');
+      const num = el.querySelector<HTMLElement>('.num-label');
+      const check = el.querySelector<HTMLElement>('.check-label');
       if (hecho) {
         el.style.borderColor = '#C9A45D';
         el.style.background = 'rgba(201,164,93,0.1)';
@@ -136,8 +138,8 @@ const pasos = ruta.modulos
     });
 
     // botones
-    document.querySelectorAll('.marcar-btn').forEach((btn) => {
-      const slug = btn.dataset.slug;
+    document.querySelectorAll<HTMLElement>('.marcar-btn').forEach((btn) => {
+      const slug = btn.dataset.slug!;
       const hecho = completados.includes(slug);
       btn.textContent = hecho ? 'Desmarcar' : 'Marcar';
       btn.style.color = hecho ? '#C9A45D' : 'rgba(201,164,93,0.8)';
@@ -154,19 +156,28 @@ const pasos = ruta.modulos
     if (texto) texto.textContent = `${done} de ${totalPasos} completados`;
   }
 
-  // toggle al marcar
-  document.querySelectorAll('.marcar-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const slug = btn.dataset.slug;
-      const completados = getCompletados();
-      const idx = completados.indexOf(slug);
-      if (idx === -1) completados.push(slug);
-      else completados.splice(idx, 1);
-      setCompletados(completados);
-      actualizarUI();
-    });
-  });
+  function initRuta() {
+    const cont = document.getElementById('pasos-section');
+    if (!cont) return; // no estamos en una página de ruta
 
-  // inicializar
-  actualizarUI();
+    const slugsOrden = (cont.dataset.slugs || '').split(',').filter(Boolean);
+    const totalPasos = slugsOrden.length;
+
+    // toggle al marcar
+    document.querySelectorAll<HTMLElement>('.marcar-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const slug = btn.dataset.slug!;
+        const completados = getCompletados();
+        const idx = completados.indexOf(slug);
+        if (idx === -1) completados.push(slug);
+        else completados.splice(idx, 1);
+        setCompletados(completados);
+        actualizarUI(slugsOrden, totalPasos);
+      });
+    });
+
+    actualizarUI(slugsOrden, totalPasos);
+  }
+
+  document.addEventListener('astro:page-load', initRuta);
 </script>

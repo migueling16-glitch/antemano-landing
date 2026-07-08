@@ -103,18 +103,23 @@ const tipos = ['todos', 'subreceta', 'platillo', 'protocolo'] as const;
 </style>
 
 <script>
-  const botones = document.querySelectorAll<HTMLButtonElement>('.filtro-btn');
-  const tarjetas = document.querySelectorAll<HTMLElement>('.modulo-card');
+  // Se re-vincula en cada navegación (View Transitions)
+  function initFiltros() {
+    const botones = document.querySelectorAll<HTMLButtonElement>('.filtro-btn');
+    const tarjetas = document.querySelectorAll<HTMLElement>('.modulo-card');
 
-  botones.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const filtro = btn.dataset.filtro!;
-      botones.forEach((b) => b.classList.remove('activo'));
-      btn.classList.add('activo');
-      tarjetas.forEach((card) => {
-        const tipo = card.dataset.tipo!;
-        card.classList.toggle('oculto', filtro !== 'todos' && tipo !== filtro);
+    botones.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filtro = btn.dataset.filtro!;
+        botones.forEach((b) => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        tarjetas.forEach((card) => {
+          const tipo = card.dataset.tipo!;
+          card.classList.toggle('oculto', filtro !== 'todos' && tipo !== filtro);
+        });
       });
     });
-  });
+  }
+
+  document.addEventListener('astro:page-load', initFiltros);
 </script>

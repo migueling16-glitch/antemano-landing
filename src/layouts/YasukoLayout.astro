@@ -1,4 +1,6 @@
 ---
+import { ViewTransitions } from 'astro:transitions';
+
 interface Props {
   title: string;
   description?: string;
@@ -19,6 +21,7 @@ const { title, description, backHref, backLabel } = Astro.props;
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <ViewTransitions />
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -128,6 +131,61 @@ const { title, description, backHref, backLabel } = Astro.props;
       transform: translateY(-2px);
       box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.55);
     }
+
+    /* ── Animaciones ──────────────────────────────────────────────────── */
+
+    /* Reveal al hacer scroll (aplicado por JS) */
+    .rv {
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      transition-delay: var(--rv-d, 0s);
+    }
+    .rv.in { opacity: 1; transform: none; }
+
+    /* Flechas que se deslizan al hover */
+    .btn-pill svg, .btn-pill-filled svg, .card svg {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-pill:hover svg, .btn-pill-filled:hover svg { transform: translateX(3px); }
+    .card:hover svg { transform: translateX(3px); }
+
+    /* Botones con leve escala al presionar */
+    .btn-pill:active, .btn-pill-filled:active { transform: scale(0.96); }
+    .btn-pill, .btn-pill-filled { transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s; }
+
+    /* Tarjetas de paso en rutas */
+    .paso-card {
+      transition: border-color 0.25s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .paso-card:hover { border-color: var(--yk) !important; transform: translateY(-2px); }
+
+    /* Ícono de montaña flotando en el hero */
+    @keyframes yk-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .float { animation: yk-float 4.5s ease-in-out infinite; }
+
+    /* Pulso del círculo de play en placeholders */
+    @keyframes yk-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(201, 164, 93, 0.35); }
+      70% { box-shadow: 0 0 0 14px rgba(201, 164, 93, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(201, 164, 93, 0); }
+    }
+    .pulse { animation: yk-pulse 2.4s ease-out infinite; }
+
+    /* Logo del header con hover sutil */
+    header a img { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    header a:hover img { transform: scale(1.05); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv { opacity: 1 !important; transform: none !important; transition: none !important; }
+      .float, .pulse { animation: none !important; }
+      .card:hover, .paso-card:hover { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -180,6 +238,64 @@ const { title, description, backHref, backLabel } = Astro.props;
   <style>
     .back-link:hover { color: var(--yk) !important; }
   </style>
+
+  <script>
+    // ── Sistema de reveals al hacer scroll ──────────────────────────────
+    // Se re-ejecuta en cada navegación (View Transitions) vía astro:page-load.
+    let lastUrl: string | null = null;
+
+    function initReveals() {
+      if (location.href === lastUrl) return;
+      lastUrl = location.href;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      // Candidatos: hijos directos de secciones + bloques del módulo,
+      // excluyendo contenedores de tarjetas (las tarjetas se revelan solas).
+      const candidatos = new Set<HTMLElement>();
+      document
+        .querySelectorAll<HTMLElement>('main section > *, main > div > div')
+        .forEach((el) => {
+          if (el.matches('script, style')) return;
+          if (el.querySelector('.card, .modulo-card, .paso-card')) return;
+          candidatos.add(el);
+        });
+      document
+        .querySelectorAll<HTMLElement>('.card, .modulo-card, .paso-card')
+        .forEach((el) => candidatos.add(el));
+
+      // Stagger por grupo de hermanos
+      const porPadre = new Map<HTMLElement, HTMLElement[]>();
+      candidatos.forEach((el) => {
+        const p = el.parentElement!;
+        if (!porPadre.has(p)) porPadre.set(p, []);
+        porPadre.get(p)!.push(el);
+      });
+      porPadre.forEach((grupo) => {
+        grupo.forEach((el, i) => {
+          el.style.setProperty('--rv-d', `${Math.min(i * 70, 420)}ms`);
+          el.classList.add('rv');
+        });
+      });
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              io.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' },
+      );
+      candidatos.forEach((el) => io.observe(el));
+    }
+
+    document.addEventListener('astro:after-swap', initReveals);
+    document.addEventListener('astro:page-load', initReveals);
+    if (document.readyState !== 'loading') initReveals();
+    else document.addEventListener('DOMContentLoaded', initReveals, { once: true });
+  </script>
 
 </body>
 </html>
