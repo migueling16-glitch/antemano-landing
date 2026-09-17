@@ -40,8 +40,9 @@ Todo vive en `config.ts`:
 | `direccion`   | Dirección exacta. **Llenar antes del 23 de octubre.**         |
 | `mapsUrl`     | Link de Google Maps al lugar exacto.                          |
 | `instagram`   | Handle sin `@` (instagram.com/mrsliders).                     |
-| `confirmados` | Número de la sección "Ya somos". **DEMO: está inflado (214).** |
-| `cupo`        | Cupo total para la barra de "% apartado". **DEMO (300).**     |
+| `confirmados` | Número de la sección "Ya somos". **DEMO: está inflado (86).** |
+| `cupo`        | Cupo total para la barra de "% apartado". **DEMO (150).**     |
+| `promoPrimeros` | Promo: los primeros N boletos incluyen un slider gratis (100). Los que quedan se calculan con `confirmados`. |
 | `ticketsUrl`  | Link de venta de boletos. Vacío = manda al DM de Instagram.   |
 | `precio`      | Texto del precio junto al botón de compra. Vacío = oculto.    |
 | `tagline`     | Frase corta del hero.                                         |

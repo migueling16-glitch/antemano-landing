@@ -28,9 +28,11 @@ export const EVENT = {
   instagram: 'mrsliders',
   /**
    * Confirmados. Se muestra en la sección "Ya somos".
-   * DEMO: número inflado para la presentación. Poner el real antes de publicarlo al público.
+   * DEMO: número inflado para la presentación (86 para que la promo de los primeros 100 siga abierta). Poner el real antes de publicarlo.
    */
-  confirmados: 214,
+  confirmados: 86,
+  /** Promo: los primeros N boletos incluyen un slider gratis. Se calcula cuántos quedan con `confirmados`. */
+  promoPrimeros: 100,
   /**
    * Boletos. Si `ticketsUrl` está vacío, los botones mandan al DM de Instagram.
    * TODO: poner el link real de venta (Boletia, Eventbrite, WhatsApp, etc.).
@@ -39,7 +41,7 @@ export const EVENT = {
   /** Precio a mostrar (texto libre). Vacío = no se muestra. */
   precio: '',
   /** Cupo total. DEMO: se usa para la barra "% del cupo apartado". */
-  cupo: 300,
+  cupo: 150,
   /** Texto corto del hero */
   tagline: 'Un año de smash. Una noche para celebrarlo.',
 } as const;

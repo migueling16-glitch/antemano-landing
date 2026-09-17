@@ -15,6 +15,7 @@ const igUrl = `https://instagram.com/${EVENT.instagram}`;
 const ticketsUrl = EVENT.ticketsUrl || igUrl;
 const cupoPct = Math.min(99, Math.round((EVENT.confirmados / EVENT.cupo) * 100));
 const restantes = Math.max(0, EVENT.cupo - EVENT.confirmados);
+const promoQuedan = Math.max(0, EVENT.promoPrimeros - EVENT.confirmados);
 
 const fecha = new Date(EVENT.fecha);
 const dia = fecha.toLocaleDateString('es-MX', { day: '2-digit', timeZone: 'America/Monterrey' });
@@ -143,7 +144,12 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
           <p class="cd-live mono" hidden>Es hoy. Nos vemos en el Calvario.</p>
         </div>
 
-        <div class="hero-cta" data-enter style="--d:1s">
+        <a class="promo-pill" href="#promo" data-enter data-hover style="--d:.95s">
+          <span class="promo-pill-ico" set:html={burgerSvg} />
+          <span>Los primeros {EVENT.promoPrimeros} se llevan un slider gratis</span>
+          <b>Quedan {promoQuedan}</b>
+        </a>
+        <div class="hero-cta" data-enter style="--d:1.05s">
           <a class="btn btn-solid" href={ticketsUrl} target="_blank" rel="noopener" data-hover data-magnet>
             <span>Quiero mi boleto</span>
           </a>
@@ -229,6 +235,31 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
 
     <!-- ══ Boletos ═════════════════════════════════════════════════════ -->
     <section class="tix" id="boletos">
+      <div class="wrap">
+        <div class="promo" id="promo" data-reveal data-hover>
+          <div class="promo-bg" aria-hidden="true">
+            {Array.from({ length: 14 }, (_, i) => <span class="promo-burger" style={`--i:${i}`} set:html={burgerSvg} />)}
+          </div>
+          <div class="promo-body">
+            <p class="eyebrow mono">Solo para los primeros {EVENT.promoPrimeros}</p>
+            <h3 class="promo-title">
+              <span class="line"><span>Tu primer slider</span></span>
+              <span class="line"><span class="accent">va por nuestra cuenta.</span></span>
+            </h3>
+            <p class="promo-text">
+              Los primeros {EVENT.promoPrimeros} boletos entran con un slider de cortesía: cruzas la puerta y ya traes uno en la mano.
+              No es un cupón ni una promo que hay que reclamar. Es lo primero que pasa cuando llegas.
+              A partir del boleto {EVENT.promoPrimeros + 1}, se acabó.
+            </p>
+          </div>
+          <div class="promo-count">
+            <span class="mono">Sliders gratis que quedan</span>
+            <span class="promo-num" data-roll={promoQuedan} aria-label={String(promoQuedan)}><span class="dg"><span class="dg-col"></span></span><span class="dg"><span class="dg-col"></span></span></span>
+            <span class="mono promo-of">de {EVENT.promoPrimeros}</span>
+            <a class="btn btn-solid" href={ticketsUrl} target="_blank" rel="noopener" data-hover data-magnet><span>Quiero el mío</span></a>
+          </div>
+        </div>
+      </div>
       <div class="wrap tix-grid">
         <div class="tix-copy">
           <p class="eyebrow mono" data-reveal>Boletos</p>
@@ -237,7 +268,7 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
             <span class="line"><span class="accent">Los sliders también.</span></span>
           </h2>
           <p class="lead" data-reveal>
-            El Calvario tiene un cupo y ya va más de la mitad. Tu boleto es tu lugar frente a la plancha:
+            El Calvario tiene un cupo, y ya va más de la mitad. Tu boleto es tu lugar frente a la plancha:
             smash ilimitado, música y la única noche del año en la que Mr. Sliders cierra la calle para sus friends.
             Cuando se acaban, se acaban. No hay segunda fecha.
           </p>
@@ -257,6 +288,7 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
             <span>{restantes} libres</span>
           </div>
           <ul class="tix-perks">
+            <li><i></i>Slider gratis si eres de los primeros {EVENT.promoPrimeros}</li>
             <li><i></i>Smash ilimitado toda la noche</li>
             <li><i></i>Acceso a la ubicación secreta</li>
             <li><i></i>Edición limitada de aniversario</li>
@@ -642,6 +674,50 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
     .crowd-cta { display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; margin-top: 3rem; }
     .crowd-note { color: var(--faint); }
 
+    /* ── Promo primeros 100 ─────────────────────────────────────────── */
+    .promo-pill {
+      display: inline-flex; align-items: center; gap: .7rem; margin-top: 1.4rem; padding: .55rem 1rem .55rem .7rem;
+      border: 1px solid rgba(240, 90, 37, .45); border-radius: 999px; font-size: 1.05rem; font-weight: 400; letter-spacing: .02em;
+      color: var(--ink); background: rgba(240, 90, 37, .08); transition: background .4s, border-color .4s, transform .5s var(--out);
+    }
+    .promo-pill:hover { background: rgba(240, 90, 37, .16); border-color: var(--orange); transform: translateY(-2px); }
+    .promo-pill-ico { width: 1.6em; color: var(--orange); animation: float 4s ease-in-out infinite; }
+    .promo-pill-ico svg { width: 100%; height: auto; }
+    .promo-pill b { font-weight: 600; color: var(--orange); padding-left: .7rem; border-left: 1px solid rgba(240, 90, 37, .4); }
+    .promo {
+      position: relative; overflow: hidden; border-radius: 26px; background: var(--orange); color: var(--black);
+      display: grid; grid-template-columns: 1.3fr .7fr; gap: 2rem; padding: clamp(2rem, 4vw, 3.5rem); margin-bottom: clamp(4rem, 9vh, 7rem);
+      transition: transform .6s var(--out);
+    }
+    .promo:hover { transform: scale(1.005); }
+    .promo .eyebrow { color: var(--black); }
+    .promo .eyebrow-sep, .promo .eyebrow::before { background: var(--black); }
+    .promo-bg { position: absolute; inset: 0; pointer-events: none; opacity: .18; }
+    .promo-burger { position: absolute; width: clamp(48px, 7vw, 96px); color: var(--black); left: calc(var(--i) * 7.2%); top: calc((var(--i) * 37 % 100) * 1%);
+      transform: rotate(calc(var(--i) * 25deg)) translateY(0); animation: promoDrift 9s ease-in-out infinite; animation-delay: calc(var(--i) * -.7s); }
+    .promo-burger svg { width: 100%; height: auto; }
+    @keyframes promoDrift { 0%, 100% { translate: 0 0; } 50% { translate: 0 -18px; } }
+    .promo-body { position: relative; }
+    .promo-title { font-size: clamp(2.6rem, 6vw, 5.2rem); font-weight: 700; line-height: .95; letter-spacing: -.015em; }
+    .promo-title .line { display: block; overflow: hidden; padding-bottom: .05em; margin-bottom: -.05em; }
+    .promo-title .line > span { display: inline-block; transform: translateY(110%); transition: transform 1s var(--out); }
+    .promo.in .promo-title .line > span { transform: none; }
+    .promo.in .promo-title .line:nth-child(2) > span { transition-delay: .1s; }
+    .promo-title .accent { color: var(--ink); }
+    .promo-text { font-size: clamp(1.2rem, 2vw, 1.5rem); font-weight: 400; line-height: 1.35; margin-top: 1.4rem; max-width: 46ch; color: rgba(11, 10, 9, .8); }
+    .promo-count { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: .4rem; border-left: 1px solid rgba(11, 10, 9, .25); padding-left: 2rem; }
+    .promo-count .mono { color: rgba(11, 10, 9, .7); }
+    .promo-num { display: inline-flex; font-size: clamp(6rem, 14vw, 11rem); font-weight: 700; line-height: .9; letter-spacing: -.02em; color: var(--black); font-variant-numeric: tabular-nums; }
+    .promo-num .dg { width: .5em; height: .9em; }
+    .promo-num .dg-col span { height: .9em; line-height: .9; }
+    .promo-num .dg-col { transform: translateY(calc(var(--n, 0) * -.9em)); transition: transform 1.6s var(--out); }
+    .promo-of { margin-bottom: 1.2rem; }
+    .promo .btn-solid { background: var(--black); color: var(--ink); }
+    .promo .btn-solid::before { background: var(--ink); }
+    .promo .btn-solid:hover { color: var(--black); }
+    @media (max-width: 900px) { .promo { grid-template-columns: 1fr; } .promo-count { border-left: 0; border-top: 1px solid rgba(11, 10, 9, .25); padding: 1.6rem 0 0; } }
+    @media (max-width: 640px) { .promo-pill { font-size: .95rem; } .promo-pill b { padding-left: .5rem; } }
+
     /* ── Boletos ────────────────────────────────────────────────────── */
     .tix { padding: clamp(6rem, 14vh, 11rem) 0; border-top: 1px solid var(--line); }
     .tix-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(2.5rem, 6vw, 6rem); align-items: center; }
@@ -725,6 +801,7 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
     .stat.poke { background: var(--black-2); transform: translateY(-4px); }
     .stat.poke .stat-num { color: var(--orange); }
     .tix-card.poke { border-color: rgba(240, 90, 37, .5); transform: translateY(-4px); }
+    .promo.poke { transform: scale(1.01); }
     .btn.poke::before { transform: scaleX(1); }
     .btn.poke span { transform: translateX(3px); }
     .btn-line.poke { color: var(--black); border-color: var(--orange); }
@@ -909,7 +986,9 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
         if (roll) {
           $$('.dg-col', roll).forEach(initCol);
           en.target.closest('.h2')?.classList.add('go');
-          setTimeout(() => setNumber(roll, Number(roll.dataset.roll), 3), 250);
+          const len = Math.max(2, String(Number(roll.dataset.roll)).length);
+          while ($$('.dg', roll).length > len) $('.dg', roll)!.remove();
+          setTimeout(() => setNumber(roll, Number(roll.dataset.roll), len), 250);
         }
         $$('[data-count]', en.target).forEach((el) => {
           const to = Number(el.dataset.count); const t0 = performance.now(); const dur = 1400;
@@ -977,7 +1056,7 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
       };
       poke('.cd-group', 'wob'); poke('.friends-word', 'wob', 900); poke('#revealLocked', 'poke', 1200);
       poke('.crowd .head', 'wave', 600); poke('.stat', 'poke', 900); poke('.tix-card', 'poke', 900);
-      poke('.btn', 'poke', 500); poke('.top-brand', 'poke', 600);
+      poke('.btn', 'poke', 500); poke('.top-brand', 'poke', 600); poke('.promo', 'poke', 700);
 
       // Parallax de la mascota del hero: scroll siempre, giroscopio cuando el dispositivo lo permite.
       const svg = mascot ? $('svg', mascot) : null;
