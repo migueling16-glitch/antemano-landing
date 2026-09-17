@@ -41,7 +41,7 @@ export const EVENT = {
   /** Precio a mostrar (texto libre). Vacío = no se muestra. */
   precio: '',
   /** Cupo total. DEMO: se usa para la barra "% del cupo apartado". */
-  cupo: 150,
+  cupo: 400,
   /** Texto corto del hero */
   tagline: 'Un año de smash. Una noche para celebrarlo.',
 } as const;
