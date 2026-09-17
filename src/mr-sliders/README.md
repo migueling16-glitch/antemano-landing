@@ -16,7 +16,8 @@ src/mr-sliders/
 │   ├── mascot.svg           mascota (fill="currentColor": toma el color del CSS)
 │   ├── wordmark.svg         "Mr. Sliders smash burgers"
 │   ├── logo-full.svg        mascota + wordmark
-│   └── burger.svg           ícono de hamburguesa del patrón de marca
+│   ├── burger.svg           ícono de hamburguesa del patrón de marca
+│   └── durango.svg          silueta del estado (GeoJSON simplificado) para la tarjeta de ubicación
 └── README.md
 
 src/pages/mrsliders&friends.astro   wrapper de 3 líneas que monta la página en la ruta
