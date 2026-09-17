@@ -8,7 +8,7 @@ import mascotSvg from './assets/mascot.svg?raw';
 import wordmarkSvg from './assets/wordmark.svg?raw';
 import burgerSvg from './assets/burger.svg?raw';
 
-const title = `${EVENT.nombre} — ${EVENT.motivo} · 30 de octubre · Durango`;
+const title = `${EVENT.nombre} — Viernes 30 de octubre · Durango`;
 const description = `${EVENT.tagline} ${EVENT.zona}, ${EVENT.ciudad}. La ubicación exacta se revela una semana antes.`;
 const calendarUrl = googleCalendarUrl();
 const igUrl = `https://instagram.com/${EVENT.instagram}`;
@@ -22,9 +22,11 @@ const dia = fecha.toLocaleDateString('es-MX', { day: '2-digit', timeZone: 'Ameri
 const mes = fecha.toLocaleDateString('es-MX', { month: 'long', timeZone: 'America/Monterrey' });
 const anio = fecha.toLocaleDateString('es-MX', { year: 'numeric', timeZone: 'America/Monterrey' });
 const hora = fecha.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Monterrey' });
+const diaSemana = fecha.toLocaleDateString('es-MX', { weekday: 'long', timeZone: 'America/Monterrey' });
+const diaSemanaCap = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
 const revelDia = new Date(EVENT.revelacion).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', timeZone: 'America/Monterrey' });
 
-const marqueeItems = ['Mr. Sliders & Friends', 'Un año', '30 · 10 · 2026', 'Smash', 'Barrio del Calvario', 'Durango'];
+const marqueeItems = ['Mr. Sliders & Friends', `${diaSemanaCap} ${dia} de ${mes}`, 'Un año', `${hora}`, 'Smash', 'Barrio del Calvario', 'Durango'];
 const friends = 'Friends'.split('');
 // Multitud: una cabecita por cada confirmado (tope visual de 160), dibujada con <use> para no repetir el SVG.
 const crowdN = Math.min(EVENT.confirmados, 160);
@@ -84,15 +86,20 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
   <div class="cursor" id="cursor" aria-hidden="true"><span class="cursor-dot"></span><span class="cursor-ring"></span></div>
   <div class="aura" id="aura" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
+  <a class="date-badge" href="#top" data-enter data-hover style="--d:1.4s" aria-label={`${diaSemanaCap} ${dia} de ${mes}, ${hora}`}>
+    <span class="db-day">{diaSemana.slice(0, 3)}</span>
+    <span class="db-num">{dia}</span>
+    <span class="db-mon">{mes.slice(0, 3)}</span>
+  </a>
 
   <header class="top" data-enter>
     <a class="top-brand" href="#top" data-hover aria-label="Mr. Sliders">
       <span class="top-mascot" set:html={mascotSvg} />
     </a>
     <div class="top-meta mono">
-      <span>{dia} · 10 · {anio}</span>
+      <span>{diaSemanaCap} {dia} de {mes}</span>
       <span class="top-dot"></span>
-      <span>{EVENT.ciudad}</span>
+      <span>{hora}</span>
     </div>
     <a class="top-link mono" href={igUrl} target="_blank" rel="noopener" data-hover>@{EVENT.instagram}</a>
   </header>
@@ -119,7 +126,11 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
           </span>
         </h1>
 
-        <p class="hero-tagline" data-enter style="--d:.7s">{EVENT.tagline}</p>
+        <p class="hero-date" data-enter style="--d:.7s">
+          <span class="hd-side">{diaSemanaCap}</span>
+          <span class="hd-num">{dia}</span>
+          <span class="hd-side">de {mes}<br /><small>{anio} · {hora}</small></span>
+        </p>
 
         <div class="countdown" id="cdParty" data-target={EVENT.fecha} data-enter style="--d:.85s" aria-live="polite">
           <div class="cd-group" data-hover>
@@ -160,9 +171,9 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
       </div>
 
       <div class="hero-foot mono" data-enter style="--d:1.2s">
-        <span>{EVENT.zona} · {EVENT.ciudad}</span>
+        <span>{EVENT.tagline}</span>
         <span class="scroll-hint"><i></i> Desliza</span>
-        <span>{hora}</span>
+        <span>{EVENT.zona} · {EVENT.ciudad}</span>
       </div>
     </section>
 
@@ -310,7 +321,7 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
           <p class="lead" data-reveal>
             Eso es todo lo que podemos decir por ahora. La ubicación exacta se revela aquí mismo el <strong>{revelDia}</strong>, una semana antes de la fiesta.
           </p>
-          <p class="mono where-note" data-reveal>Durango, Dgo. · {hora}</p>
+          <p class="mono where-note" data-reveal>{diaSemanaCap} {dia} de {mes} · {hora} · {EVENT.ciudad}</p>
         </div>
 
         <div class="reveal-card" id="revealCard" data-reveal data-target={EVENT.revelacion}>
@@ -373,7 +384,7 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
           <a class="btn btn-solid btn-lg" href={ticketsUrl} target="_blank" rel="noopener" data-hover data-magnet><span>Quiero mi boleto</span></a>
           <a class="btn btn-line btn-lg" href={calendarUrl} target="_blank" rel="noopener" data-hover data-magnet><span>Agendar</span></a>
         </div>
-        <p class="mono friends-note" data-reveal>{dia} de {mes} · {hora} · {EVENT.zona}</p>
+        <p class="mono friends-note" data-reveal>{diaSemanaCap} {dia} de {mes} · {hora} · {EVENT.zona}</p>
       </div>
     </section>
 
@@ -552,6 +563,20 @@ const mascotViewBox = mascotSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 266 386'
     @keyframes bounce { 30% { transform: translateY(-8%) scaleY(1.06); } 60% { transform: translateY(3%) scaleY(.97); } 100% { transform: translateY(0); } }
     .hero-tagline { font-size: clamp(1.3rem, 2.4vw, 1.9rem); font-weight: 300; color: var(--mute); margin-top: 1.2rem; max-width: 34ch; letter-spacing: .01em; }
 
+    .hero-date { display: flex; align-items: center; gap: .6rem 1rem; margin-top: 1.2rem; flex-wrap: wrap; line-height: 1; }
+    .hd-side { font-size: clamp(1.6rem, 3.2vw, 2.6rem); font-weight: 500; text-transform: uppercase; letter-spacing: .02em; color: var(--ink); }
+    .hd-side small { display: block; font-family: var(--mono); font-size: .68rem; letter-spacing: .18em; color: var(--orange); margin-top: .35rem; font-weight: 500; }
+    .hd-num { font-size: clamp(4rem, min(9vw, 10vh), 7rem); font-weight: 700; color: var(--orange); letter-spacing: -.03em; line-height: .85; transform: skewX(-5deg); display: inline-block; text-shadow: 0 0 40px rgba(240, 90, 37, .35); }
+    .date-badge {
+      position: fixed; left: var(--pad); bottom: 1.25rem; z-index: 60; display: flex; align-items: center; gap: .55rem;
+      padding: .5rem .9rem; border: 1px solid rgba(240, 90, 37, .5); border-radius: 999px; background: rgba(11, 10, 9, .7);
+      backdrop-filter: blur(8px); font-family: var(--mono); font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink);
+      transition: border-color .4s, transform .5s var(--out), opacity .9s var(--out); box-shadow: 0 0 0 0 rgba(240, 90, 37, .35); animation: badgePulse 3s var(--out) infinite;
+    }
+    @keyframes badgePulse { 0% { box-shadow: 0 0 0 0 rgba(240, 90, 37, .35); } 60% { box-shadow: 0 0 0 14px rgba(240, 90, 37, 0); } 100% { box-shadow: 0 0 0 0 rgba(240, 90, 37, 0); } }
+    .date-badge:hover { border-color: var(--orange); transform: translateY(-3px); }
+    .db-num { font-family: var(--display); font-size: 1.7rem; font-weight: 700; color: var(--orange); line-height: 1; letter-spacing: 0; }
+    @media (max-width: 640px) { .date-badge { bottom: .9rem; padding: .4rem .7rem; left: auto; right: var(--pad); } .scroll-hint { display: none; } .hero-foot > span:first-child { max-width: 60%; } .foot { padding-bottom: 3.5rem; } }
     .countdown { display: flex; align-items: flex-start; gap: clamp(.4rem, 1.6vw, 1.4rem); margin-top: clamp(1.4rem, 3.5vh, 3rem); flex-wrap: wrap; }
     .cd-group { display: flex; flex-direction: column; align-items: center; gap: .5rem; transition: transform .4s var(--out); }
     .cd-group:hover { transform: translateY(-4px); }
