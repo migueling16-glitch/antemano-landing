@@ -19,6 +19,15 @@ import auxiliarSvg from './assets/auxiliar.svg?raw';
 
 const accesos = ACCESOS.filter((a) => a.activo && a.href);
 
+/**
+ * El isotipo aparece cuatro veces (barra, hero, manifiesto e intro). Se define
+ * una sola vez como <symbol> y las tres estáticas lo referencian con <use>.
+ * La del intro sí va inline: para dibujarla trazo por trazo hace falta llegar
+ * a cada <path>, y dentro de un <use> no se puede.
+ */
+const isoInner = isotipoSvg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+const isoViewBox = isotipoSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 553.019 440';
+
 /** Estado calculado al construir: es el que ve quien entra sin JS. El cliente lo recalcula. */
 const estadoInicial = estadoDe(ahoraEnDurango());
 
@@ -107,6 +116,25 @@ const jsonLd = {
   <body>
     <a class="saltar" href="#accesos">Saltar al contenido</a>
 
+    <!-- Definición única del isotipo; las copias estáticas la referencian. -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <symbol id="ryo-iso" viewBox={isoViewBox} set:html={isoInner} />
+    </svg>
+
+    <!--
+      Intro: el isotipo se dibuja solo, como el trazo hecho a mano del que habla
+      el manual, y después vuela a su lugar en el hero. Nace oculto y solo el JS
+      lo enciende: si el script falla, la página se ve entera de inmediato.
+      Una vez por sesión y nunca con prefers-reduced-motion.
+    -->
+    <div class="intro" data-intro hidden aria-hidden="true">
+      <div class="intro-fondo" data-intro-fondo></div>
+      <div class="intro-marca" data-intro-marca>
+        <span class="intro-iso" set:html={isotipoSvg} />
+      </div>
+      <p class="intro-slogan" data-intro-slogan>{NEGOCIO.slogan}</p>
+    </div>
+
     <!-- Progreso de lectura: filete de 1px, sin JS (scroll-driven animation). -->
     <div class="progreso" aria-hidden="true"></div>
     <!-- Grano de papel. Se apaga poniendo --grano: 0 en :root. -->
@@ -118,7 +146,9 @@ const jsonLd = {
     <header class="barra">
       <a class="barra-marca" href="#top" aria-label={`${NEGOCIO.nombre} — inicio`}>
         <!-- El manual designa el isotipo para formatos pequeños (favicon, avatar). -->
-        <span class="marca marca-iso-chica" set:html={isotipoSvg} aria-hidden="true" />
+        <span class="marca marca-iso-chica" aria-hidden="true">
+          <svg viewBox={isoViewBox}><use href="#ryo-iso" /></svg>
+        </span>
       </a>
       <div class="tema" role="group" aria-label="Tema de la página">
         <button type="button" data-tema-btn="champagne" aria-pressed="true">Champagne</button>
@@ -129,20 +159,34 @@ const jsonLd = {
     <main id="top">
       <!-- ─────────── HERO ─────────── -->
       <section class="hero">
-        <div class="hero-marca rv" data-parallax>
+        <!--
+          El isotipo encabeza el hero. Flota, sigue al cursor más que el
+          logotipo (da profundidad) y al tocarlo se hacen ondas en el café.
+          Es decorativo: no quita nada al navegar con teclado.
+        -->
+        <div class="hero-iso" data-heroiso>
+          <span class="iso-flota" data-iso-flota>
+            <span class="marca" aria-hidden="true">
+              <svg viewBox={isoViewBox}><use href="#ryo-iso" /></svg>
+            </span>
+            <span class="ondas" data-ondas aria-hidden="true"></span>
+          </span>
+        </div>
+
+        <div class="hero-marca rv" style="--i:1" data-parallax>
           <span class="marca marca-logo" set:html={logotipoSvg} role="img" aria-label={NEGOCIO.nombre} />
         </div>
 
-        <p class="hero-tagline rv" style="--i:1">{NEGOCIO.tagline}</p>
+        <p class="hero-tagline rv" style="--i:2">{NEGOCIO.tagline}</p>
 
-        <div class="estado rv" style="--i:2" role="status" data-estado>
+        <div class="estado rv" style="--i:3" role="status" data-estado>
           <span class="estado-punto" data-estado-punto={estadoInicial.abierto ? 'si' : 'no'} aria-hidden="true"></span>
           <span class="estado-titulo" data-estado-titulo>{estadoInicial.titulo}</span>
           <span class="estado-sep" aria-hidden="true">·</span>
           <span class="estado-detalle" data-estado-detalle>{estadoInicial.detalle}</span>
         </div>
 
-        <a class="cta rv" style="--i:3" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener" data-iman>
+        <a class="cta rv" style="--i:4" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener" data-iman>
           <span class="cta-texto">
             <span class="cta-etiqueta">{ACCESO_PRINCIPAL.etiqueta}</span>
             <span class="cta-detalle">{ACCESO_PRINCIPAL.detalle}</span>
@@ -150,7 +194,7 @@ const jsonLd = {
           <span class="cta-flecha" aria-hidden="true">↗</span>
         </a>
 
-        <div class="dir rv" style="--i:4">
+        <div class="dir rv" style="--i:5">
           <p class="dir-texto">
             {NEGOCIO.direccion}<br />
             {NEGOCIO.cp} · {NEGOCIO.ciudad}
@@ -207,7 +251,9 @@ const jsonLd = {
 
         <div class="man-cuerpo">
           <div class="man-iso rv">
-            <span class="marca marca-iso" set:html={isotipoSvg} aria-hidden="true" />
+            <span class="marca marca-iso" aria-hidden="true">
+              <svg viewBox={isoViewBox}><use href="#ryo-iso" /></svg>
+            </span>
           </div>
           <div class="man-lineas">
             {MANIFIESTO.map((linea, n) => (
@@ -455,6 +501,70 @@ const jsonLd = {
       .marca { display: block; }
       .marca svg { display: block; width: 100%; height: auto; }
 
+      /* Definición del isotipo: no se dibuja, solo se referencia con <use>. */
+      .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+      /* ═══════════════════════════════════════════════════════════
+         INTRO — el isotipo se dibuja solo y vuela al hero
+         ═══════════════════════════════════════════════════════════ */
+      .intro {
+        position: fixed;
+        inset: 0;
+        z-index: 95;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-5);
+      }
+      .intro[hidden] { display: none; }
+
+      .intro-fondo {
+        position: absolute;
+        inset: 0;
+        background: var(--surface);
+      }
+
+      .intro-marca {
+        position: relative;
+        width: min(62vw, 280px);
+        color: var(--ink);
+        will-change: transform;
+      }
+      @media (min-width: 720px) { .intro-marca { width: min(38vw, 340px); } }
+
+      .intro-iso svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+      /* Arranca sin relleno: solo el contorno que se va trazando. */
+      .intro-iso path {
+        fill: transparent;
+        stroke: currentColor;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: fill 700ms var(--ease), stroke-width 700ms var(--ease);
+      }
+      .intro[data-fase='lleno'] .intro-iso path,
+      .intro[data-fase='vuela'] .intro-iso path {
+        fill: currentColor;
+        stroke-width: 0;
+      }
+
+      .intro-slogan {
+        position: relative;
+        margin: 0;
+        color: var(--ink);
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.3em;
+        text-align: center;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+      }
+      .intro[data-fase='lleno'] .intro-slogan { opacity: 1; transform: none; }
+      .intro[data-fase='vuela'] .intro-slogan { opacity: 0; transition-duration: 350ms; }
+
       /* ═══════════════════════════════════════════════════════════
          CAPAS FIJAS
          ═══════════════════════════════════════════════════════════ */
@@ -549,13 +659,57 @@ const jsonLd = {
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
-        gap: var(--space-4);
+        gap: clamp(14px, 3.6vw, 26px);
         max-width: var(--ancho);
         margin: 0 auto;
         position: relative;
       }
 
-      .hero-marca { width: clamp(180px, 52vw, 300px); }
+      /* ─── El monito: protagonista del hero ─── */
+      .hero-iso {
+        width: clamp(162px, 44vw, 240px);
+        color: var(--ink);
+        will-change: transform;
+      }
+      .iso-flota {
+        position: relative;
+        display: block;
+        animation: flotar 7s ease-in-out infinite;
+      }
+      .iso-flota .marca { cursor: pointer; }
+      @keyframes flotar {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-7px) scale(1.015); }
+      }
+      /* Al tocarlo pega un brinquito y suelta ondas en el café. */
+      .hero-iso[data-sacude='si'] .iso-flota { animation: sacudir 720ms var(--ease); }
+      @keyframes sacudir {
+        0% { transform: translateY(0) scale(1); }
+        28% { transform: translateY(-14px) scale(1.045); }
+        58% { transform: translateY(4px) scale(0.985); }
+        100% { transform: translateY(0) scale(1); }
+      }
+
+      /* Ondas: elipses de 1px sobre la superficie del café. */
+      .ondas { position: absolute; inset: 0; pointer-events: none; }
+      .onda {
+        position: absolute;
+        left: 44%;
+        top: 37%;
+        width: 40%;
+        aspect-ratio: 2.7 / 1;
+        margin: 0;
+        border: 1px solid currentColor;
+        border-radius: var(--radius-full);
+        animation: ondear 1600ms var(--ease) forwards;
+      }
+      @keyframes ondear {
+        from { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+        55% { opacity: 0.75; }
+        to { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+      }
+
+      .hero-marca { width: clamp(150px, 44vw, 262px); }
       .marca-logo { width: 100%; }
 
       /* En escritorio el hero se abre en dos columnas: marca a la izquierda,
@@ -564,17 +718,18 @@ const jsonLd = {
         .hero {
           max-width: 64rem;
           display: grid;
-          grid-template-columns: minmax(260px, 360px) 1fr;
+          grid-template-columns: minmax(280px, 400px) 1fr;
           grid-template-areas:
-            'marca estado'
-            'marca cta'
+            'iso     estado'
+            'marca   cta'
             'tagline dir';
           align-content: center;
           align-items: end;
           column-gap: var(--space-6);
           row-gap: var(--space-4);
         }
-        .hero-marca { grid-area: marca; width: 100%; align-self: center; }
+        .hero-iso { grid-area: iso; width: clamp(200px, 22vw, 290px); justify-self: start; }
+        .hero-marca { grid-area: marca; width: clamp(180px, 20vw, 250px); align-self: center; }
         .hero-tagline { grid-area: tagline; align-self: start; }
         .estado { grid-area: estado; }
         .cta { grid-area: cta; }
@@ -766,9 +921,9 @@ const jsonLd = {
         margin-inline: auto;
       }
       @media (min-width: 720px) {
-        .man-cuerpo { grid-template-columns: 200px 1fr; align-items: start; gap: var(--space-6); }
+        .man-cuerpo { grid-template-columns: 240px 1fr; align-items: start; gap: var(--space-6); }
       }
-      .man-iso { width: clamp(140px, 42vw, 200px); }
+      .man-iso { width: clamp(160px, 48vw, 240px); }
       .man-linea {
         font-style: italic;
         font-size: clamp(1rem, 3.4vw, 1.15rem);
@@ -950,11 +1105,15 @@ const jsonLd = {
       /* Sin JS todo se ve igual. */
       html.no-js .rv { opacity: 1; transform: none; }
 
+      /* Mientras corre el intro la página no se mueve debajo. */
+      body[data-intro-corriendo='si'] { overflow: hidden; }
+
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
         .rv, .rv[data-visible='si'] { opacity: 1; transform: none; transition: none; }
-        .banda-pista, .baja, .estado-punto { animation: none; }
+        .banda-pista, .baja, .estado-punto, .iso-flota, .onda { animation: none; }
         .cta, .acceso, .boton, body { transition: none; }
+        .intro { display: none; }
       }
     </style>
 
@@ -1020,9 +1179,11 @@ const jsonLd = {
 
       /* ── Revelados al hacer scroll ────────────────────────────── */
       const porRevelar = document.querySelectorAll<HTMLElement>('.rv');
-      if (lento || !('IntersectionObserver' in window)) {
-        porRevelar.forEach((el) => (el.dataset.visible = 'si'));
-      } else {
+      const activarRevelados = () => {
+        if (lento || !('IntersectionObserver' in window)) {
+          porRevelar.forEach((el) => (el.dataset.visible = 'si'));
+          return;
+        }
         const ojo = new IntersectionObserver(
           (entradas) => {
             entradas.forEach((e) => {
@@ -1035,6 +1196,117 @@ const jsonLd = {
           { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
         );
         porRevelar.forEach((el) => ojo.observe(el));
+      };
+
+      /* ── Intro: el isotipo se dibuja solo y vuela a su lugar ──── */
+      const intro = document.querySelector<HTMLElement>('[data-intro]');
+      const heroIso = document.querySelector<HTMLElement>('[data-heroiso]');
+
+      // ?intro en la URL lo vuelve a correr: sirve para enseñárselo al cliente
+      // sin tener que abrir una pestaña nueva. No se salta reduced-motion.
+      const repetirIntro = new URLSearchParams(location.search).has('intro');
+      let introVista = false;
+      try { introVista = !repetirIntro && sessionStorage.getItem('ryo-intro') === 'si'; } catch {}
+
+      const puedeAnimar = typeof Element.prototype.animate === 'function';
+
+      if (intro && heroIso && !lento && !introVista && puedeAnimar) {
+        correrIntro(intro, heroIso);
+      } else {
+        intro?.remove();
+        activarRevelados();
+      }
+
+      function correrIntro(capa: HTMLElement, destino: HTMLElement) {
+        const marca = capa.querySelector<HTMLElement>('[data-intro-marca]');
+        const fondo = capa.querySelector<HTMLElement>('[data-intro-fondo]');
+        const trazos = Array.from(capa.querySelectorAll<SVGPathElement>('.intro-iso path'));
+        if (!marca || !fondo || !trazos.length) {
+          capa.remove();
+          activarRevelados();
+          return;
+        }
+
+        try { sessionStorage.setItem('ryo-intro', 'si'); } catch {}
+
+        capa.hidden = false;
+        document.body.dataset.introCorriendo = 'si';
+        window.scrollTo(0, 0); // el vuelo mide la posición real del hero
+        destino.style.visibility = 'hidden';
+
+        // Velocidad de trazo constante: cada path dura según su longitud.
+        // Es el detalle que hace que se lea como una mano dibujando.
+        const DIBUJO = 1250;
+        const largos = trazos.map((p) => p.getTotalLength());
+        const total = largos.reduce((a, b) => a + b, 0) || 1;
+        let reloj = 0;
+        trazos.forEach((p, i) => {
+          const len = largos[i];
+          p.style.strokeDasharray = String(len);
+          p.style.strokeDashoffset = String(len);
+          const dur = Math.max(110, (len / total) * DIBUJO);
+          p.animate(
+            [{ strokeDashoffset: String(len) }, { strokeDashoffset: '0' }],
+            { duration: dur, delay: reloj, easing: 'linear', fill: 'forwards' },
+          );
+          reloj += dur * 0.9;
+        });
+
+        let cerrado = false;
+        const cerrar = () => {
+          if (cerrado) return;
+          cerrado = true;
+          destino.style.visibility = '';
+          capa.remove();
+          delete document.body.dataset.introCorriendo;
+          activarRevelados();
+        };
+        // Cualquier interacción se la salta.
+        ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((evt) =>
+          window.addEventListener(evt, cerrar, { passive: true, once: true }),
+        );
+
+        // 1. Se llena el trazo y aparece el slogan.
+        window.setTimeout(() => { capa.dataset.fase = 'lleno'; }, reloj + 120);
+
+        // 2. Vuela hasta su sitio en el hero mientras el fondo se disuelve.
+        window.setTimeout(() => {
+          if (cerrado) return;
+          capa.dataset.fase = 'vuela';
+          const de = marca.getBoundingClientRect();
+          const a = destino.getBoundingClientRect();
+          const escala = de.width ? a.width / de.width : 1;
+          const dx = a.left + a.width / 2 - (de.left + de.width / 2);
+          const dy = a.top + a.height / 2 - (de.top + de.height / 2);
+          marca.animate(
+            [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${escala})` }],
+            { duration: 950, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' },
+          );
+          fondo.animate(
+            [{ opacity: '1' }, { opacity: '0' }],
+            { duration: 700, delay: 300, easing: 'ease-out', fill: 'forwards' },
+          ).finished.then(cerrar, cerrar);
+        }, reloj + 950);
+
+        // Red de seguridad: pase lo que pase, la capa se quita.
+        window.setTimeout(cerrar, reloj + 3600);
+      }
+
+      /* ── El monito: brinca y hace ondas al tocarlo ────────────── */
+      const ondas = document.querySelector<HTMLElement>('[data-ondas]');
+      if (heroIso && ondas && !lento) {
+        heroIso.addEventListener('click', () => {
+          heroIso.dataset.sacude = 'si';
+          window.setTimeout(() => { delete heroIso.dataset.sacude; }, 760);
+          [0, 210, 420].forEach((retraso) =>
+            window.setTimeout(() => {
+              const o = document.createElement('span');
+              o.className = 'onda';
+              o.addEventListener('animationend', () => o.remove());
+              ondas.appendChild(o);
+            }, retraso),
+          );
+        });
       }
 
       /* ── Filete de la barra y CTA inferior al salir del hero ──── */
@@ -1065,14 +1337,21 @@ const jsonLd = {
         window.addEventListener('resize', pintar);
       }
 
-      /* ── Parallax suave del logotipo (solo mouse fino) ────────── */
-      const marca = document.querySelector<HTMLElement>('[data-parallax]');
-      if (marca && !lento && window.matchMedia('(pointer: fine)').matches) {
+      /* ── Parallax del hero: el monito se mueve más que el
+            logotipo, y esa diferencia es la que da profundidad. ─── */
+      const capas = [
+        { el: document.querySelector<HTMLElement>('[data-heroiso]'), f: 2.1 },
+        { el: document.querySelector<HTMLElement>('[data-parallax]'), f: 1 },
+      ].filter((c): c is { el: HTMLElement; f: number } => c.el !== null);
+
+      if (capas.length && !lento && window.matchMedia('(pointer: fine)').matches) {
         let destinoX = 0, destinoY = 0, x = 0, y = 0, animando = false;
         const suavizar = () => {
           x += (destinoX - x) * 0.06;
           y += (destinoY - y) * 0.06;
-          marca.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
+          capas.forEach(({ el, f }) => {
+            el.style.transform = `translate3d(${(x * f).toFixed(2)}px, ${(y * f).toFixed(2)}px, 0)`;
+          });
           if (Math.abs(destinoX - x) > 0.05 || Math.abs(destinoY - y) > 0.05) {
             requestAnimationFrame(suavizar);
           } else {

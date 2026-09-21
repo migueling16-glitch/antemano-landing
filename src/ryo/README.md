@@ -31,7 +31,11 @@ scripts/ryo-og.py       regenera public/ryo/og.png
 
 Las marcas de `assets/` son los mismos vectores del manual, con la tinta
 cambiada a `currentColor`: así un solo archivo sirve para los dos temas y el
-color siempre sale de `--ink`, que solo puede ser champagne o café. Los masters
+color siempre sale de `--ink`, que solo puede ser champagne o café. El isotipo
+sale cuatro veces, así que se define una vez como `<symbol id="ryo-iso">` y la
+barra, el hero y el manifiesto lo llaman con `<use>`. La copia del intro sí va
+inline aparte: para dibujarla trazo por trazo hay que llegar a cada `<path>`,
+y dentro de un `<use>` no se puede. Los masters
 originales de dos tintas siguen intactos en `public/ryo/marcas/` por si se
 necesitan para impresión o para usarlos con `<img>`.
 
@@ -83,6 +87,20 @@ activan todos, conviene apagar alguno para no pasar de siete.
 - **Bloques invertidos.** La clase `.inv` intercambia `--surface` y `--ink`
   para las bandas oscuras (slogan, manifiesto, pie) en cualquiera de los dos
   temas.
+- **Intro.** Al cargar, el isotipo se dibuja solo —contorno primero, relleno
+  después— y luego vuela hasta su lugar en el hero mientras el fondo se
+  disuelve. Son unos 2.5 s. La velocidad del trazo es constante (cada `path`
+  dura según su longitud real, medida con `getTotalLength()`): ese detalle es
+  lo que hace que se lea como una mano dibujando y no como un relleno.
+  Corre una sola vez por sesión, cualquier toque o tecla se la salta, y no
+  corre nunca con `prefers-reduced-motion`. Nace con `hidden` y solo el JS la
+  enciende: si el script falla, la página se ve entera de inmediato. Hay dos
+  redes de seguridad más: un `setTimeout` que la quita pase lo que pase, y el
+  CSS que la oculta con reduced-motion aunque el JS se equivoque.
+  **Para volver a verla, agrega `?intro` a la URL.**
+- **El monito juega.** Flota, sigue al cursor más que el logotipo (la
+  diferencia entre las dos capas es lo que da profundidad) y al tocarlo pega un
+  brinco y suelta ondas de 1px sobre el café.
 - **Barra inferior en móvil.** Aparece al salir del hero con la acción
   principal, porque casi todo el tráfico de un link de bio es de celular.
 - **Datos estructurados.** La página emite JSON-LD de tipo `CafeOrCoffeeShop`
@@ -99,10 +117,14 @@ activan todos, conviene apagar alguno para no pasar de siete.
   degradados. La jerarquía se hace con espacio, no con adornos.
 - Grano de papel encima de todo (`--grano`, ponerlo en `0` para quitarlo).
 - Composición numerada 01–04, como las secciones del brand book.
+- El isotipo es el protagonista: encabeza el hero, protagoniza el intro y
+  aparece grande en el manifiesto. Es la única imagen de la página, así que
+  carga el peso visual que en otro sitio llevaría la fotografía.
 - Movimiento contenido: revelados de 1.1s con curva larga, marquee lento del
-  slogan, parallax de 12px del logotipo con el mouse, botón magnético e
-  inversión de color al pasar por los accesos. Todo se apaga con
-  `prefers-reduced-motion`.
+  slogan, parallax en dos capas, botón magnético e inversión de color al pasar
+  por los accesos. Todo se apaga con `prefers-reduced-motion`.
+- Ninguna animación deforma la marca: se dibuja, se escala en proporción y se
+  desplaza, pero nunca se estira, se rota ni cambia de color.
 
 ## Migrar a otro dominio / proyecto
 
