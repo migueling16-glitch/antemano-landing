@@ -16,17 +16,30 @@ import logotipoSvg from './assets/logotipo.svg?raw';
 import isotipoSvg from './assets/isotipo.svg?raw';
 import taglineSvg from './assets/tagline.svg?raw';
 import auxiliarSvg from './assets/auxiliar.svg?raw';
+// Eje central del isotipo. No se dibuja: es la máscara que destapa el arte
+// real en el intro. Se regenera con scripts/ryo-centerline.py.
+import trazoSvg from './assets/isotipo-trazo.svg?raw';
 
 const accesos = ACCESOS.filter((a) => a.activo && a.href);
 
 /**
- * El isotipo aparece cuatro veces (barra, hero, manifiesto e intro). Se define
- * una sola vez como <symbol> y las tres estáticas lo referencian con <use>.
- * La del intro sí va inline: para dibujarla trazo por trazo hace falta llegar
- * a cada <path>, y dentro de un <use> no se puede.
+ * El isotipo sale tres veces (barra, manifiesto e intro). Se define una sola
+ * vez como <symbol> y las tres lo llaman con <use>: el intro no necesita
+ * llegar a cada <path> del dibujo porque lo revela con una máscara.
  */
 const isoInner = isotipoSvg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
 const isoViewBox = isotipoSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 553.019 440';
+
+/**
+ * La pluma del intro: los ejes centrales de cada trazo, usados como máscara
+ * sobre el isotipo real. Lo que se ve siempre es el vector del manual; la
+ * máscara solo decide en qué orden se destapa, y como el trazo de la máscara
+ * es más gordo que el del dibujo, se lee como una sola línea avanzando.
+ */
+const trazoInner = trazoSvg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+const trazoGrosor = trazoSvg.match(/data-grosor="([\d.]+)"/)?.[1] ?? '26';
+const [vbX, vbY, vbW, vbH] = isoViewBox.split(/[\s,]+/).map(Number);
+const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
 
 /** Estado calculado al construir: es el que ve quien entra sin JS. El cliente lo recalcula. */
 const estadoInicial = estadoDe(ahoraEnDurango());
@@ -122,15 +135,39 @@ const jsonLd = {
     </svg>
 
     <!--
-      Intro: el isotipo se dibuja solo, como el trazo hecho a mano del que habla
-      el manual, y después vuela a su lugar en el hero. Nace oculto y solo el JS
-      lo enciende: si el script falla, la página se ve entera de inmediato.
-      Una vez por sesión y nunca con prefers-reduced-motion.
+      Intro: el isotipo se dibuja solo de un trazo, como el dibujo hecho a mano
+      del que habla el manual, y después vuela al isotipo de la barra, arriba a
+      la izquierda. Nace oculto y solo el JS lo enciende: si el script falla, la
+      página se ve entera de inmediato. Una vez por sesión y nunca con
+      prefers-reduced-motion.
     -->
     <div class="intro" data-intro hidden aria-hidden="true">
       <div class="intro-fondo" data-intro-fondo></div>
       <div class="intro-marca" data-intro-marca>
-        <span class="intro-iso" set:html={isotipoSvg} />
+        <svg class="intro-iso" viewBox={isoViewBox}>
+          <mask
+            id="ryo-pluma"
+            maskUnits="userSpaceOnUse"
+            x={mascara.x}
+            y={mascara.y}
+            width={mascara.w}
+            height={mascara.h}
+          >
+            <g
+              data-pluma
+              fill="none"
+              stroke="#fff"
+              stroke-width={trazoGrosor}
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              set:html={trazoInner}
+            />
+          </mask>
+          <g mask="url(#ryo-pluma)" data-intro-arte>
+            <use href="#ryo-iso" />
+          </g>
+        </svg>
+        <span class="ondas" data-ondas></span>
       </div>
       <p class="intro-slogan" data-intro-slogan>{NEGOCIO.slogan}</p>
     </div>
@@ -146,7 +183,7 @@ const jsonLd = {
     <header class="barra">
       <a class="barra-marca" href="#top" aria-label={`${NEGOCIO.nombre} — inicio`}>
         <!-- El manual designa el isotipo para formatos pequeños (favicon, avatar). -->
-        <span class="marca marca-iso-chica" aria-hidden="true">
+        <span class="marca marca-iso-chica" data-destino aria-hidden="true">
           <svg viewBox={isoViewBox}><use href="#ryo-iso" /></svg>
         </span>
       </a>
@@ -159,34 +196,20 @@ const jsonLd = {
     <main id="top">
       <!-- ─────────── HERO ─────────── -->
       <section class="hero">
-        <!--
-          El isotipo encabeza el hero. Flota, sigue al cursor más que el
-          logotipo (da profundidad) y al tocarlo se hacen ondas en el café.
-          Es decorativo: no quita nada al navegar con teclado.
-        -->
-        <div class="hero-iso" data-heroiso>
-          <span class="iso-flota" data-iso-flota>
-            <span class="marca" aria-hidden="true">
-              <svg viewBox={isoViewBox}><use href="#ryo-iso" /></svg>
-            </span>
-            <span class="ondas" data-ondas aria-hidden="true"></span>
-          </span>
-        </div>
-
-        <div class="hero-marca rv" style="--i:1" data-parallax>
+        <div class="hero-marca rv" data-parallax>
           <span class="marca marca-logo" set:html={logotipoSvg} role="img" aria-label={NEGOCIO.nombre} />
         </div>
 
-        <p class="hero-tagline rv" style="--i:2">{NEGOCIO.tagline}</p>
+        <p class="hero-tagline rv" style="--i:1">{NEGOCIO.tagline}</p>
 
-        <div class="estado rv" style="--i:3" role="status" data-estado>
+        <div class="estado rv" style="--i:2" role="status" data-estado>
           <span class="estado-punto" data-estado-punto={estadoInicial.abierto ? 'si' : 'no'} aria-hidden="true"></span>
           <span class="estado-titulo" data-estado-titulo>{estadoInicial.titulo}</span>
           <span class="estado-sep" aria-hidden="true">·</span>
           <span class="estado-detalle" data-estado-detalle>{estadoInicial.detalle}</span>
         </div>
 
-        <a class="cta rv" style="--i:4" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener" data-iman>
+        <a class="cta rv" style="--i:3" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener" data-iman>
           <span class="cta-texto">
             <span class="cta-etiqueta">{ACCESO_PRINCIPAL.etiqueta}</span>
             <span class="cta-detalle">{ACCESO_PRINCIPAL.detalle}</span>
@@ -194,7 +217,7 @@ const jsonLd = {
           <span class="cta-flecha" aria-hidden="true">↗</span>
         </a>
 
-        <div class="dir rv" style="--i:5">
+        <div class="dir rv" style="--i:4">
           <p class="dir-texto">
             {NEGOCIO.direccion}<br />
             {NEGOCIO.cp} · {NEGOCIO.ciudad}
@@ -533,22 +556,7 @@ const jsonLd = {
       }
       @media (min-width: 720px) { .intro-marca { width: min(38vw, 340px); } }
 
-      .intro-iso svg { display: block; width: 100%; height: auto; overflow: visible; }
-
-      /* Arranca sin relleno: solo el contorno que se va trazando. */
-      .intro-iso path {
-        fill: transparent;
-        stroke: currentColor;
-        stroke-width: 3;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        transition: fill 700ms var(--ease), stroke-width 700ms var(--ease);
-      }
-      .intro[data-fase='lleno'] .intro-iso path,
-      .intro[data-fase='vuela'] .intro-iso path {
-        fill: currentColor;
-        stroke-width: 0;
-      }
+      .intro-iso { display: block; width: 100%; height: auto; overflow: visible; }
 
       .intro-slogan {
         position: relative;
@@ -562,7 +570,7 @@ const jsonLd = {
         transform: translateY(8px);
         transition: opacity 700ms var(--ease), transform 700ms var(--ease);
       }
-      .intro[data-fase='lleno'] .intro-slogan { opacity: 1; transform: none; }
+      .intro[data-fase='dibujado'] .intro-slogan { opacity: 1; transform: none; }
       .intro[data-fase='vuela'] .intro-slogan { opacity: 0; transition-duration: 350ms; }
 
       /* ═══════════════════════════════════════════════════════════
@@ -665,32 +673,7 @@ const jsonLd = {
         position: relative;
       }
 
-      /* ─── El monito: protagonista del hero ─── */
-      .hero-iso {
-        width: clamp(162px, 44vw, 240px);
-        color: var(--ink);
-        will-change: transform;
-      }
-      .iso-flota {
-        position: relative;
-        display: block;
-        animation: flotar 7s ease-in-out infinite;
-      }
-      .iso-flota .marca { cursor: pointer; }
-      @keyframes flotar {
-        0%, 100% { transform: translateY(0) scale(1); }
-        50% { transform: translateY(-7px) scale(1.015); }
-      }
-      /* Al tocarlo pega un brinquito y suelta ondas en el café. */
-      .hero-iso[data-sacude='si'] .iso-flota { animation: sacudir 720ms var(--ease); }
-      @keyframes sacudir {
-        0% { transform: translateY(0) scale(1); }
-        28% { transform: translateY(-14px) scale(1.045); }
-        58% { transform: translateY(4px) scale(0.985); }
-        100% { transform: translateY(0) scale(1); }
-      }
-
-      /* Ondas: elipses de 1px sobre la superficie del café. */
+      /* Ondas en el café: elipses de 1px. Solo en el intro. */
       .ondas { position: absolute; inset: 0; pointer-events: none; }
       .onda {
         position: absolute;
@@ -700,7 +683,9 @@ const jsonLd = {
         aspect-ratio: 2.7 / 1;
         margin: 0;
         border: 1px solid currentColor;
-        border-radius: var(--radius-full);
+        /* 50%, no radius-full: en un elemento ancho el radio fijo da forma de
+           píldora y lo que queremos es la elipse de la superficie del café. */
+        border-radius: 50%;
         animation: ondear 1600ms var(--ease) forwards;
       }
       @keyframes ondear {
@@ -709,7 +694,7 @@ const jsonLd = {
         to { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
       }
 
-      .hero-marca { width: clamp(150px, 44vw, 262px); }
+      .hero-marca { width: clamp(180px, 52vw, 300px); }
       .marca-logo { width: 100%; }
 
       /* En escritorio el hero se abre en dos columnas: marca a la izquierda,
@@ -718,18 +703,17 @@ const jsonLd = {
         .hero {
           max-width: 64rem;
           display: grid;
-          grid-template-columns: minmax(280px, 400px) 1fr;
+          grid-template-columns: minmax(260px, 360px) 1fr;
           grid-template-areas:
-            'iso     estado'
-            'marca   cta'
+            'marca estado'
+            'marca cta'
             'tagline dir';
           align-content: center;
           align-items: end;
           column-gap: var(--space-6);
           row-gap: var(--space-4);
         }
-        .hero-iso { grid-area: iso; width: clamp(200px, 22vw, 290px); justify-self: start; }
-        .hero-marca { grid-area: marca; width: clamp(180px, 20vw, 250px); align-self: center; }
+        .hero-marca { grid-area: marca; width: 100%; align-self: center; }
         .hero-tagline { grid-area: tagline; align-self: start; }
         .estado { grid-area: estado; }
         .cta { grid-area: cta; }
@@ -1111,7 +1095,7 @@ const jsonLd = {
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
         .rv, .rv[data-visible='si'] { opacity: 1; transform: none; transition: none; }
-        .banda-pista, .baja, .estado-punto, .iso-flota, .onda { animation: none; }
+        .banda-pista, .baja, .estado-punto, .onda { animation: none; }
         .cta, .acceso, .boton, body { transition: none; }
         .intro { display: none; }
       }
@@ -1200,7 +1184,8 @@ const jsonLd = {
 
       /* ── Intro: el isotipo se dibuja solo y vuela a su lugar ──── */
       const intro = document.querySelector<HTMLElement>('[data-intro]');
-      const heroIso = document.querySelector<HTMLElement>('[data-heroiso]');
+      // El vuelo termina en el isotipo de la barra, arriba a la izquierda.
+      const destinoIntro = document.querySelector<HTMLElement>('[data-destino]');
 
       // ?intro en la URL lo vuelve a correr: sirve para enseñárselo al cliente
       // sin tener que abrir una pestaña nueva. No se salta reduced-motion.
@@ -1210,8 +1195,8 @@ const jsonLd = {
 
       const puedeAnimar = typeof Element.prototype.animate === 'function';
 
-      if (intro && heroIso && !lento && !introVista && puedeAnimar) {
-        correrIntro(intro, heroIso);
+      if (intro && destinoIntro && !lento && !introVista && puedeAnimar) {
+        correrIntro(intro, destinoIntro);
       } else {
         intro?.remove();
         activarRevelados();
@@ -1220,8 +1205,10 @@ const jsonLd = {
       function correrIntro(capa: HTMLElement, destino: HTMLElement) {
         const marca = capa.querySelector<HTMLElement>('[data-intro-marca]');
         const fondo = capa.querySelector<HTMLElement>('[data-intro-fondo]');
-        const trazos = Array.from(capa.querySelectorAll<SVGPathElement>('.intro-iso path'));
-        if (!marca || !fondo || !trazos.length) {
+        const arte = capa.querySelector<SVGGElement>('[data-intro-arte]');
+        const pluma = Array.from(capa.querySelectorAll<SVGPathElement>('[data-pluma] path'));
+        const ondas = capa.querySelector<HTMLElement>('[data-ondas]');
+        if (!marca || !fondo || !arte || !pluma.length) {
           capa.remove();
           activarRevelados();
           return;
@@ -1231,25 +1218,39 @@ const jsonLd = {
 
         capa.hidden = false;
         document.body.dataset.introCorriendo = 'si';
-        window.scrollTo(0, 0); // el vuelo mide la posición real del hero
+        window.scrollTo(0, 0); // el vuelo mide la posición real del destino
         destino.style.visibility = 'hidden';
 
-        // Velocidad de trazo constante: cada path dura según su longitud.
-        // Es el detalle que hace que se lea como una mano dibujando.
-        const DIBUJO = 1250;
-        const largos = trazos.map((p) => p.getTotalLength());
+        // La pluma son los ejes de cada trazo, en orden de dibujo, encadenados
+        // uno tras otro. Como el trazo de la máscara es más gordo que el del
+        // dibujo, lo que se ve es una línea gruesa avanzando, no un contorno
+        // que luego se rellena.
+        //
+        // Van como paths separados a propósito: SVG reinicia el patrón de
+        // stroke-dasharray en cada subtrazo, así que meterlos en un solo path
+        // con varios "M" no permite destaparlos en orden.
+        const DIBUJO = 1600;
+        const SOLAPE = 0.88; // cada trazo arranca antes de que termine el previo
+        const largos = pluma.map((p) => p.getTotalLength());
         const total = largos.reduce((a, b) => a + b, 0) || 1;
+
+        // Duración proporcional a la longitud = velocidad de pluma constante.
+        // El piso evita que los trazos diminutos pasen desapercibidos, y el
+        // factor k reabsorbe lo que ese piso añade para que el total sea DIBUJO.
+        const crudas = largos.map((l) => Math.max(18, (l / total) * DIBUJO));
+        const k = DIBUJO / (crudas.reduce((a, b) => a + b, 0) * SOLAPE);
+
         let reloj = 0;
-        trazos.forEach((p, i) => {
+        pluma.forEach((p, i) => {
           const len = largos[i];
+          const dur = crudas[i] * k;
           p.style.strokeDasharray = String(len);
           p.style.strokeDashoffset = String(len);
-          const dur = Math.max(110, (len / total) * DIBUJO);
           p.animate(
             [{ strokeDashoffset: String(len) }, { strokeDashoffset: '0' }],
             { duration: dur, delay: reloj, easing: 'linear', fill: 'forwards' },
           );
-          reloj += dur * 0.9;
+          reloj += dur * SOLAPE;
         });
 
         let cerrado = false;
@@ -1266,10 +1267,25 @@ const jsonLd = {
           window.addEventListener(evt, cerrar, { passive: true, once: true }),
         );
 
-        // 1. Se llena el trazo y aparece el slogan.
-        window.setTimeout(() => { capa.dataset.fase = 'lleno'; }, reloj + 120);
+        // 1. Terminado el trazo: fuera la máscara (la cubre al 99.7%, el resto
+        //    quedaría escondido), entra el slogan y el café hace ondas.
+        window.setTimeout(() => {
+          if (cerrado) return;
+          arte.removeAttribute('mask');
+          capa.dataset.fase = 'dibujado';
+          if (ondas) {
+            [0, 240].forEach((retraso) =>
+              window.setTimeout(() => {
+                const o = document.createElement('span');
+                o.className = 'onda';
+                o.addEventListener('animationend', () => o.remove());
+                ondas.appendChild(o);
+              }, retraso),
+            );
+          }
+        }, DIBUJO + 60);
 
-        // 2. Vuela hasta su sitio en el hero mientras el fondo se disuelve.
+        // 2. Vuela a la esquina mientras el fondo se disuelve.
         window.setTimeout(() => {
           if (cerrado) return;
           capa.dataset.fase = 'vuela';
@@ -1280,33 +1296,16 @@ const jsonLd = {
           const dy = a.top + a.height / 2 - (de.top + de.height / 2);
           marca.animate(
             [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${escala})` }],
-            { duration: 950, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' },
+            { duration: 900, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' },
           );
           fondo.animate(
             [{ opacity: '1' }, { opacity: '0' }],
-            { duration: 700, delay: 300, easing: 'ease-out', fill: 'forwards' },
+            { duration: 650, delay: 300, easing: 'ease-out', fill: 'forwards' },
           ).finished.then(cerrar, cerrar);
-        }, reloj + 950);
+        }, DIBUJO + 1000);
 
         // Red de seguridad: pase lo que pase, la capa se quita.
-        window.setTimeout(cerrar, reloj + 3600);
-      }
-
-      /* ── El monito: brinca y hace ondas al tocarlo ────────────── */
-      const ondas = document.querySelector<HTMLElement>('[data-ondas]');
-      if (heroIso && ondas && !lento) {
-        heroIso.addEventListener('click', () => {
-          heroIso.dataset.sacude = 'si';
-          window.setTimeout(() => { delete heroIso.dataset.sacude; }, 760);
-          [0, 210, 420].forEach((retraso) =>
-            window.setTimeout(() => {
-              const o = document.createElement('span');
-              o.className = 'onda';
-              o.addEventListener('animationend', () => o.remove());
-              ondas.appendChild(o);
-            }, retraso),
-          );
-        });
+        window.setTimeout(cerrar, DIBUJO + 3400);
       }
 
       /* ── Filete de la barra y CTA inferior al salir del hero ──── */
@@ -1337,10 +1336,8 @@ const jsonLd = {
         window.addEventListener('resize', pintar);
       }
 
-      /* ── Parallax del hero: el monito se mueve más que el
-            logotipo, y esa diferencia es la que da profundidad. ─── */
+      /* ── Parallax suave del logotipo (solo mouse fino) ────────── */
       const capas = [
-        { el: document.querySelector<HTMLElement>('[data-heroiso]'), f: 2.1 },
         { el: document.querySelector<HTMLElement>('[data-parallax]'), f: 1 },
       ].filter((c): c is { el: HTMLElement; f: number } => c.el !== null);
 

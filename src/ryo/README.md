@@ -26,7 +26,8 @@ public/ryo/
 ├── og.png              imagen para compartir (se rehace con scripts/ryo-og.py)
 └── marcas/             los 8 masters de dos tintas, tal como vienen del manual
 
-scripts/ryo-og.py       regenera public/ryo/og.png
+scripts/ryo-og.py         regenera public/ryo/og.png
+scripts/ryo-centerline.py regenera src/ryo/assets/isotipo-trazo.svg
 ```
 
 Las marcas de `assets/` son los mismos vectores del manual, con la tinta
@@ -87,20 +88,30 @@ activan todos, conviene apagar alguno para no pasar de siete.
 - **Bloques invertidos.** La clase `.inv` intercambia `--surface` y `--ink`
   para las bandas oscuras (slogan, manifiesto, pie) en cualquiera de los dos
   temas.
-- **Intro.** Al cargar, el isotipo se dibuja solo —contorno primero, relleno
-  después— y luego vuela hasta su lugar en el hero mientras el fondo se
-  disuelve. Son unos 2.5 s. La velocidad del trazo es constante (cada `path`
-  dura según su longitud real, medida con `getTotalLength()`): ese detalle es
-  lo que hace que se lea como una mano dibujando y no como un relleno.
+- **Intro.** Al cargar, el isotipo se dibuja solo de un trazo grueso, el café
+  hace un par de ondas y la marca vuela al isotipo de la barra, arriba a la
+  izquierda, mientras el fondo se disuelve. Son unos 2.5 s.
+
+  Lo que se ve dibujarse **es el vector original del manual**, no una imitación.
+  El truco: `scripts/ryo-centerline.py` saca el eje central de cada trazo
+  (adelgazamiento Zhang-Suen sobre el dibujo rasterizado) y lo guarda en
+  `isotipo-trazo.svg`. La página lo usa como `<mask>` sobre el isotipo real,
+  con un trazo más gordo que el del dibujo: al avanzar la máscara, va
+  destapando el arte y se lee como una sola línea gruesa. Al terminar se quita
+  la máscara, porque cubre el 99.7% del dibujo y ese resto quedaría escondido.
+
+  Los trazos van como `<path>` separados a propósito: SVG reinicia el patrón de
+  `stroke-dasharray` en cada subtrazo, así que meterlos todos en un solo `path`
+  con varios `M` no permite destaparlos en orden. Cada uno dura según su
+  longitud real (`getTotalLength()`), que es lo que da velocidad de pluma
+  constante y hace que se lea como una mano dibujando.
+
   Corre una sola vez por sesión, cualquier toque o tecla se la salta, y no
   corre nunca con `prefers-reduced-motion`. Nace con `hidden` y solo el JS la
   enciende: si el script falla, la página se ve entera de inmediato. Hay dos
   redes de seguridad más: un `setTimeout` que la quita pase lo que pase, y el
   CSS que la oculta con reduced-motion aunque el JS se equivoque.
   **Para volver a verla, agrega `?intro` a la URL.**
-- **El monito juega.** Flota, sigue al cursor más que el logotipo (la
-  diferencia entre las dos capas es lo que da profundidad) y al tocarlo pega un
-  brinco y suelta ondas de 1px sobre el café.
 - **Barra inferior en móvil.** Aparece al salir del hero con la acción
   principal, porque casi todo el tráfico de un link de bio es de celular.
 - **Datos estructurados.** La página emite JSON-LD de tipo `CafeOrCoffeeShop`
@@ -117,12 +128,12 @@ activan todos, conviene apagar alguno para no pasar de siete.
   degradados. La jerarquía se hace con espacio, no con adornos.
 - Grano de papel encima de todo (`--grano`, ponerlo en `0` para quitarlo).
 - Composición numerada 01–04, como las secciones del brand book.
-- El isotipo es el protagonista: encabeza el hero, protagoniza el intro y
-  aparece grande en el manifiesto. Es la única imagen de la página, así que
-  carga el peso visual que en otro sitio llevaría la fotografía.
+- El isotipo protagoniza el intro y aparece grande en el manifiesto; la portada
+  la lleva el logotipo, sin competencia.
 - Movimiento contenido: revelados de 1.1s con curva larga, marquee lento del
-  slogan, parallax en dos capas, botón magnético e inversión de color al pasar
-  por los accesos. Todo se apaga con `prefers-reduced-motion`.
+  slogan, parallax de 12px del logotipo con el mouse, botón magnético e
+  inversión de color al pasar por los accesos. Todo se apaga con
+  `prefers-reduced-motion`.
 - Ninguna animación deforma la marca: se dibuja, se escala en proporción y se
   desplaza, pero nunca se estira, se rota ni cambia de color.
 
