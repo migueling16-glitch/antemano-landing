@@ -1,0 +1,1128 @@
+---
+/**
+ * Ryo Café — página de bio (autocontenida).
+ *
+ * Todo lo que necesita vive en src/ryo/. Sin dependencias de runtime:
+ * las fuentes vienen de Google Fonts y las marcas están inline como SVG.
+ * Ver README.md en esta carpeta para editar contenido o migrarla.
+ */
+import {
+  NEGOCIO, HORARIO, ACCESOS, ACCESO_PRINCIPAL, MANIFIESTO, MANIFIESTO_CIERRE,
+  MENU, MENU_ES_DEMO, MENU_MOSTRAR_PRECIOS, SITIO, ASSET_BASE,
+  horaBonita, ahoraEnDurango, estadoDe,
+} from './config';
+
+import logotipoSvg from './assets/logotipo.svg?raw';
+import isotipoSvg from './assets/isotipo.svg?raw';
+import taglineSvg from './assets/tagline.svg?raw';
+import auxiliarSvg from './assets/auxiliar.svg?raw';
+
+const accesos = ACCESOS.filter((a) => a.activo && a.href);
+
+/** Estado calculado al construir: es el que ve quien entra sin JS. El cliente lo recalcula. */
+const estadoInicial = estadoDe(ahoraEnDurango());
+
+/** Marquee: el slogan repetido, separado por el isotipo en texto no es posible → se usa un filete. */
+const marquee = Array.from({ length: 6 }, () => NEGOCIO.slogan);
+
+const direccionCompleta = `${NEGOCIO.direccion}, ${NEGOCIO.cp} ${NEGOCIO.ciudad}`;
+
+/** Datos estructurados: ayudan a que Google muestre horario y ubicación en la búsqueda local. */
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CafeOrCoffeeShop',
+  name: NEGOCIO.nombre,
+  description: SITIO.descripcion,
+  url: SITIO.url,
+  image: `${SITIO.url.replace(/\/[^/]*$/, '')}${ASSET_BASE}/og.png`,
+  servesCuisine: 'Café de especialidad',
+  priceRange: '$$',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: NEGOCIO.direccion,
+    addressLocality: 'Durango',
+    addressRegion: 'DUR',
+    postalCode: NEGOCIO.cp,
+    addressCountry: 'MX',
+  },
+  hasMap: NEGOCIO.mapsUrl,
+  sameAs: [`https://instagram.com/${NEGOCIO.instagram}`],
+  openingHoursSpecification: HORARIO.filter((d) => d.cierra).map((d) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.dia],
+    opens: d.abre,
+    closes: d.cierra,
+  })),
+};
+---
+
+<!doctype html>
+<html lang="es" class="no-js" data-tema="champagne">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{SITIO.titulo}</title>
+    <meta name="description" content={SITIO.descripcion} />
+    <link rel="canonical" href={SITIO.url} />
+    <link rel="icon" href={`${ASSET_BASE}/favicon.svg`} type="image/svg+xml" />
+    <meta name="theme-color" content="#F8F3D1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#302413" media="(prefers-color-scheme: dark)" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={SITIO.titulo} />
+    <meta property="og:description" content={SITIO.descripcion} />
+    <meta property="og:url" content={SITIO.url} />
+    <meta property="og:image" content={`${SITIO.url.replace(/\/[^/]*$/, '')}${ASSET_BASE}/og.png`} />
+    <meta property="og:locale" content="es_MX" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;1,400&display=swap"
+    />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Tema antes del primer pintado: evita el parpadeo al cargar. -->
+    <script is:inline>
+      (function () {
+        try {
+          var guardado = localStorage.getItem('ryo-tema');
+          if (guardado === 'champagne' || guardado === 'cafe') {
+            document.documentElement.dataset.tema = guardado;
+            return;
+          }
+          // Sin preferencia guardada: sigue la luz de Durango (UTC-6).
+          var d = new Date();
+          var dgo = new Date(d.getTime() + d.getTimezoneOffset() * 6e4 - 6 * 36e5);
+          var h = dgo.getHours();
+          document.documentElement.dataset.tema = h >= 7 && h < 19 ? 'champagne' : 'cafe';
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+
+  <body>
+    <a class="saltar" href="#accesos">Saltar al contenido</a>
+
+    <!-- Progreso de lectura: filete de 1px, sin JS (scroll-driven animation). -->
+    <div class="progreso" aria-hidden="true"></div>
+    <!-- Grano de papel. Se apaga poniendo --grano: 0 en :root. -->
+    <div class="grano" aria-hidden="true"></div>
+
+    <!-- Riel vertical con el slogan (solo escritorio) -->
+    <div class="riel" aria-hidden="true"><span>{NEGOCIO.slogan}</span></div>
+
+    <header class="barra">
+      <a class="barra-marca" href="#top" aria-label={`${NEGOCIO.nombre} — inicio`}>
+        <!-- El manual designa el isotipo para formatos pequeños (favicon, avatar). -->
+        <span class="marca marca-iso-chica" set:html={isotipoSvg} aria-hidden="true" />
+      </a>
+      <div class="tema" role="group" aria-label="Tema de la página">
+        <button type="button" data-tema-btn="champagne" aria-pressed="true">Champagne</button>
+        <button type="button" data-tema-btn="cafe" aria-pressed="false">Café</button>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- ─────────── HERO ─────────── -->
+      <section class="hero">
+        <div class="hero-marca rv" data-parallax>
+          <span class="marca marca-logo" set:html={logotipoSvg} role="img" aria-label={NEGOCIO.nombre} />
+        </div>
+
+        <p class="hero-tagline rv" style="--i:1">{NEGOCIO.tagline}</p>
+
+        <div class="estado rv" style="--i:2" role="status" data-estado>
+          <span class="estado-punto" data-estado-punto={estadoInicial.abierto ? 'si' : 'no'} aria-hidden="true"></span>
+          <span class="estado-titulo" data-estado-titulo>{estadoInicial.titulo}</span>
+          <span class="estado-sep" aria-hidden="true">·</span>
+          <span class="estado-detalle" data-estado-detalle>{estadoInicial.detalle}</span>
+        </div>
+
+        <a class="cta rv" style="--i:3" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener" data-iman>
+          <span class="cta-texto">
+            <span class="cta-etiqueta">{ACCESO_PRINCIPAL.etiqueta}</span>
+            <span class="cta-detalle">{ACCESO_PRINCIPAL.detalle}</span>
+          </span>
+          <span class="cta-flecha" aria-hidden="true">↗</span>
+        </a>
+
+        <div class="dir rv" style="--i:4">
+          <p class="dir-texto">
+            {NEGOCIO.direccion}<br />
+            {NEGOCIO.cp} · {NEGOCIO.ciudad}
+          </p>
+          <button type="button" class="enlace" data-copiar={direccionCompleta}>
+            <span data-copiar-texto>Copiar dirección</span>
+          </button>
+        </div>
+
+        <span class="baja" aria-hidden="true">Desliza</span>
+      </section>
+
+      <!-- ─────────── BANDA DEL SLOGAN ─────────── -->
+      <div class="banda inv" aria-hidden="true">
+        <div class="banda-pista">
+          {marquee.map((t) => <span class="banda-item">{t}</span>)}
+          {marquee.map((t) => <span class="banda-item">{t}</span>)}
+        </div>
+      </div>
+
+      <!-- ─────────── 01 ACCESOS ─────────── -->
+      <section class="seccion" id="accesos">
+        <header class="sec-head rv">
+          <span class="sec-num">01</span>
+          <h2 class="sec-titulo">Accesos</h2>
+        </header>
+
+        <ul class="accesos">
+          {accesos.map((a, n) => (
+            <li class="rv" style={`--i:${n}`}>
+              <a
+                class="acceso"
+                href={a.href}
+                target={a.externo ? '_blank' : undefined}
+                rel={a.externo ? 'noopener' : undefined}
+              >
+                <span class="acceso-texto">
+                  <span class="acceso-etiqueta">{a.etiqueta}</span>
+                  <span class="acceso-detalle">{a.detalle}</span>
+                </span>
+                <span class="acceso-flecha" aria-hidden="true">{a.externo ? '↗' : '↓'}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- ─────────── 02 MANIFIESTO ─────────── -->
+      <section class="seccion manifiesto inv" id="manifiesto">
+        <header class="sec-head rv">
+          <span class="sec-num">02</span>
+          <h2 class="sec-titulo">Manifiesto</h2>
+        </header>
+
+        <div class="man-cuerpo">
+          <div class="man-iso rv">
+            <span class="marca marca-iso" set:html={isotipoSvg} aria-hidden="true" />
+          </div>
+          <div class="man-lineas">
+            {MANIFIESTO.map((linea, n) => (
+              <p class="man-linea rv" style={`--i:${n}`}>{linea}</p>
+            ))}
+            <p class="man-cierre rv" style={`--i:${MANIFIESTO.length}`}>{MANIFIESTO_CIERRE}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────── 03 MENÚ ─────────── -->
+      <section class="seccion" id="menu">
+        <header class="sec-head rv">
+          <span class="sec-num">03</span>
+          <h2 class="sec-titulo">Menú</h2>
+        </header>
+
+        {MENU_ES_DEMO && (
+          <p class="aviso rv">
+            Menú de muestra. Los nombres y precios definitivos están por confirmar.
+          </p>
+        )}
+
+        {MENU.map((grupo) => (
+          <div class="grupo">
+            <div class="grupo-head rv">
+              <h3 class="grupo-nombre">{grupo.nombre}</h3>
+              {grupo.nota && <p class="grupo-nota">{grupo.nota}</p>}
+            </div>
+            <ul class="items">
+              {grupo.items.map((item, n) => (
+                <li class="item rv" style={`--i:${n}`}>
+                  <div class="item-linea">
+                    <span class="item-nombre">{item.nombre}</span>
+                    <span class="item-guia" aria-hidden="true"></span>
+                    {MENU_MOSTRAR_PRECIOS && <span class="item-precio">${item.precio}</span>}
+                  </div>
+                  <p class="item-desc">{item.desc}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+
+      <!--
+        Descanso visual entre secciones: es exactamente la función que el
+        manual le da al logotipo auxiliar (evitar repetir el principal y
+        aportar carácter editorial).
+      -->
+      <div class="descanso rv" aria-hidden="true">
+        <span class="marca marca-auxiliar" set:html={auxiliarSvg} />
+      </div>
+
+      <!-- ─────────── 04 VISÍTANOS ─────────── -->
+      <section class="seccion visita" id="visita">
+        <header class="sec-head rv">
+          <span class="sec-num">04</span>
+          <h2 class="sec-titulo">Visítanos</h2>
+        </header>
+
+        <div class="visita-grid">
+          <div class="visita-col rv">
+            <h3 class="visita-sub">Dónde</h3>
+            <p class="visita-dir">
+              {NEGOCIO.direccion}<br />
+              {NEGOCIO.cp} · {NEGOCIO.ciudad}
+            </p>
+            <a class="boton" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener">
+              Abrir en Maps <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+
+          <div class="visita-col rv" style="--i:1">
+            <h3 class="visita-sub">Horario</h3>
+            <table class="horario">
+              <tbody>
+                {HORARIO.map((d) => (
+                  <tr data-dia={d.dia}>
+                    <th scope="row">{d.nombre}</th>
+                    <td>{d.cierra ? `${horaBonita(d.abre)} – ${horaBonita(d.cierra)}` : 'Cerrado'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p class="visita-nota" data-estado-largo>{estadoInicial.titulo} · {estadoInicial.detalle}</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!--
+      Acción principal siempre a la mano en móvil: aparece al salir del hero.
+      El tráfico de un link de bio es casi todo de celular y la acción #1 es llegar.
+    -->
+    <a class="fijo" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener" data-fijo>
+      <span class="fijo-texto">
+        <span class="fijo-etiqueta">{ACCESO_PRINCIPAL.etiqueta}</span>
+        <span class="fijo-dir">{NEGOCIO.direccion}</span>
+      </span>
+      <span aria-hidden="true">↗</span>
+    </a>
+
+    <!-- ─────────── PIE ─────────── -->
+    <footer class="pie inv">
+      <span class="marca marca-tag" set:html={taglineSvg} role="img" aria-label={NEGOCIO.slogan} />
+      <p class="pie-meta">
+        {NEGOCIO.nombre} · {NEGOCIO.descriptor}<br />
+        {NEGOCIO.ciudad}
+      </p>
+      <p class="pie-credito">
+        <a href={`https://instagram.com/${NEGOCIO.instagram}`} target="_blank" rel="noopener">
+          @{NEGOCIO.instagram}
+        </a>
+      </p>
+    </footer>
+
+    <style is:global>
+      /* ═══════════════════════════════════════════════════════════
+         TOKENS — Design System de Ryo Café
+         Paleta institucional de dos colores; roles que se invierten
+         por tema, igual que las dos tintas del logotipo.
+         ═══════════════════════════════════════════════════════════ */
+      :root {
+        --c-champagne: #f8f3d1;
+        --c-cafe: #302413;
+
+        --surface: var(--c-champagne);
+        --ink: var(--c-cafe);
+        --line: var(--c-cafe);
+
+        /* Intensidad del grano de papel. 0 = sin textura. */
+        --grano: 0.07;
+        --grano-mezcla: multiply;
+
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 16px;
+        --space-4: 24px;
+        --space-5: 40px;
+        --space-6: 64px;
+
+        --radius-none: 0;
+        --radius-full: 9999px;
+
+        --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+        --track: 0.1em;
+
+        --fs-display: clamp(2.1rem, 8.5vw, 3.9rem);
+        --fs-title: clamp(1.5rem, 5.2vw, 2.1rem);
+        --fs-heading: clamp(1.05rem, 3.4vw, 1.25rem);
+        --fs-body: clamp(0.95rem, 2.9vw, 1rem);
+        --fs-sm: 0.875rem;
+        --fs-label: 0.72rem;
+
+        /* Curva larga y sin rebote: la marca es lenta. */
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --dur: 1100ms;
+
+        --ancho: 46rem;
+        --gutter: clamp(1.25rem, 6vw, 3.5rem);
+      }
+
+      html[data-tema='cafe'] {
+        --surface: var(--c-cafe);
+        --ink: var(--c-champagne);
+        --line: var(--c-champagne);
+        --grano: 0.05;
+        --grano-mezcla: screen;
+      }
+
+      /* Bloques invertidos: siempre la tinta contraria a la del tema. */
+      .inv {
+        --surface: var(--c-cafe);
+        --ink: var(--c-champagne);
+        --line: var(--c-champagne);
+      }
+      html[data-tema='cafe'] .inv {
+        --surface: var(--c-champagne);
+        --ink: var(--c-cafe);
+        --line: var(--c-cafe);
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+         BASE
+         ═══════════════════════════════════════════════════════════ */
+      *,
+      *::before,
+      *::after { box-sizing: border-box; }
+
+      html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        background: var(--surface);
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: var(--fs-body);
+        line-height: 1.65;
+        letter-spacing: var(--track);
+        font-weight: 400;
+        overflow-x: hidden;
+        transition: background-color 600ms var(--ease), color 600ms var(--ease);
+      }
+
+      h1, h2, h3, h4, p, ul, ol, figure, table { margin: 0; }
+      ul { list-style: none; padding: 0; }
+
+      a { color: inherit; }
+
+      button {
+        font: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      :focus-visible {
+        outline: 1px solid var(--ink);
+        outline-offset: 4px;
+      }
+
+      ::selection { background: var(--ink); color: var(--surface); }
+
+      .saltar {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        background: var(--ink);
+        color: var(--surface);
+        padding: var(--space-3);
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+      }
+      .saltar:focus { left: 0; }
+
+      /* Marcas inline: heredan el color del contenedor (currentColor). */
+      .marca { display: block; }
+      .marca svg { display: block; width: 100%; height: auto; }
+
+      /* ═══════════════════════════════════════════════════════════
+         CAPAS FIJAS
+         ═══════════════════════════════════════════════════════════ */
+      .grano {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        pointer-events: none;
+        opacity: var(--grano);
+        mix-blend-mode: var(--grano-mezcla);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-size: 180px 180px;
+      }
+
+      .progreso {
+        position: fixed;
+        inset: 0 auto auto 0;
+        height: 1px;
+        width: 100%;
+        background: var(--ink);
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        z-index: 70;
+        pointer-events: none;
+      }
+      @supports (animation-timeline: scroll()) {
+        .progreso {
+          animation: avanzar linear both;
+          animation-timeline: scroll(root block);
+        }
+      }
+      @keyframes avanzar { to { transform: scaleX(1); } }
+
+      .riel {
+        position: fixed;
+        left: var(--space-4);
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 40;
+        pointer-events: none;
+        display: none;
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        writing-mode: vertical-rl;
+        letter-spacing: 0.32em;
+        color: var(--ink);
+      }
+      @media (min-width: 1100px) { .riel { display: block; } }
+
+      /* ═══════════════════════════════════════════════════════════
+         BARRA SUPERIOR
+         ═══════════════════════════════════════════════════════════ */
+      .barra {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--gutter);
+        background: var(--surface);
+        border-bottom: 1px solid transparent;
+        transition: border-color 400ms var(--ease), background-color 600ms var(--ease);
+      }
+      .barra[data-pegada='si'] { border-bottom-color: var(--line); }
+
+      .barra-marca { display: block; }
+      .marca-iso-chica { width: 40px; }
+
+      .tema {
+        display: flex;
+        border: 1px solid var(--line);
+      }
+      .tema button {
+        padding: 6px 10px;
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        transition: background-color 300ms var(--ease), color 300ms var(--ease);
+      }
+      .tema button + button { border-left: 1px solid var(--line); }
+      .tema button[aria-pressed='true'] { background: var(--ink); color: var(--surface); }
+
+      /* ═══════════════════════════════════════════════════════════
+         HERO
+         ═══════════════════════════════════════════════════════════ */
+      .hero {
+        min-height: calc(100svh - 58px);
+        padding: var(--space-5) var(--gutter) var(--space-6);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: var(--space-4);
+        max-width: var(--ancho);
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .hero-marca { width: clamp(180px, 52vw, 300px); }
+      .marca-logo { width: 100%; }
+
+      /* En escritorio el hero se abre en dos columnas: marca a la izquierda,
+         estado y acción a la derecha. El aire vacío es parte de la marca. */
+      @media (min-width: 900px) {
+        .hero {
+          max-width: 64rem;
+          display: grid;
+          grid-template-columns: minmax(260px, 360px) 1fr;
+          grid-template-areas:
+            'marca estado'
+            'marca cta'
+            'tagline dir';
+          align-content: center;
+          align-items: end;
+          column-gap: var(--space-6);
+          row-gap: var(--space-4);
+        }
+        .hero-marca { grid-area: marca; width: 100%; align-self: center; }
+        .hero-tagline { grid-area: tagline; align-self: start; }
+        .estado { grid-area: estado; }
+        .cta { grid-area: cta; }
+        .dir { grid-area: dir; align-self: start; }
+      }
+
+      .hero-tagline {
+        font-style: italic;
+        font-size: var(--fs-body);
+        max-width: 26ch;
+      }
+
+      /* Estado en vivo — cuadrado lleno / cuadrado de filete, sin opacidades */
+      .estado {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: var(--space-2) 0;
+        width: 100%;
+        flex-wrap: wrap;
+      }
+      .estado-punto {
+        width: 7px;
+        height: 7px;
+        border: 1px solid var(--ink);
+        background: var(--ink);
+        flex: none;
+      }
+      .estado-punto[data-estado-punto='si'] { animation: latir 3s steps(1, end) infinite; }
+      .estado-punto[data-estado-punto='no'] { background: transparent; }
+      @keyframes latir {
+        0%, 60% { background: var(--ink); }
+        60.01%, 100% { background: transparent; }
+      }
+      .estado-detalle { text-transform: none; letter-spacing: var(--track); font-style: italic; }
+
+      /* Acción principal: bloque de color a sangre, sin radio ni sombra */
+      .cta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        width: 100%;
+        padding: var(--space-4);
+        background: var(--ink);
+        color: var(--surface);
+        text-decoration: none;
+        border-radius: var(--radius-none);
+        transition: transform 500ms var(--ease);
+        will-change: transform;
+      }
+      .cta-texto { display: flex; flex-direction: column; gap: 2px; }
+      .cta-etiqueta {
+        font-size: var(--fs-heading);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+      }
+      .cta-detalle { font-size: var(--fs-label); font-style: italic; letter-spacing: var(--track); }
+      .cta-flecha { font-size: 1.3rem; transition: transform 500ms var(--ease); }
+      .cta:hover .cta-flecha, .cta:focus-visible .cta-flecha { transform: translate(4px, -4px); }
+
+      .dir {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-2) var(--space-4);
+        width: 100%;
+      }
+      .dir-texto { font-size: var(--fs-sm); font-style: italic; }
+
+      .enlace {
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 2px;
+      }
+
+      .baja {
+        position: absolute;
+        left: var(--gutter);
+        bottom: var(--space-4);
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.24em;
+        animation: respirar 4s var(--ease) infinite;
+      }
+      @keyframes respirar {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(5px); }
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+         BANDA DEL SLOGAN
+         ═══════════════════════════════════════════════════════════ */
+      .banda {
+        background: var(--surface);
+        color: var(--ink);
+        overflow: hidden;
+        padding: var(--space-3) 0;
+        border-block: 1px solid var(--line);
+      }
+      .banda-pista {
+        display: flex;
+        width: max-content;
+        animation: correr 56s linear infinite;
+      }
+      .banda-item {
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.3em;
+        padding-inline: 2.2rem;
+        white-space: nowrap;
+      }
+      .banda-item::after { content: '—'; margin-left: 2.2rem; }
+      @keyframes correr { to { transform: translateX(-50%); } }
+
+      /* ═══════════════════════════════════════════════════════════
+         SECCIONES
+         ═══════════════════════════════════════════════════════════ */
+      .seccion {
+        padding: var(--space-6) var(--gutter);
+        scroll-margin-top: 64px;
+      }
+      .seccion > * { max-width: var(--ancho); margin-inline: auto; }
+
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-3);
+        border-bottom: 1px solid var(--line);
+        padding-bottom: var(--space-3);
+        margin-bottom: var(--space-5);
+      }
+      .sec-num {
+        font-size: var(--fs-label);
+        letter-spacing: 0.2em;
+      }
+      .sec-titulo {
+        font-size: var(--fs-title);
+        font-weight: 400;
+        letter-spacing: var(--track);
+      }
+
+      /* ─── 01 Accesos ─── */
+      /* Sin filete superior: el de .sec-head ya cierra por arriba. */
+      .acceso {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-4) var(--space-3);
+        border-bottom: 1px solid var(--line);
+        text-decoration: none;
+        transition: background-color 350ms var(--ease), color 350ms var(--ease),
+          padding-left 350ms var(--ease);
+      }
+      .acceso-texto { display: flex; flex-direction: column; gap: 2px; }
+      .acceso-etiqueta {
+        font-size: var(--fs-heading);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+      }
+      .acceso-detalle { font-size: var(--fs-sm); font-style: italic; }
+      .acceso-flecha { font-size: 1.15rem; transition: transform 350ms var(--ease); }
+
+      .acceso:hover,
+      .acceso:focus-visible,
+      .acceso[data-tocado='si'] {
+        background: var(--ink);
+        color: var(--surface);
+        padding-left: var(--space-5);
+      }
+      .acceso:hover .acceso-flecha,
+      .acceso:focus-visible .acceso-flecha { transform: translateX(4px); }
+
+      /* ─── 02 Manifiesto ─── */
+      .manifiesto { background: var(--surface); color: var(--ink); }
+      .man-cuerpo {
+        display: grid;
+        gap: var(--space-5);
+        max-width: var(--ancho);
+        margin-inline: auto;
+      }
+      @media (min-width: 720px) {
+        .man-cuerpo { grid-template-columns: 200px 1fr; align-items: start; gap: var(--space-6); }
+      }
+      .man-iso { width: clamp(140px, 42vw, 200px); }
+      .man-linea {
+        font-style: italic;
+        font-size: clamp(1rem, 3.4vw, 1.15rem);
+        line-height: 1.85;
+        margin-bottom: var(--space-3);
+        max-width: 42ch;
+      }
+      .man-cierre {
+        font-size: var(--fs-title);
+        line-height: 1.35;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-top: var(--space-5);
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--line);
+        max-width: 20ch;
+      }
+
+      /* ─── 03 Menú ─── */
+      .aviso {
+        font-size: var(--fs-sm);
+        font-style: italic;
+        border: 1px solid var(--line);
+        padding: var(--space-3);
+        margin-bottom: var(--space-5);
+      }
+      .grupo + .grupo { margin-top: var(--space-6); }
+      .grupo-head { margin-bottom: var(--space-4); }
+      .grupo-nombre {
+        font-size: var(--fs-heading);
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+      }
+      .grupo-nota { font-size: var(--fs-sm); font-style: italic; }
+
+      .item { padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
+      .item-linea { display: flex; align-items: baseline; gap: var(--space-2); }
+      .item-nombre { font-size: var(--fs-body); white-space: nowrap; }
+      .item-guia {
+        flex: 1 1 auto;
+        border-bottom: 1px dotted var(--line);
+        transform: translateY(-4px);
+        min-width: var(--space-4);
+      }
+      .item-precio { font-size: var(--fs-label); letter-spacing: 0.14em; white-space: nowrap; }
+      .item-desc {
+        font-size: var(--fs-sm);
+        font-style: italic;
+        margin-top: 2px;
+        max-width: 46ch;
+      }
+
+      /* ─── Descanso visual ─── */
+      .descanso {
+        display: flex;
+        justify-content: center;
+        padding: var(--space-6) var(--gutter);
+      }
+      .marca-auxiliar { width: clamp(110px, 28vw, 160px); }
+
+      /* ─── 04 Visítanos ─── */
+      .visita-grid { display: grid; gap: var(--space-6); }
+      @media (min-width: 720px) {
+        .visita-grid { grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+      }
+      .visita-sub {
+        font-size: var(--fs-label);
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        padding-bottom: var(--space-2);
+        border-bottom: 1px solid var(--line);
+        margin-bottom: var(--space-3);
+      }
+      .visita-dir { font-style: italic; margin-bottom: var(--space-4); }
+
+      .boton {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid var(--line);
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        text-decoration: none;
+        transition: background-color 350ms var(--ease), color 350ms var(--ease);
+      }
+      .boton:hover, .boton:focus-visible { background: var(--ink); color: var(--surface); }
+
+      .horario { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+      .horario th,
+      .horario td { padding: var(--space-2) 0; text-align: left; font-weight: 400; }
+      .horario td { text-align: right; font-style: italic; }
+      .horario tr + tr th,
+      .horario tr + tr td { border-top: 1px solid var(--line); }
+      .horario tr[data-hoy='si'] th,
+      .horario tr[data-hoy='si'] td { background: var(--ink); color: var(--surface); }
+      .horario tr[data-hoy='si'] th { padding-left: var(--space-2); }
+      .horario tr[data-hoy='si'] td { padding-right: var(--space-2); }
+      .visita-nota {
+        margin-top: var(--space-3);
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+         BARRA INFERIOR (solo móvil)
+         ═══════════════════════════════════════════════════════════ */
+      .fijo {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 55;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom, 0px));
+        background: var(--ink);
+        color: var(--surface);
+        text-decoration: none;
+        transform: translateY(110%);
+        transition: transform 600ms var(--ease);
+      }
+      .fijo[data-visible='si'] { transform: none; }
+      .fijo-texto { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+      .fijo-etiqueta {
+        font-size: var(--fs-label);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+      }
+      .fijo-dir {
+        font-size: 0.7rem;
+        font-style: italic;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      @media (min-width: 720px) { .fijo { display: none; } }
+
+      /* ═══════════════════════════════════════════════════════════
+         PIE
+         ═══════════════════════════════════════════════════════════ */
+      .pie {
+        background: var(--surface);
+        color: var(--ink);
+        padding: var(--space-6) var(--gutter);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-4);
+        text-align: center;
+      }
+      /* Aire para que la barra inferior no tape el pie en móvil. */
+      @media (max-width: 719px) { .pie { padding-bottom: calc(var(--space-6) + 64px); } }
+      .marca-tag { width: clamp(200px, 60vw, 320px); }
+      .pie-meta { font-size: var(--fs-sm); font-style: italic; }
+      .pie-credito { font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.18em; }
+      .pie-credito a { text-decoration: none; border-bottom: 1px solid var(--line); }
+
+      /* ═══════════════════════════════════════════════════════════
+         REVELADOS
+         ═══════════════════════════════════════════════════════════ */
+      .rv {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      .rv[data-visible='si'] {
+        opacity: 1;
+        transform: none;
+        transition:
+          opacity var(--dur) var(--ease) calc(var(--i, 0) * 90ms),
+          transform var(--dur) var(--ease) calc(var(--i, 0) * 90ms);
+      }
+      /* Sin JS todo se ve igual. */
+      html.no-js .rv { opacity: 1; transform: none; }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .rv, .rv[data-visible='si'] { opacity: 1; transform: none; transition: none; }
+        .banda-pista, .baja, .estado-punto { animation: none; }
+        .cta, .acceso, .boton, body { transition: none; }
+      }
+    </style>
+
+    <script>
+      import { ahoraEnDurango, estadoDe } from './config';
+
+      const raiz = document.documentElement;
+      raiz.classList.remove('no-js');
+      const lento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* ── Tema: Champagne ⇄ Café ───────────────────────────────── */
+      const botonesTema = document.querySelectorAll<HTMLButtonElement>('[data-tema-btn]');
+      const pintarTema = (tema: string) => {
+        botonesTema.forEach((b) =>
+          b.setAttribute('aria-pressed', String(b.dataset.temaBtn === tema)),
+        );
+      };
+      pintarTema(raiz.dataset.tema || 'champagne');
+
+      botonesTema.forEach((boton) => {
+        boton.addEventListener('click', () => {
+          const tema = boton.dataset.temaBtn!;
+          if (tema === raiz.dataset.tema) return;
+          const aplicar = () => {
+            raiz.dataset.tema = tema;
+            pintarTema(tema);
+            try { localStorage.setItem('ryo-tema', tema); } catch {}
+          };
+          // Cruce suave donde el navegador lo soporte.
+          const conTransicion = (document as any).startViewTransition;
+          if (conTransicion && !lento) conTransicion.call(document, aplicar);
+          else aplicar();
+        });
+      });
+
+      /* ── Estado en vivo del local ─────────────────────────────── */
+      const elTitulo = document.querySelector('[data-estado-titulo]');
+      const elDetalle = document.querySelector('[data-estado-detalle]');
+      const elPunto = document.querySelector<HTMLElement>('[data-estado-punto]');
+      const elLargo = document.querySelector('[data-estado-largo]');
+
+      /** Solo toca el DOM cuando el texto cambia: con role="status", reescribirlo
+       *  cada minuto haría que un lector de pantalla lo repitiera sin motivo. */
+      const ponerTexto = (el: Element | null, valor: string) => {
+        if (el && el.textContent !== valor) el.textContent = valor;
+      };
+
+      const refrescarEstado = () => {
+        const ahora = ahoraEnDurango();
+        const estado = estadoDe(ahora);
+        ponerTexto(elTitulo, estado.titulo);
+        ponerTexto(elDetalle, estado.detalle);
+        if (elPunto) elPunto.dataset.estadoPunto = estado.abierto ? 'si' : 'no';
+        ponerTexto(elLargo, `${estado.titulo} · ${estado.detalle}`);
+
+        // Marca el día de hoy en la tabla de horarios.
+        document.querySelectorAll<HTMLElement>('.horario tr[data-dia]').forEach((fila) => {
+          fila.dataset.hoy = Number(fila.dataset.dia) === ahora.getDay() ? 'si' : 'no';
+        });
+      };
+      refrescarEstado();
+      setInterval(refrescarEstado, 60_000);
+
+      /* ── Revelados al hacer scroll ────────────────────────────── */
+      const porRevelar = document.querySelectorAll<HTMLElement>('.rv');
+      if (lento || !('IntersectionObserver' in window)) {
+        porRevelar.forEach((el) => (el.dataset.visible = 'si'));
+      } else {
+        const ojo = new IntersectionObserver(
+          (entradas) => {
+            entradas.forEach((e) => {
+              if (e.isIntersecting) {
+                (e.target as HTMLElement).dataset.visible = 'si';
+                ojo.unobserve(e.target);
+              }
+            });
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
+        );
+        porRevelar.forEach((el) => ojo.observe(el));
+      }
+
+      /* ── Filete de la barra y CTA inferior al salir del hero ──── */
+      const barra = document.querySelector<HTMLElement>('.barra');
+      const fijo = document.querySelector<HTMLElement>('[data-fijo]');
+      const vigia = document.querySelector('.hero');
+      if (vigia && 'IntersectionObserver' in window) {
+        new IntersectionObserver(
+          ([e]) => {
+            const fuera = !e.isIntersecting;
+            if (barra) barra.dataset.pegada = fuera ? 'si' : 'no';
+            if (fijo) fijo.dataset.visible = fuera ? 'si' : 'no';
+          },
+          { rootMargin: '-40px 0px 0px 0px' },
+        ).observe(vigia);
+      }
+
+      /* ── Progreso de lectura (navegadores sin scroll-driven CSS) ─ */
+      const progreso = document.querySelector<HTMLElement>('.progreso');
+      if (progreso && !CSS.supports('animation-timeline: scroll()')) {
+        const pintar = () => {
+          const alto = document.documentElement.scrollHeight - window.innerHeight;
+          const p = alto > 0 ? window.scrollY / alto : 0;
+          progreso.style.transform = `scaleX(${Math.min(1, Math.max(0, p))})`;
+        };
+        pintar();
+        window.addEventListener('scroll', pintar, { passive: true });
+        window.addEventListener('resize', pintar);
+      }
+
+      /* ── Parallax suave del logotipo (solo mouse fino) ────────── */
+      const marca = document.querySelector<HTMLElement>('[data-parallax]');
+      if (marca && !lento && window.matchMedia('(pointer: fine)').matches) {
+        let destinoX = 0, destinoY = 0, x = 0, y = 0, animando = false;
+        const suavizar = () => {
+          x += (destinoX - x) * 0.06;
+          y += (destinoY - y) * 0.06;
+          marca.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
+          if (Math.abs(destinoX - x) > 0.05 || Math.abs(destinoY - y) > 0.05) {
+            requestAnimationFrame(suavizar);
+          } else {
+            animando = false;
+          }
+        };
+        window.addEventListener('pointermove', (e) => {
+          destinoX = (e.clientX / window.innerWidth - 0.5) * 12;
+          destinoY = (e.clientY / window.innerHeight - 0.5) * 8;
+          if (!animando) { animando = true; requestAnimationFrame(suavizar); }
+        }, { passive: true });
+      }
+
+      /* ── Botón magnético de la acción principal ───────────────── */
+      const iman = document.querySelector<HTMLElement>('[data-iman]');
+      if (iman && !lento && window.matchMedia('(pointer: fine)').matches) {
+        iman.addEventListener('pointermove', (e) => {
+          const c = iman.getBoundingClientRect();
+          const dx = (e.clientX - (c.left + c.width / 2)) / c.width;
+          const dy = (e.clientY - (c.top + c.height / 2)) / c.height;
+          iman.style.transform = `translate(${(dx * 8).toFixed(1)}px, ${(dy * 5).toFixed(1)}px)`;
+        });
+        iman.addEventListener('pointerleave', () => { iman.style.transform = ''; });
+      }
+
+      /* ── Copiar dirección ─────────────────────────────────────── */
+      const copiar = document.querySelector<HTMLButtonElement>('[data-copiar]');
+      if (copiar) {
+        const etiqueta = copiar.querySelector('[data-copiar-texto]')!;
+        const original = etiqueta.textContent;
+        copiar.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(copiar.dataset.copiar!);
+            etiqueta.textContent = 'Copiada';
+          } catch {
+            etiqueta.textContent = 'No se pudo copiar';
+          }
+          setTimeout(() => { etiqueta.textContent = original; }, 2200);
+        });
+      }
+
+      /* ── En móvil, el toque hace lo que el hover en escritorio ── */
+      if (window.matchMedia('(hover: none)').matches) {
+        document.querySelectorAll<HTMLElement>('.acceso').forEach((fila) => {
+          fila.addEventListener('touchstart', () => { fila.dataset.tocado = 'si'; }, { passive: true });
+          const soltar = () => { fila.dataset.tocado = 'no'; };
+          fila.addEventListener('touchend', soltar);
+          fila.addEventListener('touchcancel', soltar);
+        });
+      }
+    </script>
+  </body>
+</html>
