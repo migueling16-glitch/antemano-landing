@@ -675,12 +675,18 @@ const jsonLd = {
 
       /* Ondas en el café: elipses de 1px. Solo en el intro. */
       .ondas { position: absolute; inset: 0; pointer-events: none; }
+      /*
+        Medidas tomadas del vector: la boca de la taza es una elipse de ~71%
+        del ancho y ~20% del alto del lienzo, centrada en 43.4% / 38%. La onda
+        más grande (escala 1) se queda por dentro de ese borde: el café no se
+        derrama.
+      */
       .onda {
         position: absolute;
-        left: 44%;
-        top: 37%;
-        width: 40%;
-        aspect-ratio: 2.7 / 1;
+        left: 43.4%;
+        top: 38%;
+        width: 62%;
+        aspect-ratio: 4.4 / 1;
         margin: 0;
         border: 1px solid currentColor;
         /* 50%, no radius-full: en un elemento ancho el radio fijo da forma de
@@ -689,9 +695,9 @@ const jsonLd = {
         animation: ondear 1600ms var(--ease) forwards;
       }
       @keyframes ondear {
-        from { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
-        55% { opacity: 0.75; }
-        to { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+        from { transform: translate(-50%, -50%) scale(0.12); opacity: 1; }
+        70% { opacity: 0.8; }
+        to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
       }
 
       .hero-marca { width: clamp(180px, 52vw, 300px); }
@@ -1230,7 +1236,11 @@ const jsonLd = {
         // stroke-dasharray en cada subtrazo, así que meterlos en un solo path
         // con varios "M" no permite destaparlos en orden.
         const DIBUJO = 1600;
-        const SOLAPE = 0.88; // cada trazo arranca antes de que termine el previo
+        const SOLAPE = 0.95; // cada trazo arranca justo antes de terminar el previo
+        // Colchón del patrón de guiones. Sin él, el offset inicial cae justo en
+        // la frontera entre guión y hueco: con stroke-linecap round eso pinta un
+        // punto del grosor del trazo, y el dibujo no arrancaría en blanco.
+        const COLCHON = 2;
         const largos = pluma.map((p) => p.getTotalLength());
         const total = largos.reduce((a, b) => a + b, 0) || 1;
 
@@ -1244,10 +1254,11 @@ const jsonLd = {
         pluma.forEach((p, i) => {
           const len = largos[i];
           const dur = crudas[i] * k;
-          p.style.strokeDasharray = String(len);
-          p.style.strokeDashoffset = String(len);
+          const arranque = len + COLCHON;
+          p.style.strokeDasharray = `${len} ${len + COLCHON * 2}`;
+          p.style.strokeDashoffset = String(arranque);
           p.animate(
-            [{ strokeDashoffset: String(len) }, { strokeDashoffset: '0' }],
+            [{ strokeDashoffset: String(arranque) }, { strokeDashoffset: '0' }],
             { duration: dur, delay: reloj, easing: 'linear', fill: 'forwards' },
           );
           reloj += dur * SOLAPE;

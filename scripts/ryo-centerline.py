@@ -221,14 +221,13 @@ def ordenar(polis):
         fin = salida[-1][-1]
         mejor, mejor_d, voltear = 0, float("inf"), False
         for i, l in enumerate(restantes):
-            d0 = math.dist(fin, l[0])
-            d1 = math.dist(fin, l[-1])
-            # un trazo largo cercano vale más que uno corto cercano
-            peso = 1.0 / (1.0 + largo(l) / 120.0)
-            if d0 * peso < mejor_d:
-                mejor, mejor_d, voltear = i, d0 * peso, False
-            if d1 * peso < mejor_d:
-                mejor, mejor_d, voltear = i, d1 * peso, True
+            # Cercanía pura, sin favorecer trazos largos: la pluma sigue desde
+            # donde quedó. Pesar por longitud la hacía saltar a un trazo largo
+            # lejano, y el dibujo se veía como piezas sueltas que luego se unen.
+            if math.dist(fin, l[0]) < mejor_d:
+                mejor, mejor_d, voltear = i, math.dist(fin, l[0]), False
+            if math.dist(fin, l[-1]) < mejor_d:
+                mejor, mejor_d, voltear = i, math.dist(fin, l[-1]), True
         l = restantes.pop(mejor)
         salida.append(l[::-1] if voltear else l)
     return salida

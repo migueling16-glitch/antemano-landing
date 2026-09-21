@@ -89,8 +89,10 @@ activan todos, conviene apagar alguno para no pasar de siete.
   para las bandas oscuras (slogan, manifiesto, pie) en cualquiera de los dos
   temas.
 - **Intro.** Al cargar, el isotipo se dibuja solo de un trazo grueso, el café
-  hace un par de ondas y la marca vuela al isotipo de la barra, arriba a la
-  izquierda, mientras el fondo se disuelve. Son unos 2.5 s.
+  hace un par de ondas —contenidas dentro de la boca de la taza, medida sobre
+  el vector: elipse de 71% del ancho y 20% del alto, centrada en 43.4% / 38%—
+  y la marca vuela al isotipo de la barra, arriba a la izquierda, mientras el
+  fondo se disuelve. Son unos 2.5 s.
 
   Lo que se ve dibujarse **es el vector original del manual**, no una imitación.
   El truco: `scripts/ryo-centerline.py` saca el eje central de cada trazo
@@ -104,7 +106,14 @@ activan todos, conviene apagar alguno para no pasar de siete.
   `stroke-dasharray` en cada subtrazo, así que meterlos todos en un solo `path`
   con varios `M` no permite destaparlos en orden. Cada uno dura según su
   longitud real (`getTotalLength()`), que es lo que da velocidad de pluma
-  constante y hace que se lea como una mano dibujando.
+  constante y hace que se lea como una mano dibujando. El script los ordena
+  por cercanía pura, para que la pluma siga desde donde quedó en vez de saltar
+  y dejar piezas sueltas.
+
+  El `COLCHON` de 2 unidades en el patrón de guiones no es un capricho: sin él
+  el desfase inicial cae justo en la frontera entre guión y hueco, y con
+  `stroke-linecap: round` eso pinta un punto del grosor del trazo. El dibujo no
+  arrancaría en blanco.
 
   Corre una sola vez por sesión, cualquier toque o tecla se la salta, y no
   corre nunca con `prefers-reduced-motion`. Nace con `hidden` y solo el JS la
