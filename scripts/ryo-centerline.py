@@ -30,6 +30,32 @@ MIN_LARGO = 4     # descarta ramitas más cortas que esto (px)
 
 VECINOS = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
 
+# Margen de la máscara sobre el grosor real del trazo. Lo justo para taparlo:
+# si sobra, un trazo gordo que pasa cerca de un detalle fino (los ojos) lo
+# destapa antes de tiempo.
+MARGEN_MASCARA = 1.8
+MARGEN_FIJO = 5.0
+
+# ── Elementos del dibujo ──────────────────────────────────────────────
+# El isotipo es un solo path compuesto: sus subtrazos son la silueta y los
+# huecos, no las líneas sueltas. Así que las piezas se separan por dónde caen,
+# con polígonos trazados sobre el mapa que imprime este script con --mapa.
+# Coordenadas en unidades del viewBox (553 x 440).
+ORDEN_GRUPOS = ["taza", "cafe", "persona", "ojos"]
+
+REGIONES = {
+    "cabeza": [(246, 28), (344, 28), (344, 124), (246, 124)],
+    "brazo-izq": [(300, 88), (308, 130), (150, 130), (120, 146), (100, 134),
+                  (126, 100), (230, 88)],
+    "brazo-der": [(306, 92), (324, 142), (420, 154), (454, 176), (468, 158),
+                  (430, 130), (338, 96)],
+    "piernas": [(92, 282), (140, 238), (216, 210), (274, 238), (242, 300),
+                (202, 372), (150, 374), (116, 330), (94, 306)],
+    # superficie del café, por dentro del borde de la taza
+    "cafe": [(112, 142), (250, 118), (402, 150), (442, 182), (420, 216),
+             (300, 236), (160, 222), (96, 186)],
+}
+
 
 def rasterizar() -> tuple[set[tuple[int, int]], int, int, float, float]:
     """Pinta el SVG en negro sobre blanco y devuelve el conjunto de píxeles de tinta."""
@@ -54,6 +80,49 @@ def rasterizar() -> tuple[set[tuple[int, int]], int, int, float, float]:
     }
     # factor para volver a coordenadas del viewBox
     return tinta, ancho, alto, vb.width / ancho, vb.height / alto
+
+
+def distancias(tinta: set[tuple[int, int]], ancho: int, alto: int) -> dict:
+    """Distancia de cada píxel de tinta al fondo (chamfer 3-4, /3 = píxeles).
+
+    Sirve para saber el grosor real de cada trazo: el radio máximo a lo largo
+    de su eje es la mitad de lo ancho que es esa línea en el dibujo.
+    """
+    INF = 10**9
+    d = {p: INF for p in tinta}
+    # pasada adelante
+    for y in range(alto):
+        for x in range(ancho):
+            if (x, y) not in d:
+                continue
+            m = INF
+            for dx, dy, w in ((-1, 0, 3), (0, -1, 3), (-1, -1, 4), (1, -1, 4)):
+                q = (x + dx, y + dy)
+                m = min(m, (d[q] if q in d else 0) + w)
+            d[(x, y)] = min(d[(x, y)], m)
+    # pasada atrás
+    for y in range(alto - 1, -1, -1):
+        for x in range(ancho - 1, -1, -1):
+            if (x, y) not in d:
+                continue
+            m = d[(x, y)]
+            for dx, dy, w in ((1, 0, 3), (0, 1, 3), (1, 1, 4), (-1, 1, 4)):
+                q = (x + dx, y + dy)
+                m = min(m, (d[q] if q in d else 0) + w)
+            d[(x, y)] = m
+    return {p: v / 3.0 for p, v in d.items()}
+
+
+def grosor_de(linea, dist) -> float:
+    """Ancho del trazo original bajo esta polilínea (percentil 80 de los radios).
+
+    El percentil, y no el máximo, para que los cruces —donde dos líneas se
+    enciman y el radio se dispara— no engorden el trazo entero.
+    """
+    radios = sorted(dist.get(p, 1.0) for p in linea)
+    if not radios:
+        return 4.0
+    return 2.0 * radios[int(len(radios) * 0.8) - 1 if len(radios) > 1 else 0]
 
 
 def adelgazar(pixeles: set[tuple[int, int]]) -> set[tuple[int, int]]:
@@ -136,6 +205,39 @@ def trazar(S: set[tuple[int, int]]) -> list[list[tuple[int, int]]]:
     return [l for l in polis if largo(l) >= MIN_LARGO]
 
 
+def dentro(punto, poligono) -> bool:
+    """Punto en polígono, por conteo de cruces."""
+    x, y = punto
+    d = False
+    n = len(poligono)
+    for i in range(n):
+        x0, y0 = poligono[i]
+        x1, y1 = poligono[(i + 1) % n]
+        if (y0 > y) != (y1 > y) and x < (x1 - x0) * (y - y0) / (y1 - y0) + x0:
+            d = not d
+    return d
+
+
+def clasificar(pts, grosor) -> str:
+    """A qué elemento del dibujo pertenece este trazo."""
+    cx = sum(p[0] for p in pts) / len(pts)
+    cy = sum(p[1] for p in pts) / len(pts)
+    ancho = max(p[0] for p in pts) - min(p[0] for p in pts)
+    alto = max(p[1] for p in pts) - min(p[1] for p in pts)
+
+    if dentro((cx, cy), REGIONES["cabeza"]):
+        # los ojos son los trazos chicos dentro de la cabeza, y van al final
+        if ancho < 48 and alto < 26 and 58 <= cy <= 104:
+            return "ojos"
+        return "persona"
+    for r in ("brazo-izq", "brazo-der", "piernas"):
+        if dentro((cx, cy), REGIONES[r]):
+            return "persona"
+    if dentro((cx, cy), REGIONES["cafe"]):
+        return "cafe"
+    return "taza"
+
+
 def largo(linea) -> float:
     return sum(math.dist(linea[i], linea[i + 1]) for i in range(len(linea) - 1))
 
@@ -212,25 +314,74 @@ def giro(a, b, c) -> float:
     return math.acos(cos)
 
 
-def ordenar(polis):
+def ordenar(trazos):
     """Encadena los trazos por cercanía: la pluma no salta de un lado a otro."""
-    restantes = list(polis)
-    restantes.sort(key=largo, reverse=True)
+    if not trazos:
+        return []
+    restantes = list(trazos)
+    restantes.sort(key=lambda t: largo(t["pts"]), reverse=True)
     salida = [restantes.pop(0)]
     while restantes:
-        fin = salida[-1][-1]
+        fin = salida[-1]["pts"][-1]
         mejor, mejor_d, voltear = 0, float("inf"), False
-        for i, l in enumerate(restantes):
+        for i, tr in enumerate(restantes):
             # Cercanía pura, sin favorecer trazos largos: la pluma sigue desde
             # donde quedó. Pesar por longitud la hacía saltar a un trazo largo
             # lejano, y el dibujo se veía como piezas sueltas que luego se unen.
+            l = tr["pts"]
             if math.dist(fin, l[0]) < mejor_d:
                 mejor, mejor_d, voltear = i, math.dist(fin, l[0]), False
             if math.dist(fin, l[-1]) < mejor_d:
                 mejor, mejor_d, voltear = i, math.dist(fin, l[-1]), True
-        l = restantes.pop(mejor)
-        salida.append(l[::-1] if voltear else l)
+        tr = restantes.pop(mejor)
+        if voltear:
+            tr = {**tr, "pts": tr["pts"][::-1]}
+        salida.append(tr)
     return salida
+
+
+def mapa_de_verificacion(grupos, vb, destino):
+    """Dibuja el esqueleto coloreado por grupo sobre el arte, para revisar a ojo
+    que la taza, el café, el mono y los ojos quedaron bien separados."""
+    COLOR = {"taza": (0.10, 0.35, 0.85), "cafe": (0.85, 0.55, 0.05),
+             "persona": (0.85, 0.10, 0.20), "ojos": (0.10, 0.65, 0.25)}
+    S = 1.8
+    doc = fitz.open()
+    pg = doc.new_page(width=vb.width * S, height=vb.height * S)
+    pg.draw_rect(pg.rect, color=None, fill=(1, 1, 1))
+
+    tmp = PROJ / "scripts/.mapa-tmp.svg"
+    tmp.write_text(ORIGEN.read_text(encoding="utf-8").replace('fill="currentColor"', 'fill="#e8e4d9"'), encoding="utf-8")
+    try:
+        pix = fitz.open(str(tmp))[0].get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+        pg.insert_image(fitz.Rect(0, 0, vb.width * S, vb.height * S), pixmap=pix)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+    # las regiones que deciden la clasificación
+    for nombre, poli in REGIONES.items():
+        c = COLOR["cafe"] if nombre == "cafe" else COLOR["persona"]
+        pts = [(x * S, y * S) for x, y in poli]
+        for a, b in zip(pts, pts[1:] + pts[:1]):
+            pg.draw_line(a, b, color=c, width=0.6, dashes="[3 3] 0")
+
+    n = 0
+    for grupo in ORDEN_GRUPOS:
+        for tr in grupos.get(grupo, []):
+            pts = [(x * S, y * S) for x, y in tr["pts"]]
+            for a, b in zip(pts, pts[1:]):
+                pg.draw_line(a, b, color=COLOR[grupo], width=1.6)
+            cx = sum(x for x, _ in pts) / len(pts)
+            cy = sum(y for _, y in pts) / len(pts)
+            pg.insert_text((cx - 4, cy + 3), str(n), fontsize=7, color=(0, 0, 0))
+            n += 1
+
+    y = 14
+    for grupo in ORDEN_GRUPOS:
+        pg.insert_text((10, y), f"{grupo}: {len(grupos.get(grupo, []))} trazos",
+                       fontsize=11, color=COLOR[grupo])
+        y += 14
+    pg.get_pixmap(matrix=fitz.Matrix(1.4, 1.4), alpha=False).save(str(destino))
 
 
 def main() -> int:
@@ -241,41 +392,62 @@ def main() -> int:
     tinta, ancho, alto, fx, fy = rasterizar()
     print(f"tinta: {len(tinta)} px de {ancho}x{alto}")
 
+    dist = distancias(tinta, ancho, alto)
     esqueleto = adelgazar(tinta)
     print(f"esqueleto: {len(esqueleto)} px")
 
-    polis = encadenar(trazar(esqueleto))
-    total = sum(largo(l) for l in polis)
-    # área / longitud ≈ grosor medio del trazo original
-    grosor = (len(tinta) / total) if total else 8
-    print(f"trazos: {len(polis)} · largo total {total:.0f}px · grosor medio {grosor:.1f}px")
+    crudos = encadenar(trazar(esqueleto))
 
-    polis = ordenar([simplificar(l, TOLERANCIA) for l in polis])
+    # El grosor se mide sobre los píxeles crudos, antes de simplificar.
+    trazos = []
+    for linea in crudos:
+        g = grosor_de(linea, dist) * max(fx, fy)
+        pts = [(x * fx, y * fy) for x, y in simplificar(linea, TOLERANCIA)]
+        trazos.append({"pts": pts, "grosor": g})
 
-    # Un <path> por trazo, en orden de dibujo.
-    #
-    # No sirve meterlos como subtrazos de un solo path: SVG reinicia el patrón
-    # de stroke-dasharray en cada subtrazo, así que un único stroke-dashoffset
-    # no los va destapando en orden — o se ven todos o ninguno. La página los
-    # anima uno por uno, encadenados.
-    caminos = []
-    for linea in polis:
-        pts = [f"{x * fx:.1f} {y * fy:.1f}" for x, y in linea]
-        caminos.append('<path d="M ' + " L ".join(pts) + '"/>')
+    for tr in trazos:
+        tr["grupo"] = clasificar(tr["pts"], tr["grosor"])
+
+    grupos = {g: ordenar([t for t in trazos if t["grupo"] == g]) for g in ORDEN_GRUPOS}
+    sueltos = [t for t in trazos if t["grupo"] not in grupos]
+    if sueltos:
+        print(f"AVISO: {len(sueltos)} trazos sin grupo", file=sys.stderr)
+
+    total = sum(largo(t["pts"]) for t in trazos)
+    print(f"trazos: {len(trazos)} · largo total {total:.0f}")
+    for g in ORDEN_GRUPOS:
+        anchos = [t["grosor"] for t in grupos[g]]
+        if anchos:
+            print(f"  {g:<8} {len(anchos):>3} trazos · grosor {min(anchos):.1f}–{max(anchos):.1f}")
 
     doc = fitz.open(str(ORIGEN))
     vb = doc[0].rect
-    # la máscara tiene que tapar el trazo original con margen
-    ancho_mascara = grosor * max(fx, fy) * 1.9 + 8
+
+    piezas = []
+    for g in ORDEN_GRUPOS:
+        if not grupos[g]:
+            continue
+        caminos = []
+        for tr in grupos[g]:
+            # Cada trazo lleva SU grosor: uno global haría que el contorno de la
+            # cabeza destapara los ojos al pasar cerca.
+            m = tr["grosor"] * MARGEN_MASCARA + MARGEN_FIJO
+            d = " L ".join(f"{x:.1f} {y:.1f}" for x, y in tr["pts"])
+            caminos.append(f'<path stroke-width="{m:.1f}" d="M {d}"/>')
+        piezas.append(f'<g data-grupo="{g}">' + "".join(caminos) + "</g>")
 
     SALIDA.write_text(
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {vb.width:g} {vb.height:g}"'
-        f' data-grosor="{ancho_mascara:.1f}">'
-        + "".join(caminos)
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {vb.width:g} {vb.height:g}">'
+        + "".join(piezas)
         + "</svg>",
         encoding="utf-8",
     )
-    print(f"{SALIDA.relative_to(PROJ)} — {SALIDA.stat().st_size} bytes, grosor de máscara {ancho_mascara:.1f}")
+    print(f"{SALIDA.relative_to(PROJ)} — {SALIDA.stat().st_size} bytes")
+
+    if "--mapa" in sys.argv:
+        destino = pathlib.Path(sys.argv[sys.argv.index("--mapa") + 1])
+        mapa_de_verificacion(grupos, vb, destino)
+        print(f"mapa de verificación: {destino}")
     return 0
 
 

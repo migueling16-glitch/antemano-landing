@@ -35,9 +35,11 @@ const isoViewBox = isotipoSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 553.019 44
  * sobre el isotipo real. Lo que se ve siempre es el vector del manual; la
  * máscara solo decide en qué orden se destapa, y como el trazo de la máscara
  * es más gordo que el del dibujo, se lee como una sola línea avanzando.
+ *
+ * Viene agrupado en <g data-grupo>: taza, café, persona y ojos, en ese orden.
+ * Cada <path> lleva su propio stroke-width.
  */
 const trazoInner = trazoSvg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
-const trazoGrosor = trazoSvg.match(/data-grosor="([\d.]+)"/)?.[1] ?? '26';
 const [vbX, vbY, vbW, vbH] = isoViewBox.split(/[\s,]+/).map(Number);
 const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
 
@@ -153,11 +155,15 @@ const jsonLd = {
             width={mascara.w}
             height={mascara.h}
           >
+            <!--
+              Sin stroke-width aquí: cada trazo trae el suyo, calculado del
+              grosor real de esa línea en el dibujo. Con un grosor único, el
+              contorno de la cabeza destapaba los ojos al pasar cerca.
+            -->
             <g
               data-pluma
               fill="none"
               stroke="#fff"
-              stroke-width={trazoGrosor}
               stroke-linecap="round"
               stroke-linejoin="round"
               set:html={trazoInner}
@@ -1212,7 +1218,12 @@ const jsonLd = {
         const marca = capa.querySelector<HTMLElement>('[data-intro-marca]');
         const fondo = capa.querySelector<HTMLElement>('[data-intro-fondo]');
         const arte = capa.querySelector<SVGGElement>('[data-intro-arte]');
-        const pluma = Array.from(capa.querySelectorAll<SVGPathElement>('[data-pluma] path'));
+        // Los trazos vienen agrupados por elemento del dibujo, en orden.
+        const cajas = Array.from(capa.querySelectorAll<SVGGElement>('[data-pluma] [data-grupo]'));
+        const grupos = (cajas.length ? cajas.map((g) => Array.from(g.querySelectorAll<SVGPathElement>('path')))
+                                     : [Array.from(capa.querySelectorAll<SVGPathElement>('[data-pluma] path'))])
+          .filter((g) => g.length);
+        const pluma = grupos.flat();
         const ondas = capa.querySelector<HTMLElement>('[data-ondas]');
         if (!marca || !fondo || !arte || !pluma.length) {
           capa.remove();
@@ -1235,12 +1246,14 @@ const jsonLd = {
         // Van como paths separados a propósito: SVG reinicia el patrón de
         // stroke-dasharray en cada subtrazo, así que meterlos en un solo path
         // con varios "M" no permite destaparlos en orden.
-        const DIBUJO = 1600;
+        const DIBUJO = 1750;
         const SOLAPE = 0.95; // cada trazo arranca justo antes de terminar el previo
+        const PAUSA = 130; // respiro entre un elemento y el siguiente
         // Colchón del patrón de guiones. Sin él, el offset inicial cae justo en
         // la frontera entre guión y hueco: con stroke-linecap round eso pinta un
         // punto del grosor del trazo, y el dibujo no arrancaría en blanco.
         const COLCHON = 2;
+
         const largos = pluma.map((p) => p.getTotalLength());
         const total = largos.reduce((a, b) => a + b, 0) || 1;
 
@@ -1250,19 +1263,27 @@ const jsonLd = {
         const crudas = largos.map((l) => Math.max(18, (l / total) * DIBUJO));
         const k = DIBUJO / (crudas.reduce((a, b) => a + b, 0) * SOLAPE);
 
+        // Se dibuja un elemento a la vez: primero la taza, luego el café,
+        // luego el mono y al final los ojos, con una pausa entre cada uno.
         let reloj = 0;
-        pluma.forEach((p, i) => {
-          const len = largos[i];
-          const dur = crudas[i] * k;
-          const arranque = len + COLCHON;
-          p.style.strokeDasharray = `${len} ${len + COLCHON * 2}`;
-          p.style.strokeDashoffset = String(arranque);
-          p.animate(
-            [{ strokeDashoffset: String(arranque) }, { strokeDashoffset: '0' }],
-            { duration: dur, delay: reloj, easing: 'linear', fill: 'forwards' },
-          );
-          reloj += dur * SOLAPE;
+        let i = 0;
+        grupos.forEach((grupo, gi) => {
+          if (gi > 0) reloj += PAUSA;
+          grupo.forEach((p) => {
+            const len = largos[i];
+            const dur = crudas[i] * k;
+            const arranque = len + COLCHON;
+            i += 1;
+            p.style.strokeDasharray = `${len} ${len + COLCHON * 2}`;
+            p.style.strokeDashoffset = String(arranque);
+            p.animate(
+              [{ strokeDashoffset: String(arranque) }, { strokeDashoffset: '0' }],
+              { duration: dur, delay: reloj, easing: 'linear', fill: 'forwards' },
+            );
+            reloj += dur * SOLAPE;
+          });
         });
+        const finDibujo = reloj;
 
         let cerrado = false;
         const cerrar = () => {
@@ -1294,7 +1315,7 @@ const jsonLd = {
               }, retraso),
             );
           }
-        }, DIBUJO + 60);
+        }, finDibujo + 60);
 
         // 2. Vuela a la esquina mientras el fondo se disuelve.
         window.setTimeout(() => {
@@ -1313,10 +1334,10 @@ const jsonLd = {
             [{ opacity: '1' }, { opacity: '0' }],
             { duration: 650, delay: 300, easing: 'ease-out', fill: 'forwards' },
           ).finished.then(cerrar, cerrar);
-        }, DIBUJO + 1000);
+        }, finDibujo + 800);
 
         // Red de seguridad: pase lo que pase, la capa se quita.
-        window.setTimeout(cerrar, DIBUJO + 3400);
+        window.setTimeout(cerrar, finDibujo + 3400);
       }
 
       /* ── Filete de la barra y CTA inferior al salir del hero ──── */
