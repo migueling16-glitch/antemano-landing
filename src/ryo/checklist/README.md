@@ -43,7 +43,19 @@ isotipo de `src/ryo/assets/` y el favicon de `public/ryo/`.
 - **Tema por la hora.** Champagne de día, café de noche — el cierre es de noche.
   Comparte la preferencia con la página de bio.
 - **Campos de 16 px.** Por debajo de eso el celular hace zoom al enfocar, que en
-  barra con las manos ocupadas es un estorbo.
+  barra con las manos ocupadas es un estorbo. Los botones llevan
+  `touch-action: manipulation` para que los toques rápidos no hagan zoom.
+- **Temperaturas sin `inputmode="decimal"`.** El teclado decimal de iOS no trae
+  signo menos, y el congelador se lee bajo cero.
+- **Quitar una firma se puede deshacer** durante 5 s, y se recupera la hora
+  original, no una nueva.
+- **"Siguiente ↓"** en la barra de progreso lleva a la primera tarea pendiente
+  (y la marca con un filete). Con todo hecho cambia a "Finalizar ↓", y con el
+  turno cerrado a "Resumen ↓".
+- **Tablet abierta toda la noche.** La página revisa la jornada al volver a
+  primer plano y cada 5 minutos; si cambió, recarga para no grabar la apertura
+  en el día anterior. La pestaña elegida se recuerda solo dentro de la misma
+  jornada.
 - **Turno finalizado = solo lectura.** Se puede reabrir.
 - Dos colores y nada más: las alertas son bloques invertidos, no rojos.
 

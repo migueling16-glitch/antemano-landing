@@ -79,10 +79,10 @@ const totales = TURNOS.map((tu) => ({
     </nav>
 
     <!-- Progreso del turno activo: siempre a la vista -->
-    <div class="progreso" aria-live="polite">
+    <div class="progreso">
       <div class="progreso-texto">
-        <span data-prog-hechas>0 / 0</span>
-        <span data-prog-criticas></span>
+        <span aria-live="polite"><span data-prog-hechas>0 / 0</span> · <span data-prog-criticas></span></span>
+        <button type="button" class="siguiente" data-siguiente>Siguiente ↓</button>
       </div>
       <div class="progreso-barra" aria-hidden="true"><span data-prog-barra></span></div>
     </div>
@@ -164,15 +164,15 @@ const totales = TURNOS.map((tu) => ({
                             <div class="temps">
                               <label>
                                 <span class="etiqueta">Refri 1</span>
-                                <span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-temp="r1" /><span>°C</span></span>
+                                <span class="entrada"><input type="number" step="0.1" data-temp="r1" /><span>°C</span></span>
                               </label>
                               <label>
                                 <span class="etiqueta">Refri 2</span>
-                                <span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-temp="r2" /><span>°C</span></span>
+                                <span class="entrada"><input type="number" step="0.1" data-temp="r2" /><span>°C</span></span>
                               </label>
                               <label>
                                 <span class="etiqueta">Congelador</span>
-                                <span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-temp="cong" /><span>°C</span></span>
+                                <span class="entrada"><input type="number" step="0.1" data-temp="cong" /><span>°C</span></span>
                               </label>
                             </div>
                             <p class="herr-nota">Refrigeración: máximo {LIMITE_REFRIGERACION} °C (NOM-251, 5.5.2). Congelador: el producto debe estar congelado.</p>
@@ -294,7 +294,10 @@ const totales = TURNOS.map((tu) => ({
     </main>
 
     <!-- Aviso breve (copiado, faltan iniciales, etc.) -->
-    <div class="toast" role="status" aria-live="polite" data-toast hidden></div>
+    <div class="toast" role="status" aria-live="polite" data-toast hidden>
+      <span data-toast-texto></span>
+      <button type="button" class="toast-accion" data-toast-accion hidden></button>
+    </div>
 
     <style is:global>
       /* ═══ TOKENS — Design System de Ryo Café ═══ */
@@ -331,7 +334,15 @@ const totales = TURNOS.map((tu) => ({
       button, input, textarea {
         font: inherit; letter-spacing: inherit; color: inherit;
       }
-      button { background: none; border: 0; padding: 0; cursor: pointer; }
+      button { background: none; border: 0; padding: 0; cursor: pointer; touch-action: manipulation; }
+      /* Lo que se busca con "Siguiente" o se muestra al finalizar no debe quedar
+         escondido bajo la barra de progreso fija. */
+      .tarea, .final, .bloqueo, .cierre-turno, .turnos { scroll-margin-top: 64px; }
+      .tarea[data-foco='si'] .tarea-marca { animation: foco 1400ms var(--ease); }
+      @keyframes foco {
+        0%, 45% { outline: 1px solid var(--ink); outline-offset: 4px; }
+        100% { outline: 1px solid transparent; outline-offset: 4px; }
+      }
       :focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
       ::selection { background: var(--ink); color: var(--surface); }
       [hidden] { display: none !important; }
@@ -403,6 +414,13 @@ const totales = TURNOS.map((tu) => ({
         text-transform: uppercase;
         letter-spacing: 0.14em;
         padding-bottom: 8px;
+      }
+      .siguiente {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
       }
       .progreso-barra { height: 3px; margin: 0 calc(var(--gutter) * -1); }
       .progreso-barra span {
@@ -660,7 +678,17 @@ const totales = TURNOS.map((tu) => ({
       .pie { margin-top: 32px; font-size: 0.7rem; font-style: italic; }
 
       /* ═══ AVISO BREVE ═══ */
+      .toast-accion {
+        margin-left: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        border-bottom: 1px solid var(--surface);
+        color: var(--surface);
+      }
       .toast {
+        display: flex;
+        align-items: baseline;
         position: fixed;
         left: 50%;
         bottom: calc(18px + env(safe-area-inset-bottom, 0));
@@ -675,7 +703,7 @@ const totales = TURNOS.map((tu) => ({
 
       @media (prefers-reduced-motion: reduce) {
         .progreso-barra span, .casilla { transition: none; }
-        .tarea[data-sacude='si'] .tarea-marca { animation: none; }
+        .tarea[data-sacude='si'] .tarea-marca, .tarea[data-foco='si'] .tarea-marca { animation: none; }
       }
     </style>
 
@@ -759,11 +787,23 @@ const totales = TURNOS.map((tu) => ({
 
       /* ── Aviso breve ─────────────────────────────────────────── */
       let relojToast = 0;
-      const avisar = (texto: string) => {
-        toast.textContent = texto;
+      const toastTexto = $('[data-toast-texto]')!;
+      const toastAccion = $<HTMLButtonElement>('[data-toast-accion]')!;
+      let alAccion: (() => void) | null = null;
+      toastAccion.addEventListener('click', () => {
+        alAccion?.();
+        alAccion = null;
+        toast.hidden = true;
+      });
+      const avisar = (texto: string, accion?: { etiqueta: string; hacer: () => void }) => {
+        toastTexto.textContent = texto;
+        alAccion = accion?.hacer ?? null;
+        toastAccion.hidden = !accion;
+        if (accion) toastAccion.textContent = accion.etiqueta;
         toast.hidden = false;
         clearTimeout(relojToast);
-        relojToast = window.setTimeout(() => { toast.hidden = true; }, 2600);
+        // con acción se queda más: hay que alcanzar a tocarla
+        relojToast = window.setTimeout(() => { toast.hidden = true; alAccion = null; }, accion ? 5000 : 2600);
       };
 
       /* ── Firma del responsable ───────────────────────────────── */
@@ -802,10 +842,17 @@ const totales = TURNOS.map((tu) => ({
         turnoActivo = turno;
         $$('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === turno)));
         $$('[data-turno]').forEach((s) => { s.hidden = s.dataset.turno !== turno; });
-        try { sessionStorage.setItem('ryo-checklist:turno', turno); } catch {}
+        try { sessionStorage.setItem('ryo-checklist:turno', `${jornada}:${turno}`); } catch {}
         pintar();
       };
-      $$('[data-tab]').forEach((b) => b.addEventListener('click', () => mostrarTurno(b.dataset.tab as IdTurno)));
+      $$('[data-tab]').forEach((b) =>
+        b.addEventListener('click', () => {
+          mostrarTurno(b.dataset.tab as IdTurno);
+          // Si venías a media lista, no te deja a media lista del otro turno.
+          const pestanas = $('.turnos')!;
+          if (pestanas.getBoundingClientRect().top < 0) pestanas.scrollIntoView({ block: 'start' });
+        }),
+      );
 
       /* ── Marcar tareas ───────────────────────────────────────── */
       const sacudir = (li: HTMLElement) => {
@@ -837,7 +884,19 @@ const totales = TURNOS.map((tu) => ({
           if (r.finalizado) { avisar('El turno está finalizado. Reábrelo para cambiar algo.'); return; }
 
           if (r.hechas[id]) {
+            // Un toque de más no debe borrar la hora real en que se hizo:
+            // se puede deshacer.
+            const previa = r.hechas[id];
             delete r.hechas[id];
+            avisar('Firma quitada.', {
+              etiqueta: 'Deshacer',
+              hacer: () => {
+                if (registros[t.turno].finalizado) return;
+                registros[t.turno].hechas[id] = previa;
+                guardar(t.turno);
+                pintar();
+              },
+            });
           } else {
             // La regla de oro: sin iniciales, no hay firma; sin firma, no cuenta.
             if (!persona.ini.trim()) {
@@ -1054,7 +1113,7 @@ const totales = TURNOS.map((tu) => ({
           r.finalizado = { hora: hora(), ini: persona.ini, ts: Date.now() };
           guardar(turno);
           pintar();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          $(`[data-final="${turno}"]`)!.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }),
       );
       $$('[data-reabrir]').forEach((b) =>
@@ -1158,18 +1217,46 @@ const totales = TURNOS.map((tu) => ({
         const lista = delTurno(turnoActivo);
         const hechas = lista.filter(([id]) => r.hechas[id]).length;
         const criticasPend = lista.filter(([id, t]) => t.critica && !r.hechas[id]).length;
-        $('[data-prog-hechas]')!.textContent = `${hechas} / ${lista.length} tareas`;
-        $('[data-prog-criticas]')!.textContent = criticasPend ? `${criticasPend} críticas pendientes` : 'Críticas completas';
+        $('[data-prog-hechas]')!.textContent = `${hechas} / ${lista.length}`;
+        $('[data-prog-criticas]')!.textContent = criticasPend ? `${criticasPend} críticas` : 'críticas ✓';
+        $('[data-siguiente]')!.textContent = r.finalizado ? 'Resumen ↓' : hechas === lista.length ? 'Finalizar ↓' : 'Siguiente ↓';
         $<HTMLElement>('[data-prog-barra]')!.style.width = `${(hechas / lista.length) * 100}%`;
       };
+
+      /* ── Siguiente pendiente ─────────────────────────────────── */
+      $('[data-siguiente]')!.addEventListener('click', () => {
+        const r = registros[turnoActivo];
+        const sec = $(`[data-turno="${turnoActivo}"]`)!;
+        const pendiente = delTurno(turnoActivo).find(([id]) => !r.hechas[id]);
+        const destino = r.finalizado
+          ? $(`[data-final="${turnoActivo}"]`, sec)
+          : pendiente
+            ? $<HTMLElement>(`[data-tarea="${pendiente[0]}"]`, sec)
+            : $('.cierre-turno', sec);
+        if (!destino) return;
+        destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (pendiente && !r.finalizado) {
+          (destino as HTMLElement).dataset.foco = 'si';
+          setTimeout(() => { delete (destino as HTMLElement).dataset.foco; }, 1500);
+        }
+      });
+
+      /* ── Cambio de jornada con la página abierta ────────────────
+         Una tablet que se queda en la barra toda la noche calcularía la
+         fecha de ayer y grabaría la apertura en el día equivocado. */
+      const vigilarJornada = () => { if (jornadaDe() !== jornada) location.reload(); };
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) vigilarJornada(); });
+      setInterval(vigilarJornada, 5 * 60_000);
 
       /* ── Arranque ────────────────────────────────────────────── */
       // Turno inicial: el que se eligió en esta sesión, o por la hora
       // (antes de las 14:00 de Durango, apertura; después, cierre).
       let inicial: IdTurno = ahora().getHours() < 14 && ahora().getHours() >= 5 ? 'apertura' : 'cierre';
       try {
-        const s = sessionStorage.getItem('ryo-checklist:turno');
-        if (s === 'apertura' || s === 'cierre') inicial = s;
+        // La pestaña elegida solo vale para la misma jornada: una tablet que
+        // se quedó en cierre anoche debe amanecer en apertura.
+        const [j, s] = (sessionStorage.getItem('ryo-checklist:turno') ?? '').split(':');
+        if (j === jornada && (s === 'apertura' || s === 'cierre')) inicial = s;
       } catch {}
       if (persona.ini) inIni.dataset.manual = 'si';
       llenarCampos();
