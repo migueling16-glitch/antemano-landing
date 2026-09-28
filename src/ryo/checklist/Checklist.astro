@@ -88,26 +88,16 @@ const totales = TURNOS.map((tu) => ({
     </div>
 
     <main>
-      <!-- Firma del turno: la regla de oro -->
+      <!-- Quién hace el turno. Una línea: el detalle vive en la hoja de firma. -->
       <section class="firma" aria-label="Responsable del turno">
-        <div class="campo">
-          <label class="etiqueta" for="f-fecha">Fecha</label>
-          <output id="f-fecha" class="campo-fijo" data-fecha>—</output>
-        </div>
-        <div class="campo campo-ancho">
-          <label class="etiqueta" for="f-nombre">Responsable</label>
-          <input id="f-nombre" data-nombre type="text" autocomplete="name" placeholder="Nombre" maxlength="40" />
-        </div>
-        <div class="campo campo-ini">
-          <label class="etiqueta" for="f-ini">Inic.</label>
-          <input id="f-ini" data-ini type="text" autocomplete="off" placeholder="—" maxlength="3" />
-        </div>
-        <p class="regla" data-regla>{REGLA_DE_ORO}</p>
+        <span class="etiqueta" data-fecha>—</span>
+        <button type="button" class="firma-quien" data-abrir-hoja>
+          <span data-quien>Sin responsable</span>
+          <span class="firma-accion" data-quien-accion>Firmar</span>
+        </button>
       </section>
-
       <p class="leyenda">
-        <span class="leyenda-recta">Letra recta</span> = crítica: seguridad, inocuidad o dinero. No se salta.
-        <span class="leyenda-italica">Itálica</span> = normal.
+        <span class="leyenda-recta">Letra recta</span> = crítica, no se salta · <span class="leyenda-italica">itálica</span> = normal
       </p>
 
       {TURNOS.map((tu) => (
@@ -164,11 +154,11 @@ const totales = TURNOS.map((tu) => ({
                             <div class="temps">
                               <label>
                                 <span class="etiqueta">Refri 1</span>
-                                <span class="entrada"><input type="number" step="0.1" data-temp="r1" /><span>°C</span></span>
+                                <span class="entrada"><input type="number" step="0.1" data-temp="r1" data-requerido /><span>°C</span></span>
                               </label>
                               <label>
                                 <span class="etiqueta">Refri 2</span>
-                                <span class="entrada"><input type="number" step="0.1" data-temp="r2" /><span>°C</span></span>
+                                <span class="entrada"><input type="number" step="0.1" data-temp="r2" data-requerido /><span>°C</span></span>
                               </label>
                               <label>
                                 <span class="etiqueta">Congelador</span>
@@ -181,7 +171,7 @@ const totales = TURNOS.map((tu) => ({
                               <p>{PROTOCOLO_FUERA_DE_LIMITE}</p>
                               <label class="alerta-campo">
                                 <span class="etiqueta">Acción tomada</span>
-                                <textarea rows="2" data-temp="accion" placeholder="Qué se aisló, qué se hizo, a quién se avisó"></textarea>
+                                <textarea rows="2" data-temp="accion" data-requerido placeholder="Qué se aisló, qué se hizo, a quién se avisó"></textarea>
                               </label>
                             </div>
                           </div>
@@ -194,10 +184,10 @@ const totales = TURNOS.map((tu) => ({
                               <input type="text" data-calib="cafe" placeholder="Origen o lote" maxlength="40" />
                             </label>
                             <div class="calib">
-                              <label><span class="etiqueta">Dosis</span><span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-calib="dosis" /><span>g</span></span></label>
-                              <label><span class="etiqueta">Bebida</span><span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-calib="bebida" /><span>g</span></span></label>
-                              <label><span class="etiqueta">Tiempo</span><span class="entrada"><input type="number" inputmode="numeric" step="1" data-calib="tiempo" /><span>s</span></span></label>
-                              <label><span class="etiqueta">TDS</span><span class="entrada"><input type="number" inputmode="decimal" step="0.01" data-calib="tds" /><span>%</span></span></label>
+                              <label><span class="etiqueta">Dosis</span><span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-calib="dosis" data-requerido /><span>g</span></span></label>
+                              <label><span class="etiqueta">Bebida</span><span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-calib="bebida" data-requerido /><span>g</span></span></label>
+                              <label><span class="etiqueta">Tiempo</span><span class="entrada"><input type="number" inputmode="numeric" step="1" data-calib="tiempo" data-requerido /><span>s</span></span></label>
+                              <label><span class="etiqueta">TDS</span><span class="entrada"><input type="number" inputmode="decimal" step="0.01" data-calib="tds" data-requerido /><span>%</span></span></label>
                             </div>
                             <div class="extraccion" data-extraccion>
                               <span class="etiqueta">Extracción</span>
@@ -293,7 +283,32 @@ const totales = TURNOS.map((tu) => ({
       </footer>
     </main>
 
-    <!-- Aviso breve (copiado, faltan iniciales, etc.) -->
+    <!--
+      Hoja de firma. Sube desde abajo la primera vez que se marca algo sin
+      iniciales; al firmar, la casilla que se tocó queda marcada. La regla de
+      oro se cumple sin que el toque se sienta ignorado.
+    -->
+    <div class="hoja" data-hoja hidden>
+      <div class="hoja-afuera" data-hoja-cerrar aria-hidden="true"></div>
+      <form class="hoja-panel inv" data-hoja-form role="dialog" aria-modal="true" aria-labelledby="hoja-titulo">
+        <p class="etiqueta" id="hoja-titulo">¿Quién hace el turno?</p>
+        <p class="hoja-regla">{REGLA_DE_ORO}</p>
+        <div class="hoja-campos">
+          <label class="hoja-campo">
+            <span class="etiqueta">Nombre</span>
+            <input data-nombre type="text" autocomplete="name" placeholder="Ana Ruiz" maxlength="40" />
+          </label>
+          <label class="hoja-campo hoja-ini">
+            <span class="etiqueta">Iniciales</span>
+            <input data-ini type="text" autocomplete="off" autocapitalize="characters" placeholder="AR" maxlength="3" />
+          </label>
+        </div>
+        <button type="submit" class="boton boton-lleno boton-grande">Firmar</button>
+        <button type="button" class="enlace hoja-cancelar" data-hoja-cerrar>Cancelar</button>
+      </form>
+    </div>
+
+    <!-- Aviso breve (copiado, deshacer, qué falta, etc.) -->
     <div class="toast" role="status" aria-live="polite" data-toast hidden>
       <span data-toast-texto></span>
       <button type="button" class="toast-accion" data-toast-accion hidden></button>
@@ -338,7 +353,7 @@ const totales = TURNOS.map((tu) => ({
       /* Lo que se busca con "Siguiente" o se muestra al finalizar no debe quedar
          escondido bajo la barra de progreso fija. */
       .tarea, .final, .bloqueo, .cierre-turno, .turnos { scroll-margin-top: 64px; }
-      .tarea[data-foco='si'] .tarea-marca { animation: foco 1400ms var(--ease); }
+      .tarea[data-foco='si'] .tarea-marca, .herr[data-foco='si'] { animation: foco 1400ms var(--ease); }
       @keyframes foco {
         0%, 45% { outline: 1px solid var(--ink); outline-offset: 4px; }
         100% { outline: 1px solid transparent; outline-offset: 4px; }
@@ -433,35 +448,30 @@ const totales = TURNOS.map((tu) => ({
 
       main { max-width: var(--ancho); margin: 0 auto; padding: 0 var(--gutter) 48px; }
 
-      /* ═══ FIRMA ═══ */
+      /* ═══ FIRMA: una línea ═══ */
       .firma {
-        display: grid;
-        grid-template-columns: 1fr 5.5rem;
-        gap: 10px;
-        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--line);
       }
-      .campo { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--line); padding: 8px 10px; }
-      .campo-ancho { grid-column: 1 / 2; }
-      .campo-ini { grid-column: 2 / 3; grid-row: 2 / 3; }
-      .campo:first-child { grid-column: 1 / -1; }
-      /* 16px mínimo en todo campo: por debajo, el celular hace zoom al enfocar. */
-      .campo input, .campo-fijo {
-        border: 0;
-        background: none;
-        padding: 0;
-        width: 100%;
-        min-width: 0;
-        font-size: 16px;
+      .firma > .etiqueta { white-space: nowrap; }
+      .firma-quien { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 0.86rem; min-height: 32px; }
+      [data-quien] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      [data-quien]:empty { display: none; }
+      .firma-accion {
+        font-size: 0.66rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        border-bottom: 1px solid var(--line);
       }
-      .campo input:focus { outline: none; }
-      .campo:focus-within { outline: 1px solid var(--ink); outline-offset: 2px; }
-      .campo-ini input { text-transform: uppercase; }
-      .campo[data-falta='si'] { background: var(--ink); color: var(--surface); }
-      .campo[data-falta='si'] input::placeholder { color: var(--surface); }
-      .regla { grid-column: 1 / -1; font-size: 0.78rem; font-style: italic; }
-      .regla[data-destaca='si'] { background: var(--ink); color: var(--surface); padding: 8px 10px; font-style: normal; }
+      /* Sin responsable, "Firmar" es un botón lleno: es lo primero que falta. */
+      .firma[data-sin='si'] .firma-accion { background: var(--ink); color: var(--surface); padding: 6px 10px; border: 0; }
 
-      .leyenda { margin-top: 12px; font-size: 0.74rem; font-style: italic; }
+      .leyenda { margin-top: 8px; font-size: 0.72rem; font-style: italic; }
       .leyenda-recta { font-style: normal; text-transform: uppercase; letter-spacing: 0.14em; }
       .leyenda-italica { font-style: italic; }
 
@@ -469,22 +479,22 @@ const totales = TURNOS.map((tu) => ({
       .cabeza {
         display: grid;
         grid-template-columns: auto 1fr;
-        margin-top: 24px;
+        margin-top: 16px;
         background: var(--surface);
         color: var(--ink);
       }
       .cabeza-num {
-        font-size: 2.2rem;
+        font-size: 1.8rem;
         line-height: 1;
-        padding: 16px 14px;
+        padding: 12px;
         border-right: 1px solid var(--line);
       }
-      .cabeza-texto { padding: 14px; display: flex; flex-direction: column; gap: 4px; }
-      .cabeza-titulo { font-size: 1.2rem; font-weight: 400; letter-spacing: 0.08em; }
-      .cabeza-bajada, .cabeza-cuando { font-size: 0.78rem; font-style: italic; }
+      .cabeza-texto { padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+      .cabeza-titulo { font-size: 1.05rem; font-weight: 400; letter-spacing: 0.08em; }
+      .cabeza-bajada, .cabeza-cuando { font-size: 0.72rem; font-style: italic; }
 
       /* ═══ SECCIONES Y TAREAS ═══ */
-      .seccion { margin-top: 26px; }
+      .seccion { margin-top: 20px; }
       .seccion-titulo {
         display: flex;
         align-items: center;
@@ -518,7 +528,15 @@ const totales = TURNOS.map((tu) => ({
         border: 1px solid var(--line);
         display: grid;
         place-items: center;
-        transition: background-color 180ms var(--ease);
+        transition: background-color 180ms var(--ease), transform 120ms var(--ease);
+      }
+      /* Se hunde al presionar y rebota al marcarse: el toque se siente. */
+      .tarea-marca:active .casilla { transform: scale(0.84); }
+      .tarea[data-pop='si'] .casilla { animation: pop 320ms var(--ease); }
+      @keyframes pop {
+        0% { transform: scale(0.8); }
+        55% { transform: scale(1.2); }
+        100% { transform: scale(1); }
       }
       .tarea[data-hecha='si'] .casilla { background: var(--ink); }
       .tarea[data-hecha='si'] .casilla::after {
@@ -678,6 +696,45 @@ const totales = TURNOS.map((tu) => ({
       .pie { margin-top: 32px; font-size: 0.7rem; font-style: italic; }
 
       /* ═══ AVISO BREVE ═══ */
+      /* ═══ HOJA DE FIRMA ═══ */
+      .hoja {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+      }
+      .hoja-afuera { flex: 1; }
+      .hoja-panel {
+        width: 100%;
+        max-width: var(--ancho);
+        margin: 0 auto;
+        background: var(--surface);
+        color: var(--ink);
+        padding: 20px var(--gutter) calc(20px + env(safe-area-inset-bottom, 0));
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        animation: subir 320ms var(--ease);
+      }
+      @keyframes subir { from { transform: translateY(100%); } }
+      .hoja-regla { font-style: italic; font-size: 0.84rem; }
+      .hoja-campos { display: grid; grid-template-columns: 1fr 6.5rem; gap: 16px; }
+      .hoja-campo { display: flex; flex-direction: column; gap: 4px; }
+      .hoja-campo input {
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        border-radius: 0;
+        padding: 6px 0;
+        font-size: 16px;
+        width: 100%;
+        min-width: 0;
+      }
+      .hoja-campo input:focus { outline: none; box-shadow: 0 1px 0 var(--ink); }
+      .hoja-ini input { text-transform: uppercase; }
+      .hoja-cancelar { align-self: center; }
+
       .toast-accion {
         margin-left: 14px;
         text-transform: uppercase;
@@ -703,7 +760,9 @@ const totales = TURNOS.map((tu) => ({
 
       @media (prefers-reduced-motion: reduce) {
         .progreso-barra span, .casilla { transition: none; }
-        .tarea[data-sacude='si'] .tarea-marca, .tarea[data-foco='si'] .tarea-marca { animation: none; }
+        .tarea[data-sacude='si'] .tarea-marca, .tarea[data-foco='si'] .tarea-marca,
+        .herr[data-foco='si'], .tarea[data-pop='si'] .casilla, .hoja-panel { animation: none; }
+        .casilla { transition: none; }
       }
     </style>
 
@@ -739,7 +798,10 @@ const totales = TURNOS.map((tu) => ({
       };
       const jornadaBonita = (jornada: string) => {
         const [y, m, d] = jornada.split('-').map(Number);
-        return new Date(y, m - 1, d).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+        return new Date(y, m - 1, d)
+          .toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })
+          .replace(/ de /g, ' ')
+          .replace(/\./g, '');
       };
 
       /* ── Guardado en el teléfono ─────────────────────────────── */
@@ -780,7 +842,6 @@ const totales = TURNOS.map((tu) => ({
 
       const inNombre = $<HTMLInputElement>('[data-nombre]')!;
       const inIni = $<HTMLInputElement>('[data-ini]')!;
-      const regla = $('[data-regla]')!;
       const toast = $('[data-toast]')!;
 
       let turnoActivo: IdTurno = 'apertura';
@@ -822,20 +883,49 @@ const totales = TURNOS.map((tu) => ({
           persona.ini = inIni.value;
         }
         escribir('ryo-checklist:persona', persona);
-        marcarFaltaFirma(false);
+        pintarQuien();
       });
       inIni.addEventListener('input', () => {
         inIni.dataset.manual = 'si';
         inIni.value = inIni.value.replace(/[^a-záéíóúñ]/gi, '').toUpperCase();
         persona.ini = inIni.value;
         escribir('ryo-checklist:persona', persona);
-        marcarFaltaFirma(false);
+        pintarQuien();
       });
 
-      const marcarFaltaFirma = (falta: boolean) => {
-        (inIni.closest('.campo') as HTMLElement).dataset.falta = falta ? 'si' : 'no';
-        regla.dataset.destaca = falta ? 'si' : 'no';
+      const pintarQuien = () => {
+        const sin = !persona.ini.trim();
+        $('[data-quien]')!.textContent = sin
+          ? ''
+          : `${persona.ini}${persona.nombre.trim() ? ` · ${persona.nombre.trim()}` : ''}`;
+        $('[data-quien-accion]')!.textContent = sin ? 'Firmar turno' : 'Cambiar';
+        $('.firma')!.dataset.sin = sin ? 'si' : 'no';
       };
+
+      /* ── Hoja de firma ───────────────────────────────────────── */
+      const hoja = $('[data-hoja]')!;
+      let alFirmar: (() => void) | null = null;
+      /** Abre la hoja; `despues` corre al firmar (p. ej., marcar la casilla que se tocó). */
+      const abrirHoja = (despues?: () => void) => {
+        alFirmar = despues ?? null;
+        inNombre.value = persona.nombre;
+        inIni.value = persona.ini;
+        hoja.hidden = false;
+        setTimeout(() => (persona.nombre.trim() ? inIni : inNombre).focus(), 80);
+      };
+      const cerrarHoja = () => { hoja.hidden = true; alFirmar = null; };
+      $$('[data-hoja-cerrar]').forEach((b) => b.addEventListener('click', cerrarHoja));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !hoja.hidden) cerrarHoja(); });
+      $<HTMLFormElement>('[data-hoja-form]')!.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!persona.ini.trim()) { inIni.focus(); avisar('Faltan tus iniciales.'); return; }
+        const siguiente = alFirmar;
+        cerrarHoja();
+        pintarQuien();
+        if (siguiente) siguiente();
+        else avisar(`Firmando como ${persona.ini}.`);
+      });
+      $('[data-abrir-hoja]')!.addEventListener('click', () => abrirHoja());
 
       /* ── Pestañas ────────────────────────────────────────────── */
       const mostrarTurno = (turno: IdTurno) => {
@@ -875,12 +965,29 @@ const totales = TURNOS.map((tu) => ({
         return null;
       };
 
-      $$('[data-marcar]').forEach((b) =>
-        b.addEventListener('click', () => {
-          const id = b.dataset.marcar!;
+      /** Lleva a lo que falta para poder firmar, en vez de solo negarse. */
+      const guiar = (li: HTMLElement, motivo: string) => {
+        avisar(motivo);
+        const herr = $<HTMLElement>('.herr', li);
+        if (!herr) { sacudir(li); return; }
+        herr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        herr.dataset.foco = 'si';
+        setTimeout(() => { delete herr.dataset.foco; }, 1500);
+        const vacio = $$<HTMLInputElement | HTMLTextAreaElement>('[data-requerido]', herr)
+          .find((i) => !i.value.trim() && !i.closest('[hidden]'));
+        if (vacio) setTimeout(() => vacio.focus({ preventScroll: true }), 380);
+      };
+
+      const celebrar = (li: HTMLElement) => {
+        li.dataset.pop = 'si';
+        setTimeout(() => { delete li.dataset.pop; }, 340);
+        try { navigator.vibrate?.(8); } catch {}
+      };
+
+      const marcar = (id: string) => {
           const t = tareas.get(id)!;
           const r = registros[t.turno];
-          const li = b.closest<HTMLElement>('.tarea')!;
+          const li = $<HTMLElement>(`[data-tarea="${id}"]`)!;
           if (r.finalizado) { avisar('El turno está finalizado. Reábrelo para cambiar algo.'); return; }
 
           if (r.hechas[id]) {
@@ -897,24 +1004,21 @@ const totales = TURNOS.map((tu) => ({
                 pintar();
               },
             });
-          } else {
-            // La regla de oro: sin iniciales, no hay firma; sin firma, no cuenta.
-            if (!persona.ini.trim()) {
-              marcarFaltaFirma(true);
-              sacudir(li);
-              inIni.focus();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              avisar('Pon tus iniciales: sin firma, la tarea no cuenta.');
-              return;
-            }
-            const motivo = impedimento(id);
-            if (motivo) { sacudir(li); avisar(motivo); return; }
-            r.hechas[id] = { ini: persona.ini, hora: hora() };
+            guardar(t.turno);
+            pintar();
+            return;
           }
+          // La regla de oro: sin iniciales no hay firma. Se piden en ese
+          // momento, y al firmar esta misma casilla queda marcada.
+          if (!persona.ini.trim()) { abrirHoja(() => marcar(id)); return; }
+          const motivo = impedimento(id);
+          if (motivo) { guiar(li, motivo); return; }
+          r.hechas[id] = { ini: persona.ini, hora: hora() };
           guardar(t.turno);
           pintar();
-        }),
-      );
+          celebrar(li);
+      };
+      $$('[data-marcar]').forEach((b) => b.addEventListener('click', () => marcar(b.dataset.marcar!)));
 
       /* ── Temperaturas ────────────────────────────────────────── */
       const fueraDeLimite = (r: Registro) =>
@@ -1107,7 +1211,7 @@ const totales = TURNOS.map((tu) => ({
             return;
           }
           bloqueo.hidden = true;
-          if (!persona.ini.trim()) { marcarFaltaFirma(true); inIni.focus(); avisar('Pon tus iniciales para firmar el turno.'); return; }
+          if (!persona.ini.trim()) { abrirHoja(() => b.click()); return; }
           const normales = delTurno(turno).filter(([id]) => !r.hechas[id]).length;
           if (normales && !confirm(`Quedan ${normales} tareas normales sin marcar. Cuentan como no hechas. ¿Finalizar?`)) return;
           r.finalizado = { hora: hora(), ini: persona.ini, ts: Date.now() };
@@ -1259,6 +1363,7 @@ const totales = TURNOS.map((tu) => ({
         if (j === jornada && (s === 'apertura' || s === 'cierre')) inicial = s;
       } catch {}
       if (persona.ini) inIni.dataset.manual = 'si';
+      pintarQuien();
       llenarCampos();
       pintarCierreAnterior();
       mostrarTurno(inicial);

@@ -25,7 +25,7 @@ isotipo de `src/ryo/assets/` y el favicon de `public/ryo/`.
 
 | Lo que dice el PDF | Lo que hace la página |
 | --- | --- |
-| "Cada tarea lleva iniciales y hora. Sin firma, la tarea cuenta como no hecha." | No se puede marcar nada sin iniciales. Cada casilla estampa iniciales y hora solas. |
+| "Cada tarea lleva iniciales y hora. Sin firma, la tarea cuenta como no hecha." | Cada casilla estampa iniciales y hora solas. Si no hay iniciales, tocar una casilla abre la hoja "¿Quién hace el turno?" y, al firmar, esa misma casilla queda marcada. Solo pasa la primera vez: después cada toque marca al instante. |
 | "Las tareas en letra recta son críticas. No se saltan." | Misma convención tipográfica (recta = crítica, itálica = normal) más la etiqueta CRÍTICA. No se puede finalizar el turno con críticas pendientes: la página las lista. |
 | Bitácora de temperaturas, máximo 7 °C (NOM-251). "Si una lectura sale del límite: aislar, anotar la acción, avisar al grupo." | Las lecturas se capturan dentro de la tarea. Sin lecturas no se firma. Arriba de 7 °C aparece el protocolo y no se firma hasta anotar la acción tomada. Si después cambian las lecturas y ya no cumplen, la firma se cae. |
 | Bitácora de calibración: "Extracción % = TDS % × bebida ÷ dosis. Referencia 18 a 22 %, TDS de 8 a 12 %." | La extracción se calcula sola y se compara con la referencia. Sin dosis, bebida, tiempo y TDS no se firma. (El ejemplo del PDF, 10 × 36 ÷ 18, da 20.0 % en referencia.) |
@@ -34,6 +34,16 @@ isotipo de `src/ryo/assets/` y el favicon de `public/ryo/`.
 | "Al cerrar, el reporte se manda al grupo de WhatsApp con foto de la barra." | El reporte se arma solo con tareas, críticas, temperaturas, faltantes y los datos del turno. "Mandar al grupo" abre el menú de compartir del teléfono (o WhatsApp); mandarlo firma la tarea. La foto se adjunta en WhatsApp. |
 
 ## Detalles que importan en barra
+
+- **Tocar una casilla siempre responde.** La primera versión negaba el toque
+  sin iniciales y brincaba arriba al campo; desde fuera se veía como "no pasa
+  nada". Ahora sube la hoja de firma y completa el toque. Las tareas que
+  necesitan datos (temperatura, calibración) llevan al campo que falta y lo
+  enfocan, en vez de solo negarse.
+- **Se siente el toque.** La casilla se hunde al presionar y rebota al
+  marcarse; en Android además vibra 8 ms.
+- **Las primeras tareas se ven sin hacer scroll.** La firma es una sola línea
+  (fecha · responsable) y el encabezado del turno es compacto.
 
 - **La jornada corta a las 5:00.** Un cierre que termina a las 0:30 sigue siendo
   del día anterior; si no, al recargar después de medianoche arrancaría un
