@@ -1,0 +1,1180 @@
+---
+/**
+ * Ryo Café — checklist interactivo de apertura y cierre (demo).
+ *
+ * El PDF de operación de barra, vivo: cada regla escrita en el documento se
+ * vuelve algo que la página hace cumplir. Todo el contenido vive en
+ * datos.ts. Ver README.md en esta carpeta.
+ *
+ * Sin backend: el progreso se guarda en el teléfono (localStorage).
+ */
+import {
+  TURNOS, PERIODICAS, REGLA_DE_ORO, REGLA_CRITICAS, LIMITE_REFRIGERACION,
+  PROTOCOLO_FUERA_DE_LIMITE, REFERENCIA_EXTRACCION, REFERENCIA_TDS, URL_CHECKLIST,
+} from './datos';
+import { ASSET_BASE } from '../config';
+import isotipoSvg from '../assets/isotipo.svg?raw';
+
+const idTarea = (turno: string, s: number, t: number) => `${turno}-${s}-${t}`;
+const totales = TURNOS.map((tu) => ({
+  id: tu.id,
+  total: tu.secciones.reduce((n, s) => n + s.tareas.length, 0),
+  criticas: tu.secciones.reduce((n, s) => n + s.tareas.filter((t) => t.critica).length, 0),
+}));
+---
+
+<!doctype html>
+<html lang="es" class="no-js" data-tema="champagne">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Checklist · Ryo Café</title>
+    <meta name="description" content="Checklist de apertura y cierre de barra de Ryo Café." />
+    <!-- Documento interno: que no aparezca en buscadores. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href={URL_CHECKLIST} />
+    <link rel="icon" href={`${ASSET_BASE}/favicon.svg`} type="image/svg+xml" />
+    <meta name="theme-color" content="#F8F3D1" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;1,400&display=swap"
+    />
+
+    <!-- Tema antes del primer pintado. Comparte la preferencia con la página de bio. -->
+    <script is:inline>
+      (function () {
+        try {
+          var g = localStorage.getItem('ryo-tema');
+          if (g === 'champagne' || g === 'cafe') { document.documentElement.dataset.tema = g; return; }
+          var d = new Date();
+          var h = new Date(d.getTime() + d.getTimezoneOffset() * 6e4 - 6 * 36e5).getHours();
+          document.documentElement.dataset.tema = h >= 7 && h < 19 ? 'champagne' : 'cafe';
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+
+  <body>
+    <header class="barra">
+      <a class="barra-marca" href="/ryocafe" aria-label="Ryo Café — página principal">
+        <span class="marca" set:html={isotipoSvg} aria-hidden="true" />
+      </a>
+      <div class="barra-titulo">
+        <span class="etiqueta">Checklist</span>
+        <span class="barra-sub">Operación de barra</span>
+      </div>
+      <span class="demo" title="Los datos se guardan solo en este teléfono">Demo</span>
+    </header>
+
+    <nav class="turnos" role="tablist" aria-label="Turno">
+      {TURNOS.map((tu) => (
+        <button type="button" role="tab" class="turno-tab" data-tab={tu.id} aria-selected="false">
+          <span>{tu.etiqueta}</span>
+          <span class="turno-cuenta" data-cuenta={tu.id}>0 / {totales.find((x) => x.id === tu.id)!.total}</span>
+        </button>
+      ))}
+    </nav>
+
+    <!-- Progreso del turno activo: siempre a la vista -->
+    <div class="progreso" aria-live="polite">
+      <div class="progreso-texto">
+        <span data-prog-hechas>0 / 0</span>
+        <span data-prog-criticas></span>
+      </div>
+      <div class="progreso-barra" aria-hidden="true"><span data-prog-barra></span></div>
+    </div>
+
+    <main>
+      <!-- Firma del turno: la regla de oro -->
+      <section class="firma" aria-label="Responsable del turno">
+        <div class="campo">
+          <label class="etiqueta" for="f-fecha">Fecha</label>
+          <output id="f-fecha" class="campo-fijo" data-fecha>—</output>
+        </div>
+        <div class="campo campo-ancho">
+          <label class="etiqueta" for="f-nombre">Responsable</label>
+          <input id="f-nombre" data-nombre type="text" autocomplete="name" placeholder="Nombre" maxlength="40" />
+        </div>
+        <div class="campo campo-ini">
+          <label class="etiqueta" for="f-ini">Inic.</label>
+          <input id="f-ini" data-ini type="text" autocomplete="off" placeholder="—" maxlength="3" />
+        </div>
+        <p class="regla" data-regla>{REGLA_DE_ORO}</p>
+      </section>
+
+      <p class="leyenda">
+        <span class="leyenda-recta">Letra recta</span> = crítica: seguridad, inocuidad o dinero. No se salta.
+        <span class="leyenda-italica">Itálica</span> = normal.
+      </p>
+
+      {TURNOS.map((tu) => (
+        <section class="turno" data-turno={tu.id} role="tabpanel" hidden>
+          <header class="cabeza inv">
+            <span class="cabeza-num">{tu.numero}</span>
+            <div class="cabeza-texto">
+              <span class="etiqueta">{tu.etiqueta}</span>
+              <h1 class="cabeza-titulo">{tu.titulo}</h1>
+              <p class="cabeza-bajada">{tu.bajada}</p>
+              <p class="cabeza-cuando">{tu.cuando}</p>
+            </div>
+          </header>
+
+          <!-- Resumen al finalizar el turno -->
+          <div class="final" data-final={tu.id} hidden>
+            <p class="etiqueta">Turno finalizado</p>
+            <p class="final-texto" data-final-texto></p>
+            <div class="acciones">
+              <button type="button" class="boton boton-lleno" data-compartir={tu.id}>Compartir resumen</button>
+              <button type="button" class="boton" data-reabrir={tu.id}>Reabrir</button>
+            </div>
+          </div>
+
+          {tu.secciones.map((sec, si) => (
+            <>
+              <section class="seccion" data-seccion={`${tu.id}-${si}`}>
+                <h2 class="seccion-titulo">
+                  <span class="cuadro" aria-hidden="true"></span>
+                  <span>{tu.numerar ? `${si + 1} · ${sec.titulo}` : sec.titulo}</span>
+                  <span class="seccion-cuenta" data-seccion-cuenta>0/{sec.tareas.length}</span>
+                </h2>
+                <ul class="tareas">
+                  {sec.tareas.map((ta, ti) => {
+                    const id = idTarea(tu.id, si, ti);
+                    return (
+                      <li
+                        class:list={['tarea', { critica: ta.critica }]}
+                        data-tarea={id}
+                        data-critica={ta.critica ? 'si' : undefined}
+                        data-herramienta={ta.herramienta}
+                      >
+                        <button type="button" class="tarea-marca" data-marcar={id} aria-pressed="false">
+                          <span class="casilla" aria-hidden="true"></span>
+                          <span class="tarea-texto">
+                            {ta.texto}
+                            {ta.critica && <span class="tarea-critica">Crítica</span>}
+                          </span>
+                          <span class="tarea-firma" data-firma></span>
+                        </button>
+
+                        {ta.herramienta === 'temperatura' && (
+                          <div class="herr" data-herr="temperatura">
+                            <div class="temps">
+                              <label>
+                                <span class="etiqueta">Refri 1</span>
+                                <span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-temp="r1" /><span>°C</span></span>
+                              </label>
+                              <label>
+                                <span class="etiqueta">Refri 2</span>
+                                <span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-temp="r2" /><span>°C</span></span>
+                              </label>
+                              <label>
+                                <span class="etiqueta">Congelador</span>
+                                <span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-temp="cong" /><span>°C</span></span>
+                              </label>
+                            </div>
+                            <p class="herr-nota">Refrigeración: máximo {LIMITE_REFRIGERACION} °C (NOM-251, 5.5.2). Congelador: el producto debe estar congelado.</p>
+                            <div class="alerta inv" data-alerta-temp hidden>
+                              <p class="etiqueta">Fuera de límite</p>
+                              <p>{PROTOCOLO_FUERA_DE_LIMITE}</p>
+                              <label class="alerta-campo">
+                                <span class="etiqueta">Acción tomada</span>
+                                <textarea rows="2" data-temp="accion" placeholder="Qué se aisló, qué se hizo, a quién se avisó"></textarea>
+                              </label>
+                            </div>
+                          </div>
+                        )}
+
+                        {ta.herramienta === 'calibracion' && (
+                          <div class="herr" data-herr="calibracion">
+                            <label class="calib-cafe">
+                              <span class="etiqueta">Café</span>
+                              <input type="text" data-calib="cafe" placeholder="Origen o lote" maxlength="40" />
+                            </label>
+                            <div class="calib">
+                              <label><span class="etiqueta">Dosis</span><span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-calib="dosis" /><span>g</span></span></label>
+                              <label><span class="etiqueta">Bebida</span><span class="entrada"><input type="number" inputmode="decimal" step="0.1" data-calib="bebida" /><span>g</span></span></label>
+                              <label><span class="etiqueta">Tiempo</span><span class="entrada"><input type="number" inputmode="numeric" step="1" data-calib="tiempo" /><span>s</span></span></label>
+                              <label><span class="etiqueta">TDS</span><span class="entrada"><input type="number" inputmode="decimal" step="0.01" data-calib="tds" /><span>%</span></span></label>
+                            </div>
+                            <div class="extraccion" data-extraccion>
+                              <span class="etiqueta">Extracción</span>
+                              <span class="extraccion-valor" data-extraccion-valor>—</span>
+                              <span class="extraccion-ref" data-extraccion-ref>
+                                Referencia {REFERENCIA_EXTRACCION.min}–{REFERENCIA_EXTRACCION.max}% · TDS {REFERENCIA_TDS.min}–{REFERENCIA_TDS.max}%
+                              </span>
+                            </div>
+                            <p class="herr-nota">Extracción % = TDS % × bebida (g) ÷ dosis (g).</p>
+                          </div>
+                        )}
+
+                        {ta.herramienta === 'faltantes' && (
+                          <div class="herr" data-herr="faltantes">
+                            <textarea rows="2" data-faltantes placeholder="Qué falta para mañana. Pasa al reporte y a la apertura."></textarea>
+                          </div>
+                        )}
+
+                        {ta.herramienta === 'cierre-anterior' && (
+                          <div class="herr herr-leer" data-herr="cierre-anterior">
+                            <div data-cierre-anterior>
+                              <p class="herr-nota">No hay un cierre guardado en este teléfono todavía.</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {ta.herramienta === 'reporte' && (
+                          <div class="herr" data-herr="reporte">
+                            <div class="reporte">
+                              <label><span class="etiqueta">Ventas</span><span class="entrada"><span>$</span><input type="number" inputmode="decimal" data-rep="ventas" /></span></label>
+                              <label><span class="etiqueta">Tickets</span><input type="number" inputmode="numeric" data-rep="tickets" /></label>
+                              <label class="reporte-ancho"><span class="etiqueta">Tickets por hora</span><input type="text" data-rep="porhora" placeholder="Hora pico, hora más floja" /></label>
+                              <label class="reporte-ancho"><span class="etiqueta">Merma</span><input type="text" data-rep="merma" /></label>
+                              <label class="reporte-ancho"><span class="etiqueta">Agotados</span><input type="text" data-rep="agotados" /></label>
+                              <label class="reporte-ancho"><span class="etiqueta">Incidencias</span><textarea rows="2" data-rep="incidencias"></textarea></label>
+                            </div>
+                            <p class="herr-nota">Los faltantes y las temperaturas se agregan solos. La foto de la barra se adjunta en WhatsApp.</p>
+                            <div class="acciones">
+                              <button type="button" class="boton boton-lleno" data-compartir="reporte">Mandar al grupo</button>
+                              <button type="button" class="boton" data-copiar="reporte">Copiar texto</button>
+                            </div>
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+
+              {tu.aviso && tu.aviso.despuesDe === si && (
+                <aside class="aviso inv">
+                  <p class="etiqueta">{tu.aviso.titulo}</p>
+                  <p>{tu.aviso.texto}</p>
+                </aside>
+              )}
+            </>
+          ))}
+
+          <div class="cierre-turno">
+            <button type="button" class="boton boton-lleno boton-grande" data-finalizar={tu.id}>
+              Finalizar {tu.etiqueta.toLowerCase()}
+            </button>
+            <div class="bloqueo inv" data-bloqueo={tu.id} hidden>
+              <p class="etiqueta">Faltan críticas</p>
+              <p>No se puede finalizar: estas tareas no se saltan.</p>
+              <ul data-bloqueo-lista></ul>
+            </div>
+            <button type="button" class="enlace" data-reiniciar={tu.id}>Empezar {tu.etiqueta.toLowerCase()} de cero</button>
+          </div>
+        </section>
+      ))}
+
+      <details class="periodicas">
+        <summary>
+          <span class="cuadro" aria-hidden="true"></span>
+          <span>Tareas periódicas</span>
+          <span class="periodicas-sub">Lo que no va en el checklist diario</span>
+        </summary>
+        <dl>
+          {PERIODICAS.map((p) => (
+            <>
+              <dt class="etiqueta">{p.frecuencia}</dt>
+              <dd>
+                <ul>{p.tareas.map((t) => <li>{t}</li>)}</ul>
+              </dd>
+            </>
+          ))}
+        </dl>
+      </details>
+
+      <footer class="pie">
+        <p>Documento interno de Ryo Café · Demo: el progreso se guarda solo en este teléfono.</p>
+      </footer>
+    </main>
+
+    <!-- Aviso breve (copiado, faltan iniciales, etc.) -->
+    <div class="toast" role="status" aria-live="polite" data-toast hidden></div>
+
+    <style is:global>
+      /* ═══ TOKENS — Design System de Ryo Café ═══ */
+      :root {
+        --c-champagne: #f8f3d1;
+        --c-cafe: #302413;
+        --surface: var(--c-champagne);
+        --ink: var(--c-cafe);
+        --line: var(--c-cafe);
+        --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+        --track: 0.1em;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --gutter: clamp(1rem, 5vw, 2rem);
+        --ancho: 44rem;
+      }
+      html[data-tema='cafe'] { --surface: var(--c-cafe); --ink: var(--c-champagne); --line: var(--c-champagne); }
+      .inv { --surface: var(--c-cafe); --ink: var(--c-champagne); --line: var(--c-champagne); }
+      html[data-tema='cafe'] .inv { --surface: var(--c-champagne); --ink: var(--c-cafe); --line: var(--c-cafe); }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--surface);
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: 15px;
+        line-height: 1.5;
+        letter-spacing: var(--track);
+        padding-bottom: env(safe-area-inset-bottom, 0);
+      }
+      h1, h2, p, ul, dl, dd { margin: 0; }
+      ul { list-style: none; padding: 0; }
+      button, input, textarea {
+        font: inherit; letter-spacing: inherit; color: inherit;
+      }
+      button { background: none; border: 0; padding: 0; cursor: pointer; }
+      :focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+      ::selection { background: var(--ink); color: var(--surface); }
+      [hidden] { display: none !important; }
+
+      .etiqueta {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-style: normal;
+      }
+      .marca { display: block; }
+      .marca svg { display: block; width: 100%; height: auto; }
+
+      /* ═══ BARRA ═══ */
+      .barra {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px var(--gutter);
+        border-bottom: 1px solid var(--line);
+      }
+      .barra-marca { width: 38px; flex: none; color: var(--ink); }
+      .barra-titulo { display: flex; flex-direction: column; line-height: 1.3; }
+      .barra-sub { font-size: 0.78rem; font-style: italic; }
+      .demo {
+        margin-left: auto;
+        border: 1px solid var(--line);
+        padding: 3px 8px;
+        font-size: 0.64rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+      }
+
+      /* ═══ PESTAÑAS DE TURNO ═══ */
+      .turnos {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid var(--line);
+      }
+      .turno-tab {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        padding: 12px var(--gutter);
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.8rem;
+        text-align: left;
+      }
+      .turno-tab + .turno-tab { border-left: 1px solid var(--line); }
+      .turno-tab[aria-selected='true'] { background: var(--ink); color: var(--surface); }
+      .turno-cuenta { font-size: 0.7rem; font-style: italic; text-transform: none; letter-spacing: var(--track); }
+
+      /* ═══ PROGRESO (fijo arriba) ═══ */
+      .progreso {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--surface);
+        padding: 10px var(--gutter) 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .progreso-texto {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        padding-bottom: 8px;
+      }
+      .progreso-barra { height: 3px; margin: 0 calc(var(--gutter) * -1); }
+      .progreso-barra span {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: var(--ink);
+        transition: width 500ms var(--ease);
+      }
+
+      main { max-width: var(--ancho); margin: 0 auto; padding: 0 var(--gutter) 48px; }
+
+      /* ═══ FIRMA ═══ */
+      .firma {
+        display: grid;
+        grid-template-columns: 1fr 5.5rem;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .campo { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--line); padding: 8px 10px; }
+      .campo-ancho { grid-column: 1 / 2; }
+      .campo-ini { grid-column: 2 / 3; grid-row: 2 / 3; }
+      .campo:first-child { grid-column: 1 / -1; }
+      /* 16px mínimo en todo campo: por debajo, el celular hace zoom al enfocar. */
+      .campo input, .campo-fijo {
+        border: 0;
+        background: none;
+        padding: 0;
+        width: 100%;
+        min-width: 0;
+        font-size: 16px;
+      }
+      .campo input:focus { outline: none; }
+      .campo:focus-within { outline: 1px solid var(--ink); outline-offset: 2px; }
+      .campo-ini input { text-transform: uppercase; }
+      .campo[data-falta='si'] { background: var(--ink); color: var(--surface); }
+      .campo[data-falta='si'] input::placeholder { color: var(--surface); }
+      .regla { grid-column: 1 / -1; font-size: 0.78rem; font-style: italic; }
+      .regla[data-destaca='si'] { background: var(--ink); color: var(--surface); padding: 8px 10px; font-style: normal; }
+
+      .leyenda { margin-top: 12px; font-size: 0.74rem; font-style: italic; }
+      .leyenda-recta { font-style: normal; text-transform: uppercase; letter-spacing: 0.14em; }
+      .leyenda-italica { font-style: italic; }
+
+      /* ═══ ENCABEZADO DEL TURNO (como el PDF) ═══ */
+      .cabeza {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        margin-top: 24px;
+        background: var(--surface);
+        color: var(--ink);
+      }
+      .cabeza-num {
+        font-size: 2.2rem;
+        line-height: 1;
+        padding: 16px 14px;
+        border-right: 1px solid var(--line);
+      }
+      .cabeza-texto { padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+      .cabeza-titulo { font-size: 1.2rem; font-weight: 400; letter-spacing: 0.08em; }
+      .cabeza-bajada, .cabeza-cuando { font-size: 0.78rem; font-style: italic; }
+
+      /* ═══ SECCIONES Y TAREAS ═══ */
+      .seccion { margin-top: 26px; }
+      .seccion-titulo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.78rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      .cuadro { width: 8px; height: 8px; background: var(--ink); flex: none; }
+      .seccion-cuenta { margin-left: auto; font-size: 0.72rem; }
+      .seccion[data-completa='si'] .seccion-cuenta::after { content: ' ✓'; }
+
+      .tarea { border-bottom: 1px solid var(--line); }
+      .tarea-marca {
+        display: grid;
+        grid-template-columns: 22px 1fr auto;
+        align-items: start;
+        gap: 12px;
+        width: 100%;
+        padding: 13px 0;
+        text-align: left;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .casilla {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        border: 1px solid var(--line);
+        display: grid;
+        place-items: center;
+        transition: background-color 180ms var(--ease);
+      }
+      .tarea[data-hecha='si'] .casilla { background: var(--ink); }
+      .tarea[data-hecha='si'] .casilla::after {
+        content: '';
+        width: 9px;
+        height: 5px;
+        border-left: 1.5px solid var(--surface);
+        border-bottom: 1.5px solid var(--surface);
+        transform: translateY(-1px) rotate(-45deg);
+      }
+      /* La convención del PDF: letra recta = crítica, itálica = normal. */
+      .tarea-texto { font-style: italic; font-size: 0.92rem; line-height: 1.45; }
+      .tarea.critica .tarea-texto { font-style: normal; }
+      .tarea-critica {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+      }
+      .tarea-firma {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        white-space: nowrap;
+        padding-top: 3px;
+        text-align: right;
+      }
+      .tarea-firma:empty::before { content: 'Inic. · hora'; font-style: italic; text-transform: none; letter-spacing: var(--track); }
+      .tarea[data-hecha='si'] .tarea-firma:empty::before { content: ''; }
+      /* En pantallas angostas la firma baja bajo el texto: el texto necesita el ancho. */
+      @media (max-width: 559px) {
+        .tarea-marca { grid-template-columns: 22px 1fr; row-gap: 4px; }
+        .tarea-firma { grid-column: 2; text-align: left; padding-top: 0; }
+        .tarea-firma:empty { display: none; }
+      }
+      .tarea[data-sacude='si'] .tarea-marca { animation: niega 360ms var(--ease); }
+      @keyframes niega {
+        20%, 60% { transform: translateX(-4px); }
+        40%, 80% { transform: translateX(4px); }
+      }
+      .turno[data-cerrado='si'] .tarea-marca { cursor: default; }
+
+      /* ═══ HERRAMIENTAS DENTRO DE LAS TAREAS ═══ */
+      .herr { padding: 0 0 14px 34px; display: flex; flex-direction: column; gap: 10px; }
+      .herr-nota { font-size: 0.74rem; font-style: italic; }
+      .entrada { display: flex; align-items: baseline; gap: 4px; border-bottom: 1px solid var(--line); }
+      .herr input, .herr textarea {
+        width: 100%;
+        min-width: 0;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        padding: 4px 0;
+        font-size: 16px;
+        -moz-appearance: textfield;
+      }
+      .herr input::-webkit-outer-spin-button, .herr input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+      .herr input:focus, .herr textarea:focus { outline: none; }
+      .herr input:disabled, .herr textarea:disabled { cursor: default; -webkit-text-fill-color: currentColor; opacity: 1; }
+      /* Sin el gris del navegador, que no está en la paleta: el placeholder se
+         distingue del valor por la itálica, que es la convención de la marca. */
+      input::placeholder, textarea::placeholder { color: var(--ink); opacity: 1; font-style: italic; }
+      input, textarea { font-style: normal; }
+      .herr label:focus-within .entrada, .herr textarea:focus { border-color: var(--ink); box-shadow: 0 1px 0 var(--ink); }
+      .herr textarea { border: 1px solid var(--line); padding: 8px; resize: vertical; font-size: 16px; }
+      .herr > input, .calib-cafe input, .reporte > label > input { border-bottom: 1px solid var(--line); }
+      .herr label { display: flex; flex-direction: column; gap: 2px; }
+
+      .temps, .calib { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .calib { grid-template-columns: repeat(4, 1fr); }
+      .temps input[data-fuera='si'] { font-weight: 400; text-decoration: underline; text-underline-offset: 3px; }
+
+      .alerta, .aviso, .bloqueo, .final {
+        background: var(--surface);
+        color: var(--ink);
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.84rem;
+      }
+      .alerta p:not(.etiqueta), .aviso p:not(.etiqueta), .bloqueo p:not(.etiqueta) { font-style: italic; }
+      .alerta textarea { border-color: var(--line); color: var(--ink); }
+      .alerta textarea::placeholder { color: var(--ink); opacity: 1; font-style: italic; }
+      .alerta-campo { margin-top: 4px; }
+
+      .extraccion {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 4px 12px;
+        border: 1px solid var(--line);
+        padding: 8px 10px;
+      }
+      .extraccion-valor { font-size: 1.2rem; }
+      .extraccion-ref { font-size: 0.72rem; font-style: italic; flex-basis: 100%; }
+      .extraccion[data-estado='fuera'] { background: var(--ink); color: var(--surface); }
+
+      .herr-leer .cierre-previo { border: 1px solid var(--line); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 0.84rem; }
+      .cierre-previo dl { display: flex; flex-direction: column; gap: 2px; }
+      .cierre-previo dt { margin-top: 6px; }
+      .cierre-previo dd { font-style: italic; }
+
+      .reporte { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .reporte-ancho { grid-column: 1 / -1; }
+
+      .aviso { margin-top: 20px; }
+
+      /* ═══ BOTONES ═══ */
+      .acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+      .boton {
+        border: 1px solid var(--line);
+        padding: 11px 16px;
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+      }
+      .boton-lleno { background: var(--ink); color: var(--surface); }
+      .boton-grande { width: 100%; padding: 16px; font-size: 0.82rem; }
+      .enlace {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        border-bottom: 1px solid var(--line);
+        align-self: center;
+      }
+
+      .cierre-turno { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+      .bloqueo ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+      .bloqueo li::before { content: '— '; }
+      .final { margin-top: 20px; }
+      .final-texto { font-style: italic; white-space: pre-line; }
+
+      /* ═══ PERIÓDICAS ═══ */
+      .periodicas { margin-top: 40px; border-top: 1px solid var(--line); }
+      .periodicas summary {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        padding: 14px 0;
+        cursor: pointer;
+        list-style: none;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+      }
+      .periodicas summary::-webkit-details-marker { display: none; }
+      .periodicas summary::after { content: '+'; margin-left: auto; }
+      .periodicas[open] summary::after { content: '−'; }
+      .periodicas-sub { flex-basis: 100%; text-transform: none; letter-spacing: var(--track); font-style: italic; font-size: 0.74rem; }
+      .periodicas dl { display: grid; gap: 4px; padding-bottom: 12px; }
+      .periodicas dt { margin-top: 12px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+      .periodicas dd li { font-style: italic; font-size: 0.86rem; padding: 4px 0; }
+
+      .pie { margin-top: 32px; font-size: 0.7rem; font-style: italic; }
+
+      /* ═══ AVISO BREVE ═══ */
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: calc(18px + env(safe-area-inset-bottom, 0));
+        transform: translateX(-50%);
+        z-index: 50;
+        max-width: calc(100% - 32px);
+        background: var(--ink);
+        color: var(--surface);
+        padding: 10px 14px;
+        font-size: 0.78rem;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .progreso-barra span, .casilla { transition: none; }
+        .tarea[data-sacude='si'] .tarea-marca { animation: none; }
+      }
+    </style>
+
+    <script>
+      import { TURNOS, LIMITE_REFRIGERACION, REFERENCIA_EXTRACCION, REFERENCIA_TDS, VERSION_DATOS } from './datos';
+      import { ahoraEnDurango } from '../config';
+
+      type IdTurno = 'apertura' | 'cierre';
+      type Firma = { ini: string; hora: string };
+      type Registro = {
+        v: number;
+        jornada: string;
+        turno: IdTurno;
+        hechas: Record<string, Firma>;
+        temps: { r1?: string; r2?: string; cong?: string; accion?: string };
+        calib: { cafe?: string; dosis?: string; bebida?: string; tiempo?: string; tds?: string };
+        faltantes?: string;
+        reporte: Record<string, string>;
+        finalizado?: { hora: string; ini: string; ts: number };
+      };
+
+      document.documentElement.classList.remove('no-js');
+
+      /* ── Tiempo de Durango ─────────────────────────────────────
+         La jornada corta a las 5:00: un cierre que termina a las 0:30
+         sigue siendo del día anterior, y no arranca un registro vacío. */
+      const ahora = () => ahoraEnDurango();
+      const dosDig = (n: number) => String(n).padStart(2, '0');
+      const hora = (d = ahora()) => `${d.getHours()}:${dosDig(d.getMinutes())}`;
+      const jornadaDe = (d = ahora()) => {
+        const j = new Date(d.getTime() - 5 * 3600_000);
+        return `${j.getFullYear()}-${dosDig(j.getMonth() + 1)}-${dosDig(j.getDate())}`;
+      };
+      const jornadaBonita = (jornada: string) => {
+        const [y, m, d] = jornada.split('-').map(Number);
+        return new Date(y, m - 1, d).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+      };
+
+      /* ── Guardado en el teléfono ─────────────────────────────── */
+      const PREFIJO = `ryo-checklist:v${VERSION_DATOS}:`;
+      const clave = (jornada: string, turno: IdTurno) => `${PREFIJO}${jornada}:${turno}`;
+      const leer = <T,>(k: string): T | null => {
+        try { const v = localStorage.getItem(k); return v ? (JSON.parse(v) as T) : null; } catch { return null; }
+      };
+      const escribir = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+      const jornada = jornadaDe();
+      const registros: Record<IdTurno, Registro> = {
+        apertura: cargar('apertura'),
+        cierre: cargar('cierre'),
+      };
+      function cargar(turno: IdTurno): Registro {
+        const r = leer<Registro>(clave(jornada, turno));
+        if (r && r.v === VERSION_DATOS) return r;
+        return { v: VERSION_DATOS, jornada, turno, hechas: {}, temps: {}, calib: {}, reporte: {} };
+      }
+      const guardar = (turno: IdTurno) => escribir(clave(jornada, turno), registros[turno]);
+
+      type Persona = { nombre: string; ini: string };
+      const persona: Persona = leer<Persona>('ryo-checklist:persona') ?? { nombre: '', ini: '' };
+
+      /* ── Índice de tareas desde los datos ────────────────────── */
+      const tareas = new Map<string, { turno: IdTurno; texto: string; critica: boolean; herramienta?: string }>();
+      TURNOS.forEach((tu) =>
+        tu.secciones.forEach((s, si) =>
+          s.tareas.forEach((t, ti) => tareas.set(`${tu.id}-${si}-${ti}`, { turno: tu.id, ...t })),
+        ),
+      );
+      const delTurno = (turno: IdTurno) => [...tareas.entries()].filter(([, t]) => t.turno === turno);
+
+      /* ── Elementos ───────────────────────────────────────────── */
+      const $ = <T extends Element = HTMLElement>(sel: string, raiz: ParentNode = document) => raiz.querySelector<T>(sel as any) as T | null;
+      const $$ = <T extends Element = HTMLElement>(sel: string, raiz: ParentNode = document) => [...raiz.querySelectorAll<T>(sel as any)] as T[];
+
+      const inNombre = $<HTMLInputElement>('[data-nombre]')!;
+      const inIni = $<HTMLInputElement>('[data-ini]')!;
+      const regla = $('[data-regla]')!;
+      const toast = $('[data-toast]')!;
+
+      let turnoActivo: IdTurno = 'apertura';
+
+      /* ── Aviso breve ─────────────────────────────────────────── */
+      let relojToast = 0;
+      const avisar = (texto: string) => {
+        toast.textContent = texto;
+        toast.hidden = false;
+        clearTimeout(relojToast);
+        relojToast = window.setTimeout(() => { toast.hidden = true; }, 2600);
+      };
+
+      /* ── Firma del responsable ───────────────────────────────── */
+      $('[data-fecha]')!.textContent = jornadaBonita(jornada);
+      inNombre.value = persona.nombre;
+      inIni.value = persona.ini;
+
+      const sugerirIniciales = (nombre: string) =>
+        nombre.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
+
+      inNombre.addEventListener('input', () => {
+        persona.nombre = inNombre.value;
+        // si las iniciales las puso la página, se actualizan solas
+        if (!inIni.dataset.manual) {
+          inIni.value = sugerirIniciales(inNombre.value);
+          persona.ini = inIni.value;
+        }
+        escribir('ryo-checklist:persona', persona);
+        marcarFaltaFirma(false);
+      });
+      inIni.addEventListener('input', () => {
+        inIni.dataset.manual = 'si';
+        inIni.value = inIni.value.replace(/[^a-záéíóúñ]/gi, '').toUpperCase();
+        persona.ini = inIni.value;
+        escribir('ryo-checklist:persona', persona);
+        marcarFaltaFirma(false);
+      });
+
+      const marcarFaltaFirma = (falta: boolean) => {
+        (inIni.closest('.campo') as HTMLElement).dataset.falta = falta ? 'si' : 'no';
+        regla.dataset.destaca = falta ? 'si' : 'no';
+      };
+
+      /* ── Pestañas ────────────────────────────────────────────── */
+      const mostrarTurno = (turno: IdTurno) => {
+        turnoActivo = turno;
+        $$('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === turno)));
+        $$('[data-turno]').forEach((s) => { s.hidden = s.dataset.turno !== turno; });
+        try { sessionStorage.setItem('ryo-checklist:turno', turno); } catch {}
+        pintar();
+      };
+      $$('[data-tab]').forEach((b) => b.addEventListener('click', () => mostrarTurno(b.dataset.tab as IdTurno)));
+
+      /* ── Marcar tareas ───────────────────────────────────────── */
+      const sacudir = (li: HTMLElement) => {
+        li.dataset.sacude = 'si';
+        setTimeout(() => { delete li.dataset.sacude; }, 400);
+      };
+
+      /** Por qué no se puede marcar esta tarea todavía (o null si sí se puede). */
+      const impedimento = (id: string): string | null => {
+        const t = tareas.get(id)!;
+        const r = registros[t.turno];
+        if (t.herramienta === 'temperatura') {
+          if (!r.temps.r1 || !r.temps.r2) return 'Captura la temperatura de los dos refrigeradores.';
+          if (fueraDeLimite(r) && !(r.temps.accion ?? '').trim()) return 'Fuera de límite: anota la acción tomada antes de firmar.';
+        }
+        if (t.herramienta === 'calibracion') {
+          const c = r.calib;
+          if (!c.dosis || !c.bebida || !c.tiempo || !c.tds) return 'Captura dosis, bebida, tiempo y TDS para la bitácora.';
+        }
+        return null;
+      };
+
+      $$('[data-marcar]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const id = b.dataset.marcar!;
+          const t = tareas.get(id)!;
+          const r = registros[t.turno];
+          const li = b.closest<HTMLElement>('.tarea')!;
+          if (r.finalizado) { avisar('El turno está finalizado. Reábrelo para cambiar algo.'); return; }
+
+          if (r.hechas[id]) {
+            delete r.hechas[id];
+          } else {
+            // La regla de oro: sin iniciales, no hay firma; sin firma, no cuenta.
+            if (!persona.ini.trim()) {
+              marcarFaltaFirma(true);
+              sacudir(li);
+              inIni.focus();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              avisar('Pon tus iniciales: sin firma, la tarea no cuenta.');
+              return;
+            }
+            const motivo = impedimento(id);
+            if (motivo) { sacudir(li); avisar(motivo); return; }
+            r.hechas[id] = { ini: persona.ini, hora: hora() };
+          }
+          guardar(t.turno);
+          pintar();
+        }),
+      );
+
+      /* ── Temperaturas ────────────────────────────────────────── */
+      const fueraDeLimite = (r: Registro) =>
+        ['r1', 'r2'].some((k) => {
+          const v = parseFloat((r.temps as any)[k]);
+          return Number.isFinite(v) && v > LIMITE_REFRIGERACION;
+        });
+
+      $$<HTMLElement>('[data-herr="temperatura"]').forEach((herr) => {
+        const turno = herr.closest<HTMLElement>('[data-turno]')!.dataset.turno as IdTurno;
+        $$<HTMLInputElement | HTMLTextAreaElement>('[data-temp]', herr).forEach((inp) => {
+          inp.addEventListener('input', () => {
+            (registros[turno].temps as any)[inp.dataset.temp!] = inp.value;
+            // si la lectura cambia y ya no cumple, la firma se cae
+            const id = herr.closest<HTMLElement>('.tarea')!.dataset.tarea!;
+            if (registros[turno].hechas[id] && impedimento(id)) delete registros[turno].hechas[id];
+            guardar(turno);
+            pintar();
+          });
+        });
+      });
+
+      /* ── Calibración ─────────────────────────────────────────── */
+      const extraccion = (c: Registro['calib']) => {
+        const tds = parseFloat(c.tds ?? ''), bebida = parseFloat(c.bebida ?? ''), dosis = parseFloat(c.dosis ?? '');
+        if (![tds, bebida, dosis].every(Number.isFinite) || dosis <= 0) return null;
+        return (tds * bebida) / dosis;
+      };
+      $$<HTMLElement>('[data-herr="calibracion"]').forEach((herr) => {
+        const turno = herr.closest<HTMLElement>('[data-turno]')!.dataset.turno as IdTurno;
+        $$<HTMLInputElement>('[data-calib]', herr).forEach((inp) => {
+          inp.addEventListener('input', () => {
+            (registros[turno].calib as any)[inp.dataset.calib!] = inp.value;
+            const id = herr.closest<HTMLElement>('.tarea')!.dataset.tarea!;
+            if (registros[turno].hechas[id] && impedimento(id)) delete registros[turno].hechas[id];
+            guardar(turno);
+            pintar();
+          });
+        });
+      });
+
+      /* ── Faltantes y reporte ─────────────────────────────────── */
+      $$<HTMLTextAreaElement>('[data-faltantes]').forEach((ta) =>
+        ta.addEventListener('input', () => {
+          registros.cierre.faltantes = ta.value;
+          // Anotarlos es hacer la tarea: se firma sola la primera vez que hay texto.
+          const id = ta.closest<HTMLElement>('.tarea')!.dataset.tarea!;
+          if (ta.value.trim() && !registros.cierre.hechas[id] && persona.ini && !registros.cierre.finalizado) {
+            registros.cierre.hechas[id] = { ini: persona.ini, hora: hora() };
+            pintar();
+          }
+          guardar('cierre');
+        }),
+      );
+      $$<HTMLInputElement | HTMLTextAreaElement>('[data-rep]').forEach((inp) =>
+        inp.addEventListener('input', () => { registros.cierre.reporte[inp.dataset.rep!] = inp.value; guardar('cierre'); }),
+      );
+
+      /* ── El cierre anterior, para la apertura ───────────────────
+         Busca en el teléfono el cierre más reciente de otra jornada. */
+      const cierreAnterior = (): Registro | null => {
+        let mejor: Registro | null = null;
+        try {
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i)!;
+            if (!k.startsWith(PREFIJO) || !k.endsWith(':cierre')) continue;
+            const r = leer<Registro>(k);
+            if (!r || r.jornada >= jornada) continue;
+            if (!mejor || r.jornada > mejor.jornada) mejor = r;
+          }
+        } catch {}
+        return mejor;
+      };
+      const escapar = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+      const pintarCierreAnterior = () => {
+        const caja = $('[data-cierre-anterior]');
+        if (!caja) return;
+        const r = cierreAnterior();
+        if (!r) return;
+        const pendientes = delTurno('cierre').filter(([id]) => !r.hechas[id]).map(([, t]) => t.texto);
+        const filas: [string, string][] = [
+          ['Faltantes', r.faltantes?.trim() || 'Sin anotar'],
+          ['Incidencias', r.reporte?.incidencias?.trim() || 'Sin anotar'],
+          ['Quedó sin hacer', pendientes.length ? pendientes.join(' · ') : 'Nada: cierre completo'],
+        ];
+        caja.innerHTML =
+          `<div class="cierre-previo"><p class="etiqueta">Cierre del ${escapar(jornadaBonita(r.jornada))}` +
+          (r.finalizado ? ` · ${escapar(r.finalizado.ini)} ${escapar(r.finalizado.hora)}` : ' · sin finalizar') +
+          `</p><dl>` +
+          filas.map(([k, v]) => `<dt class="etiqueta">${escapar(k)}</dt><dd>${escapar(v)}</dd>`).join('') +
+          `</dl></div>`;
+      };
+
+      /* ── Resumen para el grupo de WhatsApp ───────────────────── */
+      const textoReporte = (turno: IdTurno) => {
+        const r = registros[turno];
+        const lista = delTurno(turno);
+        // Mandar el reporte ES la tarea del reporte: no puede listarse a sí
+        // mismo como pendiente en el mensaje que la cumple.
+        const hecha = (id: string, herr?: string) => !!r.hechas[id] || herr === 'reporte';
+        const hechas = lista.filter(([id, t]) => hecha(id, t.herramienta)).length;
+        const criticas = lista.filter(([, t]) => t.critica);
+        const criticasHechas = criticas.filter(([id, t]) => hecha(id, t.herramienta)).length;
+        const sin = lista.filter(([id, t]) => !hecha(id, t.herramienta)).map(([, t]) => `- ${t.texto}`);
+        const t = r.temps;
+        const l: string[] = [];
+        l.push(`*RYO CAFÉ · ${turno.toUpperCase()}*`);
+        l.push(`${jornadaBonita(jornada)} · ${persona.nombre || persona.ini || 'Sin responsable'}`);
+        if (r.finalizado) l.push(`Finalizado ${r.finalizado.hora} por ${r.finalizado.ini}`);
+        l.push('');
+        l.push(`Tareas ${hechas}/${lista.length} · críticas ${criticasHechas}/${criticas.length}`);
+        if (sin.length) { l.push('Sin hacer:'); l.push(...sin); }
+        if (t.r1 || t.r2 || t.cong) {
+          l.push('');
+          l.push(`Temperaturas (${turno})`);
+          l.push(`Refri 1: ${t.r1 || '—'} °C · Refri 2: ${t.r2 || '—'} °C · Congelador: ${t.cong || '—'} °C`);
+          if (fueraDeLimite(r)) l.push(`FUERA DE LÍMITE. Acción: ${t.accion?.trim() || 'sin anotar'}`);
+        }
+        const e = extraccion(r.calib);
+        if (turno === 'apertura' && (r.calib.dosis || r.calib.tds)) {
+          l.push('');
+          l.push(`Calibración${r.calib.cafe ? ` · ${r.calib.cafe}` : ''}`);
+          l.push(`${r.calib.dosis || '—'} g → ${r.calib.bebida || '—'} g · ${r.calib.tiempo || '—'} s · TDS ${r.calib.tds || '—'}%${e !== null ? ` · extracción ${e.toFixed(1)}%` : ''}`);
+        }
+        if (turno === 'cierre') {
+          const rep = r.reporte;
+          const campos: [string, string | undefined][] = [
+            ['Ventas', rep.ventas ? `$${Number(rep.ventas).toLocaleString('es-MX')}` : undefined],
+            ['Tickets', rep.tickets],
+            ['Tickets por hora', rep.porhora],
+            ['Merma', rep.merma],
+            ['Agotados', rep.agotados],
+            ['Incidencias', rep.incidencias],
+            ['Faltantes para mañana', r.faltantes],
+          ];
+          const llenos = campos.filter(([, v]) => v && v.trim());
+          if (llenos.length) { l.push(''); llenos.forEach(([k, v]) => l.push(`${k}: ${v!.trim()}`)); }
+          l.push('');
+          l.push('(Falta adjuntar la foto de la barra.)');
+        }
+        return l.join('\n');
+      };
+
+      const compartir = async (turno: IdTurno, marcarReporte: boolean) => {
+        const texto = textoReporte(turno);
+        let enviado = false;
+        if (navigator.share) {
+          try { await navigator.share({ text: texto }); enviado = true; } catch { /* cancelado */ }
+        } else {
+          window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
+          enviado = true;
+        }
+        if (enviado && marcarReporte) firmarReporte();
+      };
+      const copiar = async (turno: IdTurno, marcarReporte: boolean) => {
+        try {
+          await navigator.clipboard.writeText(textoReporte(turno));
+          avisar('Reporte copiado. Pégalo en el grupo y adjunta la foto de la barra.');
+          if (marcarReporte) firmarReporte();
+        } catch { avisar('No se pudo copiar.'); }
+      };
+      /** Mandar el reporte es la tarea: si hay firma, se marca sola. */
+      const firmarReporte = () => {
+        const id = [...tareas.entries()].find(([, t]) => t.herramienta === 'reporte')?.[0];
+        if (!id || registros.cierre.hechas[id] || registros.cierre.finalizado || !persona.ini) return;
+        registros.cierre.hechas[id] = { ini: persona.ini, hora: hora() };
+        guardar('cierre');
+        pintar();
+      };
+
+      $$('[data-compartir]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const v = b.dataset.compartir!;
+          compartir(v === 'reporte' ? 'cierre' : (v as IdTurno), v === 'reporte');
+        }),
+      );
+      $$('[data-copiar]').forEach((b) => b.addEventListener('click', () => copiar('cierre', true)));
+
+      /* ── Finalizar, reabrir, reiniciar ───────────────────────── */
+      $$('[data-finalizar]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const turno = b.dataset.finalizar as IdTurno;
+          const r = registros[turno];
+          const bloqueo = $(`[data-bloqueo="${turno}"]`)!;
+          const faltan = delTurno(turno).filter(([id, t]) => t.critica && !r.hechas[id]);
+          if (faltan.length) {
+            $('[data-bloqueo-lista]', bloqueo)!.innerHTML = faltan.map(([, t]) => `<li>${escapar(t.texto)}</li>`).join('');
+            bloqueo.hidden = false;
+            bloqueo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+          bloqueo.hidden = true;
+          if (!persona.ini.trim()) { marcarFaltaFirma(true); inIni.focus(); avisar('Pon tus iniciales para firmar el turno.'); return; }
+          const normales = delTurno(turno).filter(([id]) => !r.hechas[id]).length;
+          if (normales && !confirm(`Quedan ${normales} tareas normales sin marcar. Cuentan como no hechas. ¿Finalizar?`)) return;
+          r.finalizado = { hora: hora(), ini: persona.ini, ts: Date.now() };
+          guardar(turno);
+          pintar();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }),
+      );
+      $$('[data-reabrir]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const turno = b.dataset.reabrir as IdTurno;
+          delete registros[turno].finalizado;
+          guardar(turno);
+          pintar();
+        }),
+      );
+      $$('[data-reiniciar]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const turno = b.dataset.reiniciar as IdTurno;
+          if (!confirm(`¿Borrar todo lo marcado en ${turno} de hoy?`)) return;
+          registros[turno] = { v: VERSION_DATOS, jornada, turno, hechas: {}, temps: {}, calib: {}, reporte: {} };
+          guardar(turno);
+          llenarCampos();
+          pintar();
+        }),
+      );
+
+      /* ── Pintar el estado ────────────────────────────────────── */
+      const llenarCampos = () => {
+        (['apertura', 'cierre'] as IdTurno[]).forEach((turno) => {
+          const sec = $(`[data-turno="${turno}"]`)!;
+          const r = registros[turno];
+          $$<HTMLInputElement | HTMLTextAreaElement>('[data-temp]', sec).forEach((i) => { i.value = (r.temps as any)[i.dataset.temp!] ?? ''; });
+          $$<HTMLInputElement>('[data-calib]', sec).forEach((i) => { i.value = (r.calib as any)[i.dataset.calib!] ?? ''; });
+        });
+        $$<HTMLTextAreaElement>('[data-faltantes]').forEach((t) => { t.value = registros.cierre.faltantes ?? ''; });
+        $$<HTMLInputElement | HTMLTextAreaElement>('[data-rep]').forEach((i) => { i.value = registros.cierre.reporte[i.dataset.rep!] ?? ''; });
+      };
+
+      const pintar = () => {
+        (['apertura', 'cierre'] as IdTurno[]).forEach((turno) => {
+          const r = registros[turno];
+          const sec = $(`[data-turno="${turno}"]`)!;
+          const lista = delTurno(turno);
+
+          lista.forEach(([id]) => {
+            const li = $<HTMLElement>(`[data-tarea="${id}"]`, sec)!;
+            const f = r.hechas[id];
+            li.dataset.hecha = f ? 'si' : 'no';
+            $('[data-marcar]', li)!.setAttribute('aria-pressed', String(!!f));
+            $('[data-firma]', li)!.textContent = f ? `${f.ini} · ${f.hora}` : '';
+          });
+
+          $$<HTMLElement>('[data-seccion]', sec).forEach((s) => {
+            const items = $$<HTMLElement>('.tarea', s);
+            const n = items.filter((i) => i.dataset.hecha === 'si').length;
+            $('[data-seccion-cuenta]', s)!.textContent = `${n}/${items.length}`;
+            s.dataset.completa = n === items.length ? 'si' : 'no';
+          });
+
+          // temperaturas: alerta y lecturas fuera
+          $$<HTMLElement>('[data-herr="temperatura"]', sec).forEach((h) => {
+            $('[data-alerta-temp]', h)!.hidden = !fueraDeLimite(r);
+            $$<HTMLInputElement>('input[data-temp]', h).forEach((i) => {
+              const v = parseFloat(i.value);
+              i.dataset.fuera = i.dataset.temp !== 'cong' && Number.isFinite(v) && v > LIMITE_REFRIGERACION ? 'si' : 'no';
+            });
+          });
+
+          // calibración: extracción contra la referencia
+          $$<HTMLElement>('[data-herr="calibracion"]', sec).forEach((h) => {
+            const e = extraccion(r.calib);
+            const tds = parseFloat(r.calib.tds ?? '');
+            const caja = $('[data-extraccion]', h)!;
+            $('[data-extraccion-valor]', h)!.textContent = e === null ? '—' : `${e.toFixed(1)}%`;
+            const fuera =
+              e !== null &&
+              (e < REFERENCIA_EXTRACCION.min || e > REFERENCIA_EXTRACCION.max ||
+                (Number.isFinite(tds) && (tds < REFERENCIA_TDS.min || tds > REFERENCIA_TDS.max)));
+            caja.dataset.estado = e === null ? 'vacio' : fuera ? 'fuera' : 'ok';
+            $('[data-extraccion-ref]', h)!.textContent =
+              `${fuera ? 'Fuera de referencia · ' : e !== null ? 'En referencia · ' : ''}` +
+              `${REFERENCIA_EXTRACCION.min}–${REFERENCIA_EXTRACCION.max}% · TDS ${REFERENCIA_TDS.min}–${REFERENCIA_TDS.max}%`;
+          });
+
+          // turno finalizado: nada se edita hasta reabrirlo
+          const final = $(`[data-final="${turno}"]`)!;
+          sec.dataset.cerrado = r.finalizado ? 'si' : 'no';
+          $$<HTMLInputElement | HTMLTextAreaElement>('.herr input, .herr textarea', sec).forEach((i) => { i.disabled = !!r.finalizado; });
+          final.hidden = !r.finalizado;
+          if (r.finalizado) {
+            const hechas = lista.filter(([id]) => r.hechas[id]).length;
+            $('[data-final-texto]', final)!.textContent =
+              `${r.finalizado.ini} a las ${r.finalizado.hora} · ${hechas} de ${lista.length} tareas.` +
+              (hechas < lista.length ? `\n${lista.length - hechas} normales quedaron sin hacer.` : '\nCompleto.');
+          }
+          $(`[data-finalizar="${turno}"]`)!.hidden = !!r.finalizado;
+          if (r.finalizado) $(`[data-bloqueo="${turno}"]`)!.hidden = true;
+
+          // cuenta en la pestaña
+          const hechas = lista.filter(([id]) => r.hechas[id]).length;
+          $(`[data-cuenta="${turno}"]`)!.textContent = r.finalizado ? `Finalizado ${r.finalizado.hora}` : `${hechas} / ${lista.length}`;
+        });
+
+        // barra de progreso del turno activo
+        const r = registros[turnoActivo];
+        const lista = delTurno(turnoActivo);
+        const hechas = lista.filter(([id]) => r.hechas[id]).length;
+        const criticasPend = lista.filter(([id, t]) => t.critica && !r.hechas[id]).length;
+        $('[data-prog-hechas]')!.textContent = `${hechas} / ${lista.length} tareas`;
+        $('[data-prog-criticas]')!.textContent = criticasPend ? `${criticasPend} críticas pendientes` : 'Críticas completas';
+        $<HTMLElement>('[data-prog-barra]')!.style.width = `${(hechas / lista.length) * 100}%`;
+      };
+
+      /* ── Arranque ────────────────────────────────────────────── */
+      // Turno inicial: el que se eligió en esta sesión, o por la hora
+      // (antes de las 14:00 de Durango, apertura; después, cierre).
+      let inicial: IdTurno = ahora().getHours() < 14 && ahora().getHours() >= 5 ? 'apertura' : 'cierre';
+      try {
+        const s = sessionStorage.getItem('ryo-checklist:turno');
+        if (s === 'apertura' || s === 'cierre') inicial = s;
+      } catch {}
+      if (persona.ini) inIni.dataset.manual = 'si';
+      llenarCampos();
+      pintarCierreAnterior();
+      mostrarTurno(inicial);
+    </script>
+  </body>
+</html>
