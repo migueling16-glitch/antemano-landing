@@ -26,14 +26,17 @@ public/ryo/
 ├── og.png              imagen para compartir (se rehace con scripts/ryo-og.py)
 └── marcas/             los 8 masters de dos tintas, tal como vienen del manual
 
-scripts/ryo-og.py       regenera public/ryo/og.png
+scripts/ryo-og.py         regenera public/ryo/og.png
+scripts/ryo-centerline.py regenera src/ryo/assets/isotipo-trazo.svg
 ```
 
 Las marcas de `assets/` son los mismos vectores del manual, con la tinta
 cambiada a `currentColor`: así un solo archivo sirve para los dos temas y el
 color siempre sale de `--ink`, que solo puede ser champagne o café. El isotipo
-sale tres veces (barra, manifiesto e intro), así que se define una vez como
-`<symbol id="ryo-iso">` y las tres lo llaman con `<use>`. Los masters
+sale cuatro veces, así que se define una vez como `<symbol id="ryo-iso">` y la
+barra, el hero y el manifiesto lo llaman con `<use>`. La copia del intro sí va
+inline aparte: para dibujarla trazo por trazo hay que llegar a cada `<path>`,
+y dentro de un `<use>` no se puede. Los masters
 originales de dos tintas siguen intactos en `public/ryo/marcas/` por si se
 necesitan para impresión o para usarlos con `<img>`.
 
@@ -59,8 +62,8 @@ Todo vive en `config.ts`:
 | `MENU_MOSTRAR_PRECIOS` | `false` oculta todos los precios sin tocar los datos.                  |
 | `TEMA_AUTO`            | Horas entre las que la página abre en tema claro.                      |
 
-Los tiempos del intro viven en `RyoCafe.astro`: `ENTRA` (aparece el filete),
-`SUBIDA` (cuánto tarda en subir el nivel) y `curva`.
+Los tiempos del intro viven en `RyoCafe.astro`: `DIBUJO` (cuánto dura el
+trazo), `PAUSA` (respiro entre un elemento y el siguiente) y `SOLAPE`.
 
 Pendientes marcados con `TODO` en el archivo: link del pin real de Maps,
 WhatsApp, horarios reales y el menú definitivo.
@@ -88,21 +91,49 @@ activan todos, conviene apagar alguno para no pasar de siete.
 - **Bloques invertidos.** La clase `.inv` intercambia `--surface` y `--ink`
   para las bandas oscuras (slogan, manifiesto, pie) en cualquiera de los dos
   temas.
-- **Intro.** Sube el nivel del café: un filete de 1px asciende y, por debajo,
-  va descubriendo el isotipo de abajo hacia arriba, así que lo último en
-  aparecer es la cara del monito. Al llegar arriba el filete se retira, entra
-  el slogan y el café se asienta con una onda —contenida en la boca de la
-  taza, medida sobre el vector: elipse de 71% del ancho y 20% del alto,
-  centrada en 43.4% / 38%—. Luego la marca vuela al isotipo de la barra,
-  arriba a la izquierda, mientras el fondo se disuelve. Son unos 3.3 s.
+- **Intro.** Al cargar se dibuja el isotipo **un elemento a la vez**: primero
+  la taza, luego el café, luego el mono y al final los ojos, con una pausa
+  entre cada uno. Después el café hace un par de ondas —contenidas dentro de
+  la boca de la taza, medida sobre el vector: elipse de 71% del ancho y 20%
+  del alto, centrada en 43.4% / 38%— y la marca vuela al isotipo de la barra,
+  arriba a la izquierda, mientras el fondo se disuelve. Son unos 3.8 s.
 
-  Es un solo `clip-path: inset()` y un filete animado con la misma duración y
-  curva, así que el filete siempre va en el borde de lo descubierto. Lo que se
-  ve es el vector original del manual, sin redibujar nada.
+  El isotipo es un solo path compuesto (sus subtrazos son la silueta y los
+  huecos, no las líneas sueltas), así que los elementos no se pueden separar
+  por la estructura del archivo. `ryo-centerline.py` los separa por dónde cae
+  cada trazo, con polígonos trazados a mano sobre el dibujo. Para revisar que
+  la separación siga bien después de tocar algo:
+  `python scripts/ryo-centerline.py --mapa mapa.png` pinta el esqueleto
+  coloreado por grupo con las regiones encima.
 
-  (Hubo una versión anterior que dibujaba el isotipo trazo por trazo con una
-  máscara sacada del esqueleto del dibujo. Se descartó por algo más quieto;
-  está en el historial de git, commit `6b3aeac`, junto con su script.)
+  Lo que se ve dibujarse **es el vector original del manual**, no una imitación.
+  El truco: `scripts/ryo-centerline.py` saca el eje central de cada trazo
+  (adelgazamiento Zhang-Suen sobre el dibujo rasterizado) y lo guarda en
+  `isotipo-trazo.svg`. La página lo usa como `<mask>` sobre el isotipo real,
+  con un trazo más gordo que el del dibujo: al avanzar la máscara, va
+  destapando el arte y se lee como una sola línea gruesa. Al terminar se quita
+  la máscara, porque cubre el 99.7% del dibujo y ese resto quedaría escondido.
+
+  Los trazos van como `<path>` separados a propósito: SVG reinicia el patrón de
+  `stroke-dasharray` en cada subtrazo, así que meterlos todos en un solo `path`
+  con varios `M` no permite destaparlos en orden. Cada uno dura según su
+  longitud real (`getTotalLength()`), que es lo que da velocidad de pluma
+  constante y hace que se lea como una mano dibujando. El script los ordena
+  por cercanía pura, para que la pluma siga desde donde quedó en vez de saltar
+  y dejar piezas sueltas.
+
+  El `COLCHON` de 2 unidades en el patrón de guiones no es un capricho: sin él
+  el desfase inicial cae justo en la frontera entre guión y hueco, y con
+  `stroke-linecap: round` eso pinta un punto del grosor del trazo. El dibujo no
+  arrancaría en blanco.
+
+  Cada trazo de la máscara lleva **su propio grosor**, sacado del ancho real de
+  esa línea en el dibujo (transformada de distancia sobre la tinta). Con un
+  grosor único para todos, el contorno de la cabeza —que es gordo— destapaba
+  los ojos al pasar cerca, y aparecía un punto antes de que los ojos se
+  dibujaran. El margen (`MARGEN_MASCARA`, `MARGEN_FIJO`) está ajustado para que
+  la máscara cubra el 98.9% del dibujo sin que la cabeza alcance los ojos, que
+  están a unas 20 unidades de su eje.
 
   Corre una sola vez por sesión, cualquier toque o tecla se la salta, y no
   corre nunca con `prefers-reduced-motion`. Nace con `hidden` y solo el JS la

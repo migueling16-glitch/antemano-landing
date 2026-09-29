@@ -16,6 +16,9 @@ import logotipoSvg from './assets/logotipo.svg?raw';
 import isotipoSvg from './assets/isotipo.svg?raw';
 import taglineSvg from './assets/tagline.svg?raw';
 import auxiliarSvg from './assets/auxiliar.svg?raw';
+// Eje central del isotipo. No se dibuja: es la máscara que destapa el arte
+// real en el intro. Se regenera con scripts/ryo-centerline.py.
+import trazoSvg from './assets/isotipo-trazo.svg?raw';
 
 const accesos = ACCESOS.filter((a) => a.activo && a.href);
 
@@ -26,6 +29,19 @@ const accesos = ACCESOS.filter((a) => a.activo && a.href);
  */
 const isoInner = isotipoSvg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
 const isoViewBox = isotipoSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 553.019 440';
+
+/**
+ * La pluma del intro: los ejes centrales de cada trazo, usados como máscara
+ * sobre el isotipo real. Lo que se ve siempre es el vector del manual; la
+ * máscara solo decide en qué orden se destapa, y como el trazo de la máscara
+ * es más gordo que el del dibujo, se lee como una sola línea avanzando.
+ *
+ * Viene agrupado en <g data-grupo>: taza, café, persona y ojos, en ese orden.
+ * Cada <path> lleva su propio stroke-width.
+ */
+const trazoInner = trazoSvg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+const [vbX, vbY, vbW, vbH] = isoViewBox.split(/[\s,]+/).map(Number);
+const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
 
 /** Estado calculado al construir: es el que ve quien entra sin JS. El cliente lo recalcula. */
 const estadoInicial = estadoDe(ahoraEnDurango());
@@ -121,20 +137,42 @@ const jsonLd = {
     </svg>
 
     <!--
-      Intro: sube el nivel del café —un filete de 1px— y va descubriendo el
-      isotipo de abajo hacia arriba, así que lo último que aparece es la cara
-      del monito. Después la marca vuela al isotipo de la barra, arriba a la
-      izquierda. Nace oculto y solo el JS lo enciende: si el script falla, la
+      Intro: el isotipo se dibuja solo de un trazo, como el dibujo hecho a mano
+      del que habla el manual, y después vuela al isotipo de la barra, arriba a
+      la izquierda. Nace oculto y solo el JS lo enciende: si el script falla, la
       página se ve entera de inmediato. Una vez por sesión y nunca con
       prefers-reduced-motion.
     -->
     <div class="intro" data-intro hidden aria-hidden="true">
       <div class="intro-fondo" data-intro-fondo></div>
       <div class="intro-marca" data-intro-marca>
-        <div class="intro-arte" data-intro-arte>
-          <svg class="intro-iso" viewBox={isoViewBox}><use href="#ryo-iso" /></svg>
-        </div>
-        <span class="intro-nivel" data-intro-nivel></span>
+        <svg class="intro-iso" viewBox={isoViewBox}>
+          <mask
+            id="ryo-pluma"
+            maskUnits="userSpaceOnUse"
+            x={mascara.x}
+            y={mascara.y}
+            width={mascara.w}
+            height={mascara.h}
+          >
+            <!--
+              Sin stroke-width aquí: cada trazo trae el suyo, calculado del
+              grosor real de esa línea en el dibujo. Con un grosor único, el
+              contorno de la cabeza destapaba los ojos al pasar cerca.
+            -->
+            <g
+              data-pluma
+              fill="none"
+              stroke="#fff"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              set:html={trazoInner}
+            />
+          </mask>
+          <g mask="url(#ryo-pluma)" data-intro-arte>
+            <use href="#ryo-iso" />
+          </g>
+        </svg>
         <span class="ondas" data-ondas></span>
       </div>
       <p class="intro-slogan" data-intro-slogan>{NEGOCIO.slogan}</p>
@@ -496,7 +534,7 @@ const jsonLd = {
       .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
       /* ═══════════════════════════════════════════════════════════
-         INTRO — sube el nivel del café y descubre al monito
+         INTRO — el isotipo se dibuja solo y vuela al hero
          ═══════════════════════════════════════════════════════════ */
       .intro {
         position: fixed;
@@ -524,23 +562,7 @@ const jsonLd = {
       }
       @media (min-width: 720px) { .intro-marca { width: min(38vw, 340px); } }
 
-      .intro-iso { display: block; width: 100%; height: auto; }
-
-      /* El arte arranca recortado entero por arriba; al bajar el recorte, se
-         descubre de abajo hacia arriba y lo último en aparecer es la cara. */
-      .intro-arte { clip-path: inset(100% 0 0 0); }
-
-      /* El nivel: un filete de 1px, un poco más ancho que la taza. */
-      .intro-nivel {
-        position: absolute;
-        left: -8%;
-        right: -8%;
-        top: 100%;
-        height: 1px;
-        background: currentColor;
-        opacity: 0;
-        pointer-events: none;
-      }
+      .intro-iso { display: block; width: 100%; height: auto; overflow: visible; }
 
       .intro-slogan {
         position: relative;
@@ -1195,10 +1217,15 @@ const jsonLd = {
       function correrIntro(capa: HTMLElement, destino: HTMLElement) {
         const marca = capa.querySelector<HTMLElement>('[data-intro-marca]');
         const fondo = capa.querySelector<HTMLElement>('[data-intro-fondo]');
-        const arte = capa.querySelector<HTMLElement>('[data-intro-arte]');
-        const nivel = capa.querySelector<HTMLElement>('[data-intro-nivel]');
+        const arte = capa.querySelector<SVGGElement>('[data-intro-arte]');
+        // Los trazos vienen agrupados por elemento del dibujo, en orden.
+        const cajas = Array.from(capa.querySelectorAll<SVGGElement>('[data-pluma] [data-grupo]'));
+        const grupos = (cajas.length ? cajas.map((g) => Array.from(g.querySelectorAll<SVGPathElement>('path')))
+                                     : [Array.from(capa.querySelectorAll<SVGPathElement>('[data-pluma] path'))])
+          .filter((g) => g.length);
+        const pluma = grupos.flat();
         const ondas = capa.querySelector<HTMLElement>('[data-ondas]');
-        if (!marca || !fondo || !arte || !nivel) {
+        if (!marca || !fondo || !arte || !pluma.length) {
           capa.remove();
           activarRevelados();
           return;
@@ -1211,24 +1238,52 @@ const jsonLd = {
         window.scrollTo(0, 0); // el vuelo mide la posición real del destino
         destino.style.visibility = 'hidden';
 
-        // Sube el nivel del café: un filete de 1px que asciende y, por debajo,
-        // descubre el isotipo. Recorte y filete usan la misma duración y curva,
-        // así que el filete siempre va justo en el borde de lo descubierto.
-        const ENTRA = 260; // aparece el filete
-        const SUBIDA = 1300; // el nivel sube
-        const curva = 'cubic-bezier(.5,0,.2,1)'; // arranca suave, sube parejo y se asienta arriba
+        // La pluma son los ejes de cada trazo, en orden de dibujo, encadenados
+        // uno tras otro. Como el trazo de la máscara es más gordo que el del
+        // dibujo, lo que se ve es una línea gruesa avanzando, no un contorno
+        // que luego se rellena.
+        //
+        // Van como paths separados a propósito: SVG reinicia el patrón de
+        // stroke-dasharray en cada subtrazo, así que meterlos en un solo path
+        // con varios "M" no permite destaparlos en orden.
+        const DIBUJO = 1750;
+        const SOLAPE = 0.95; // cada trazo arranca justo antes de terminar el previo
+        const PAUSA = 130; // respiro entre un elemento y el siguiente
+        // Colchón del patrón de guiones. Sin él, el offset inicial cae justo en
+        // la frontera entre guión y hueco: con stroke-linecap round eso pinta un
+        // punto del grosor del trazo, y el dibujo no arrancaría en blanco.
+        const COLCHON = 2;
 
-        nivel.animate([{ opacity: '0' }, { opacity: '1' }],
-          { duration: ENTRA, easing: 'ease-out', fill: 'forwards' });
-        nivel.animate([{ top: '100%' }, { top: '0%' }],
-          { duration: SUBIDA, delay: ENTRA, easing: curva, fill: 'forwards' });
-        arte.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)' }],
-          { duration: SUBIDA, delay: ENTRA, easing: curva, fill: 'forwards' });
-        // al llegar arriba, el filete se retira
-        nivel.animate([{ opacity: '1' }, { opacity: '0' }],
-          { duration: 420, delay: ENTRA + SUBIDA, easing: 'ease-out', fill: 'forwards' });
+        const largos = pluma.map((p) => p.getTotalLength());
+        const total = largos.reduce((a, b) => a + b, 0) || 1;
 
-        const finDibujo = ENTRA + SUBIDA;
+        // Duración proporcional a la longitud = velocidad de pluma constante.
+        // El piso evita que los trazos diminutos pasen desapercibidos, y el
+        // factor k reabsorbe lo que ese piso añade para que el total sea DIBUJO.
+        const crudas = largos.map((l) => Math.max(18, (l / total) * DIBUJO));
+        const k = DIBUJO / (crudas.reduce((a, b) => a + b, 0) * SOLAPE);
+
+        // Se dibuja un elemento a la vez: primero la taza, luego el café,
+        // luego el mono y al final los ojos, con una pausa entre cada uno.
+        let reloj = 0;
+        let i = 0;
+        grupos.forEach((grupo, gi) => {
+          if (gi > 0) reloj += PAUSA;
+          grupo.forEach((p) => {
+            const len = largos[i];
+            const dur = crudas[i] * k;
+            const arranque = len + COLCHON;
+            i += 1;
+            p.style.strokeDasharray = `${len} ${len + COLCHON * 2}`;
+            p.style.strokeDashoffset = String(arranque);
+            p.animate(
+              [{ strokeDashoffset: String(arranque) }, { strokeDashoffset: '0' }],
+              { duration: dur, delay: reloj, easing: 'linear', fill: 'forwards' },
+            );
+            reloj += dur * SOLAPE;
+          });
+        });
+        const finDibujo = reloj;
 
         let cerrado = false;
         const cerrar = () => {
@@ -1244,16 +1299,21 @@ const jsonLd = {
           window.addEventListener(evt, cerrar, { passive: true, once: true }),
         );
 
-        // 1. El nivel llegó arriba: entra el slogan y el café se asienta con
-        //    una sola onda, contenida en la boca de la taza.
+        // 1. Terminado el trazo: fuera la máscara (la cubre al 99.7%, el resto
+        //    quedaría escondido), entra el slogan y el café hace ondas.
         window.setTimeout(() => {
           if (cerrado) return;
+          arte.removeAttribute('mask');
           capa.dataset.fase = 'dibujado';
           if (ondas) {
-            const o = document.createElement('span');
-            o.className = 'onda';
-            o.addEventListener('animationend', () => o.remove());
-            ondas.appendChild(o);
+            [0, 240].forEach((retraso) =>
+              window.setTimeout(() => {
+                const o = document.createElement('span');
+                o.className = 'onda';
+                o.addEventListener('animationend', () => o.remove());
+                ondas.appendChild(o);
+              }, retraso),
+            );
           }
         }, finDibujo + 60);
 
