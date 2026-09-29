@@ -137,7 +137,7 @@ function convergencia(final: number, larga = false): Paso[] {
 /* ── Todo ───────────────────────────────────────────────── */
 
 /** Sube cuando cambia la forma del estado: lo guardado con otra versión se descarta. */
-export const VERSION = 7;
+export const VERSION = 8;
 
 export function crearSemilla(): Estado {
   const hoy = jornadaDe();
@@ -169,10 +169,12 @@ export function crearSemilla(): Estado {
   ];
   const hoySesion = sesiones[sesiones.length - 1];
   const aprobado = hoySesion.shots.find((s) => s.aprobado)!;
+  // Hoy solo está calibrado el de la casa: Oaxaca y Etiopía quedan pendientes.
   const recetasDelDia: Estado['recetasDelDia'] = {};
-  for (const s of sesiones.filter((x) => x.cafeId === 'cafe-chiapas')) {
+  for (const s of sesiones) {
     const a = s.shots.find((x) => x.aprobado)!;
-    recetasDelDia[s.jornada] = {
+    recetasDelDia[s.jornada] ??= {};
+    recetasDelDia[s.jornada][s.cafeId] = {
       jornada: s.jornada, cafeId: s.cafeId, sesionId: s.id, shotId: a.id, por: s.por, en: s.fin!,
       botonId: s.botonId,
       dosis: a.dosis, rendimiento: a.rendimiento, tiempo: a.tiempo, molienda: a.molienda,
@@ -315,7 +317,7 @@ export function crearSemilla(): Estado {
     cafes: [
       {
         id: 'cafe-chiapas', nombre: 'Chiapas · de la casa', origen: 'Chiapas, México', proceso: 'Lavado', tostador: 'Tostado en casa',
-        tueste: d(-10), activo: true, notas: 'Cacao, panela, final limpio.', boton: 'b2',
+        tueste: d(-10), activo: true, notas: 'Cacao, panela, final limpio.', boton: 'b2', casa: true,
         objetivo: { dosis: 18, rendimiento: 36, tiempo: 28, tolTiempo: 2, tolRatio: 0.05 },
       },
       {

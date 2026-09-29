@@ -41,6 +41,25 @@ Calibración hecha para la **La Marzocco Linea Classic AV de un grupo** de Ryo:
 - Un solo PID en la caldera de café: la temperatura es de la máquina, no del
   café. Se cambia en Administración → Máquina.
 
+## Calibrar
+
+- **Una receta del día por café.** El inicio de Calibrar es un tablero: cada
+  café dice si ya tiene receta, si alguien lo está calibrando o si falta, y
+  con qué molienda arrancar. Las bebidas del menú usan la del café de la casa
+  (`casa: true`).
+- **Punto de partida:** con cuatro calibraciones o más, la tendencia de
+  molienda contra días de reposo; si no, lo último que funcionó.
+- **Capturar el shot:** los steppers también se arrastran de lado a lado (un
+  paso cada 14 px) y responden a las flechas. Debajo de cada uno se lee qué
+  cambió contra el shot anterior y si es el ajuste sugerido; si se mueven
+  molienda y dosis a la vez, la app lo señala. El shot aparece en la gráfica
+  de la sesión y se mueve con los números.
+- **Probar:** la brújula guarda el rastro de los shots anteriores y tiene
+  atajos (ácido, amargo, débil, intenso, balanceado) que mueven un eje.
+- **Corregir y deshacer:** un shot sin probar se puede corregir; terminar una
+  sesión se deshace desde el aviso o con "Reabrir la sesión".
+- **Al aprobar:** "Qué sigue" lleva al siguiente café sin receta.
+
 ## Inicio de sesión y perfiles de ejemplo
 
 La app abre en **Inicia sesión** (correo y contraseña). En la maqueta entra

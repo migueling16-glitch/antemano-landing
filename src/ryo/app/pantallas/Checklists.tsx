@@ -13,6 +13,7 @@ import {
   iniciarEjecucion, marcar, desmarcar, restaurarMarca, registrarFoto, completar, reabrir, validar, puede, nuevoId,
   avisar, celebrar, vibrar, maquinaDe, nombreBoton,
   type Estado, type Plantilla, type Ejecucion, type ItemPlantilla, type Marca,
+  recetaCasa,
 } from '../estado';
 import { Sup, Seccion, BarraProg, Casilla, Stepper, Hoja, Foto, Estado as Etq, Vacio, ir } from '../componentes';
 import { procesarFoto, guardarFoto, kb, type FotoProcesada } from '../lib/fotos';
@@ -382,7 +383,7 @@ function Item({ e, ej, item, marca, cerrada, onFoto }: {
   if (item.tipo === 'nota') return <ItemNota e={e} ej={ej} item={item} marca={marca} cerrada={cerrada} texto={texto} />;
 
   // Calibración: se marca sola al aprobar la receta del día.
-  const rd = e.recetasDelDia[ej.jornada];
+  const rd = recetaCasa(e, ej.jornada);
   const m = maquinaDe(e);
   return (
     <div id={`item-${item.id}`} className="fila" style={{ flexWrap: 'wrap' }}>

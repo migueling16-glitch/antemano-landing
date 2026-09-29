@@ -5,7 +5,7 @@
  */
 import {
   useEstado, yo, usuario, plantillasDeHoy, ejecucionDe, fueraDeRango, progresoDe, puede, maquinaDe, nombreBoton,
-  plantilla as buscarPlantilla, cafe as buscarCafe, type Estado,
+  plantilla as buscarPlantilla, cafe as buscarCafe, recetaCasa, recetaDe, type Estado,
 } from '../estado';
 import { Sup, Seccion, Estado as Etq, BarraProg, Vacio } from '../componentes';
 import { avisosDe, marcarLeida, marcarTodasLeidas } from '../estado';
@@ -31,8 +31,9 @@ export function Inicio() {
   const u = yo(e)!;
   const hoy = jornadaDe();
   const m = maquinaDe(e);
-  const rd = e.recetasDelDia[hoy];
+  const rd = recetaCasa(e, hoy);
   const cafeHoy = rd && buscarCafe(e, rd.cafeId);
+  const sinCalibrar = e.cafes.filter((c) => c.activo && !recetaDe(e, hoy, c.id)).map((c) => c.nombre.split(' · ')[0]);
   const turnoHoy = turnoDe(e, u.id, hoy);
   const proximo = !turnoHoy
     ? Array.from({ length: 13 }, (_, i) => sumarDias(hoy, i + 1)).map((f) => ({ f, t: turnoDe(e, u.id, f) })).find((x) => x.t)
@@ -94,6 +95,7 @@ export function Inicio() {
             <>
               <span className="num-m">{rd.dosis.toFixed(1)} → {rd.rendimiento.toFixed(1)} g · {rd.tiempo.toFixed(0)} s</span>
               <span className="cuerpo">{cafeHoy.nombre.split(' · ')[0]} · molienda {rd.molienda} · botón {nombreBoton(m, rd.botonId)}</span>
+              {sinCalibrar.length > 0 && <span className="cuerpo">Falta calibrar: {sinCalibrar.join(', ')}.</span>}
             </>
           ) : (
             <span className="cuerpo">Nadie ha calibrado hoy. Toca para calibrar antes del primer espresso.</span>

@@ -74,7 +74,7 @@ function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
       if (a === 'ej' && b) return <ChecklistEjecucion id={b} />;
       return <ChecklistsInicio />;
     case 'calibrar':
-      if (a === 'nueva') return <CalibrarNueva />;
+      if (a === 'nueva') return <CalibrarNueva key={b ?? 'nueva'} cafeId={b} />;
       if (a === 'sesion' && b) return <CalibrarSesion id={b} />;
       if (a === 'cafe' && b) return <CalibrarCafe id={b} />;
       return <CalibrarInicio />;

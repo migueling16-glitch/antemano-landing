@@ -2,9 +2,13 @@
  * Calibración de espresso: el corazón de la app.
  *
  * Tiene que sentirse como un instrumento, no como un formulario: steppers
- * en lugar de teclado, ratio y tiempo en vivo contra la ventana,
- * brújula de sabor que sugiere el siguiente ajuste, y la gráfica de la sesión
- * donde se ve cómo los shots convergen hacia la zona objetivo.
+ * que también se arrastran en lugar de teclado, el shot moviéndose por la
+ * gráfica mientras se captura, brújula de sabor con el rastro de los shots
+ * anteriores, y siempre a la vista el ajuste que toca aplicar.
+ *
+ * Cada café tiene su receta del día: el de la casa, el de origen y el
+ * invitado se calibran por separado, y el inicio es un tablero de lo que
+ * falta.
  *
  * Está hecha para la La Marzocco Linea Classic AV de un grupo de la barra:
  * - Con un botón volumétrico la máquina corta sola; la molienda mueve el
@@ -16,23 +20,29 @@
 import { useMemo, useState } from 'react';
 import {
   useEstado, cafe as buscarCafe, usuario, nuevaSesion, guardarShot, evaluarShot, aprobarShot, terminarSesion,
-  programarBoton, maquinaDe, nombreBoton, programadoDe, avisar, celebrar, vibrar, CONTINUO,
+  corregirShot, reabrirSesion, recetaDe, programarBoton, maquinaDe, nombreBoton, programadoDe, avisar, celebrar,
+  vibrar, CONTINUO,
   type Estado, type Cafe, type SesionCal, type Shot, type Maquina,
 } from '../estado';
 import {
-  Sup, Seccion, Stepper, Brujula, Gauge, GraficaSesion, GraficaTendencia,
-  Estado as Etq, Hoja, ir,
+  Sup, Seccion, Stepper, Brujula, GraficaSesion, GraficaTendencia, Estado as Etq, Hoja, ir, describirSabor,
 } from '../componentes';
 import {
   sugerir, ratioTexto, ventanaRatio, tendencia, redondear, enVentana,
-  GOTEO, type Objetivo, type Sabor,
+  GOTEO, type Objetivo, type Sabor, type Sugerencia,
 } from '../lib/calibracion';
 import { jornadaDe, diasEntre, hora, cuando, fechaCorta } from '../lib/tiempo';
 
+/** Sin historial, se arranca a media escala del molino. */
+const MOLIENDA_INICIAL = 6;
+
 const reposoDe = (c: Cafe, jornada = jornadaDe()) => diasEntre(c.tueste, jornada);
-const pasoDe = (e: Estado, molinoId: string) => e.equipos.find((x) => x.id === molinoId)?.paso ?? 0.5;
+const molinoDe = (e: Estado) => e.equipos.find((x) => x.tipo === 'molino' && x.uso !== 'filtrados');
+const pasoDe = (e: Estado, molinoId?: string) => e.equipos.find((x) => x.id === molinoId)?.paso ?? 0.5;
 const aprobadoDe = (s: SesionCal) => s.shots.find((x) => x.id === s.aprobadoId);
 const alPaso = (v: number, paso: number) => redondear(Math.round(v / paso) * paso, 2);
+const corto = (c: Cafe) => c.nombre.split(' · ')[0];
+const primerNombre = (e: Estado, id?: string) => usuario(e, id)?.nombre.split(' ')[0] ?? 'Alguien';
 
 /** Memoria del equipo: lo último que funcionó y la tendencia de molienda contra reposo. */
 function memoria(e: Estado, cafeId: string) {
@@ -44,6 +54,26 @@ function memoria(e: Estado, cafeId: string) {
   const t = tendencia(puntos);
   return { ultima, shot: ultima && aprobadoDe(ultima), puntos, recta: t?.en ?? null, aprobadas };
 }
+
+/**
+ * Con qué molienda arrancar hoy: con historia suficiente, lo que dice la
+ * tendencia para los días de reposo de hoy (sin salirse de lo que ya se ha
+ * usado); si no, lo último que funcionó.
+ */
+function puntoDePartida(e: Estado, c: Cafe, paso: number) {
+  const mem = memoria(e, c.id);
+  const reposo = reposoDe(c);
+  if (mem.recta && mem.puntos.length >= 4) {
+    const ys = mem.puntos.map((p) => p.y);
+    const acotada = Math.min(Math.max(...ys) + 2 * paso, Math.max(Math.min(...ys) - 2 * paso, mem.recta(reposo)));
+    return { molienda: alPaso(acotada, paso), fuente: 'tendencia' as const, mem, reposo };
+  }
+  if (mem.shot) return { molienda: mem.shot.molienda, fuente: 'ultima' as const, mem, reposo };
+  return { molienda: undefined, fuente: 'nada' as const, mem, reposo };
+}
+
+/** El shot que sigue: cuenta el que está esperando sabor. */
+const shotEnCurso = (s: SesionCal) => s.shots.length + (s.shots.some((x) => !x.sabor) ? 0 : 1);
 
 /** Cómo se reprograma una dosis en la botonera de la Linea. */
 function PasosProgramar({ boton, gramos }: { boton: string; gramos: number }) {
@@ -58,52 +88,47 @@ function PasosProgramar({ boton, gramos }: { boton: string; gramos: number }) {
   );
 }
 
-/* ═══ INICIO DE CALIBRAR ══════════════════════════════════ */
+const Dato = ({ etq, valor, grande }: { etq: string; valor: string; grande?: boolean }) => (
+  <div className="pila-s" style={{ gap: 2 }}>
+    <span className="etq">{etq}</span>
+    <span className={grande ? 'num-l' : 'num-m'}>{valor}</span>
+  </div>
+);
+
+const FilaDato = ({ etq, valor }: { etq: string; valor: string }) => (
+  <div className="par">
+    <span className="etq">{etq}</span>
+    <span>{valor}</span>
+  </div>
+);
+
+/* ═══ INICIO: EL TABLERO DEL DÍA ══════════════════════════ */
 
 export function CalibrarInicio() {
   const e = useEstado();
   const m = maquinaDe(e);
   const hoy = jornadaDe();
-  const rd = e.recetasDelDia[hoy];
-  const c = rd && buscarCafe(e, rd.cafeId);
+  const activos = e.cafes.filter((x) => x.activo);
   const sesionesHoy = e.sesiones.filter((s) => s.jornada === hoy).sort((a, b) => b.inicio - a.inicio);
-  const abierta = sesionesHoy.find((s) => !s.fin && s.por === e.usuarioId);
-  const usados = m?.botones.filter((b) => e.cafes.some((x) => x.activo && x.boton === b.id)) ?? [];
+  const abiertaDe = (c: Cafe) => sesionesHoy.find((s) => s.cafeId === c.id && !s.fin);
+  const listos = activos.filter((c) => recetaDe(e, hoy, c.id)).length;
+  // El primer café sin receta ni sesión abierta es el que sigue: su botón va lleno.
+  const siguiente = activos.find((c) => !recetaDe(e, hoy, c.id) && !abiertaDe(c));
+  const paso = pasoDe(e, molinoDe(e)?.id);
+  const usados = m?.botones.filter((b) => activos.some((x) => x.boton === b.id)) ?? [];
 
   return (
     <>
-      <Sup titulo="Calibrar" sub={m ? m.modelo : 'Espresso'} />
+      <Sup
+        titulo="Calibrar"
+        sub={listos === activos.length ? 'Todos los cafés tienen receta hoy' : `${listos} de ${activos.length} cafés con receta hoy`}
+      />
       <main className="pant pila">
-        {rd && c ? (
-          <section className="bloque" aria-label="Receta del día">
-            <div className="fila-h entre">
-              <span className="etq">Receta del día</span>
-              <Etq fuerte>Fijada {hora(rd.en)}</Etq>
-            </div>
-            <p className="subtitulo">{c.nombre}</p>
-            <div className="rejilla-2">
-              <Dato etq="Dosis" valor={`${rd.dosis.toFixed(1)} g`} />
-              <Dato etq="Rendimiento" valor={`${rd.rendimiento.toFixed(1)} g`} />
-              <Dato etq="Tiempo" valor={`${rd.tiempo.toFixed(0)} s`} />
-              <Dato etq="Molienda" valor={String(rd.molienda)} />
-            </div>
-            <p className="cuerpo">
-              Botón {nombreBoton(m, rd.botonId)} · {ratioTexto(rd.dosis, rd.rendimiento)} · {reposoDe(c)} días de reposo · aprobó {usuario(e, rd.por)?.nombre}
-            </p>
-          </section>
-        ) : (
-          <section className="bloque inv">
-            <span className="etq">Sin receta del día</span>
-            <p className="cuerpo">Todavía no se calibra hoy. El primer espresso se sirve con receta aprobada.</p>
-          </section>
-        )}
-
-        {abierta && (
-          <a className="boton grande lleno" href={`#/calibrar/sesion/${abierta.id}`}>
-            Continuar sesión · shot {abierta.shots.length + (abierta.shots.some((x) => !x.sabor) ? 0 : 1)}
-          </a>
-        )}
-        <a className={`boton grande${abierta ? '' : ' lleno'}`} href="#/calibrar/nueva">{rd ? 'Recalibrar' : 'Calibrar ahora'}</a>
+        <div className="pila-s">
+          {activos.map((c) => (
+            <TarjetaCafe key={c.id} e={e} c={c} m={m} hoy={hoy} paso={paso} abierta={abiertaDe(c)} siguiente={siguiente?.id === c.id} />
+          ))}
+        </div>
 
         {m && (
           <Seccion titulo="Máquina" extra={`PID ${m.pid.toFixed(1)} °C`}>
@@ -112,7 +137,7 @@ export function CalibrarInicio() {
             </p>
             <div className="lista">
               {usados.map((b) => {
-                const cafes = e.cafes.filter((x) => x.activo && x.boton === b.id).map((x) => x.nombre.split(' · ')[0]);
+                const cafes = activos.filter((x) => x.boton === b.id).map(corto);
                 const p = programadoDe(m, b.id);
                 return (
                   <div key={b.id} className="fila">
@@ -128,37 +153,21 @@ export function CalibrarInicio() {
           </Seccion>
         )}
 
-        <Seccion titulo="Cafés">
-          <div className="lista">
-            {e.cafes.filter((x) => x.activo).map((x) => {
-              const mem = memoria(e, x.id);
-              return (
-                <a key={x.id} className="fila" href={`#/calibrar/cafe/${x.id}`}>
-                  <span className="fila-texto">
-                    <span>{x.nombre}</span>
-                    <span className="fila-sub">
-                      {nombreBoton(m, x.boton)} · {reposoDe(x)} días de reposo{mem.shot ? ` · molienda ${mem.shot.molienda}` : ''}
-                    </span>
-                  </span>
-                  <span className="fila-der">{x.objetivo.dosis}→{x.objetivo.rendimiento} g</span>
-                </a>
-              );
-            })}
-          </div>
-        </Seccion>
-
         {sesionesHoy.length > 0 && (
           <Seccion titulo="Sesiones de hoy">
             <div className="lista">
-              {sesionesHoy.map((s) => (
-                <a key={s.id} className="fila" href={`#/calibrar/sesion/${s.id}`}>
-                  <span className="fila-texto">
-                    <span>{buscarCafe(e, s.cafeId)?.nombre}</span>
-                    <span className="fila-sub">{usuario(e, s.por)?.iniciales} · {hora(s.inicio)} · {s.shots.length} shots</span>
-                  </span>
-                  {s.aprobadoId ? <Etq fuerte>Aprobada</Etq> : s.fin ? <Etq tenue>Sin aprobar</Etq> : <Etq>Abierta</Etq>}
-                </a>
-              ))}
+              {sesionesHoy.map((s) => {
+                const c = buscarCafe(e, s.cafeId);
+                return (
+                  <a key={s.id} className="fila" href={`#/calibrar/sesion/${s.id}`}>
+                    <span className="fila-texto">
+                      <span>{c ? corto(c) : 'Café'}</span>
+                      <span className="fila-sub">{usuario(e, s.por)?.iniciales} · {hora(s.inicio)} · {s.shots.length} shot{s.shots.length === 1 ? '' : 's'}</span>
+                    </span>
+                    {s.aprobadoId ? <Etq fuerte>Aprobada</Etq> : s.fin ? <Etq tenue>Sin aprobar</Etq> : <Etq>Abierta</Etq>}
+                  </a>
+                );
+              })}
             </div>
           </Seccion>
         )}
@@ -167,64 +176,121 @@ export function CalibrarInicio() {
   );
 }
 
-const Dato = ({ etq, valor }: { etq: string; valor: string }) => (
-  <div className="pila-s" style={{ gap: 2 }}>
-    <span className="etq">{etq}</span>
-    <span className="num-m">{valor}</span>
-  </div>
-);
-
-const FilaDato = ({ etq, valor }: { etq: string; valor: string }) => (
-  <div className="par">
-    <span className="etq">{etq}</span>
-    <span>{valor}</span>
-  </div>
-);
+/** Un café en el tablero: con receta se llena, como una casilla. */
+function TarjetaCafe({ e, c, m, hoy, paso, abierta, siguiente }: {
+  e: Estado; c: Cafe; m?: Maquina; hoy: string; paso: number; abierta?: SesionCal; siguiente: boolean;
+}) {
+  const rd = recetaDe(e, hoy, c.id);
+  const mia = abierta?.por === e.usuarioId;
+  const pp = puntoDePartida(e, c, paso);
+  return (
+    <section className={`bloque tarjeta-cafe${rd ? ' inv' : ''}`} aria-label={c.nombre}>
+      <div className="fila-h entre" style={{ alignItems: 'flex-start' }}>
+        <a className="subtitulo tarjeta-nombre" href={`#/calibrar/cafe/${c.id}`}>{c.nombre}</a>
+        {abierta ? <Etq>Calibrando</Etq> : rd ? <Etq fuerte>Receta {hora(rd.en)}</Etq> : <Etq tenue>Pendiente</Etq>}
+      </div>
+      {rd ? (
+        <>
+          <span className="num-m">{rd.dosis.toFixed(1)} → {rd.rendimiento.toFixed(1)} g · {rd.tiempo.toFixed(0)} s</span>
+          <span className="cuerpo">Molienda {rd.molienda} · {nombreBoton(m, rd.botonId)} · {pp.reposo} días de reposo · {primerNombre(e, rd.por)}</span>
+        </>
+      ) : (
+        <span className="cuerpo">
+          {nombreBoton(m, c.boton)} · {pp.reposo} días de reposo ·{' '}
+          {abierta
+            ? `${mia ? 'vas' : `${primerNombre(e, abierta.por)} va`} en el shot ${shotEnCurso(abierta)}`
+            : pp.molienda !== undefined ? `arranca en molienda ${pp.molienda}` : 'sin historial'}
+        </span>
+      )}
+      {abierta ? (
+        <a className={`boton grande${mia ? ' lleno' : ''}`} href={`#/calibrar/sesion/${abierta.id}`}>
+          {mia ? `Continuar · shot ${shotEnCurso(abierta)}` : `Ver la sesión de ${primerNombre(e, abierta.por)}`}
+        </a>
+      ) : rd ? (
+        <a className="enlace" href={`#/calibrar/nueva/${c.id}`}>Recalibrar</a>
+      ) : (
+        <a className={`boton grande${siguiente ? ' lleno' : ''}`} href={`#/calibrar/nueva/${c.id}`}>Calibrar {corto(c)}</a>
+      )}
+    </section>
+  );
+}
 
 /* ═══ NUEVA SESIÓN ════════════════════════════════════════ */
 
-export function CalibrarNueva() {
+export function CalibrarNueva({ cafeId: pedido }: { cafeId?: string }) {
   const e = useEstado();
   const m = maquinaDe(e);
+  const hoy = jornadaDe();
   const cafes = e.cafes.filter((x) => x.activo);
   const molinos = e.equipos.filter((x) => x.tipo === 'molino' && x.uso !== 'filtrados');
-  const inicialCafe = e.recetasDelDia[jornadaDe()]?.cafeId ?? cafes[0]?.id;
+  // Sin café pedido, el primero que no tiene receta hoy.
+  const inicialCafe = cafes.find((x) => x.id === pedido)?.id ?? cafes.find((x) => !recetaDe(e, hoy, x.id))?.id ?? cafes[0]?.id;
   const [cafeId, setCafeId] = useState(inicialCafe);
   const [molinoId, setMolinoId] = useState(molinos[0]?.id);
   const [botonId, setBotonId] = useState(buscarCafe(e, inicialCafe)?.boton ?? CONTINUO);
   const c = buscarCafe(e, cafeId);
   if (!c) return null;
   const paso = pasoDe(e, molinoId);
-  const mem = memoria(e, cafeId);
-  const reposo = reposoDe(c);
-  const estimada = mem.recta && mem.puntos.length >= 4 ? alPaso(mem.recta(reposo), paso) : undefined;
+  const pp = puntoDePartida(e, c, paso);
   const o = c.objetivo;
   const [rmin, rmax] = ventanaRatio(o);
   const prog = programadoDe(m, botonId);
+  const rd = recetaDe(e, hoy, c.id);
+  const abierta = e.sesiones.find((s) => s.cafeId === c.id && s.jornada === hoy && !s.fin && s.por === e.usuarioId);
 
   const elegirCafe = (x: Cafe) => { setCafeId(x.id); setBotonId(x.boton); vibrar(5); };
+  const porque = pp.fuente === 'tendencia'
+    ? `Con ${pp.reposo} días de reposo, la tendencia de ${pp.mem.puntos.length} calibraciones apunta aquí.${pp.mem.shot && pp.mem.ultima ? ` La última que funcionó fue ${pp.mem.shot.molienda}, ${cuando(pp.mem.ultima.jornada).toLowerCase()} con ${pp.mem.ultima.diasReposo} días.` : ''}`
+    : pp.fuente === 'ultima' && pp.mem.ultima
+      ? `Es lo último que funcionó con este café: ${cuando(pp.mem.ultima.jornada).toLowerCase()}, con ${pp.mem.ultima.diasReposo} días de reposo.`
+      : 'Sin historial con este café: arranca a media escala y deja que la brújula te guíe.';
 
   return (
     <>
-      <Sup titulo="Nueva calibración" volver="calibrar" />
+      <Sup titulo={`Calibrar ${corto(c)}`} sub={`${pp.reposo} días de reposo · tueste ${fechaCorta(c.tueste)}`} volver="calibrar" />
       <main className="pant pila">
-        <Seccion titulo="Café">
-          <div className="pila-s">
-            {cafes.map((x) => (
-              <button
-                key={x.id}
-                type="button"
-                className={`bloque bloque-toque${x.id === cafeId ? ' inv' : ''}`}
-                aria-pressed={x.id === cafeId}
-                onClick={() => elegirCafe(x)}
-              >
-                <span className="fila-h entre">
-                  <span>{x.nombre}</span>
-                  <span className="etq">{reposoDe(x)} días</span>
-                </span>
-                <span className="cuerpo">{x.proceso} · {x.tostador} · tueste {fechaCorta(x.tueste)}</span>
-              </button>
-            ))}
+        {abierta && (
+          <a className="bloque bloque-toque" href={`#/calibrar/sesion/${abierta.id}`} style={{ textDecoration: 'none' }}>
+            <span className="etq">Ya tienes una sesión abierta</span>
+            <span className="cuerpo">
+              La empezaste a las {hora(abierta.inicio)} y vas en el shot {shotEnCurso(abierta)}. Toca para seguir ahí.
+            </span>
+          </a>
+        )}
+
+        <section className="bloque inv cambia" key={`${c.id}-${molinoId}`} aria-label="Punto de partida">
+          <span className="etq">Arranca con</span>
+          <div className="rejilla-2">
+            <Dato etq="Molienda" valor={String(pp.molienda ?? MOLIENDA_INICIAL)} grande />
+            <Dato etq="Dosis" valor={`${o.dosis.toFixed(1)} g`} grande />
+          </div>
+          <p className="cuerpo">{porque}</p>
+        </section>
+
+        {rd && (
+          <p className="cuerpo">
+            Hoy ya hay receta: {rd.dosis.toFixed(1)} → {rd.rendimiento.toFixed(1)} g · {rd.tiempo.toFixed(0)} s, de {primerNombre(e, rd.por)} a las {hora(rd.en)}. Si apruebas otro shot, la reemplaza.
+          </p>
+        )}
+
+        {cafes.length > 1 && (
+          <Seccion titulo="Café">
+            <div className="chips">
+              {cafes.map((x) => (
+                <button key={x.id} type="button" className="chip" aria-pressed={x.id === cafeId} onClick={() => elegirCafe(x)}>
+                  {corto(x)}{recetaDe(e, hoy, x.id) ? ' · con receta' : ''}
+                </button>
+              ))}
+            </div>
+          </Seccion>
+        )}
+
+        <Seccion titulo="Objetivo">
+          <div className="lista">
+            <FilaDato etq="Receta" valor={`${o.dosis} g → ${o.rendimiento} g`} />
+            <FilaDato etq="Tiempo" valor={`${o.tiempo} ± ${o.tolTiempo} s`} />
+            <FilaDato etq="Ratio" valor={`1:${(o.rendimiento / o.dosis).toFixed(2)} · ventana 1:${rmin.toFixed(2)}–1:${rmax.toFixed(2)}`} />
+            {m && <FilaDato etq="Temperatura" valor={`PID ${m.pid.toFixed(1)} °C`} />}
           </div>
         </Seccion>
 
@@ -256,29 +322,6 @@ export function CalibrarNueva() {
           </div>
         </Seccion>}
 
-        <Seccion titulo="Punto de partida">
-          {mem.shot && mem.ultima ? (
-            <div className="bloque inv">
-              <span className="etq">Molienda sugerida</span>
-              <span className="num-l">{mem.shot.molienda}</span>
-              <p className="cuerpo">
-                Es lo último que funcionó con este café: {cuando(mem.ultima.jornada).toLowerCase()}, con {mem.ultima.diasReposo} días de reposo.
-                {estimada !== undefined && estimada !== mem.shot.molienda && ` Con ${reposo} días de reposo, la tendencia apunta a ${estimada}.`}
-              </p>
-            </div>
-          ) : (
-            <div className="bloque">
-              <p className="cuerpo">Sin historial con este café. Arranca en el punto medio del molino y ajusta con la brújula.</p>
-            </div>
-          )}
-          <div className="lista">
-            <FilaDato etq="Receta objetivo" valor={`${o.dosis} g → ${o.rendimiento} g`} />
-            <FilaDato etq="Tiempo" valor={`${o.tiempo} ± ${o.tolTiempo} s`} />
-            <FilaDato etq="Ratio" valor={`1:${(o.rendimiento / o.dosis).toFixed(2)} · ventana 1:${rmin.toFixed(2)}–1:${rmax.toFixed(2)}`} />
-            {m && <FilaDato etq="Temperatura" valor={`PID ${m.pid.toFixed(1)} °C`} />}
-          </div>
-        </Seccion>
-
         <Seccion titulo="Antes del primer shot">
           <ol className="pasos">
             <li>Purga el grupo dos o tres segundos para estabilizar la regadera.</li>
@@ -291,8 +334,8 @@ export function CalibrarNueva() {
           <button
             type="button"
             className="boton grande lleno"
-            onClick={() => { const id = nuevaSesion(cafeId, molinoId, reposo, botonId); ir(`calibrar/sesion/${id}`); }}
-          >Empezar sesión</button>
+            onClick={() => { const id = nuevaSesion(c.id, molinoId, pp.reposo, botonId); vibrar(15); ir(`calibrar/sesion/${id}`); }}
+          >{abierta ? 'Empezar otra sesión' : `Empezar con ${corto(c)}`}</button>
         </div>
       </main>
     </>
@@ -316,6 +359,8 @@ export function CalibrarSesion({ id }: { id: string }) {
   return <Sesion e={e} s={s} c={c} />;
 }
 
+type Datos = { dosis: number; rendimiento: number; molienda: number; tiempo: number };
+
 function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
   const o = c.objetivo;
   const m = maquinaDe(e);
@@ -328,13 +373,18 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
   const boton = nombreBoton(m, s.botonId);
   const ctx = { boton: conBoton ? boton : undefined, pid: m?.pid };
   const [confirmar, setConfirmar] = useState<{ shot: Shot; antes: () => void } | null>(null);
+  const [corrigiendo, setCorrigiendo] = useState(false);
+
+  // La sugerencia de un shot ya probado es el ajuste que toca en el siguiente.
+  const sugDe = (x?: Shot): Sugerencia | undefined => (x?.sabor ? sugerir(x, o, paso, ctx) : undefined);
+  const porAplicar = (x?: Shot) => { const g = sugDe(x); return g && !g.aprobar ? g : undefined; };
 
   // Con qué arranca el siguiente shot: el ajuste sugerido sobre el anterior,
-  // o la memoria del café si es el primero. Con botón, el peso esperado es lo
-  // que el botón entrega hoy.
-  const inicial = useMemo(() => {
-    if (ultimo?.sabor) {
-      const sug = sugerir(ultimo, o, paso, ctx);
+  // o el punto de partida del café si es el primero. Con botón, el peso
+  // esperado es lo que el botón entrega hoy.
+  const inicial = useMemo((): Datos => {
+    const sug = sugDe(ultimo);
+    if (ultimo && sug) {
       const dosis = sug.ajuste.dosis ?? ultimo.dosis;
       return {
         dosis,
@@ -343,15 +393,14 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
         tiempo: ultimo.tiempo,
       };
     }
-    const mem = memoria(e, s.cafeId);
     const prog = conBoton ? programadoDe(m, s.botonId) : undefined;
-    return { dosis: o.dosis, rendimiento: prog?.gramos ?? o.rendimiento, molienda: mem.shot?.molienda ?? 6, tiempo: o.tiempo };
+    return { dosis: o.dosis, rendimiento: prog?.gramos ?? o.rendimiento, molienda: puntoDePartida(e, c, paso).molienda ?? MOLIENDA_INICIAL, tiempo: o.tiempo };
   }, [s.shots.length, ultimo?.sabor]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // `antes` guarda la evaluación del shot; si hay que confirmar el reemplazo,
   // espera a la confirmación para no dejar la sesión a medias.
   const aprobar = (shot: Shot, antes: () => void) => {
-    const actual = e.recetasDelDia[hoy];
+    const actual = recetaDe(e, hoy, s.cafeId);
     if (actual && actual.sesionId !== s.id) { setConfirmar({ shot, antes }); return; }
     antes();
     fijar(shot);
@@ -359,20 +408,27 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
   const fijar = (shot: Shot) => {
     aprobarShot(s.id, shot.id);
     vibrar([30, 60, 30]);
-    celebrar('Receta del día.', `${shot.dosis.toFixed(1)} → ${shot.rendimiento.toFixed(1)} g · ${shot.tiempo.toFixed(0)} s. Ya la ve todo el turno.`);
+    celebrar('Receta del día.', `${corto(c)} · ${shot.dosis.toFixed(1)} → ${shot.rendimiento.toFixed(1)} g · ${shot.tiempo.toFixed(0)} s. Ya la ve todo el turno.`);
     window.scrollTo({ top: 0 });
+  };
+  const terminar = () => {
+    terminarSesion(s.id);
+    vibrar(10);
+    avisar('Sesión cerrada sin receta.', { etiqueta: 'Deshacer', hacer: () => reabrirSesion(s.id) });
   };
 
   const n = pendiente ? pendiente.n : s.shots.length + 1;
-  const actual = e.recetasDelDia[hoy];
+  const actual = recetaDe(e, hoy, s.cafeId);
+  const modo = cerrada ? 'cierre' : pendiente ? (corrigiendo ? 'corregir' : 'sabor') : 'shot';
+  const anteriorA = (x: Shot) => s.shots.find((y) => y.n === x.n - 1);
 
   return (
     <>
       <Sup
-        titulo={cerrada ? 'Sesión cerrada' : pendiente ? `Shot ${n} · sabor` : `Shot ${n}`}
+        titulo={cerrada ? 'Sesión cerrada' : modo === 'corregir' ? `Shot ${n} · corregir` : pendiente ? `Shot ${n} · sabor` : `Shot ${n}`}
         sub={`${c.nombre} · ${s.diasReposo} días de reposo`}
         volver="calibrar"
-        accion={cerrada ? undefined : { texto: 'Terminar', hacer: () => { terminarSesion(s.id); avisar('Sesión cerrada sin receta aprobada.'); } }}
+        accion={cerrada ? undefined : { texto: 'Terminar', hacer: terminar }}
       />
       <main className="pant pila">
         <div className="chips" aria-label="Receta y máquina">
@@ -382,19 +438,38 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
           {m && <span className="estado">PID {m.pid.toFixed(1)} °C</span>}
         </div>
 
-        {cerrada ? (
-          <Cierre s={s} m={m} />
-        ) : pendiente ? (
-          <Evaluacion key={pendiente.id} shot={pendiente} objetivo={o} paso={paso} s={s} ctx={ctx} onAprobar={aprobar} />
+        {modo === 'cierre' ? (
+          <Cierre e={e} s={s} c={c} m={m} />
+        ) : modo === 'corregir' && pendiente ? (
+          <Composer
+            key={`corregir-${pendiente.id}`} n={n} inicial={pendiente} objetivo={o} paso={paso} s={s} m={m}
+            previo={anteriorA(pendiente)} ajuste={porAplicar(anteriorA(pendiente))} otros={s.shots.filter((x) => x.id !== pendiente.id)}
+            textoGuardar={`Guardar corrección del shot ${n}`}
+            onGuardar={(d) => { corregirShot(s.id, pendiente.id, d); setCorrigiendo(false); vibrar(12); avisar(`Shot ${n} corregido.`); window.scrollTo({ top: 0 }); }}
+            onCancelar={() => { setCorrigiendo(false); window.scrollTo({ top: 0 }); }}
+          />
+        ) : modo === 'sabor' && pendiente ? (
+          <Evaluacion
+            key={pendiente.id} shot={pendiente} previos={s.shots.filter((x) => x.sabor)} objetivo={o} paso={paso} s={s} ctx={ctx}
+            onAprobar={aprobar} onCorregir={() => { setCorrigiendo(true); window.scrollTo({ top: 0 }); }}
+          />
         ) : (
-          <Composer key={s.shots.length} n={n} inicial={inicial} objetivo={o} paso={paso} s={s} m={m}
-            onGuardar={(datos) => { guardarShot(s.id, datos); vibrar(15); window.scrollTo({ top: 0 }); }} />
+          <Composer
+            key={s.shots.length} n={n} inicial={inicial} objetivo={o} paso={paso} s={s} m={m}
+            previo={ultimo} ajuste={porAplicar(ultimo)} otros={s.shots}
+            onGuardar={(d) => { guardarShot(s.id, d); vibrar(15); window.scrollTo({ top: 0 }); }}
+          />
         )}
 
         {s.shots.length > 0 && (
           <Seccion titulo="La sesión" extra={`${s.shots.length} shot${s.shots.length === 1 ? '' : 's'}`}>
-            <GraficaSesion shots={s.shots} objetivo={o} dosis={o.dosis} />
-            <p className="cuerpo">La zona con trama es la receta objetivo. Cada shot debería acercarse a ella.</p>
+            {/* Al capturar, la gráfica ya va arriba con el shot en vivo. */}
+            {(modo === 'sabor' || modo === 'cierre') && (
+              <>
+                <GraficaSesion shots={s.shots} objetivo={o} dosis={o.dosis} />
+                <p className="cuerpo">La zona con trama es la receta objetivo. Cada shot debería acercarse a ella.</p>
+              </>
+            )}
             <div className="lista">
               {s.shots.map((x) => {
                 const v = enVentana(x, o);
@@ -404,7 +479,7 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
                     <span className="fila-texto">
                       <span>{x.rendimiento.toFixed(1)} g · {x.tiempo.toFixed(0)} s</span>
                       <span className="fila-sub">
-                        {x.dosis.toFixed(1)} g · molienda {x.molienda} · {ratioTexto(x.dosis, x.rendimiento)}
+                        {x.dosis.toFixed(1)} g · molienda {x.molienda} · {ratioTexto(x.dosis, x.rendimiento)} · {x.sabor ? describirSabor(x.sabor) : 'sin probar'}
                       </span>
                     </span>
                     {x.aprobado ? <Etq fuerte>Aprobado</Etq> : v.tiempo && v.ratio ? <Etq>En ventana</Etq> : <Etq tenue>Fuera</Etq>}
@@ -416,10 +491,10 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
         )}
       </main>
 
-      <Hoja abierta={!!confirmar} alCerrar={() => setConfirmar(null)} titulo="Reemplazar receta del día">
+      <Hoja abierta={!!confirmar} alCerrar={() => setConfirmar(null)} titulo={`Reemplazar receta de ${corto(c)}`}>
         {actual && (
           <p className="cuerpo">
-            Hoy ya hay receta fijada a las {hora(actual.en)} por {usuario(e, actual.por)?.nombre}: {actual.dosis} g → {actual.rendimiento} g · {actual.tiempo} s · molienda {actual.molienda}.
+            Hoy ya hay receta de {corto(c)}, fijada a las {hora(actual.en)} por {usuario(e, actual.por)?.nombre}: {actual.dosis} g → {actual.rendimiento} g · {actual.tiempo} s · molienda {actual.molienda}.
             Si apruebas este shot, todo el turno pasa a la nueva receta.
           </p>
         )}
@@ -431,10 +506,14 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
 
 /* ── Registrar el shot ─────────────────────────────────── */
 
-function Composer({ n, inicial, objetivo, paso, s, m, onGuardar }: {
-  n: number; inicial: { dosis: number; rendimiento: number; molienda: number; tiempo: number }; objetivo: Objetivo; paso: number;
-  s: SesionCal; m?: Maquina;
-  onGuardar: (d: { dosis: number; rendimiento: number; molienda: number; tiempo: number }) => void;
+/**
+ * Captura de un shot. `previo` es el shot anterior (para decir qué cambió) y
+ * `ajuste` lo que sugirió: arriba, para no olvidarlo camino al molino.
+ */
+function Composer({ n, inicial, objetivo, paso, s, m, previo, ajuste, otros, textoGuardar, onGuardar, onCancelar }: {
+  n: number; inicial: Datos; objetivo: Objetivo; paso: number; s: SesionCal; m?: Maquina;
+  previo?: Shot; ajuste?: Sugerencia; otros: Shot[]; textoGuardar?: string;
+  onGuardar: (d: Datos) => void; onCancelar?: () => void;
 }) {
   const [dosis, setDosis] = useState(inicial.dosis);
   const [rendimiento, setRendimiento] = useState(inicial.rendimiento);
@@ -445,12 +524,41 @@ function Composer({ n, inicial, objetivo, paso, s, m, onGuardar }: {
   const r = rendimiento / dosis;
   const conBoton = s.botonId !== CONTINUO;
   const corte = redondear(dosis * rObj - GOTEO);
+  const v = enVentana({ dosis, rendimiento, tiempo, molienda }, objetivo);
+  const dT = tiempo - objetivo.tiempo;
+  const decMol = paso < 1 ? 1 : 0;
+
+  // Qué cambió contra el shot anterior, y si es lo que se sugirió.
+  const cambio = (valor: number, antes: number | undefined, sugerido: number | undefined, dec: number, unidad = '') => {
+    if (!previo || antes === undefined) return undefined;
+    if (Math.abs(valor - antes) < 1e-6) return `Igual que el shot ${previo.n}.`;
+    const txt = `Shot ${previo.n}: ${antes.toFixed(dec)}${unidad} → ${valor.toFixed(dec)}${unidad}`;
+    return sugerido !== undefined && Math.abs(sugerido - valor) < 1e-6 ? `${txt}, el ajuste sugerido.` : `${txt}.`;
+  };
+  const dosMovidas = !!previo && Math.abs(molienda - previo.molienda) > 1e-6 && Math.abs(dosis - previo.dosis) > 0.05;
 
   return (
     <div className="pila cambia">
+      {ajuste && previo && (
+        <section className="bloque inv" aria-label="Ajuste a aplicar">
+          <span className="etq">Ajuste del shot {previo.n}</span>
+          <p className="subtitulo">{ajuste.accion}</p>
+          {ajuste.reprogramar !== undefined && (
+            <p className="cuerpo">{nombreBoton(m, s.botonId)} quedó reprogramado a {ajuste.reprogramar.toFixed(1)} g: el peso ya va así abajo.</p>
+          )}
+        </section>
+      )}
+
       <Seccion titulo="Antes del shot">
-        <Stepper etiqueta={`Molienda · paso ${paso}`} valor={molienda} paso={paso} min={0} max={40} dec={paso < 1 ? 1 : 0} onCambio={setMolienda} />
-        <Stepper etiqueta="Dosis" valor={dosis} paso={0.1} min={10} max={25} unidad=" g" onCambio={setDosis} />
+        <Stepper etiqueta={`Molienda · paso ${paso}`} valor={molienda} paso={paso} min={0} max={40} dec={decMol} onCambio={setMolienda}
+          nota={cambio(molienda, previo?.molienda, ajuste?.ajuste.molienda, decMol)} />
+        <Stepper etiqueta="Dosis" valor={dosis} paso={0.1} min={10} max={25} unidad=" g" onCambio={setDosis}
+          nota={cambio(dosis, previo?.dosis, ajuste?.ajuste.dosis, 1, ' g')} />
+        {dosMovidas && (
+          <p className="bloque cuerpo" role="note">
+            Moviste molienda y dosis. Mueve una sola cosa por shot, así sabes qué cambió el sabor.
+          </p>
+        )}
       </Seccion>
 
       <Seccion titulo="El shot">
@@ -460,33 +568,27 @@ function Composer({ n, inicial, objetivo, paso, s, m, onGuardar }: {
             : `Presiona continuo y corta cuando la báscula marque ${corte.toFixed(1)} g. Anota el tiempo de la botonera.`}
         </p>
         <Stepper etiqueta="Tiempo en la botonera" valor={tiempo} paso={1} min={5} max={60} dec={0} unidad=" s" onCambio={setTiempo}
-          fuera={Math.abs(tiempo - objetivo.tiempo) > objetivo.tolTiempo} />
-        <Gauge
-          etiqueta="Tiempo"
-          texto={`${tiempo} s · objetivo ${objetivo.tiempo} ± ${objetivo.tolTiempo}`}
-          valor={tiempo}
-          desde={objetivo.tiempo - objetivo.tolTiempo}
-          hasta={objetivo.tiempo + objetivo.tolTiempo}
-          vmin={objetivo.tiempo - 12}
-          vmax={objetivo.tiempo + 12}
-        />
+          fuera={!v.tiempo}
+          nota={v.tiempo
+            ? `En tiempo: objetivo ${objetivo.tiempo} ± ${objetivo.tolTiempo} s.`
+            : `${Math.abs(dT)} s ${dT < 0 ? 'rápido' : 'lento'}: objetivo ${objetivo.tiempo} ± ${objetivo.tolTiempo} s.`} />
         <Stepper etiqueta={conBoton ? 'Lo que marcó la báscula' : 'Rendimiento en la báscula'} valor={rendimiento} paso={0.1} min={10} max={80} unidad=" g"
-          onCambio={setRendimiento} fuera={r < rmin || r > rmax} />
-        <Gauge
-          etiqueta="Ratio"
-          texto={`1:${r.toFixed(2)} · objetivo 1:${rObj.toFixed(2)}`}
-          valor={r}
-          desde={rmin}
-          hasta={rmax}
-          vmin={rObj * 0.8}
-          vmax={rObj * 1.2}
-        />
+          onCambio={setRendimiento} fuera={!v.ratio}
+          nota={`Ratio 1:${r.toFixed(2)}, ${v.ratio ? 'en ventana' : r < rmin ? 'corto' : 'largo'} (1:${rmin.toFixed(2)}–1:${rmax.toFixed(2)}).`} />
       </Seccion>
 
-      <div className="pie-accion">
+      <Seccion titulo="Dónde cae" extra={v.tiempo && v.ratio ? 'En la zona' : 'Fuera de la zona'}>
+        <GraficaSesion shots={otros} objetivo={objetivo} dosis={objetivo.dosis} vivo={{ n, tiempo, rendimiento }} />
+        <p className="cuerpo">La zona con trama es la receta objetivo. El shot {n} se mueve con los números; se llena al caer en la zona.</p>
+      </Seccion>
+
+      <div className="pie-accion pila-s">
         <button type="button" className="boton grande lleno" onClick={() => onGuardar({ dosis, rendimiento, molienda, tiempo })}>
-          Guardar shot {n}
+          {textoGuardar ?? `Guardar shot ${n} y probar`}
         </button>
+        {onCancelar && (
+          <button type="button" className="enlace" style={{ alignSelf: 'center' }} onClick={onCancelar}>Cancelar</button>
+        )}
       </div>
     </div>
   );
@@ -494,15 +596,31 @@ function Composer({ n, inicial, objetivo, paso, s, m, onGuardar }: {
 
 /* ── Probar y decidir ──────────────────────────────────── */
 
-function Evaluacion({ shot, objetivo, paso, s, ctx, onAprobar }: {
-  shot: Shot; objetivo: Objetivo; paso: number; s: SesionCal;
-  ctx: { boton?: string; pid?: number }; onAprobar: (s: Shot, antes: () => void) => void;
+/** Atajos de la brújula: cada uno mueve un eje y deja el otro como está. */
+const ATAJOS: { texto: string; eje: 'x' | 'y'; v: number }[] = [
+  { texto: 'Ácido', eje: 'x', v: -0.6 },
+  { texto: 'Amargo', eje: 'x', v: 0.6 },
+  { texto: 'Débil', eje: 'y', v: -0.6 },
+  { texto: 'Intenso', eje: 'y', v: 0.6 },
+];
+
+function Evaluacion({ shot, previos, objetivo, paso, s, ctx, onAprobar, onCorregir }: {
+  shot: Shot; previos: Shot[]; objetivo: Objetivo; paso: number; s: SesionCal;
+  ctx: { boton?: string; pid?: number }; onAprobar: (s: Shot, antes: () => void) => void; onCorregir: () => void;
 }) {
   const [sabor, setSabor] = useState<Sabor | undefined>(shot.sabor);
   const sug = sabor ? sugerir({ ...shot, sabor }, objetivo, paso, ctx) : null;
   const v = enVentana(shot, objetivo);
 
   const guardar = () => evaluarShot(s.id, shot.id, { sabor });
+  const activo = (a: (typeof ATAJOS)[number]) => !!sabor && (a.v < 0 ? sabor[a.eje] < -0.25 : sabor[a.eje] > 0.25);
+  // Tocar un atajo activo regresa ese eje al centro.
+  const atajo = (a: (typeof ATAJOS)[number]) => {
+    const b = sabor ?? { x: 0, y: 0 };
+    setSabor({ ...b, [a.eje]: activo(a) ? 0 : a.v });
+    vibrar(6);
+  };
+  const balance = !!sabor && describirSabor(sabor) === 'balanceado';
 
   return (
     <div className="pila cambia">
@@ -516,10 +634,20 @@ function Evaluacion({ shot, objetivo, paso, s, ctx, onAprobar }: {
         </div>
         <span className="num-m">{shot.dosis.toFixed(1)} → {shot.rendimiento.toFixed(1)} g · {shot.tiempo.toFixed(0)} s</span>
         <span className="cuerpo">molienda {shot.molienda} · {ratioTexto(shot.dosis, shot.rendimiento)}</span>
+        <button type="button" className="enlace" onClick={onCorregir}>Corregir números</button>
       </section>
 
-      <Seccion titulo="¿Cómo sabe?" extra={sabor ? 'Arrastra para ajustar' : 'Toca la brújula'}>
-        <Brujula valor={sabor} onCambio={setSabor} />
+      <Seccion titulo="¿Cómo sabe?" extra={sabor ? describirSabor(sabor) : 'Toca o arrastra'}>
+        <Brujula valor={sabor} previos={previos.map((x) => ({ n: x.n, sabor: x.sabor! }))} onCambio={setSabor} />
+        <div className="chips" role="group" aria-label="Atajos de sabor">
+          {ATAJOS.map((a) => (
+            <button key={a.texto} type="button" className="chip" aria-pressed={activo(a)} onClick={() => atajo(a)}>{a.texto}</button>
+          ))}
+          <button type="button" className="chip" aria-pressed={balance} onClick={() => { setSabor({ x: 0, y: 0 }); vibrar(6); }}>Balanceado</button>
+        </div>
+        {previos.length > 0 && (
+          <p className="cuerpo">Los cuadros punteados son los shots que ya probaste: el sabor debería ir cerrándose hacia el centro.</p>
+        )}
       </Seccion>
 
       {sug && (
@@ -537,7 +665,7 @@ function Evaluacion({ shot, objetivo, paso, s, ctx, onAprobar }: {
         {sug?.aprobar ? (
           <>
             <button type="button" className="boton grande lleno" onClick={() => onAprobar(shot, guardar)}>Aprobar shot {shot.n}</button>
-            <button type="button" className="boton grande" onClick={() => { guardar(); window.scrollTo({ top: 0 }); }}>Hacer otro shot</button>
+            <button type="button" className="enlace" style={{ alignSelf: 'center' }} onClick={() => { guardar(); window.scrollTo({ top: 0 }); }}>Hacer otro shot</button>
           </>
         ) : (
           <>
@@ -548,6 +676,7 @@ function Evaluacion({ shot, objetivo, paso, s, ctx, onAprobar }: {
                   avisar(`${ctx.boton} reprogramado a ${sug.reprogramar.toFixed(1)} g.`);
                 }
                 guardar();
+                vibrar(12);
                 window.scrollTo({ top: 0 });
               }}>
               {!sabor ? 'Toca la brújula para seguir' : sug?.reprogramar !== undefined ? 'Ya lo reprogramé · siguiente shot' : 'Siguiente shot con el ajuste'}
@@ -566,19 +695,48 @@ function Evaluacion({ shot, objetivo, paso, s, ctx, onAprobar }: {
 
 /* ── Sesión cerrada ───────────────────────────────────── */
 
-function Cierre({ s, m }: { s: SesionCal; m?: Maquina }) {
+function Cierre({ e, s, c, m }: { e: Estado; s: SesionCal; c: Cafe; m?: Maquina }) {
   const a = aprobadoDe(s);
-  if (!a) return <section className="bloque"><p className="cuerpo">Se cerró sin aprobar ningún shot.</p></section>;
+  const hoy = jornadaDe();
+  const esHoy = s.jornada === hoy;
   const conBoton = s.botonId !== CONTINUO;
+  const faltan = esHoy ? e.cafes.filter((x) => x.activo && x.id !== s.cafeId && !recetaDe(e, hoy, x.id)) : [];
   return (
-    <section className="bloque inv">
-      <span className="etq">Aprobado en el shot {a.n}</span>
-      <span className="num-m">{a.dosis.toFixed(1)} → {a.rendimiento.toFixed(1)} g · {a.tiempo.toFixed(0)} s</span>
-      <span className="cuerpo">
-        Molienda {a.molienda} · {ratioTexto(a.dosis, a.rendimiento)} ·{' '}
-        {conBoton ? `botón ${nombreBoton(m, s.botonId)}` : `continuo, cortando en ${(a.rendimiento - GOTEO).toFixed(1)} g`}
-      </span>
-    </section>
+    <>
+      {a ? (
+        <section className="bloque inv">
+          <span className="etq">Receta de {corto(c)} · shot {a.n}</span>
+          <span className="num-m">{a.dosis.toFixed(1)} → {a.rendimiento.toFixed(1)} g · {a.tiempo.toFixed(0)} s</span>
+          <span className="cuerpo">
+            Molienda {a.molienda} · {ratioTexto(a.dosis, a.rendimiento)} ·{' '}
+            {conBoton ? `botón ${nombreBoton(m, s.botonId)}` : `continuo, cortando en ${(a.rendimiento - GOTEO).toFixed(1)} g`}
+          </span>
+        </section>
+      ) : (
+        <section className="bloque">
+          <span className="etq">Sin receta</span>
+          <p className="cuerpo">Se cerró sin aprobar ningún shot.</p>
+          {esHoy && s.por === e.usuarioId && (
+            <button type="button" className="boton" onClick={() => { reabrirSesion(s.id); vibrar(10); }}>Reabrir la sesión</button>
+          )}
+        </section>
+      )}
+
+      {esHoy && (
+        <Seccion titulo="Qué sigue">
+          {faltan.length ? (
+            <div className="pila-s">
+              {faltan.map((x, i) => (
+                <a key={x.id} className={`boton grande${i === 0 ? ' lleno' : ''}`} href={`#/calibrar/nueva/${x.id}`}>Calibrar {corto(x)}</a>
+              ))}
+            </div>
+          ) : (
+            <p className="cuerpo">{a ? 'Todos los cafés tienen receta del día.' : 'Los demás cafés ya tienen receta del día.'}</p>
+          )}
+          <a className="enlace" href="#/inicio">Volver a Inicio</a>
+        </Seccion>
+      )}
+    </>
   );
 }
 
@@ -589,22 +747,39 @@ export function CalibrarCafe({ id }: { id: string }) {
   const c = buscarCafe(e, id);
   if (!c) return <><Sup titulo="Café" volver="calibrar" /><main className="pant"><p className="cuerpo">No encontrado.</p></main></>;
   const m = maquinaDe(e);
-  const mem = memoria(e, c.id);
-  const reposo = reposoDe(c);
-  const paso = e.equipos.find((x) => x.tipo === 'molino')?.paso ?? 0.5;
-  const estimada = mem.recta && mem.puntos.length >= 4 ? alPaso(mem.recta(reposo), paso) : undefined;
+  const hoy = jornadaDe();
+  const paso = pasoDe(e, molinoDe(e)?.id);
+  const pp = puntoDePartida(e, c, paso);
+  const mem = pp.mem;
   const o = c.objetivo;
   const [rmin, rmax] = ventanaRatio(o);
+  const rd = recetaDe(e, hoy, c.id);
+  const abierta = e.sesiones.find((s) => s.cafeId === c.id && s.jornada === hoy && !s.fin && s.por === e.usuarioId);
 
   return (
     <>
       <Sup titulo={c.nombre} sub={`${c.origen} · ${c.proceso}`} volver="calibrar" />
       <main className="pant pila">
         <div className="rejilla-2">
-          <div className="bloque"><span className="etq">Días de reposo</span><span className="num-l">{reposo}</span></div>
+          <div className="bloque"><span className="etq">Días de reposo</span><span className="num-l">{pp.reposo}</span></div>
           <div className="bloque"><span className="etq">Tueste</span><span className="num-m">{fechaCorta(c.tueste)}</span><span className="cuerpo">{c.tostador}</span></div>
         </div>
         <p className="cuerpo">{c.notas}</p>
+
+        {rd ? (
+          <section className="bloque inv">
+            <span className="etq">Receta de hoy · {hora(rd.en)} · {primerNombre(e, rd.por)}</span>
+            <span className="num-m">{rd.dosis.toFixed(1)} → {rd.rendimiento.toFixed(1)} g · {rd.tiempo.toFixed(0)} s</span>
+            <span className="cuerpo">Molienda {rd.molienda} · {nombreBoton(m, rd.botonId)}</span>
+          </section>
+        ) : (
+          <section className="bloque">
+            <span className="etq">Hoy</span>
+            <p className="cuerpo">
+              Sin receta del día todavía.{pp.molienda !== undefined ? ` Arranca en molienda ${pp.molienda}.` : ''}
+            </p>
+          </section>
+        )}
 
         <Seccion titulo="Receta objetivo">
           <div className="lista">
@@ -619,30 +794,38 @@ export function CalibrarCafe({ id }: { id: string }) {
 
         {mem.puntos.length > 1 && (
           <Seccion titulo="Molienda contra reposo" extra={`${mem.puntos.length} calibraciones`}>
-            <GraficaTendencia puntos={mem.puntos} recta={mem.recta} hoy={reposo} />
+            <GraficaTendencia puntos={mem.puntos} recta={mem.recta} hoy={pp.reposo} />
             <p className="cuerpo">
               Cada punto es una calibración aprobada. Conforme el café reposa, se muele más fino.
-              {estimada !== undefined && ` Con ${reposo} días de reposo, la tendencia apunta a ${estimada}.`}
+              {pp.fuente === 'tendencia' && ` Con ${pp.reposo} días de reposo, la tendencia apunta a ${pp.molienda}.`}
             </p>
           </Seccion>
         )}
 
-        <Seccion titulo="Historial">
-          <div className="lista">
-            {mem.aprobadas.map((s) => {
-              const a = aprobadoDe(s)!;
-              return (
-                <a key={s.id} className="fila" href={`#/calibrar/sesion/${s.id}`}>
-                  <span className="fila-texto">
-                    <span>{cuando(s.jornada)} · molienda {a.molienda}</span>
-                    <span className="fila-sub">{usuario(e, s.por)?.iniciales} · {s.diasReposo} días de reposo · {s.shots.length} shots</span>
-                  </span>
-                  <span className="fila-der">{a.rendimiento.toFixed(1)} g · {a.tiempo.toFixed(0)} s</span>
-                </a>
-              );
-            })}
-          </div>
-        </Seccion>
+        {mem.aprobadas.length > 0 && (
+          <Seccion titulo="Historial">
+            <div className="lista">
+              {mem.aprobadas.map((s) => {
+                const a = aprobadoDe(s)!;
+                return (
+                  <a key={s.id} className="fila" href={`#/calibrar/sesion/${s.id}`}>
+                    <span className="fila-texto">
+                      <span>{cuando(s.jornada)} · molienda {a.molienda}</span>
+                      <span className="fila-sub">{usuario(e, s.por)?.iniciales} · {s.diasReposo} días de reposo · {s.shots.length} shots</span>
+                    </span>
+                    <span className="fila-der">{a.rendimiento.toFixed(1)} g · {a.tiempo.toFixed(0)} s</span>
+                  </a>
+                );
+              })}
+            </div>
+          </Seccion>
+        )}
+
+        <div className="pie-accion">
+          <a className="boton grande lleno" href={abierta ? `#/calibrar/sesion/${abierta.id}` : `#/calibrar/nueva/${c.id}`}>
+            {abierta ? `Continuar · shot ${shotEnCurso(abierta)}` : rd ? `Recalibrar ${corto(c)}` : `Calibrar ${corto(c)}`}
+          </a>
+        </div>
       </main>
     </>
   );

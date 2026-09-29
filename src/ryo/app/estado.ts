@@ -136,6 +136,8 @@ export type Cafe = {
   objetivo: Objetivo;
   /** Botón de la máquina con el que se sirve, o continuo. */
   boton: string;
+  /** El espresso de la casa: el que llevan las bebidas del menú. */
+  casa?: boolean;
 };
 
 export type Shot = {
@@ -254,7 +256,8 @@ export type Estado = {
   equipos: Equipo[];
   cafes: Cafe[];
   sesiones: SesionCal[];
-  recetasDelDia: Record<string, RecetaDelDia>;
+  /** jornada → cafeId → receta aprobada ese día (cada café tiene la suya) */
+  recetasDelDia: Record<string, Record<string, RecetaDelDia>>;
   turnosTipo: TurnoTipo[];
   semanas: Semana[];
   /** usuarioId → por día (0 = domingo) las franjas en que SÍ puede trabajar */
@@ -333,6 +336,20 @@ export const maquinaDe = (e: Estado) => e.equipos.find((x) => x.tipo === 'maquin
 export const nombreBoton = (m: Maquina | undefined, botonId: string) =>
   botonId === CONTINUO ? 'Continuo' : m?.botones.find((b) => b.id === botonId)?.nombre ?? botonId;
 export const programadoDe = (m: Maquina | undefined, botonId: string) => m?.programado[botonId];
+
+/** La receta del día de un café. */
+export const recetaDe = (e: Estado, jornada: string, cafeId: string): RecetaDelDia | undefined =>
+  e.recetasDelDia[jornada]?.[cafeId];
+
+/**
+ * La receta del día del espresso de la casa (la que llevan las bebidas); si
+ * la casa no se ha calibrado, la más reciente de ese día.
+ */
+export function recetaCasa(e: Estado, jornada: string): RecetaDelDia | undefined {
+  const del = e.recetasDelDia[jornada] ?? {};
+  const casa = e.cafes.find((c) => c.activo && c.casa);
+  return (casa && del[casa.id]) ?? Object.values(del).sort((a, b) => b.en - a.en)[0];
+}
 export const puede = (e: Estado, ...roles: Rol[]) => {
   const u = yo(e);
   return !!u && roles.includes(u.rol);
@@ -498,11 +515,27 @@ export function evaluarShot(sesionId: string, shotId: string, datos: Pick<Shot, 
   });
 }
 
+/** Corregir los números de un shot mal capturado. */
+export function corregirShot(sesionId: string, shotId: string, datos: Pick<Shot, 'dosis' | 'rendimiento' | 'molienda' | 'tiempo'>) {
+  actualizar((e) => {
+    const shot = e.sesiones.find((x) => x.id === sesionId)?.shots.find((x) => x.id === shotId);
+    if (shot) Object.assign(shot, datos);
+  });
+}
+
 /** Cerrar una sesión sin aprobar ningún shot. */
 export function terminarSesion(sesionId: string) {
   actualizar((e) => {
     const s = e.sesiones.find((x) => x.id === sesionId);
     if (s && !s.fin) s.fin = Date.now();
+  });
+}
+
+/** Deshacer el cierre de una sesión que no tenía receta aprobada. */
+export function reabrirSesion(sesionId: string) {
+  actualizar((e) => {
+    const s = e.sesiones.find((x) => x.id === sesionId);
+    if (s && !s.aprobadoId) delete s.fin;
   });
 }
 
@@ -518,7 +551,8 @@ export function aprobarShot(sesionId: string, shotId: string) {
     s.shots.forEach((x) => { x.aprobado = x.id === shotId; });
     s.aprobadoId = shotId;
     s.fin = Date.now();
-    e.recetasDelDia[s.jornada] = {
+    e.recetasDelDia[s.jornada] ??= {};
+    e.recetasDelDia[s.jornada][s.cafeId] = {
       jornada: s.jornada, cafeId: s.cafeId, sesionId, shotId, por: e.usuarioId!, en: Date.now(),
       botonId: s.botonId,
       dosis: shot.dosis, rendimiento: shot.rendimiento, tiempo: shot.tiempo, molienda: shot.molienda,

@@ -253,9 +253,12 @@ export function Hoja({ abierta, alCerrar, titulo, children }: {
 
 /* ═══ STEPPER: + / − sin teclado ══════════════════════════ */
 
-export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity, dec = 1, unidad, fuera, onCambio }: {
+/** Pixeles de arrastre por cada paso. */
+const PX_POR_PASO = 14;
+
+export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity, dec = 1, unidad, fuera, nota, onCambio }: {
   etiqueta: string; valor: number; paso: number; min?: number; max?: number; dec?: number; unidad?: string;
-  fuera?: boolean; onCambio: (v: number) => void;
+  fuera?: boolean; nota?: ReactNode; onCambio: (v: number) => void;
 }) {
   const valorRef = useRef(valor);
   valorRef.current = valor;
@@ -263,10 +266,11 @@ export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity
   const dir = valor > previo.current ? 'sube' : valor < previo.current ? 'baja' : '';
   useEffect(() => { previo.current = valor; });
   const repetir = useRef<number>();
-  const cambiar = (dir: 1 | -1) => {
-    const v = redondear(Math.min(max, Math.max(min, valorRef.current + dir * paso)), dec);
-    if (v !== valorRef.current) { valorRef.current = v; onCambio(v); vibrar(5); }
+  const fijar = (bruto: number, pulso = 5) => {
+    const v = redondear(Math.min(max, Math.max(min, bruto)), dec);
+    if (v !== valorRef.current) { valorRef.current = v; onCambio(v); vibrar(pulso); }
   };
+  const cambiar = (dir: 1 | -1) => fijar(valorRef.current + dir * paso);
   // Mantener presionado repite, cada vez más rápido: para ir de 30 a 38 g sin 80 toques.
   const empezar = (dir: 1 | -1) => {
     cambiar(dir);
@@ -276,64 +280,82 @@ export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity
   };
   const parar = () => clearTimeout(repetir.current);
   useEffect(() => parar, []);
+  // Arrastrar el número de lado a lado lo mueve paso a paso, como una perilla:
+  // de 22 a 30 s en un solo gesto. El desplazamiento vertical sigue siendo scroll.
+  const arrastre = useRef<{ x: number; v: number } | null>(null);
+  const [arrastrando, setArrastrando] = useState(false);
+  const soltar = () => { arrastre.current = null; setArrastrando(false); };
   const boton = (dir: 1 | -1) => (
     <button
       type="button"
+      tabIndex={-1}
       aria-label={`${dir > 0 ? 'Subir' : 'Bajar'} ${etiqueta}`}
       onPointerDown={(e) => { e.preventDefault(); empezar(dir); }}
       onPointerUp={parar}
       onPointerLeave={parar}
       onPointerCancel={parar}
       onContextMenu={(e) => e.preventDefault()}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cambiar(dir); } }}
     >{dir > 0 ? '+' : '−'}</button>
   );
+  const texto = `${valor.toFixed(dec)}${unidad ?? ''}`;
   return (
     <div className="pila-s">
       <span className="etq">{etiqueta}</span>
       <div className="stepper" data-fuera={fuera ? 'si' : 'no'}>
         {boton(-1)}
-        <div className="stepper-centro" aria-live="polite">
+        <div
+          className={`stepper-centro${arrastrando ? ' arrastrando' : ''}`}
+          role="spinbutton"
+          tabIndex={0}
+          aria-label={etiqueta}
+          aria-valuenow={valor}
+          aria-valuetext={texto}
+          {...(Number.isFinite(min) ? { 'aria-valuemin': min } : {})}
+          {...(Number.isFinite(max) ? { 'aria-valuemax': max } : {})}
+          onKeyDown={(e) => {
+            const d = ({ ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 } as Record<string, 1 | -1>)[e.key];
+            if (d) { e.preventDefault(); cambiar(d); }
+          }}
+          onPointerDown={(e) => {
+            arrastre.current = { x: e.clientX, v: valorRef.current };
+            e.currentTarget.setPointerCapture?.(e.pointerId);
+          }}
+          onPointerMove={(e) => {
+            const a = arrastre.current;
+            if (!a) return;
+            const n = Math.trunc((e.clientX - a.x) / PX_POR_PASO);
+            if (n) setArrastrando(true);
+            fijar(a.v + n * paso, 3);
+          }}
+          onPointerUp={soltar}
+          onPointerCancel={soltar}
+        >
           <span key={valor} className={`stepper-valor ${dir}`}>{valor.toFixed(dec)}{unidad && <span className="stepper-unidad">{unidad}</span>}</span>
+          <span className="stepper-pista" aria-hidden="true">‹ ›</span>
         </div>
         {boton(1)}
       </div>
-    </div>
-  );
-}
-
-/* ═══ GAUGE: dónde cae un valor contra su ventana ═════════ */
-
-export function Gauge({ valor, desde, hasta, vmin, vmax, etiqueta, texto }: {
-  valor: number; desde: number; hasta: number; vmin: number; vmax: number; etiqueta: string; texto: string;
-}) {
-  const pos = (v: number) => `${((Math.min(vmax, Math.max(vmin, v)) - vmin) / (vmax - vmin)) * 100}%`;
-  const dentro = valor >= desde && valor <= hasta;
-  return (
-    <div className="pila-s">
-      <div className="fila-h entre">
-        <span className="etq">{etiqueta}</span>
-        <span className="etq">{dentro ? 'En ventana' : valor < desde ? 'Abajo' : 'Arriba'}</span>
-      </div>
-      <div className="fila-h entre"><span className="num-m">{texto}</span></div>
-      <div className="gauge" aria-hidden="true">
-        <span className="gauge-ventana" style={{ left: pos(desde), width: `calc(${pos(hasta)} - ${pos(desde)})` }} />
-        <span className="gauge-marca" style={{ left: pos(valor) }} />
-      </div>
+      {nota && <span className="stepper-nota">{nota}</span>}
     </div>
   );
 }
 
 /* ═══ BRÚJULA DE SABOR ════════════════════════════════════ */
 
-/** El punto de la brújula en palabras, para lectores de pantalla. */
-function describir({ x, y }: Sabor) {
+/** El punto de la brújula en palabras ("ácido y débil", "balanceado"). */
+export function describirSabor({ x, y }: Sabor) {
   const eje = (n: number, menos: string, mas: string) => (Math.abs(n) <= 0.25 ? '' : n < 0 ? menos : mas);
   const partes = [eje(x, 'ácido', 'amargo'), eje(y, 'débil', 'intenso')].filter(Boolean);
   return partes.length ? partes.join(' y ') : 'balanceado';
 }
 
-export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabor) => void }) {
+/**
+ * `previos` son los shots ya probados de la sesión: quedan como marcas
+ * tenues con su número, y se ve cómo el sabor se acerca al centro.
+ */
+export function Brujula({ valor, previos = [], onCambio }: {
+  valor?: Sabor; previos?: { n: number; sabor: Sabor }[]; onCambio: (s: Sabor) => void;
+}) {
   const caja = useRef<HTMLDivElement>(null);
   const [onda, setOnda] = useState<{ n: number; x: number; y: number } | null>(null);
   const balance = !!valor && Math.abs(valor.x) <= 0.25 && Math.abs(valor.y) <= 0.25;
@@ -351,7 +373,7 @@ export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabo
       data-balance={balance ? 'si' : 'no'}
       role="application"
       tabIndex={0}
-      aria-label={`Brújula de sabor: toca dónde cae el shot o usa las flechas.${valor ? ` ${describir(valor).replace(/^./, (c) => c.toUpperCase())}.` : ''}`}
+      aria-label={`Brújula de sabor: toca dónde cae el shot o usa las flechas.${valor ? ` ${describirSabor(valor).replace(/^./, (c) => c.toUpperCase())}.` : ''}`}
       onKeyDown={(e) => {
         const paso = 0.1;
         const flechas: Record<string, [number, number]> = { ArrowLeft: [-paso, 0], ArrowRight: [paso, 0], ArrowUp: [0, paso], ArrowDown: [0, -paso] };
@@ -380,6 +402,9 @@ export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabo
       <span className="brujula-rotulo" style={{ right: 8, top: '50%', transform: 'translateY(-130%)', textAlign: 'right' }}>Amargo<br />sobreextraído</span>
       <span className="brujula-taza" data-visible={balance ? 'si' : 'no'}><Marca tipo="isotipo" alto={52} /></span>
       <span className="brujula-rotulo brujula-balance" data-oculto={balance ? 'si' : 'no'} style={{ left: '50%', top: '50%', transform: 'translate(-50%, 90%)' }}>Balance</span>
+      {previos.map((p, i) => (
+        <span key={p.n} className="brujula-previo" style={{ left: `${((p.sabor.x + 1) / 2) * 100}%`, top: `${((1 - p.sabor.y) / 2) * 100}%`, '--i': i } as React.CSSProperties}>{p.n}</span>
+      ))}
       {onda && <span key={onda.n} className="brujula-onda" style={{ left: onda.x, top: onda.y }} />}
       {valor && <span className="brujula-punto" style={{ left: `${((valor.x + 1) / 2) * 100}%`, top: `${((1 - valor.y) / 2) * 100}%` }} />}
     </div>
@@ -397,7 +422,7 @@ const Trama = () => (
 );
 
 type Ejes = { x0: number; x1: number; y0: number; y1: number };
-const W = 320, H = 220, M = { l: 34, r: 10, t: 12, b: 30 };
+const W = 320, H = 228, M = { l: 34, r: 10, t: 22, b: 30 };
 const escala = (e: Ejes) => ({
   x: (v: number) => M.l + ((v - e.x0) / (e.x1 - e.x0)) * (W - M.l - M.r),
   y: (v: number) => H - M.b - ((v - e.y0) / (e.y1 - e.y0)) * (H - M.t - M.b),
@@ -415,15 +440,20 @@ function Marco({ e, px, py, marcasX, marcasY, etqX, etqY, children }: {
       <line className="eje" x1={px(e.x0)} x2={px(e.x1)} y1={py(e.y0)} y2={py(e.y0)} />
       <line className="eje" x1={px(e.x0)} x2={px(e.x0)} y1={py(e.y0)} y2={py(e.y1)} />
       <text x={W - M.r} y={H - 3} textAnchor="end">{etqX}</text>
-      <text x={3} y={M.t - 2}>{etqY}</text>
+      <text x={3} y={M.t - 12}>{etqY}</text>
       {children}
     </svg>
   );
 }
 
-/** Tiempo contra rendimiento de los shots de la sesión, con la zona objetivo. */
-export function GraficaSesion({ shots, objetivo, dosis }: {
+/**
+ * Tiempo contra rendimiento de los shots de la sesión, con la zona objetivo.
+ * `vivo` es el shot que se está capturando: se desliza por la gráfica con
+ * cada toque del stepper y se ve si cae en la zona antes de guardarlo.
+ */
+export function GraficaSesion({ shots, objetivo, dosis, vivo }: {
   shots: { n: number; tiempo: number; rendimiento: number; aprobado?: boolean }[]; objetivo: Objetivo; dosis: number;
+  vivo?: { n: number; tiempo: number; rendimiento: number };
 }) {
   const [rmin, rmax] = ventanaRatio(objetivo);
   const tMin = objetivo.tiempo - objetivo.tolTiempo, tMax = objetivo.tiempo + objetivo.tolTiempo;
@@ -441,6 +471,18 @@ export function GraficaSesion({ shots, objetivo, dosis }: {
       {shots.length > 1 && (
         <polyline key={shots.length} className="traza dibuja" pathLength={1} points={shots.map((s) => `${px(s.tiempo)},${py(s.rendimiento)}`).join(' ')} />
       )}
+      {vivo && (() => {
+        // Fuera de la gráfica se queda en la orilla: el número exacto está en el stepper.
+        const x = px(Math.min(e.x1, Math.max(e.x0, vivo.tiempo)));
+        const y = py(Math.min(e.y1, Math.max(e.y0, vivo.rendimiento)));
+        const dentro = vivo.tiempo >= tMin && vivo.tiempo <= tMax && vivo.rendimiento >= dosis * rmin && vivo.rendimiento <= dosis * rmax;
+        return (
+          <g className="vivo" data-dentro={dentro ? 'si' : 'no'} style={{ transform: `translate(${x}px, ${y}px)` }}>
+            <rect x={-9} y={-9} width={18} height={18} />
+            <text y={3} textAnchor="middle">{vivo.n}</text>
+          </g>
+        );
+      })()}
       {shots.map((s, i) => (
         <g key={s.n} className="p" style={{ '--i': i } as React.CSSProperties}>
           <rect className={s.aprobado ? 'punto' : 'punto-vacio'} x={px(s.tiempo) - 7} y={py(s.rendimiento) - 7} width={14} height={14} />

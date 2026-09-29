@@ -6,7 +6,7 @@
  */
 import { useState } from 'react';
 import { RECETAS, receta as buscarReceta, type Receta } from '../contenido';
-import { useEstado, maquinaDe, nombreBoton, cafe as buscarCafe } from '../estado';
+import { useEstado, maquinaDe, nombreBoton, cafe as buscarCafe, recetaCasa } from '../estado';
 import { Sup, Seccion, Vacio, Estado as Etq } from '../componentes';
 import { jornadaDe } from '../lib/tiempo';
 
@@ -65,7 +65,7 @@ export function RecetaFicha({ id }: { id: string }) {
 
 function Ficha({ r }: { r: Receta }) {
   const e = useEstado();
-  const rd = e.recetasDelDia[jornadaDe()];
+  const rd = recetaCasa(e, jornadaDe());
   const [frio, setFrio] = useState(false);
   const usaEspresso = r.categoria !== 'Matchas';
   const version = frio && r.frio

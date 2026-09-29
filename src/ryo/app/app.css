@@ -302,7 +302,18 @@ button.fila:disabled { cursor: default; }
 .stepper button:active { background: var(--ink); color: var(--surface); }
 .stepper button:first-child { border-right: 1px solid var(--line); }
 .stepper button:last-child { border-left: 1px solid var(--line); }
-.stepper-centro { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 4px; overflow: hidden; transition: background-color 240ms var(--ease), color 240ms var(--ease); }
+.stepper-centro {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 4px; overflow: hidden;
+  touch-action: pan-y; cursor: ew-resize; user-select: none; -webkit-user-select: none;
+  transition: background-color 240ms var(--ease), color 240ms var(--ease);
+}
+.stepper-centro:focus-visible { outline: 2px solid var(--ink); outline-offset: -4px; }
+/* Pista de que el número se arrastra; al arrastrar, se abre. */
+.stepper-pista { font-size: 0.62rem; line-height: 1; letter-spacing: 0.6em; margin-right: -0.6em; opacity: 0.7; transition: letter-spacing 200ms var(--ease); }
+.stepper-centro.arrastrando .stepper-pista { letter-spacing: 1.6em; margin-right: -1.6em; opacity: 1; }
+/* Tablero de Calibrar: el nombre del café lleva a su ficha. */
+.tarjeta-nombre { text-decoration: none; color: inherit; }
+.stepper-nota { font-size: 0.74rem; line-height: 1.45; font-style: italic; }
 .stepper-valor { display: inline-block; font-size: 1.8rem; line-height: 1.05; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
 .stepper-valor.sube { animation: tic-sube 200ms var(--ease); }
 .stepper-valor.baja { animation: tic-baja 200ms var(--ease); }
@@ -386,11 +397,6 @@ button.fila:disabled { cursor: default; }
 .buscador input { border: 0; background: none; padding: 14px 0; width: 100%; font-size: 16px; }
 .buscador input:focus { outline: none; }
 
-/* ═══ GAUGE (ventana de tolerancia) ═══ */
-.gauge { position: relative; height: 28px; border: 1px solid var(--line); }
-.gauge-ventana { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, var(--ink) 0 1px, transparent 1px 6px); transition: left 300ms var(--ease), width 300ms var(--ease); }
-.gauge-marca { position: absolute; top: -5px; bottom: -5px; width: 3px; background: var(--ink); transform: translateX(-50%); transition: left 360ms var(--ease); }
-
 /* ═══ BRÚJULA DE SABOR ═══ */
 .brujula {
   position: relative; width: 100%; aspect-ratio: 1; border: 1px solid var(--line);
@@ -422,6 +428,13 @@ button.fila:disabled { cursor: default; }
 .brujula-punto { transition: left 90ms linear, top 90ms linear, width 260ms var(--ease), height 260ms var(--ease), background-color 260ms var(--ease); }
 .brujula[data-balance='si'] .brujula-punto { width: 12px; height: 12px; background: transparent; border: 1px solid var(--ink); }
 .brujula[data-balance='si'] .brujula-punto::after { display: none; }
+/* Los shots ya probados: marcas tenues con su número. */
+.brujula-previo {
+  position: absolute; width: 18px; height: 18px; transform: translate(-50%, -50%);
+  border: 1px dashed var(--line); background: var(--surface);
+  display: grid; place-items: center; font-size: 0.56rem; letter-spacing: 0; pointer-events: none;
+  animation: velo 400ms var(--ease) backwards; animation-delay: calc(var(--i, 0) * 70ms);
+}
 /* Al tocar, una onda cuadrada, como la de la taza. */
 .brujula-onda {
   position: absolute; width: 24px; height: 24px; border: 1px solid var(--ink);
@@ -442,6 +455,12 @@ button.fila:disabled { cursor: default; }
 .grafica .punto { fill: var(--ink); }
 .grafica .punto-vacio { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
 .grafica .etq-punto { font-size: 8px; fill: var(--surface); }
+/* El shot que se está capturando: marco punteado que se desliza; dentro de la zona, se llena. */
+.grafica .vivo { transition: transform 220ms var(--ease); }
+.grafica .vivo rect { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 2; transition: fill 200ms var(--ease); }
+.grafica .vivo text { font-size: 8px; transition: fill 200ms var(--ease); }
+.grafica .vivo[data-dentro='si'] rect { fill: var(--ink); stroke-dasharray: none; }
+.grafica .vivo[data-dentro='si'] text { fill: var(--surface); }
 .grafica .p { transform-box: fill-box; transform-origin: center; animation: brota 360ms var(--ease) backwards; animation-delay: calc(var(--i, 0) * 90ms + 150ms); }
 @keyframes dibuja { to { stroke-dashoffset: 0; } }
 @keyframes brota { from { transform: scale(0); opacity: 0; } }
