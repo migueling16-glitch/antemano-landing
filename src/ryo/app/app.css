@@ -495,6 +495,24 @@ button.fila:disabled { cursor: default; }
 .entrar-cabeza { align-items: flex-start; }
 .entrar-logo { margin-bottom: 20px; animation: revela 1200ms var(--ease) 150ms backwards; }
 .entrar-tagline { align-self: flex-start; margin-top: 8px; }
+.entrar-prueba { border-top: 1px solid var(--line); padding-top: 22px; }
+.error { font-style: italic; font-size: 0.92rem; }
+.recordar { border-top: 0; }
+
+/* Contraseña con "Mostrar": la línea es del conjunto, no del input. */
+.campo-clave { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); transition: box-shadow 200ms var(--ease); }
+.campo .campo-clave input { border-bottom: 0; flex: 1; }
+.campo .campo-clave input:focus { box-shadow: none; }
+.campo-clave:focus-within { box-shadow: 0 1px 0 var(--ink); }
+.campo-clave .enlace { flex: none; align-self: center; }
+
+/* Iniciando sesión: una barra corre por el pie del botón. */
+.boton.cargando { position: relative; overflow: hidden; pointer-events: none; }
+.boton.cargando::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: var(--surface); transform-origin: left; animation: carga 750ms var(--ease) forwards;
+}
+@keyframes carga { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 .sacude { animation: niega 360ms var(--ease); }
 @keyframes niega { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }

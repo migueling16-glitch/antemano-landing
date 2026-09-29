@@ -38,8 +38,13 @@ Calibración hecha para la **La Marzocco Linea Classic AV de un grupo** de Ryo:
 - Un solo PID en la caldera de café: la temperatura es de la máquina, no del
   café. Se cambia en Administración → Máquina.
 
-## Perfiles de ejemplo
+## Inicio de sesión y perfiles de ejemplo
 
-Ana (barista 2), Diego (barista 1, en su ruta de ingreso), Carla (encargada)
-y Sofía (admin). Se cambia en Más → Ver como otro perfil; Más → Reiniciar
-vuelve a los datos de ejemplo.
+La app abre en **Inicia sesión** (correo y contraseña). En la maqueta entra
+cualquier correo del equipo con una contraseña de 4 caracteres o más; los
+perfiles de prueba llenan los datos de un toque. Sin "Mantener la sesión en
+este teléfono", volver a abrir la app pide iniciar sesión (recargar no).
+
+Perfiles: Ana (barista 2), Diego (barista 1, en su ruta de ingreso), Carla
+(encargada) y Sofía (admin). Se cambia en Más → Ver como otro perfil;
+Más → Reiniciar vuelve a los datos de ejemplo.

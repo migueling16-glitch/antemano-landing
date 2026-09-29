@@ -214,6 +214,8 @@ export type Progreso = {
 export type Estado = {
   v: number;
   usuarioId: string | null;
+  /** "Mantener la sesión en este teléfono". Si no, abrir la app de nuevo pide iniciar sesión. */
+  recordar?: boolean;
   tema: 'auto' | 'champagne' | 'cafe';
   sucursal: { id: string; negocio: string; nombre: string; apertura: string; cierre: string };
   usuarios: Usuario[];
@@ -236,10 +238,17 @@ export type Estado = {
 export { VERSION };
 const CLAVE = 'ryo-app:v5';
 
+/** Marca de la pestaña: sobrevive a recargar, no a cerrar la app. */
+const SESION = 'ryo-app:sesion';
+const sesionViva = () => { try { return sessionStorage.getItem(SESION) === '1'; } catch { return false; } };
+
 function cargar(): Estado {
   try {
     const guardado = JSON.parse(localStorage.getItem(CLAVE) ?? 'null') as Estado | null;
-    if (guardado && guardado.v === VERSION) return guardado;
+    if (guardado && guardado.v === VERSION) {
+      if (!guardado.recordar && !sesionViva()) guardado.usuarioId = null;
+      return guardado;
+    }
   } catch {}
   return crearSemilla();
 }
@@ -324,8 +333,15 @@ export function progresoDe(e: Estado, usuarioId: string): Progreso {
 
 /* ═══ ACCIONES ════════════════════════════════════════════ */
 
-export const entrar = (usuarioId: string) => actualizar((e) => { e.usuarioId = usuarioId; });
-export const salir = () => actualizar((e) => { e.usuarioId = null; });
+export function entrar(usuarioId: string, recordar?: boolean) {
+  try { sessionStorage.setItem(SESION, '1'); } catch {}
+  actualizar((e) => { e.usuarioId = usuarioId; if (recordar !== undefined) e.recordar = recordar; });
+}
+
+export function salir() {
+  try { sessionStorage.removeItem(SESION); } catch {}
+  actualizar((e) => { e.usuarioId = null; e.recordar = false; });
+}
 export const cambiarTema = (tema: Estado['tema']) => actualizar((e) => { e.tema = tema; });
 
 /* ── Checklists ─────────────────────────────────────────── */
