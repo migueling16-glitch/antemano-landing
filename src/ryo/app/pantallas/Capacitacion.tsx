@@ -112,9 +112,9 @@ function VerBloque({ b }: { b: Bloque }) {
     return (
       <div className="lista">
         {b.filas.map(([k, v]) => (
-          <div key={k} className="fila" style={{ minHeight: 44 }}>
-            <span className="etq" style={{ flex: 1 }}>{k}</span>
-            <span style={{ textAlign: 'right' }}>{v}</span>
+          <div key={k} className="par">
+            <span className="etq">{k}</span>
+            <span>{v}</span>
           </div>
         ))}
       </div>
@@ -242,7 +242,7 @@ export function AprenderRepaso() {
       <Sup titulo="Repaso" sub={`${i + 1} de ${fila.length} · ${q.leccion.titulo}`} volver="aprender" />
       <main className="pant pila">
         <BarraProg valor={i / fila.length} />
-        <button type="button" className="tarjeta" data-lado={lado} onClick={() => setLado('respuesta')} aria-live="polite" style={{ textAlign: 'left' }}>
+        <button key={`${i}-${lado}`} type="button" className={`tarjeta${lado === 'respuesta' || i > 0 ? ' gira' : ''}`} data-lado={lado} onClick={() => setLado('respuesta')} aria-live="polite" style={{ textAlign: 'left' }}>
           <span className="etq">{lado === 'pregunta' ? 'Pregunta' : 'Respuesta'}</span>
           <span className="subtitulo">{lado === 'pregunta' ? q.pregunta : q.respuesta}</span>
           <span className="cuerpo">{lado === 'pregunta' ? 'Contéstala en voz baja y toca para ver la respuesta.' : q.pregunta}</span>

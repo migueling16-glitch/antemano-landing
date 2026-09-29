@@ -10,7 +10,6 @@ import {
 import { Sup, Seccion, Estado as Etq, BarraProg } from '../componentes';
 import { resumen } from './Checklists';
 import { tocaHoy } from '../lib/repaso';
-import { ratioTexto } from '../lib/calibracion';
 import { jornadaDe, hora, fechaCorta, nombreDia, lunesDe, sumarDias, cuando, dgo } from '../lib/tiempo';
 
 /** El turno publicado de alguien en una fecha. */
@@ -67,7 +66,7 @@ export function Inicio() {
           {rd && cafeHoy ? (
             <>
               <span className="num-m">{rd.dosis.toFixed(1)} → {rd.rendimiento.toFixed(1)} g · {rd.tiempo.toFixed(0)} s</span>
-              <span className="cuerpo">{cafeHoy.nombre} · molienda {rd.molienda} · {ratioTexto(rd.dosis, rd.rendimiento)} · botón {nombreBoton(m, rd.botonId)}</span>
+              <span className="cuerpo">{cafeHoy.nombre.split(' · ')[0]} · molienda {rd.molienda} · botón {nombreBoton(m, rd.botonId)}</span>
             </>
           ) : (
             <span className="cuerpo">Nadie ha calibrado hoy. Toca para calibrar antes del primer espresso.</span>

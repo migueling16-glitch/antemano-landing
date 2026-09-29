@@ -175,9 +175,9 @@ const Dato = ({ etq, valor }: { etq: string; valor: string }) => (
 );
 
 const FilaDato = ({ etq, valor }: { etq: string; valor: string }) => (
-  <div className="fila" style={{ minHeight: 44 }}>
-    <span className="etq" style={{ flex: 1 }}>{etq}</span>
-    <span className="fila-der" style={{ textTransform: 'none', letterSpacing: 'var(--track)', textAlign: 'right' }}>{valor}</span>
+  <div className="par">
+    <span className="etq">{etq}</span>
+    <span>{valor}</span>
   </div>
 );
 
@@ -403,9 +403,9 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
                   <div key={x.id} className="fila">
                     <span className="avatar" style={{ borderRadius: 0 }}>{x.n}</span>
                     <span className="fila-texto">
-                      <span>{x.dosis.toFixed(1)} → {x.rendimiento.toFixed(1)} g · {x.tiempo.toFixed(0)} s</span>
+                      <span>{x.rendimiento.toFixed(1)} g · {x.tiempo.toFixed(0)} s</span>
                       <span className="fila-sub">
-                        molienda {x.molienda} · {ratioTexto(x.dosis, x.rendimiento)}
+                        {x.dosis.toFixed(1)} g · molienda {x.molienda} · {ratioTexto(x.dosis, x.rendimiento)}
                         {x.tds ? ` · EY ${extraccion(x.tds, x.rendimiento, x.dosis).toFixed(1)} %` : ''}
                       </span>
                     </span>
@@ -456,7 +456,7 @@ function Composer({ n, inicial, objetivo, paso, s, m, onGuardar }: {
   const corte = redondear(dosis * rObj - GOTEO);
 
   return (
-    <div className="pila">
+    <div className="pila cambia">
       <Seccion titulo="Antes del shot">
         <Stepper etiqueta={`Molienda · paso ${paso}`} valor={molienda} paso={paso} min={0} max={40} dec={paso < 1 ? 1 : 0} onCambio={setMolienda} />
         <Stepper etiqueta="Dosis" valor={dosis} paso={0.1} min={10} max={25} unidad=" g" onCambio={setDosis} />
@@ -517,7 +517,7 @@ function Evaluacion({ shot, objetivo, paso, s, ctx, onAprobar }: {
   const guardar = () => evaluarShot(s.id, shot.id, { sabor, tds: conTds ? tds : undefined });
 
   return (
-    <div className="pila">
+    <div className="pila cambia">
       <section className="bloque">
         <div className="fila-h entre">
           <span className="etq">Shot {shot.n}</span>

@@ -73,7 +73,7 @@ function Ficha({ r }: { r: Receta }) {
           <section className="bloque inv">
             <span className="etq">Espresso con la receta del día</span>
             <span className="num-m">{rd.dosis.toFixed(1)} → {rd.rendimiento.toFixed(1)} g · {rd.tiempo.toFixed(0)} s</span>
-            <span className="cuerpo">{buscarCafe(e, rd.cafeId)?.nombre} · molienda {rd.molienda} · botón {nombreBoton(maquinaDe(e), rd.botonId)}</span>
+            <span className="cuerpo">{buscarCafe(e, rd.cafeId)?.nombre.split(' · ')[0]} · molienda {rd.molienda} · botón {nombreBoton(maquinaDe(e), rd.botonId)}</span>
           </section>
         )}
 

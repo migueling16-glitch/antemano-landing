@@ -293,9 +293,9 @@ export function AdminSucursal() {
             ['Zona horaria', 'Durango, UTC−6 · la jornada corta a las 5:00'],
             ['Tu rol', u?.rol ?? ''],
           ].map(([k, v]) => (
-            <div key={k} className="fila" style={{ minHeight: 44 }}>
-              <span className="etq" style={{ flex: 1 }}>{k}</span>
-              <span style={{ textAlign: 'right' }}>{v}</span>
+            <div key={k} className="par">
+              <span className="etq">{k}</span>
+              <span>{v}</span>
             </div>
           ))}
         </div>

@@ -105,8 +105,8 @@ export function Privacidad() {
             ['No se usa para', 'Publicidad ni se comparte con terceros'],
             ['Derechos ARCO', 'Acceso, rectificación, cancelación y oposición por correo al administrador'],
           ].map(([k, v]) => (
-            <div key={k} className="fila" style={{ alignItems: 'flex-start' }}>
-              <span className="etq" style={{ width: 96, flex: 'none', paddingTop: 3 }}>{k}</span>
+            <div key={k} className="par">
+              <span className="etq">{k}</span>
               <span className="cuerpo">{v}</span>
             </div>
           ))}

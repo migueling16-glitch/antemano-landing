@@ -34,30 +34,55 @@ export function Isotipo({ className = '' }: { className?: string }) {
 
 /* ═══ BARRA SUPERIOR ══════════════════════════════════════ */
 
+/**
+ * Título grande de la pantalla y, arriba, una barra compacta que se queda
+ * fija. Cuando el título grande se va bajo la barra, la barra lo repite.
+ */
 export function Sup({ titulo, sub, volver, accion }: {
   titulo: string; sub?: string; volver?: string; accion?: { texto: string; hacer: () => void };
 }) {
+  const grande = useRef<HTMLHeadingElement>(null);
+  const [compacta, setCompacta] = useState(false);
+  useEffect(() => {
+    const el = grande.current;
+    if (!el || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(([e]) => setCompacta(!e.isIntersecting), { rootMargin: '-52px 0px 0px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   return (
-    <header className="sup">
-      {volver ? (
-        <button type="button" className="sup-volver" onClick={() => (volver === 'atras' ? history.back() : ir(volver))}>← Atrás</button>
-      ) : (
-        <span className="sup-marca" dangerouslySetInnerHTML={{ __html: isotipoSvg }} aria-hidden="true" />
-      )}
-      <div className="sup-texto">
-        <h1 className="sup-titulo">{titulo}</h1>
-        {sub && <span className="sup-sub">{sub}</span>}
+    <>
+      <header className="sup" data-compacta={compacta ? 'si' : 'no'}>
+        {volver ? (
+          <button type="button" className="sup-volver" onClick={() => (volver === 'atras' ? history.back() : ir(volver))}>
+            <span aria-hidden="true">←</span> Atrás
+          </button>
+        ) : (
+          <span className="sup-marca" dangerouslySetInnerHTML={{ __html: isotipoSvg }} aria-hidden="true" />
+        )}
+        <span className="sup-titulo" aria-hidden="true">{titulo}</span>
+        {accion && <button type="button" className="sup-accion" onClick={accion.hacer}>{accion.texto}</button>}
+      </header>
+      <div className="encabezado">
+        <h1 className="encabezado-titulo" ref={grande}>{titulo}</h1>
+        {sub && <p className="encabezado-sub">{sub}</p>}
       </div>
-      {accion && <button type="button" className="sup-accion" onClick={accion.hacer}>{accion.texto}</button>}
-    </header>
+    </>
   );
 }
 
 /* ═══ PIEZAS PEQUEÑAS ═════════════════════════════════════ */
 
-export const Estado = ({ children, fuerte, tenue }: { children: ReactNode; fuerte?: boolean; tenue?: boolean }) => (
-  <span className={`estado${fuerte ? ' fuerte' : ''}${tenue ? ' tenue' : ''}`}>{children}</span>
-);
+/** Etiqueta de estado. Si su texto cambia mientras se ve, se estampa. */
+export function Estado({ children, fuerte, tenue }: { children: ReactNode; fuerte?: boolean; tenue?: boolean }) {
+  const texto = typeof children === 'string' ? children : String((children as ReactNode[] | undefined) ?? '');
+  const previo = useRef(texto);
+  const cambio = previo.current !== texto;
+  useEffect(() => { previo.current = texto; });
+  return (
+    <span key={texto} className={`estado${fuerte ? ' fuerte' : ''}${tenue ? ' tenue' : ''}${cambio ? ' sello' : ''}`}>{children}</span>
+  );
+}
 
 export const Seccion = ({ titulo, extra, children }: { titulo: string; extra?: ReactNode; children: ReactNode }) => (
   <section className="sec">
@@ -95,12 +120,19 @@ export function Casilla({ hecha }: { hecha: boolean }) {
 
 export function Aviso() {
   const a = useAviso();
-  if (!a) return null;
+  const [visto, setVisto] = useState(a);
+  useEffect(() => {
+    if (a) { setVisto(a); return; }
+    const t = setTimeout(() => setVisto(null), 200);
+    return () => clearTimeout(t);
+  }, [a]);
+  const m = a ?? visto;
+  if (!m) return null;
   return (
-    <div className="toast" role="status" key={a.id}>
-      <span>{a.texto}</span>
-      {a.accion && (
-        <button type="button" onClick={() => { a.accion!.hacer(); cerrarAviso(); }}>{a.accion.etiqueta}</button>
+    <div className="toast" role="status" key={m.id} data-saliendo={a ? 'no' : 'si'}>
+      <span>{m.texto}</span>
+      {m.accion && (
+        <button type="button" onClick={() => { m.accion!.hacer(); cerrarAviso(); }}>{m.accion.etiqueta}</button>
       )}
     </div>
   );
@@ -111,22 +143,32 @@ export function Aviso() {
 export function Hoja({ abierta, alCerrar, titulo, children }: {
   abierta: boolean; alCerrar: () => void; titulo: string; children: ReactNode;
 }) {
+  // Al cerrar se queda montada lo que dura la salida, con su último contenido.
+  const [montada, setMontada] = useState(abierta);
+  const ultimo = useRef({ titulo, children });
+  if (abierta) ultimo.current = { titulo, children };
+  useEffect(() => {
+    if (abierta) { setMontada(true); return; }
+    const t = setTimeout(() => setMontada(false), 220);
+    return () => clearTimeout(t);
+  }, [abierta]);
   useEffect(() => {
     if (!abierta) return;
     const f = (e: KeyboardEvent) => { if (e.key === 'Escape') alCerrar(); };
     addEventListener('keydown', f);
     return () => removeEventListener('keydown', f);
   }, [abierta, alCerrar]);
-  if (!abierta) return null;
+  if (!abierta && !montada) return null;
+  const v = ultimo.current;
   return (
-    <div className="hoja">
+    <div className="hoja" data-saliendo={abierta ? 'no' : 'si'}>
       <div className="hoja-afuera" onClick={alCerrar} aria-hidden="true" />
-      <div className="hoja-panel inv" role="dialog" aria-modal="true" aria-label={titulo}>
+      <div className="hoja-panel inv" role="dialog" aria-modal="true" aria-label={v.titulo}>
         <div className="fila-h entre">
-          <p className="etq">{titulo}</p>
+          <p className="etq">{v.titulo}</p>
           <button type="button" className="enlace" onClick={alCerrar}>Cerrar</button>
         </div>
-        {children}
+        {v.children}
       </div>
     </div>
   );
@@ -140,6 +182,9 @@ export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity
 }) {
   const valorRef = useRef(valor);
   valorRef.current = valor;
+  const previo = useRef(valor);
+  const dir = valor > previo.current ? 'sube' : valor < previo.current ? 'baja' : '';
+  useEffect(() => { previo.current = valor; });
   const repetir = useRef<number>();
   const cambiar = (dir: 1 | -1) => {
     const v = redondear(Math.min(max, Math.max(min, valorRef.current + dir * paso)), dec);
@@ -172,7 +217,7 @@ export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity
       <div className="stepper" data-fuera={fuera ? 'si' : 'no'}>
         {boton(-1)}
         <div className="stepper-centro" aria-live="polite">
-          <span className="stepper-valor">{valor.toFixed(dec)}{unidad && <span className="stepper-unidad">{unidad}</span>}</span>
+          <span key={valor} className={`stepper-valor ${dir}`}>{valor.toFixed(dec)}{unidad && <span className="stepper-unidad">{unidad}</span>}</span>
         </div>
         {boton(1)}
       </div>
@@ -206,6 +251,7 @@ export function Gauge({ valor, desde, hasta, vmin, vmax, etiqueta, texto }: {
 
 export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabor) => void }) {
   const caja = useRef<HTMLDivElement>(null);
+  const [onda, setOnda] = useState<{ n: number; x: number; y: number } | null>(null);
   const desdeEvento = (e: React.PointerEvent) => {
     const r = caja.current!.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * 2 - 1;
@@ -219,7 +265,13 @@ export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabo
       className="brujula"
       role="application"
       aria-label="Brújula de sabor: toca dónde cae el shot"
-      onPointerDown={(e) => { (e.target as Element).setPointerCapture?.(e.pointerId); desdeEvento(e); vibrar(8); }}
+      onPointerDown={(e) => {
+        (e.target as Element).setPointerCapture?.(e.pointerId);
+        desdeEvento(e);
+        vibrar(8);
+        const r = caja.current!.getBoundingClientRect();
+        setOnda((o) => ({ n: (o?.n ?? 0) + 1, x: e.clientX - r.left, y: e.clientY - r.top }));
+      }}
       onPointerMove={(e) => { if (e.buttons) desdeEvento(e); }}
     >
       <span className="brujula-eje-x" />
@@ -230,6 +282,7 @@ export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabo
       <span className="brujula-rotulo" style={{ left: 8, top: '50%', transform: 'translateY(-130%)' }}>Ácido<br />subextraído</span>
       <span className="brujula-rotulo" style={{ right: 8, top: '50%', transform: 'translateY(-130%)', textAlign: 'right' }}>Amargo<br />sobreextraído</span>
       <span className="brujula-rotulo" style={{ left: '50%', top: '50%', transform: 'translate(-50%, 90%)' }}>Balance</span>
+      {onda && <span key={onda.n} className="brujula-onda" style={{ left: onda.x, top: onda.y }} />}
       {valor && <span className="brujula-punto" style={{ left: `${((valor.x + 1) / 2) * 100}%`, top: `${((1 - valor.y) / 2) * 100}%` }} />}
     </div>
   );
@@ -287,9 +340,11 @@ export function GraficaSesion({ shots, objetivo, dosis }: {
     <Marco e={e} px={px} py={py} marcasX={paso(e.x0, e.x1, 4)} marcasY={paso(e.y0, e.y1, 4)} etqX="TIEMPO S" etqY="RENDIMIENTO G">
       <rect className="zona" x={px(tMin)} y={py(dosis * rmax)} width={px(tMax) - px(tMin)} height={py(dosis * rmin) - py(dosis * rmax)} />
       <text x={px(tMax) + 3} y={py(dosis * rmax) + 9}>OBJETIVO</text>
-      {shots.length > 1 && <polyline className="traza" points={shots.map((s) => `${px(s.tiempo)},${py(s.rendimiento)}`).join(' ')} />}
-      {shots.map((s) => (
-        <g key={s.n}>
+      {shots.length > 1 && (
+        <polyline key={shots.length} className="traza dibuja" pathLength={1} points={shots.map((s) => `${px(s.tiempo)},${py(s.rendimiento)}`).join(' ')} />
+      )}
+      {shots.map((s, i) => (
+        <g key={s.n} className="p" style={{ '--i': i } as React.CSSProperties}>
           <rect className={s.aprobado ? 'punto' : 'punto-vacio'} x={px(s.tiempo) - 7} y={py(s.rendimiento) - 7} width={14} height={14} />
           <text className={s.aprobado ? 'etq-punto' : ''} x={px(s.tiempo)} y={py(s.rendimiento) + 3} textAnchor="middle" style={s.aprobado ? {} : { fontSize: 8 }}>{s.n}</text>
         </g>
@@ -309,8 +364,8 @@ export function GraficaControl({ puntos }: { puntos: { ey: number; tds: number; 
       <text x={px(25)} y={py(13.3)} textAnchor="end">FUERTE · SOBRE</text>
       <text x={px(15)} y={py(6.5)}>DÉBIL · SUB</text>
       <text x={px(25)} y={py(6.5)} textAnchor="end">DÉBIL · SOBRE</text>
-      {puntos.map((p) => (
-        <g key={p.n}>
+      {puntos.map((p, i) => (
+        <g key={p.n} className="p" style={{ '--i': i } as React.CSSProperties}>
           <rect className="punto" x={px(Math.min(26, Math.max(14, p.ey))) - 7} y={py(Math.min(14, Math.max(6, p.tds))) - 7} width={14} height={14} />
           <text className="etq-punto" x={px(Math.min(26, Math.max(14, p.ey)))} y={py(Math.min(14, Math.max(6, p.tds))) + 3} textAnchor="middle">{p.n}</text>
         </g>
@@ -333,7 +388,7 @@ export function GraficaTendencia({ puntos, recta, hoy }: {
       {recta && <line className="traza" x1={px(e.x0)} y1={py(recta(e.x0))} x2={px(e.x1)} y2={py(recta(e.x1))} style={{ strokeDasharray: '4 3' }} />}
       {hoy !== undefined && <line className="eje" x1={px(hoy)} x2={px(hoy)} y1={py(e.y0)} y2={py(e.y1)} />}
       {hoy !== undefined && <text x={px(hoy) + 3} y={M.t + 8}>HOY</text>}
-      {puntos.map((p, i) => <rect key={i} className="punto" x={px(p.x) - 4} y={py(p.y) - 4} width={8} height={8} />)}
+      {puntos.map((p, i) => <rect key={i} className="punto p" style={{ '--i': i } as React.CSSProperties} x={px(p.x) - 4} y={py(p.y) - 4} width={8} height={8} />)}
     </Marco>
   );
 }

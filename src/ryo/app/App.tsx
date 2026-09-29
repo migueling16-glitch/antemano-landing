@@ -119,12 +119,12 @@ export default function App() {
   // Alguien dado de baja pierde el acceso al momento.
   useEffect(() => { if (u && !u.activo) salir(); }, [u]);
 
-  if (!u) return <div className="app" data-enfoque="si"><Entrar /><Aviso /></div>;
+  if (!u) return <div className="app" data-enfoque="si"><div className="vista"><Entrar /></div><Aviso /></div>;
 
   return (
     <div className="app" data-enfoque={enfoque ? 'si' : 'no'}>
       {!enLinea && <div className="red" role="status">Sin red · lo que hagas se guarda en el teléfono y se sube al volver</div>}
-      {pantalla(e, ruta)}
+      <div className="vista" key={ruta.join('/')}>{pantalla(e, ruta)}</div>
       {!enfoque && (
         <nav className="nav" aria-label="Secciones">
           {PESTANAS.map(([id, nombre]) => (

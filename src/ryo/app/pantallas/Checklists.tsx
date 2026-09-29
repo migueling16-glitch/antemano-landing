@@ -307,7 +307,7 @@ function Ejecutar({ e, ej, p }: { e: Estado; ej: Ejecucion; p: Plantilla }) {
 
 function Firma({ e, m }: { e: Estado; m?: Marca }) {
   if (!m) return null;
-  return <span className="fila-der">{usuario(e, m.por)?.iniciales} {hora(m.en)}</span>;
+  return <span className="firma">{usuario(e, m.por)?.iniciales} · {hora(m.en)}</span>;
 }
 
 function Item({ e, ej, item, marca, cerrada, onFoto }: {
@@ -317,7 +317,7 @@ function Item({ e, ej, item, marca, cerrada, onFoto }: {
   const faltaFoto = item.foto === 'obligatoria' && marca && !marca.fotoId;
 
   const botonFoto = item.foto && (
-    <div className="fila-h" style={{ gap: 8, paddingBottom: 12 }}>
+    <div className="fila-h" style={{ gap: 8, paddingBottom: 16, paddingLeft: 38 }}>
       {marca?.fotoId ? <Foto id={marca.fotoId} /> : null}
       {!cerrada && (
         <button type="button" className={`chip${faltaFoto ? ' inv' : ''}`} onClick={onFoto}>
@@ -344,8 +344,7 @@ function Item({ e, ej, item, marca, cerrada, onFoto }: {
       <div id={`item-${item.id}`}>
         <button type="button" className="fila" onClick={alternar} aria-pressed={!!marca} disabled={cerrada && !marca}>
           <Casilla hecha={!!marca} />
-          <span className="fila-texto">{texto}</span>
-          <Firma e={e} m={marca} />
+          <span className="fila-texto">{texto}<Firma e={e} m={marca} /></span>
         </button>
         {botonFoto}
       </div>
@@ -358,9 +357,12 @@ function Item({ e, ej, item, marca, cerrada, onFoto }: {
     return (
       <div id={`item-${item.id}`} className="fila" style={{ flexWrap: 'wrap' }}>
         <Casilla hecha={!!marca?.fotoId} />
-        <span className="fila-texto">{texto}<span className="fila-sub">{item.foto === 'obligatoria' ? 'Foto obligatoria' : 'Foto'}</span></span>
-        <Firma e={e} m={marca} />
-        <div className="fila-h" style={{ gap: 8, width: '100%', paddingLeft: 34 }}>
+        <span className="fila-texto">
+          {texto}
+          <span className="fila-sub">{item.foto === 'obligatoria' ? 'Foto obligatoria' : 'Foto'}</span>
+          <Firma e={e} m={marca} />
+        </span>
+        <div className="fila-h" style={{ gap: 8, width: '100%', paddingLeft: 38 }}>
           {marca?.fotoId && <Foto id={marca.fotoId} />}
           {!cerrada && <button type="button" className="boton" onClick={onFoto}>{marca?.fotoId ? 'Repetir' : 'Tomar foto'}</button>}
           {marca?.fotoId && e.fotos[marca.fotoId]?.estado === 'pendiente' && <Etq tenue>Por subir</Etq>}
@@ -382,10 +384,10 @@ function Item({ e, ej, item, marca, cerrada, onFoto }: {
         <span className="fila-sub">
           {marca?.texto ?? (rd ? `Receta del día aprobada a las ${hora(rd.en)} · ${nombreBoton(m, rd.botonId)}` : 'Se marca sola al aprobar la receta del día')}
         </span>
+        <Firma e={e} m={marca} />
       </span>
-      <Firma e={e} m={marca} />
       {!marca && !cerrada && (
-        <div className="fila-h" style={{ gap: 8, width: '100%', paddingLeft: 34 }}>
+        <div className="fila-h" style={{ gap: 8, width: '100%', paddingLeft: 38 }}>
           {rd ? (
             <button type="button" className="boton" onClick={() => {
               marcar(ej.id, item.id, { texto: `Receta aprobada: ${rd.dosis} g → ${rd.rendimiento} g · ${rd.tiempo} s` });
@@ -417,11 +419,8 @@ function ItemNumero({ e, ej, item, marca, cerrada, texto }: {
   const limite = item.max !== undefined ? `máx. ${item.max} ${item.unidad ?? ''}` : '';
 
   return (
-    <div id={`item-${item.id}`} className="pila-s" style={{ padding: '12px 0', borderBottom: '1px solid var(--line)' }}>
-      <div className="fila-h entre">
-        <span className="fila-texto">{texto}<span className="fila-sub">{limite}</span></span>
-        <Firma e={e} m={marca} />
-      </div>
+    <div id={`item-${item.id}`} className="pila-s" style={{ padding: '16px 0', borderBottom: '1px solid var(--line)' }}>
+      <span className="fila-texto">{texto}<span className="fila-sub">{limite}</span><Firma e={e} m={marca} /></span>
       {cerrada ? (
         <span className="num-m">{marca?.valor?.toFixed(1) ?? '—'} {item.unidad}</span>
       ) : (
@@ -467,11 +466,8 @@ function ItemNota({ e, ej, item, marca, cerrada, texto }: {
     if (t && t !== marca?.texto) marcar(ej.id, item.id, { texto: t });
   };
   return (
-    <div id={`item-${item.id}`} className="pila-s" style={{ padding: '12px 0', borderBottom: '1px solid var(--line)' }}>
-      <div className="fila-h entre">
-        <span className="fila-texto">{texto}</span>
-        <Firma e={e} m={marca} />
-      </div>
+    <div id={`item-${item.id}`} className="pila-s" style={{ padding: '16px 0', borderBottom: '1px solid var(--line)' }}>
+      <span className="fila-texto">{texto}<Firma e={e} m={marca} /></span>
       {cerrada ? (
         <p className="cuerpo">{marca?.texto ?? '—'}</p>
       ) : (
