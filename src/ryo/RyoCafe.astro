@@ -574,10 +574,10 @@ const jsonLd = {
         text-align: center;
         opacity: 0;
         transform: translateY(8px);
-        transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+        transition: opacity 470ms var(--ease), transform 470ms var(--ease);
       }
       .intro[data-fase='dibujado'] .intro-slogan { opacity: 1; transform: none; }
-      .intro[data-fase='vuela'] .intro-slogan { opacity: 0; transition-duration: 350ms; }
+      .intro[data-fase='vuela'] .intro-slogan { opacity: 0; transition-duration: 230ms; }
 
       /* ═══════════════════════════════════════════════════════════
          CAPAS FIJAS
@@ -698,7 +698,7 @@ const jsonLd = {
         /* 50%, no radius-full: en un elemento ancho el radio fijo da forma de
            píldora y lo que queremos es la elipse de la superficie del café. */
         border-radius: 50%;
-        animation: ondear 1600ms var(--ease) forwards;
+        animation: ondear 1070ms var(--ease) forwards;
       }
       @keyframes ondear {
         from { transform: translate(-50%, -50%) scale(0.12); opacity: 1; }
@@ -1115,6 +1115,7 @@ const jsonLd = {
 
     <script>
       import { ahoraEnDurango, estadoDe } from './config';
+      import { dibujar, trazosDe } from './pluma';
 
       const raiz = document.documentElement;
       raiz.classList.remove('no-js');
@@ -1218,12 +1219,8 @@ const jsonLd = {
         const marca = capa.querySelector<HTMLElement>('[data-intro-marca]');
         const fondo = capa.querySelector<HTMLElement>('[data-intro-fondo]');
         const arte = capa.querySelector<SVGGElement>('[data-intro-arte]');
-        // Los trazos vienen agrupados por elemento del dibujo, en orden.
-        const cajas = Array.from(capa.querySelectorAll<SVGGElement>('[data-pluma] [data-grupo]'));
-        const grupos = (cajas.length ? cajas.map((g) => Array.from(g.querySelectorAll<SVGPathElement>('path')))
-                                     : [Array.from(capa.querySelectorAll<SVGPathElement>('[data-pluma] path'))])
-          .filter((g) => g.length);
-        const pluma = grupos.flat();
+        // Los trazos vienen en el orden del dibujo: taza, café, persona y ojos.
+        const pluma = trazosDe(capa);
         const ondas = capa.querySelector<HTMLElement>('[data-ondas]');
         if (!marca || !fondo || !arte || !pluma.length) {
           capa.remove();
@@ -1238,52 +1235,14 @@ const jsonLd = {
         window.scrollTo(0, 0); // el vuelo mide la posición real del destino
         destino.style.visibility = 'hidden';
 
-        // La pluma son los ejes de cada trazo, en orden de dibujo, encadenados
-        // uno tras otro. Como el trazo de la máscara es más gordo que el del
-        // dibujo, lo que se ve es una línea gruesa avanzando, no un contorno
-        // que luego se rellena.
-        //
-        // Van como paths separados a propósito: SVG reinicia el patrón de
-        // stroke-dasharray en cada subtrazo, así que meterlos en un solo path
-        // con varios "M" no permite destaparlos en orden.
-        const DIBUJO = 1750;
-        const SOLAPE = 0.95; // cada trazo arranca justo antes de terminar el previo
-        const PAUSA = 130; // respiro entre un elemento y el siguiente
-        // Colchón del patrón de guiones. Sin él, el offset inicial cae justo en
-        // la frontera entre guión y hueco: con stroke-linecap round eso pinta un
-        // punto del grosor del trazo, y el dibujo no arrancaría en blanco.
-        const COLCHON = 2;
+        const DIBUJO = 1430;
 
-        const largos = pluma.map((p) => p.getTotalLength());
-        const total = largos.reduce((a, b) => a + b, 0) || 1;
-
-        // Duración proporcional a la longitud = velocidad de pluma constante.
-        // El piso evita que los trazos diminutos pasen desapercibidos, y el
-        // factor k reabsorbe lo que ese piso añade para que el total sea DIBUJO.
-        const crudas = largos.map((l) => Math.max(18, (l / total) * DIBUJO));
-        const k = DIBUJO / (crudas.reduce((a, b) => a + b, 0) * SOLAPE);
-
-        // Se dibuja un elemento a la vez: primero la taza, luego el café,
-        // luego el mono y al final los ojos, con una pausa entre cada uno.
-        let reloj = 0;
-        let i = 0;
-        grupos.forEach((grupo, gi) => {
-          if (gi > 0) reloj += PAUSA;
-          grupo.forEach((p) => {
-            const len = largos[i];
-            const dur = crudas[i] * k;
-            const arranque = len + COLCHON;
-            i += 1;
-            p.style.strokeDasharray = `${len} ${len + COLCHON * 2}`;
-            p.style.strokeDashoffset = String(arranque);
-            p.animate(
-              [{ strokeDashoffset: String(arranque) }, { strokeDashoffset: '0' }],
-              { duration: dur, delay: reloj, easing: 'linear', fill: 'forwards' },
-            );
-            reloj += dur * SOLAPE;
-          });
-        });
-        const finDibujo = reloj;
+        // La pluma son los ejes de cada trazo, encadenados: uno empieza cuando
+        // termina el anterior, sin pausas entre elementos y con una sola curva
+        // de velocidad para todo el dibujo (ver src/ryo/pluma.ts). Como el
+        // trazo de la máscara es más gordo que el del dibujo, lo que se ve es
+        // una línea gruesa avanzando, no un contorno que luego se rellena.
+        const finDibujo = dibujar(pluma, DIBUJO);
 
         let cerrado = false;
         const cerrar = () => {
@@ -1306,7 +1265,7 @@ const jsonLd = {
           arte.removeAttribute('mask');
           capa.dataset.fase = 'dibujado';
           if (ondas) {
-            [0, 240].forEach((retraso) =>
+            [0, 160].forEach((retraso) =>
               window.setTimeout(() => {
                 const o = document.createElement('span');
                 o.className = 'onda';
@@ -1315,7 +1274,7 @@ const jsonLd = {
               }, retraso),
             );
           }
-        }, finDibujo + 60);
+        }, finDibujo + 40);
 
         // 2. Vuela a la esquina mientras el fondo se disuelve.
         window.setTimeout(() => {
@@ -1328,16 +1287,16 @@ const jsonLd = {
           const dy = a.top + a.height / 2 - (de.top + de.height / 2);
           marca.animate(
             [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${escala})` }],
-            { duration: 900, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' },
+            { duration: 600, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' },
           );
           fondo.animate(
             [{ opacity: '1' }, { opacity: '0' }],
-            { duration: 650, delay: 300, easing: 'ease-out', fill: 'forwards' },
+            { duration: 430, delay: 200, easing: 'ease-out', fill: 'forwards' },
           ).finished.then(cerrar, cerrar);
-        }, finDibujo + 800);
+        }, finDibujo + 530);
 
         // Red de seguridad: pase lo que pase, la capa se quita.
-        window.setTimeout(cerrar, finDibujo + 3400);
+        window.setTimeout(cerrar, finDibujo + 2300);
       }
 
       /* ── Filete de la barra y CTA inferior al salir del hero ──── */

@@ -58,14 +58,14 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
       html, body { background: #f8f3d1; color: #302413; margin: 0; }
       .cargando { min-height: 100dvh; display: grid; place-items: center; font: italic 0.8rem 'JetBrains Mono', monospace; letter-spacing: 0.1em; }
 
-      /* Apertura: el isotipo se dibuja solo, un elemento a la vez (la misma
+      /* Apertura: el isotipo se dibuja solo en un gesto continuo (la misma
          intro de la bio), entra el slogan, el café hace una onda y la pantalla
          se desvanece. Una vez por sesión; nunca con movimiento reducido. */
       #apertura {
         position: fixed; inset: 0; z-index: 100;
         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px;
         background: #f8f3d1; color: #302413; cursor: pointer;
-        transition: opacity 520ms cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1);
       }
       html[data-tema='cafe'] #apertura { background: #302413; color: #f8f3d1; }
       #apertura.fuera { opacity: 0; pointer-events: none; }
@@ -75,7 +75,7 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
       .apertura-slogan {
         margin: 0; font: 400 0.7rem 'JetBrains Mono', monospace; letter-spacing: 0.3em; text-transform: uppercase;
         opacity: 0; transform: translateY(8px);
-        transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 470ms cubic-bezier(0.16, 1, 0.3, 1), transform 470ms cubic-bezier(0.16, 1, 0.3, 1);
       }
       #apertura[data-fase='dibujado'] .apertura-slogan { opacity: 1; transform: none; }
       /* Ondas contenidas en la boca de la taza (medida sobre el vector). */
@@ -83,7 +83,7 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
       .apertura-onda {
         position: absolute; left: 43.4%; top: 38%; width: 62%; aspect-ratio: 4.4 / 1;
         border: 1px solid currentColor; border-radius: 50%;
-        animation: apertura-ondear 1600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: apertura-ondear 1070ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
       @keyframes apertura-ondear {
         from { transform: translate(-50%, -50%) scale(0.12); opacity: 1; }
@@ -105,76 +105,59 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
       </div>
       <p class="apertura-slogan">{NEGOCIO.slogan}</p>
     </div>
-    <script is:inline data-apertura>
+    <script is:inline>
+      // Si no toca apertura (ya se vio en esta sesión o hay movimiento
+      // reducido), la capa se quita antes de pintar: sin parpadeo.
       (function () {
         var capa = document.getElementById('apertura');
         if (!capa) return;
-        // ?apertura en la URL la repite (para enseñarla); no se salta el movimiento reducido.
         var repetir = /[?&]apertura\b/.test(location.search);
         var vista = false;
         try { vista = !repetir && sessionStorage.getItem('ryo-apertura') === '1'; sessionStorage.setItem('ryo-apertura', '1'); } catch (e) {}
         var calma = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (vista || calma || typeof Element.prototype.animate !== 'function') { capa.remove(); return; }
+        if (vista || calma || typeof Element.prototype.animate !== 'function') capa.remove();
+      })();
+    </script>
+    <script>
+      // La misma pluma que la intro de la bio (src/ryo/pluma.ts): un solo
+      // gesto continuo, sin pausas entre elementos, 1.5× más rápido que antes.
+      import { dibujar, trazosDe } from '../../ryo/pluma';
 
-        var arte = capa.querySelector('[data-arte]');
-        var grupos = [].slice.call(capa.querySelectorAll('[data-pluma] [data-grupo]'))
-          .map(function (g) { return [].slice.call(g.querySelectorAll('path')); })
-          .filter(function (g) { return g.length; });
-        var pluma = [].concat.apply([], grupos);
-        if (!arte || !pluma.length) { capa.remove(); return; }
-
-        // Mismos tiempos que la intro de la bio: velocidad de pluma constante,
-        // un elemento a la vez (taza, café, persona, ojos) con un respiro entre
-        // cada uno, y el colchón que evita el punto inicial del linecap.
-        var DIBUJO = 1750, SOLAPE = 0.95, PAUSA = 130, COLCHON = 2;
-        var largos = pluma.map(function (p) { return p.getTotalLength(); });
-        var total = largos.reduce(function (a, b) { return a + b; }, 0) || 1;
-        var crudas = largos.map(function (l) { return Math.max(18, (l / total) * DIBUJO); });
-        var k = DIBUJO / (crudas.reduce(function (a, b) { return a + b; }, 0) * SOLAPE);
-        var reloj = 0, i = 0;
-        grupos.forEach(function (grupo, gi) {
-          if (gi > 0) reloj += PAUSA;
-          grupo.forEach(function (p) {
-            var len = largos[i], dur = crudas[i] * k, arranque = len + COLCHON;
-            i += 1;
-            p.style.strokeDasharray = len + ' ' + (len + COLCHON * 2);
-            p.style.strokeDashoffset = String(arranque);
-            p.animate([{ strokeDashoffset: String(arranque) }, { strokeDashoffset: '0' }],
-              { duration: dur, delay: reloj, easing: 'linear', fill: 'forwards' });
-            reloj += dur * SOLAPE;
-          });
-        });
-        var finDibujo = reloj;
+      const capa = document.getElementById('apertura');
+      const arte = capa?.querySelector<SVGGElement>('[data-arte]');
+      const pluma = capa ? trazosDe(capa) : [];
+      if (capa && arte && pluma.length) {
+        const finDibujo = dibujar(pluma, 1430);
         capa.dataset.listo = 'si';
 
-        var cerrado = false;
-        function cerrar() {
+        let cerrado = false;
+        const cerrar = () => {
           if (cerrado) return;
           cerrado = true;
           capa.classList.add('fuera');
-          setTimeout(function () { capa.remove(); }, 540);
-        }
+          window.setTimeout(() => capa.remove(), 380);
+        };
         capa.addEventListener('pointerdown', cerrar);
         window.addEventListener('keydown', cerrar, { once: true });
 
         // Terminado el trazo: fuera la máscara (el resto quedaría escondido),
         // entra el slogan y el café hace una onda dentro de la taza.
-        setTimeout(function () {
+        window.setTimeout(() => {
           if (cerrado) return;
           arte.removeAttribute('mask');
           capa.dataset.fase = 'dibujado';
-          var ondas = capa.querySelector('[data-ondas]');
-          [0, 240].forEach(function (r) {
-            setTimeout(function () {
-              var o = document.createElement('span');
-              o.className = 'apertura-onda';
-              o.addEventListener('animationend', function () { o.remove(); });
-              ondas.appendChild(o);
-            }, r);
-          });
-        }, finDibujo + 60);
-        setTimeout(cerrar, finDibujo + 1250);
-      })();
+          const ondas = capa.querySelector<HTMLElement>('[data-ondas]');
+          [0, 160].forEach((r) => window.setTimeout(() => {
+            const o = document.createElement('span');
+            o.className = 'apertura-onda';
+            o.addEventListener('animationend', () => o.remove());
+            ondas?.appendChild(o);
+          }, r));
+        }, finDibujo + 40);
+        window.setTimeout(cerrar, finDibujo + 830);
+      } else {
+        capa?.remove();
+      }
     </script>
     <App client:only="react">
       <p class="cargando" slot="fallback">Cargando la barra…</p>

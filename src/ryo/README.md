@@ -12,6 +12,7 @@ Ruta actual: `/ryocafe` en la web de Antemano (antemano.com.mx/ryocafe) · Astro
 src/ryo/
 ├── RyoCafe.astro       página completa (HTML + CSS + JS, autocontenida)
 ├── config.ts           contenido, horarios, menú, accesos  ← lo único que hay que editar
+├── pluma.ts            cómo se dibuja el isotipo (intro de la bio y apertura de la app)
 ├── assets/             marcas en SVG con fill="currentColor" (toman el color del tema)
 │   ├── logotipo.svg      manuscrito "Ryo Café" — marca principal
 │   ├── isotipo.svg       la taza con la figura dentro — formatos pequeños
@@ -62,8 +63,8 @@ Todo vive en `config.ts`:
 | `MENU_MOSTRAR_PRECIOS` | `false` oculta todos los precios sin tocar los datos.                  |
 | `TEMA_AUTO`            | Horas entre las que la página abre en tema claro.                      |
 
-Los tiempos del intro viven en `RyoCafe.astro`: `DIBUJO` (cuánto dura el
-trazo), `PAUSA` (respiro entre un elemento y el siguiente) y `SOLAPE`.
+Los tiempos del intro viven en `RyoCafe.astro` (`DIBUJO`, 1.43 s de trazo) y
+la forma de dibujar en `pluma.ts`, que comparte con la apertura de la app.
 
 Pendientes marcados con `TODO` en el archivo: link del pin real de Maps,
 WhatsApp, horarios reales y el menú definitivo.
@@ -91,12 +92,13 @@ activan todos, conviene apagar alguno para no pasar de siete.
 - **Bloques invertidos.** La clase `.inv` intercambia `--surface` y `--ink`
   para las bandas oscuras (slogan, manifiesto, pie) en cualquiera de los dos
   temas.
-- **Intro.** Al cargar se dibuja el isotipo **un elemento a la vez**: primero
-  la taza, luego el café, luego el mono y al final los ojos, con una pausa
-  entre cada uno. Después el café hace un par de ondas —contenidas dentro de
-  la boca de la taza, medida sobre el vector: elipse de 71% del ancho y 20%
-  del alto, centrada en 43.4% / 38%— y la marca vuela al isotipo de la barra,
-  arriba a la izquierda, mientras el fondo se disuelve. Son unos 3.8 s.
+- **Intro.** Al cargar se dibuja el isotipo **en un solo gesto**, en orden:
+  la taza, el café, el mono y al final los ojos, sin pausas entre ellos para
+  que no se sienta armado por partes. Después el café hace un par de ondas
+  —contenidas dentro de la boca de la taza, medida sobre el vector: elipse de
+  71% del ancho y 20% del alto, centrada en 43.4% / 38%— y la marca vuela al
+  isotipo de la barra, arriba a la izquierda, mientras el fondo se disuelve.
+  Son unos 2.6 s (antes 3.8 s: se aceleró 1.5× el 29-sep).
 
   El isotipo es un solo path compuesto (sus subtrazos son la silueta y los
   huecos, no las líneas sueltas), así que los elementos no se pueden separar
@@ -116,11 +118,12 @@ activan todos, conviene apagar alguno para no pasar de siete.
 
   Los trazos van como `<path>` separados a propósito: SVG reinicia el patrón de
   `stroke-dasharray` en cada subtrazo, así que meterlos todos en un solo `path`
-  con varios `M` no permite destaparlos en orden. Cada uno dura según su
-  longitud real (`getTotalLength()`), que es lo que da velocidad de pluma
-  constante y hace que se lea como una mano dibujando. El script los ordena
-  por cercanía pura, para que la pluma siga desde donde quedó en vez de saltar
-  y dejar piezas sueltas.
+  con varios `M` no permite destaparlos en orden. `pluma.ts` los encadena:
+  cada uno empieza justo cuando termina el anterior (nunca hay dos pedazos
+  apareciendo a la vez) y todos siguen una sola curva de velocidad sobre el
+  largo acumulado (`getTotalLength()`): arranca suave, fluye y aterriza suave.
+  El script los ordena por cercanía pura, para que la pluma siga desde donde
+  quedó en vez de saltar y dejar piezas sueltas.
 
   El `COLCHON` de 2 unidades en el patrón de guiones no es un capricho: sin él
   el desfase inicial cae justo en la frontera entre guión y hueco, y con
