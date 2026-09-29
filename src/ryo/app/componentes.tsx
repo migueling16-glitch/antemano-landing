@@ -1,0 +1,361 @@
+/**
+ * Componentes de la app, sobre el design system de Ryo Café.
+ *
+ * Los que no existían en el sistema (stepper, brújula, gráficas,
+ * hoja) se hicieron con sus reglas: filetes de 1px, bloques planos, radio 0,
+ * cuadrados en vez de círculos, tramas en vez de un tercer color.
+ */
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import isotipoSvg from '../assets/isotipo.svg?raw';
+import { useAviso, cerrarAviso, vibrar } from './estado';
+import { leerFoto } from './lib/fotos';
+import { redondear, type Objetivo, type Sabor, ventanaRatio, REFERENCIA_EY, REFERENCIA_TDS } from './lib/calibracion';
+
+/* ═══ NAVEGACIÓN ══════════════════════════════════════════ */
+
+export const ir = (ruta: string) => { location.hash = `#${ruta}`; };
+
+export function useRuta(): string[] {
+  const leer = () => (location.hash.replace(/^#\/?/, '') || 'inicio').split('/');
+  const [ruta, setRuta] = useState(leer);
+  useEffect(() => {
+    const f = () => { setRuta(leer()); window.scrollTo(0, 0); };
+    addEventListener('hashchange', f);
+    return () => removeEventListener('hashchange', f);
+  }, []);
+  return ruta;
+}
+
+/* ═══ MARCA ═══════════════════════════════════════════════ */
+
+export function Isotipo({ className = '' }: { className?: string }) {
+  return <span className={`marca ${className}`} aria-hidden="true" dangerouslySetInnerHTML={{ __html: isotipoSvg }} />;
+}
+
+/* ═══ BARRA SUPERIOR ══════════════════════════════════════ */
+
+export function Sup({ titulo, sub, volver, accion }: {
+  titulo: string; sub?: string; volver?: string; accion?: { texto: string; hacer: () => void };
+}) {
+  return (
+    <header className="sup">
+      {volver ? (
+        <button type="button" className="sup-volver" onClick={() => (volver === 'atras' ? history.back() : ir(volver))}>← Atrás</button>
+      ) : (
+        <span className="sup-marca" dangerouslySetInnerHTML={{ __html: isotipoSvg }} aria-hidden="true" />
+      )}
+      <div className="sup-texto">
+        <h1 className="sup-titulo">{titulo}</h1>
+        {sub && <span className="sup-sub">{sub}</span>}
+      </div>
+      {accion && <button type="button" className="sup-accion" onClick={accion.hacer}>{accion.texto}</button>}
+    </header>
+  );
+}
+
+/* ═══ PIEZAS PEQUEÑAS ═════════════════════════════════════ */
+
+export const Estado = ({ children, fuerte, tenue }: { children: ReactNode; fuerte?: boolean; tenue?: boolean }) => (
+  <span className={`estado${fuerte ? ' fuerte' : ''}${tenue ? ' tenue' : ''}`}>{children}</span>
+);
+
+export const Seccion = ({ titulo, extra, children }: { titulo: string; extra?: ReactNode; children: ReactNode }) => (
+  <section className="sec">
+    <h2 className="sec-titulo"><span>{titulo}</span>{extra && <span className="extra">{extra}</span>}</h2>
+    {children}
+  </section>
+);
+
+export const BarraProg = ({ valor }: { valor: number }) => (
+  <div className="barra-prog" role="progressbar" aria-valuenow={Math.round(valor * 100)} aria-valuemin={0} aria-valuemax={100}>
+    <span style={{ width: `${Math.max(0, Math.min(1, valor)) * 100}%` }} />
+  </div>
+);
+
+export const Avatar = ({ texto, lleno }: { texto: string; lleno?: boolean }) => (
+  <span className={`avatar${lleno ? ' lleno' : ''}`} aria-hidden="true">{texto}</span>
+);
+
+/** Casilla cuadrada. Rebota al marcarse: el toque se siente. */
+export function Casilla({ hecha }: { hecha: boolean }) {
+  const [pop, setPop] = useState(false);
+  const previa = useRef(hecha);
+  useEffect(() => {
+    const recien = hecha && !previa.current;
+    previa.current = hecha;
+    if (!recien) return;
+    setPop(true);
+    const t = setTimeout(() => setPop(false), 340);
+    return () => clearTimeout(t);
+  }, [hecha]);
+  return <span className={`casilla${pop ? ' pop' : ''}`} data-hecha={hecha ? 'si' : 'no'} aria-hidden="true" />;
+}
+
+/* ═══ AVISO BREVE ═════════════════════════════════════════ */
+
+export function Aviso() {
+  const a = useAviso();
+  if (!a) return null;
+  return (
+    <div className="toast" role="status" key={a.id}>
+      <span>{a.texto}</span>
+      {a.accion && (
+        <button type="button" onClick={() => { a.accion!.hacer(); cerrarAviso(); }}>{a.accion.etiqueta}</button>
+      )}
+    </div>
+  );
+}
+
+/* ═══ HOJA (panel desde abajo) ════════════════════════════ */
+
+export function Hoja({ abierta, alCerrar, titulo, children }: {
+  abierta: boolean; alCerrar: () => void; titulo: string; children: ReactNode;
+}) {
+  useEffect(() => {
+    if (!abierta) return;
+    const f = (e: KeyboardEvent) => { if (e.key === 'Escape') alCerrar(); };
+    addEventListener('keydown', f);
+    return () => removeEventListener('keydown', f);
+  }, [abierta, alCerrar]);
+  if (!abierta) return null;
+  return (
+    <div className="hoja">
+      <div className="hoja-afuera" onClick={alCerrar} aria-hidden="true" />
+      <div className="hoja-panel inv" role="dialog" aria-modal="true" aria-label={titulo}>
+        <div className="fila-h entre">
+          <p className="etq">{titulo}</p>
+          <button type="button" className="enlace" onClick={alCerrar}>Cerrar</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ═══ STEPPER: + / − sin teclado ══════════════════════════ */
+
+export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity, dec = 1, unidad, fuera, onCambio }: {
+  etiqueta: string; valor: number; paso: number; min?: number; max?: number; dec?: number; unidad?: string;
+  fuera?: boolean; onCambio: (v: number) => void;
+}) {
+  const valorRef = useRef(valor);
+  valorRef.current = valor;
+  const repetir = useRef<number>();
+  const cambiar = (dir: 1 | -1) => {
+    const v = redondear(Math.min(max, Math.max(min, valorRef.current + dir * paso)), dec);
+    if (v !== valorRef.current) { valorRef.current = v; onCambio(v); vibrar(5); }
+  };
+  // Mantener presionado repite, cada vez más rápido: para ir de 30 a 38 g sin 80 toques.
+  const empezar = (dir: 1 | -1) => {
+    cambiar(dir);
+    let intervalo = 180;
+    const tic = () => { cambiar(dir); intervalo = Math.max(45, intervalo * 0.85); repetir.current = window.setTimeout(tic, intervalo); };
+    repetir.current = window.setTimeout(tic, 420);
+  };
+  const parar = () => clearTimeout(repetir.current);
+  useEffect(() => parar, []);
+  const boton = (dir: 1 | -1) => (
+    <button
+      type="button"
+      aria-label={`${dir > 0 ? 'Subir' : 'Bajar'} ${etiqueta}`}
+      onPointerDown={(e) => { e.preventDefault(); empezar(dir); }}
+      onPointerUp={parar}
+      onPointerLeave={parar}
+      onPointerCancel={parar}
+      onContextMenu={(e) => e.preventDefault()}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cambiar(dir); } }}
+    >{dir > 0 ? '+' : '−'}</button>
+  );
+  return (
+    <div className="pila-s">
+      <span className="etq">{etiqueta}</span>
+      <div className="stepper" data-fuera={fuera ? 'si' : 'no'}>
+        {boton(-1)}
+        <div className="stepper-centro" aria-live="polite">
+          <span className="stepper-valor">{valor.toFixed(dec)}{unidad && <span className="stepper-unidad">{unidad}</span>}</span>
+        </div>
+        {boton(1)}
+      </div>
+    </div>
+  );
+}
+
+/* ═══ GAUGE: dónde cae un valor contra su ventana ═════════ */
+
+export function Gauge({ valor, desde, hasta, vmin, vmax, etiqueta, texto }: {
+  valor: number; desde: number; hasta: number; vmin: number; vmax: number; etiqueta: string; texto: string;
+}) {
+  const pos = (v: number) => `${((Math.min(vmax, Math.max(vmin, v)) - vmin) / (vmax - vmin)) * 100}%`;
+  const dentro = valor >= desde && valor <= hasta;
+  return (
+    <div className="pila-s">
+      <div className="fila-h entre">
+        <span className="etq">{etiqueta}</span>
+        <span className="etq">{dentro ? 'En ventana' : valor < desde ? 'Abajo' : 'Arriba'}</span>
+      </div>
+      <div className="fila-h entre"><span className="num-m">{texto}</span></div>
+      <div className="gauge" aria-hidden="true">
+        <span className="gauge-ventana" style={{ left: pos(desde), width: `calc(${pos(hasta)} - ${pos(desde)})` }} />
+        <span className="gauge-marca" style={{ left: pos(valor) }} />
+      </div>
+    </div>
+  );
+}
+
+/* ═══ BRÚJULA DE SABOR ════════════════════════════════════ */
+
+export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabor) => void }) {
+  const caja = useRef<HTMLDivElement>(null);
+  const desdeEvento = (e: React.PointerEvent) => {
+    const r = caja.current!.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    const y = 1 - ((e.clientY - r.top) / r.height) * 2;
+    const lim = (n: number) => redondear(Math.max(-1, Math.min(1, n)), 2);
+    onCambio({ x: lim(x), y: lim(y) });
+  };
+  return (
+    <div
+      ref={caja}
+      className="brujula"
+      role="application"
+      aria-label="Brújula de sabor: toca dónde cae el shot"
+      onPointerDown={(e) => { (e.target as Element).setPointerCapture?.(e.pointerId); desdeEvento(e); vibrar(8); }}
+      onPointerMove={(e) => { if (e.buttons) desdeEvento(e); }}
+    >
+      <span className="brujula-eje-x" />
+      <span className="brujula-eje-y" />
+      <span className="brujula-centro" />
+      <span className="brujula-rotulo" style={{ top: 8, left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>Intenso</span>
+      <span className="brujula-rotulo" style={{ bottom: 8, left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>Débil</span>
+      <span className="brujula-rotulo" style={{ left: 8, top: '50%', transform: 'translateY(-130%)' }}>Ácido<br />subextraído</span>
+      <span className="brujula-rotulo" style={{ right: 8, top: '50%', transform: 'translateY(-130%)', textAlign: 'right' }}>Amargo<br />sobreextraído</span>
+      <span className="brujula-rotulo" style={{ left: '50%', top: '50%', transform: 'translate(-50%, 90%)' }}>Balance</span>
+      {valor && <span className="brujula-punto" style={{ left: `${((valor.x + 1) / 2) * 100}%`, top: `${((1 - valor.y) / 2) * 100}%` }} />}
+    </div>
+  );
+}
+
+/* ═══ GRÁFICAS ════════════════════════════════════════════ */
+
+const Trama = () => (
+  <defs>
+    <pattern id="trama" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" style={{ stroke: 'var(--ink)', strokeWidth: 1 }} />
+    </pattern>
+  </defs>
+);
+
+type Ejes = { x0: number; x1: number; y0: number; y1: number };
+const W = 320, H = 220, M = { l: 34, r: 10, t: 12, b: 30 };
+const escala = (e: Ejes) => ({
+  x: (v: number) => M.l + ((v - e.x0) / (e.x1 - e.x0)) * (W - M.l - M.r),
+  y: (v: number) => H - M.b - ((v - e.y0) / (e.y1 - e.y0)) * (H - M.t - M.b),
+});
+
+function Marco({ e, px, py, marcasX, marcasY, etqX, etqY, children }: {
+  e: Ejes; px: (v: number) => number; py: (v: number) => number; marcasX: number[]; marcasY: number[];
+  etqX: string; etqY: string; children: ReactNode;
+}) {
+  return (
+    <svg className="grafica" viewBox={`0 0 ${W} ${H}`} role="img">
+      <Trama />
+      {marcasX.map((v) => <g key={`x${v}`}><line className="guia" x1={px(v)} x2={px(v)} y1={py(e.y0)} y2={py(e.y1)} /><text x={px(v)} y={H - M.b + 13} textAnchor="middle">{v}</text></g>)}
+      {marcasY.map((v) => <g key={`y${v}`}><line className="guia" x1={px(e.x0)} x2={px(e.x1)} y1={py(v)} y2={py(v)} /><text x={M.l - 5} y={py(v) + 3} textAnchor="end">{v}</text></g>)}
+      <line className="eje" x1={px(e.x0)} x2={px(e.x1)} y1={py(e.y0)} y2={py(e.y0)} />
+      <line className="eje" x1={px(e.x0)} x2={px(e.x0)} y1={py(e.y0)} y2={py(e.y1)} />
+      <text x={W - M.r} y={H - 3} textAnchor="end">{etqX}</text>
+      <text x={3} y={M.t - 2}>{etqY}</text>
+      {children}
+    </svg>
+  );
+}
+
+/** Tiempo contra rendimiento de los shots de la sesión, con la zona objetivo. */
+export function GraficaSesion({ shots, objetivo, dosis }: {
+  shots: { n: number; tiempo: number; rendimiento: number; aprobado?: boolean }[]; objetivo: Objetivo; dosis: number;
+}) {
+  const [rmin, rmax] = ventanaRatio(objetivo);
+  const tMin = objetivo.tiempo - objetivo.tolTiempo, tMax = objetivo.tiempo + objetivo.tolTiempo;
+  const ts = shots.map((s) => s.tiempo), rs = shots.map((s) => s.rendimiento);
+  const e: Ejes = {
+    x0: Math.floor(Math.min(tMin - 6, ...ts) / 2) * 2, x1: Math.ceil(Math.max(tMax + 6, ...ts) / 2) * 2,
+    y0: Math.floor(Math.min(dosis * rmin - 4, ...rs) / 2) * 2, y1: Math.ceil(Math.max(dosis * rmax + 4, ...rs) / 2) * 2,
+  };
+  const { x: px, y: py } = escala(e);
+  const paso = (a: number, b: number, n: number) => { const r: number[] = []; for (let v = Math.ceil(a / n) * n; v <= b; v += n) r.push(v); return r; };
+  return (
+    <Marco e={e} px={px} py={py} marcasX={paso(e.x0, e.x1, 4)} marcasY={paso(e.y0, e.y1, 4)} etqX="TIEMPO S" etqY="RENDIMIENTO G">
+      <rect className="zona" x={px(tMin)} y={py(dosis * rmax)} width={px(tMax) - px(tMin)} height={py(dosis * rmin) - py(dosis * rmax)} />
+      <text x={px(tMax) + 3} y={py(dosis * rmax) + 9}>OBJETIVO</text>
+      {shots.length > 1 && <polyline className="traza" points={shots.map((s) => `${px(s.tiempo)},${py(s.rendimiento)}`).join(' ')} />}
+      {shots.map((s) => (
+        <g key={s.n}>
+          <rect className={s.aprobado ? 'punto' : 'punto-vacio'} x={px(s.tiempo) - 7} y={py(s.rendimiento) - 7} width={14} height={14} />
+          <text className={s.aprobado ? 'etq-punto' : ''} x={px(s.tiempo)} y={py(s.rendimiento) + 3} textAnchor="middle" style={s.aprobado ? {} : { fontSize: 8 }}>{s.n}</text>
+        </g>
+      ))}
+    </Marco>
+  );
+}
+
+/** Brew control chart: extracción contra TDS, con la caja de referencia. */
+export function GraficaControl({ puntos }: { puntos: { ey: number; tds: number; n: number }[] }) {
+  const e: Ejes = { x0: 14, x1: 26, y0: 6, y1: 14 };
+  const { x: px, y: py } = escala(e);
+  return (
+    <Marco e={e} px={px} py={py} marcasX={[14, 16, 18, 20, 22, 24, 26]} marcasY={[6, 8, 10, 12, 14]} etqX="EXTRACCIÓN %" etqY="TDS %">
+      <rect className="zona" x={px(REFERENCIA_EY.min)} y={py(REFERENCIA_TDS.max)} width={px(REFERENCIA_EY.max) - px(REFERENCIA_EY.min)} height={py(REFERENCIA_TDS.min) - py(REFERENCIA_TDS.max)} />
+      <text x={px(15)} y={py(13.3)}>FUERTE · SUB</text>
+      <text x={px(25)} y={py(13.3)} textAnchor="end">FUERTE · SOBRE</text>
+      <text x={px(15)} y={py(6.5)}>DÉBIL · SUB</text>
+      <text x={px(25)} y={py(6.5)} textAnchor="end">DÉBIL · SOBRE</text>
+      {puntos.map((p) => (
+        <g key={p.n}>
+          <rect className="punto" x={px(Math.min(26, Math.max(14, p.ey))) - 7} y={py(Math.min(14, Math.max(6, p.tds))) - 7} width={14} height={14} />
+          <text className="etq-punto" x={px(Math.min(26, Math.max(14, p.ey)))} y={py(Math.min(14, Math.max(6, p.tds))) + 3} textAnchor="middle">{p.n}</text>
+        </g>
+      ))}
+    </Marco>
+  );
+}
+
+/** Molienda que funcionó contra días de reposo, con su tendencia. */
+export function GraficaTendencia({ puntos, recta, hoy }: {
+  puntos: { x: number; y: number }[]; recta: ((x: number) => number) | null; hoy?: number;
+}) {
+  const ys = puntos.map((p) => p.y);
+  const e: Ejes = { x0: 0, x1: 20, y0: Math.floor(Math.min(...ys, 5) - 0.5), y1: Math.ceil(Math.max(...ys, 7) + 0.5) };
+  const { x: px, y: py } = escala(e);
+  const marcasY: number[] = [];
+  for (let v = e.y0; v <= e.y1; v += 1) marcasY.push(v);
+  return (
+    <Marco e={e} px={px} py={py} marcasX={[0, 4, 8, 12, 16, 20]} marcasY={marcasY} etqX="DÍAS DE REPOSO" etqY="MOLIENDA">
+      {recta && <line className="traza" x1={px(e.x0)} y1={py(recta(e.x0))} x2={px(e.x1)} y2={py(recta(e.x1))} style={{ strokeDasharray: '4 3' }} />}
+      {hoy !== undefined && <line className="eje" x1={px(hoy)} x2={px(hoy)} y1={py(e.y0)} y2={py(e.y1)} />}
+      {hoy !== undefined && <text x={px(hoy) + 3} y={M.t + 8}>HOY</text>}
+      {puntos.map((p, i) => <rect key={i} className="punto" x={px(p.x) - 4} y={py(p.y) - 4} width={8} height={8} />)}
+    </Marco>
+  );
+}
+
+/* ═══ FOTO GUARDADA ═══════════════════════════════════════ */
+
+/** Muestra una foto de evidencia. Las de los datos de ejemplo son un marcador. */
+export function Foto({ id, className = 'foto-mini', sello }: { id?: string; className?: string; sello?: string }) {
+  const [url, setUrl] = useState<string>();
+  useEffect(() => {
+    if (!id || id === 'demo') return;
+    let vivo = true, u: string | undefined;
+    leerFoto(id).then((b) => { if (b && vivo) { u = URL.createObjectURL(b); setUrl(u); } });
+    return () => { vivo = false; if (u) URL.revokeObjectURL(u); };
+  }, [id]);
+  if (!id) return null;
+  if (id === 'demo' || !url) {
+    return (
+      <span className={`${className} foto-vacia`} title={sello ?? 'Foto de ejemplo'} style={{ padding: 6 }}>
+        <Isotipo />
+      </span>
+    );
+  }
+  return <img className={className} src={url} alt={sello ?? 'Foto de evidencia'} />;
+}

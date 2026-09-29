@@ -1,0 +1,634 @@
+/**
+ * Estado de la maqueta.
+ *
+ * Todo vive en el teléfono (localStorage; las fotos en IndexedDB). La forma
+ * de los datos es la del modelo acordado en la Fase 0 (negocio → sucursal →
+ * operación), para que pasar a Supabase sea cambiar de dónde se leen y
+ * escriben, no rediseñar.
+ */
+import { useSyncExternalStore } from 'react';
+import { crearSemilla, VERSION } from './semilla';
+import { jornadaDe } from './lib/tiempo';
+import { programar, type EstadoPregunta } from './lib/repaso';
+import { CONTINUO, type Objetivo, type Sabor } from './lib/calibracion';
+import { borrarFotos } from './lib/fotos';
+
+/* ═══ TIPOS ═══════════════════════════════════════════════ */
+
+export type Rol = 'admin' | 'encargado' | 'barista';
+
+export type Usuario = {
+  id: string;
+  nombre: string;
+  iniciales: string;
+  correo: string;
+  rol: Rol;
+  nivel: 1 | 2 | 3;
+  activo: boolean;
+  /** "AAAA-MM-DD" de ingreso: define la ruta de onboarding */
+  ingreso: string;
+  invitado?: boolean;
+};
+
+export type TipoItem = 'check' | 'numero' | 'foto' | 'nota' | 'calibracion';
+
+export type ItemPlantilla = {
+  id: string;
+  seccion: string;
+  texto: string;
+  tipo: TipoItem;
+  /** Letra recta en el checklist: seguridad, inocuidad o dinero. */
+  critica?: boolean;
+  min?: number;
+  max?: number;
+  unidad?: string;
+  paso?: number;
+  inicial?: number;
+  /** Botón de evidencia en el ítem */
+  foto?: 'opcional' | 'obligatoria';
+};
+
+export type Plantilla = {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  frecuencia: 'diaria' | 'semanal';
+  /** Para las semanales: 0 = domingo … 6 = sábado */
+  dia?: number;
+  /** "HH:MM" en hora de Durango. Pasada la hora sin completar = atrasada. */
+  horaLimite: string;
+  activa: boolean;
+  items: ItemPlantilla[];
+};
+
+export type Marca = {
+  por: string;
+  /** Hora del servidor (en la maqueta, la del teléfono) */
+  en: number;
+  valor?: number;
+  texto?: string;
+  fotoId?: string;
+  fuera?: boolean;
+  acciones?: string[];
+};
+
+export type Ejecucion = {
+  id: string;
+  plantillaId: string;
+  jornada: string;
+  iniciadaPor: string;
+  iniciadaEn: number;
+  completadaEn?: number;
+  completadaPor?: string;
+  marcas: Record<string, Marca>;
+  validadaPor?: string;
+  validadaEn?: number;
+};
+
+export type FotoMeta = {
+  id: string;
+  por: string;
+  en: number;
+  bytes: number;
+  bytesOriginal: number;
+  /** Sin red, la foto espera en el teléfono y sube al reconectar. */
+  estado: 'subida' | 'pendiente';
+};
+
+export type Equipo = {
+  id: string; nombre: string; tipo: 'molino' | 'maquina';
+  paso?: number;
+  /** Los molinos de filtrados no aparecen al calibrar espresso. */
+  uso?: 'espresso' | 'filtrados';
+  maquina?: Maquina;
+};
+
+/** Lo que sabe la app de un botón: cuánto entrega en la báscula. */
+export type Programacion = { gramos: number; en: number; por: string };
+
+/**
+ * La Marzocco Linea Classic AV de un grupo: caldera de café con PID (una sola
+ * temperatura para todos los cafés), flujómetro, y botonera con timer y 4
+ * dosis programables más continuo. El tiempo del shot se lee en la botonera.
+ */
+export type Maquina = {
+  modelo: string;
+  detalle: string;
+  /** °C de la caldera de café */
+  pid: number;
+  botones: { id: string; nombre: string }[];
+  /** botonId → última medición */
+  programado: Record<string, Programacion>;
+};
+export { CONTINUO };
+
+export type Cafe = {
+  id: string;
+  nombre: string;
+  origen: string;
+  proceso: string;
+  tostador: string;
+  /** "AAAA-MM-DD" */
+  tueste: string;
+  activo: boolean;
+  notas: string;
+  objetivo: Objetivo;
+  /** Botón de la máquina con el que se sirve, o continuo. */
+  boton: string;
+};
+
+export type Shot = {
+  id: string;
+  n: number;
+  dosis: number;
+  rendimiento: number;
+  tiempo: number;
+  molienda: number;
+  tds?: number;
+  sabor?: Sabor;
+  en: number;
+  aprobado?: boolean;
+};
+
+export type SesionCal = {
+  id: string;
+  cafeId: string;
+  molinoId: string;
+  /** id del botón volumétrico, o CONTINUO */
+  botonId: string;
+  por: string;
+  jornada: string;
+  diasReposo: number;
+  inicio: number;
+  fin?: number;
+  shots: Shot[];
+  aprobadoId?: string;
+};
+
+export type RecetaDelDia = {
+  jornada: string;
+  cafeId: string;
+  sesionId: string;
+  shotId: string;
+  por: string;
+  en: number;
+  botonId: string;
+  dosis: number;
+  rendimiento: number;
+  tiempo: number;
+  molienda: number;
+};
+
+export type TurnoTipo = { id: string; nombre: string; corto: string; inicio: string; fin: string };
+
+export type Semana = {
+  /** "AAAA-MM-DD" del lunes */
+  id: string;
+  estado: 'borrador' | 'publicada';
+  publicadaEn?: number;
+  /** clave `${usuarioId}|${fecha}` → id del turno tipo */
+  turnos: Record<string, string>;
+};
+
+export type CambioTurno = {
+  id: string;
+  de: string;
+  fecha: string;
+  turnoId: string;
+  motivo: string;
+  acepta?: string;
+  estado: 'abierto' | 'aceptado' | 'aprobado' | 'rechazado';
+  en: number;
+};
+
+export type Progreso = {
+  /** leccionId → momento en que se completó */
+  lecciones: Record<string, number>;
+  /** preguntaId → cuándo toca repasarla */
+  repaso: Record<string, EstadoPregunta>;
+  /** nivel → firma de la evaluación práctica */
+  evaluaciones: Record<string, { por: string; en: number; criterios: boolean[] }>;
+  /** Lecciones reasignadas por el encargado (reentrenamiento) */
+  asignadas: { leccionId: string; por: string; en: number; motivo: string }[];
+};
+
+export type Estado = {
+  v: number;
+  usuarioId: string | null;
+  tema: 'auto' | 'champagne' | 'cafe';
+  sucursal: { id: string; negocio: string; nombre: string; apertura: string; cierre: string };
+  usuarios: Usuario[];
+  plantillas: Plantilla[];
+  ejecuciones: Ejecucion[];
+  fotos: Record<string, FotoMeta>;
+  equipos: Equipo[];
+  cafes: Cafe[];
+  sesiones: SesionCal[];
+  recetasDelDia: Record<string, RecetaDelDia>;
+  turnosTipo: TurnoTipo[];
+  semanas: Semana[];
+  disponibilidad: Record<string, boolean[]>;
+  cambios: CambioTurno[];
+  progreso: Record<string, Progreso>;
+};
+
+/* ═══ ALMACÉN ═════════════════════════════════════════════ */
+
+export { VERSION };
+const CLAVE = 'ryo-app:v3';
+
+function cargar(): Estado {
+  try {
+    const guardado = JSON.parse(localStorage.getItem(CLAVE) ?? 'null') as Estado | null;
+    if (guardado && guardado.v === VERSION) return guardado;
+  } catch {}
+  return crearSemilla();
+}
+
+let estado: Estado = typeof window === 'undefined' ? crearSemilla() : cargar();
+const oyentes = new Set<() => void>();
+
+function guardar() {
+  try { localStorage.setItem(CLAVE, JSON.stringify(estado)); } catch {}
+}
+
+export function useEstado(): Estado {
+  return useSyncExternalStore(
+    (f) => { oyentes.add(f); return () => oyentes.delete(f); },
+    () => estado,
+    () => estado,
+  );
+}
+
+export const leerEstado = () => estado;
+
+/** Cambia el estado sobre una copia y avisa a la interfaz. */
+export function actualizar(fn: (e: Estado) => void) {
+  const copia = structuredClone(estado);
+  fn(copia);
+  estado = copia;
+  guardar();
+  oyentes.forEach((o) => o());
+}
+
+export function reiniciarDemo() {
+  const usuarioId = estado.usuarioId;
+  estado = { ...crearSemilla(), usuarioId };
+  guardar();
+  borrarFotos();
+  oyentes.forEach((o) => o());
+}
+
+export const nuevoId = (prefijo: string) =>
+  `${prefijo}-${(globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)).slice(0, 8)}`;
+
+/* ═══ CONSULTAS ═══════════════════════════════════════════ */
+
+export const usuario = (e: Estado, id?: string) => e.usuarios.find((u) => u.id === id);
+export const yo = (e: Estado) => usuario(e, e.usuarioId ?? undefined);
+export const cafe = (e: Estado, id: string) => e.cafes.find((c) => c.id === id);
+export const plantilla = (e: Estado, id: string) => e.plantillas.find((p) => p.id === id);
+export const maquinaDe = (e: Estado) => e.equipos.find((x) => x.tipo === 'maquina')?.maquina;
+export const nombreBoton = (m: Maquina | undefined, botonId: string) =>
+  botonId === CONTINUO ? 'Continuo' : m?.botones.find((b) => b.id === botonId)?.nombre ?? botonId;
+export const programadoDe = (m: Maquina | undefined, botonId: string) => m?.programado[botonId];
+export const puede = (e: Estado, ...roles: Rol[]) => {
+  const u = yo(e);
+  return !!u && roles.includes(u.rol);
+};
+
+/** La ejecución de una plantilla en una jornada, si existe. */
+export const ejecucionDe = (e: Estado, plantillaId: string, jornada: string) =>
+  e.ejecuciones.find((x) => x.plantillaId === plantillaId && x.jornada === jornada);
+
+/** Qué plantillas tocan hoy. */
+export function plantillasDeHoy(e: Estado, hoy = jornadaDe()) {
+  const dia = new Date(`${hoy}T12:00:00Z`).getUTCDay();
+  return e.plantillas.filter((p) => p.activa && (p.frecuencia === 'diaria' || p.dia === dia));
+}
+
+/** Ítems que faltan para poder completar (los de foto obligatoria cuentan). */
+export function pendientes(p: Plantilla, ej?: Ejecucion) {
+  return p.items.filter((i) => {
+    const m = ej?.marcas[i.id];
+    if (!m) return true;
+    if (i.foto === 'obligatoria' && !m.fotoId) return true;
+    return false;
+  });
+}
+
+export const fueraDeRango = (ej?: Ejecucion) => Object.values(ej?.marcas ?? {}).filter((m) => m.fuera);
+
+export function progresoDe(e: Estado, usuarioId: string): Progreso {
+  return e.progreso[usuarioId] ?? { lecciones: {}, repaso: {}, evaluaciones: {}, asignadas: [] };
+}
+
+/* ═══ ACCIONES ════════════════════════════════════════════ */
+
+export const entrar = (usuarioId: string) => actualizar((e) => { e.usuarioId = usuarioId; });
+export const salir = () => actualizar((e) => { e.usuarioId = null; });
+export const cambiarTema = (tema: Estado['tema']) => actualizar((e) => { e.tema = tema; });
+
+/* ── Checklists ─────────────────────────────────────────── */
+
+export function iniciarEjecucion(plantillaId: string): string {
+  const hoy = jornadaDe();
+  const existente = ejecucionDe(estado, plantillaId, hoy);
+  if (existente) return existente.id;
+  const id = nuevoId('ej');
+  actualizar((e) => {
+    e.ejecuciones.push({ id, plantillaId, jornada: hoy, iniciadaPor: e.usuarioId!, iniciadaEn: Date.now(), marcas: {} });
+  });
+  return id;
+}
+
+export function marcar(ejecucionId: string, itemId: string, datos: Partial<Marca> = {}) {
+  actualizar((e) => {
+    const ej = e.ejecuciones.find((x) => x.id === ejecucionId);
+    if (!ej || ej.completadaEn) return;
+    const previa = ej.marcas[itemId];
+    ej.marcas[itemId] = { ...previa, ...datos, por: e.usuarioId!, en: previa?.en ?? Date.now() };
+  });
+}
+
+export function desmarcar(ejecucionId: string, itemId: string): Marca | undefined {
+  let quitada: Marca | undefined;
+  actualizar((e) => {
+    const ej = e.ejecuciones.find((x) => x.id === ejecucionId);
+    if (!ej || ej.completadaEn) return;
+    quitada = ej.marcas[itemId];
+    delete ej.marcas[itemId];
+  });
+  return quitada;
+}
+
+export function restaurarMarca(ejecucionId: string, itemId: string, marca: Marca) {
+  actualizar((e) => {
+    const ej = e.ejecuciones.find((x) => x.id === ejecucionId);
+    if (ej && !ej.completadaEn) ej.marcas[itemId] = marca;
+  });
+}
+
+export function registrarFoto(meta: FotoMeta) {
+  actualizar((e) => { e.fotos[meta.id] = meta; });
+}
+
+/** Al volver la red, lo que esperaba en el teléfono se sube. */
+export function subirPendientes(): number {
+  const n = Object.values(estado.fotos).filter((f) => f.estado === 'pendiente').length;
+  if (n) actualizar((e) => { Object.values(e.fotos).forEach((f) => { f.estado = 'subida'; }); });
+  return n;
+}
+
+export function completar(ejecucionId: string) {
+  actualizar((e) => {
+    const ej = e.ejecuciones.find((x) => x.id === ejecucionId);
+    if (ej) { ej.completadaEn = Date.now(); ej.completadaPor = e.usuarioId!; }
+  });
+}
+
+export function reabrir(ejecucionId: string) {
+  actualizar((e) => {
+    const ej = e.ejecuciones.find((x) => x.id === ejecucionId);
+    if (ej) { delete ej.completadaEn; delete ej.completadaPor; delete ej.validadaEn; delete ej.validadaPor; }
+  });
+}
+
+export function validar(ejecucionId: string) {
+  actualizar((e) => {
+    const ej = e.ejecuciones.find((x) => x.id === ejecucionId);
+    if (ej) { ej.validadaPor = e.usuarioId!; ej.validadaEn = Date.now(); }
+  });
+}
+
+/* ── Calibración ────────────────────────────────────────── */
+
+export function nuevaSesion(cafeId: string, molinoId: string, diasReposo: number, botonId: string): string {
+  const id = nuevoId('cal');
+  actualizar((e) => {
+    e.sesiones.push({ id, cafeId, molinoId, botonId, por: e.usuarioId!, jornada: jornadaDe(), diasReposo, inicio: Date.now(), shots: [] });
+  });
+  return id;
+}
+
+/** Reprogramar un botón: la app anota lo que ahora entrega en la báscula. */
+export function programarBoton(botonId: string, gramos: number) {
+  actualizar((e) => {
+    const m = maquinaDe(e);
+    if (m) m.programado[botonId] = { gramos, en: Date.now(), por: e.usuarioId! };
+  });
+}
+
+export function cambiarPid(pid: number) {
+  actualizar((e) => { const m = maquinaDe(e); if (m) m.pid = pid; });
+}
+
+export function renombrarBoton(botonId: string, nombre: string) {
+  actualizar((e) => {
+    const b = maquinaDe(e)?.botones.find((x) => x.id === botonId);
+    if (b && nombre.trim()) b.nombre = nombre.trim();
+  });
+}
+
+export function asignarBoton(cafeId: string, botonId: string) {
+  actualizar((e) => { const c = e.cafes.find((x) => x.id === cafeId); if (c) c.boton = botonId; });
+}
+
+export function guardarShot(sesionId: string, datos: Omit<Shot, 'id' | 'n' | 'en'>): string {
+  const id = nuevoId('shot');
+  actualizar((e) => {
+    const s = e.sesiones.find((x) => x.id === sesionId);
+    if (s) s.shots.push({ ...datos, id, n: s.shots.length + 1, en: Date.now() });
+  });
+  return id;
+}
+
+export function evaluarShot(sesionId: string, shotId: string, datos: Pick<Shot, 'sabor' | 'tds'>) {
+  actualizar((e) => {
+    const shot = e.sesiones.find((x) => x.id === sesionId)?.shots.find((x) => x.id === shotId);
+    if (shot) Object.assign(shot, datos);
+  });
+}
+
+/** Cerrar una sesión sin aprobar ningún shot. */
+export function terminarSesion(sesionId: string) {
+  actualizar((e) => {
+    const s = e.sesiones.find((x) => x.id === sesionId);
+    if (s && !s.fin) s.fin = Date.now();
+  });
+}
+
+/**
+ * Aprobar un shot lo fija como receta del día para todo el turno, y completa
+ * los ítems de checklist enlazados a calibración.
+ */
+export function aprobarShot(sesionId: string, shotId: string) {
+  actualizar((e) => {
+    const s = e.sesiones.find((x) => x.id === sesionId);
+    const shot = s?.shots.find((x) => x.id === shotId);
+    if (!s || !shot) return;
+    s.shots.forEach((x) => { x.aprobado = x.id === shotId; });
+    s.aprobadoId = shotId;
+    s.fin = Date.now();
+    e.recetasDelDia[s.jornada] = {
+      jornada: s.jornada, cafeId: s.cafeId, sesionId, shotId, por: e.usuarioId!, en: Date.now(),
+      botonId: s.botonId,
+      dosis: shot.dosis, rendimiento: shot.rendimiento, tiempo: shot.tiempo, molienda: shot.molienda,
+    };
+    // El shot aprobado es la medición más reciente de ese botón.
+    const m = maquinaDe(e);
+    if (m && s.botonId !== CONTINUO) m.programado[s.botonId] = { gramos: shot.rendimiento, en: Date.now(), por: e.usuarioId! };
+    for (const ej of e.ejecuciones.filter((x) => x.jornada === s.jornada && !x.completadaEn)) {
+      const p = e.plantillas.find((x) => x.id === ej.plantillaId);
+      p?.items.filter((i) => i.tipo === 'calibracion' && !ej.marcas[i.id]).forEach((i) => {
+        ej.marcas[i.id] = { por: e.usuarioId!, en: Date.now(), texto: `Receta aprobada: ${shot.dosis} g → ${shot.rendimiento} g · ${shot.tiempo} s` };
+      });
+    }
+  });
+}
+
+/* ── Horarios ───────────────────────────────────────────── */
+
+export function asignarTurno(semanaId: string, usuarioId: string, fecha: string, turnoId: string | null) {
+  actualizar((e) => {
+    let sem = e.semanas.find((s) => s.id === semanaId);
+    if (!sem) { sem = { id: semanaId, estado: 'borrador', turnos: {} }; e.semanas.push(sem); }
+    const k = `${usuarioId}|${fecha}`;
+    if (turnoId) sem.turnos[k] = turnoId; else delete sem.turnos[k];
+    if (sem.estado === 'publicada') sem.estado = 'borrador';
+  });
+}
+
+export function publicarSemana(semanaId: string) {
+  actualizar((e) => {
+    const sem = e.semanas.find((s) => s.id === semanaId);
+    if (sem) { sem.estado = 'publicada'; sem.publicadaEn = Date.now(); }
+  });
+}
+
+export function alternarDisponible(usuarioId: string, dia: number) {
+  actualizar((e) => {
+    const d = e.disponibilidad[usuarioId] ?? Array(7).fill(true);
+    d[dia] = !d[dia];
+    e.disponibilidad[usuarioId] = d;
+  });
+}
+
+export function solicitarCambio(fecha: string, turnoId: string, motivo: string) {
+  actualizar((e) => {
+    e.cambios.unshift({ id: nuevoId('cam'), de: e.usuarioId!, fecha, turnoId, motivo, estado: 'abierto', en: Date.now() });
+  });
+}
+
+export function responderCambio(id: string, accion: 'aceptar' | 'aprobar' | 'rechazar') {
+  actualizar((e) => {
+    const c = e.cambios.find((x) => x.id === id);
+    if (!c) return;
+    if (accion === 'aceptar') { c.acepta = e.usuarioId!; c.estado = 'aceptado'; }
+    if (accion === 'rechazar') c.estado = 'rechazado';
+    if (accion === 'aprobar' && c.acepta) {
+      c.estado = 'aprobado';
+      // El turno pasa a quien aceptó.
+      const sem = e.semanas.find((s) => s.turnos[`${c.de}|${c.fecha}`]);
+      if (sem) {
+        delete sem.turnos[`${c.de}|${c.fecha}`];
+        sem.turnos[`${c.acepta}|${c.fecha}`] = c.turnoId;
+      }
+    }
+  });
+}
+
+/* ── Capacitación ───────────────────────────────────────── */
+
+function conProgreso(e: Estado, usuarioId: string, fn: (p: Progreso) => void) {
+  const p = e.progreso[usuarioId] ?? { lecciones: {}, repaso: {}, evaluaciones: {}, asignadas: [] };
+  fn(p);
+  e.progreso[usuarioId] = p;
+}
+
+/** Terminar una lección programa sus preguntas para repasarlas mañana. */
+export function completarLeccion(leccionId: string, preguntas: string[], aciertos: boolean[]) {
+  const hoy = jornadaDe();
+  actualizar((e) => conProgreso(e, e.usuarioId!, (p) => {
+    p.lecciones[leccionId] = Date.now();
+    preguntas.forEach((q, i) => { p.repaso[q] = programar(undefined, aciertos[i], hoy); });
+    p.asignadas = p.asignadas.filter((a) => a.leccionId !== leccionId);
+  }));
+}
+
+export function responderRepaso(preguntaId: string, acierto: boolean) {
+  const hoy = jornadaDe();
+  actualizar((e) => conProgreso(e, e.usuarioId!, (p) => {
+    p.repaso[preguntaId] = programar(p.repaso[preguntaId], acierto, hoy);
+  }));
+}
+
+export function firmarEvaluacion(usuarioId: string, nivel: number, criterios: boolean[]) {
+  actualizar((e) => {
+    conProgreso(e, usuarioId, (p) => { p.evaluaciones[nivel] = { por: e.usuarioId!, en: Date.now(), criterios }; });
+    const u = e.usuarios.find((x) => x.id === usuarioId);
+    if (u && criterios.every(Boolean) && u.nivel === nivel && nivel < 3) u.nivel = (nivel + 1) as 2 | 3;
+  });
+}
+
+export function reasignar(usuarioId: string, leccionId: string, motivo: string) {
+  actualizar((e) => conProgreso(e, usuarioId, (p) => {
+    delete p.lecciones[leccionId];
+    p.asignadas.push({ leccionId, por: e.usuarioId!, en: Date.now(), motivo });
+  }));
+}
+
+/* ── Administración ─────────────────────────────────────── */
+
+export function invitar(nombre: string, correo: string, rol: Rol) {
+  const partes = nombre.trim().split(/\s+/);
+  actualizar((e) => {
+    e.usuarios.push({
+      id: nuevoId('u'), nombre: nombre.trim(), correo: correo.trim(), rol, nivel: 1, activo: true, invitado: true,
+      iniciales: partes.slice(0, 2).map((p) => p[0]).join('').toUpperCase(), ingreso: jornadaDe(),
+    });
+  });
+}
+
+export const cambiarRol = (id: string, rol: Rol) =>
+  actualizar((e) => { const u = e.usuarios.find((x) => x.id === id); if (u) u.rol = rol; });
+
+export const alternarActivo = (id: string) =>
+  actualizar((e) => { const u = e.usuarios.find((x) => x.id === id); if (u) u.activo = !u.activo; });
+
+export const alternarPlantilla = (id: string) =>
+  actualizar((e) => { const p = e.plantillas.find((x) => x.id === id); if (p) p.activa = !p.activa; });
+
+export function agregarCafe(c: Omit<Cafe, 'id'>) {
+  actualizar((e) => { e.cafes.unshift({ ...c, id: nuevoId('cafe') }); });
+}
+
+/* ═══ AVISOS (interfaz) ═══════════════════════════════════ */
+
+type Aviso = { id: number; texto: string; accion?: { etiqueta: string; hacer: () => void } };
+let aviso: Aviso | null = null;
+const oyentesAviso = new Set<() => void>();
+let reloj = 0;
+
+export function avisar(texto: string, accion?: Aviso['accion']) {
+  aviso = { id: Date.now(), texto, accion };
+  oyentesAviso.forEach((o) => o());
+  clearTimeout(reloj);
+  reloj = window.setTimeout(() => { aviso = null; oyentesAviso.forEach((o) => o()); }, accion ? 5000 : 2800);
+}
+
+export function cerrarAviso() {
+  aviso = null;
+  oyentesAviso.forEach((o) => o());
+}
+
+export function useAviso() {
+  return useSyncExternalStore(
+    (f) => { oyentesAviso.add(f); return () => oyentesAviso.delete(f); },
+    () => aviso,
+    () => aviso,
+  );
+}
+
+/** Vibración corta: en Android se siente; en iPhone no hace nada. */
+export const vibrar = (patron: number | number[] = 10) => { try { navigator.vibrate?.(patron); } catch {} };

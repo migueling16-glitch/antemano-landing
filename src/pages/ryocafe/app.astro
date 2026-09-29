@@ -1,0 +1,55 @@
+---
+/**
+ * Ryo Café — app de barra (maqueta navegable, sin backend).
+ * Ruta: /ryocafe/app. Código en src/ryo/app/.
+ * Documento interno: noindex y sin enlace desde la página pública.
+ */
+import App from '../../ryo/app/App';
+---
+<!doctype html>
+<html lang="es-MX" data-tema="champagne">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Ryo Café · Barra</title>
+    <meta name="description" content="Maqueta de la app de barra de Ryo Café: checklists, calibración, capacitación y horarios." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#f8f3d1" />
+    <link rel="manifest" href="/ryo/app/manifest.webmanifest" />
+    <link rel="icon" href="/ryo/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/ryo/app/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Ryo Barra" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;1,400&display=swap"
+    />
+    <script is:inline>
+      // Tema antes de pintar, para no parpadear: el guardado, o por la hora de Durango.
+      (function () {
+        var tema = 'auto';
+        try { tema = (JSON.parse(localStorage.getItem('ryo-app:v3') || '{}').tema) || 'auto'; } catch (e) {}
+        if (tema === 'auto') {
+          var h = (new Date().getUTCHours() + 24 - 6) % 24;
+          tema = h >= 7 && h < 19 ? 'champagne' : 'cafe';
+        }
+        if (location.hash.indexOf('#/calibrar') === 0) tema = 'cafe';
+        document.documentElement.dataset.tema = tema;
+      })();
+    </script>
+    <style is:global>
+      html[data-tema='cafe'], html[data-tema='cafe'] body { background: #302413; color: #f8f3d1; }
+      html, body { background: #f8f3d1; color: #302413; margin: 0; }
+      .cargando { min-height: 100dvh; display: grid; place-items: center; font: italic 0.8rem 'JetBrains Mono', monospace; letter-spacing: 0.1em; }
+    </style>
+  </head>
+  <body>
+    <App client:only="react">
+      <p class="cargando" slot="fallback">Cargando la barra…</p>
+    </App>
+    <noscript><p class="cargando">Esta app necesita JavaScript.</p></noscript>
+  </body>
+</html>

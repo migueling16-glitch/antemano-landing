@@ -1,0 +1,17 @@
+{
+  "name": "Ryo Café · Barra",
+  "short_name": "Ryo Barra",
+  "description": "Checklists, calibración, capacitación y horarios del equipo de Ryo Café.",
+  "lang": "es-MX",
+  "start_url": "/ryocafe/app",
+  "scope": "/ryocafe/app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F3D1",
+  "theme_color": "#F8F3D1",
+  "icons": [
+    { "src": "/ryo/app/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/ryo/app/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/ryo/app/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
