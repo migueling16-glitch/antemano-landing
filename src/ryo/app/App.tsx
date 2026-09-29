@@ -6,7 +6,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import './app.css';
 import { useEstado, yo, puede, salir, subirPendientes, avisar, type Estado } from './estado';
-import { Aviso, useRuta, Sup } from './componentes';
+import { Aviso, Ritual, useRuta, Sup } from './componentes';
 import { TEMA_AUTO } from '../config';
 import { dgo } from './lib/tiempo';
 import { Entrar } from './pantallas/Entrar';
@@ -133,6 +133,7 @@ export default function App() {
         </nav>
       )}
       <Aviso />
+      <Ritual />
     </div>
   );
 }

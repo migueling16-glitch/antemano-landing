@@ -5,13 +5,13 @@
 import { useState } from 'react';
 import {
   useEstado, yo, usuario, progresoDe, puede, completarLeccion, responderRepaso, firmarEvaluacion, reasignar,
-  avisar, vibrar, type Estado, type Usuario,
+  avisar, celebrar, vibrar, type Estado, type Usuario,
 } from '../estado';
 import {
   NIVELES, MODULOS, LECCIONES, RUBRICAS, ONBOARDING, leccion as buscarLeccion, leccionesDe, preguntaPorId, receta,
   type Leccion, type Bloque,
 } from '../contenido';
-import { Sup, Seccion, BarraProg, Casilla, Avatar, Hoja, Estado as Etq, ir } from '../componentes';
+import { Sup, Seccion, BarraProg, Casilla, Avatar, Hoja, Marca, Estado as Etq, ir } from '../componentes';
 import { tocaHoy, INTERVALOS } from '../lib/repaso';
 import { jornadaDe, diasEntre, cuando, fechaCorta } from '../lib/tiempo';
 
@@ -218,7 +218,8 @@ export function AprenderRepaso() {
       <>
         <Sup titulo="Repaso" volver="aprender" />
         <main className="pant pila">
-          <section className="bloque inv">
+          <section className="bloque inv repaso-fin">
+            <Marca tipo="isotipo" alto={64} revela />
             <span className="etq">Listo por hoy</span>
             <span className="num-l">{bien}/{fila.length}</span>
             <span className="cuerpo">{fila.length ? 'Lo que recordaste regresa en más días; lo que no, mañana.' : 'No tienes preguntas pendientes hoy.'}</span>
@@ -357,7 +358,8 @@ export function AprenderEvaluar({ id }: { id: string }) {
             onClick={() => {
               firmarEvaluacion(u.id, u.nivel, criterios);
               vibrar([30, 60, 30]);
-              avisar(todo && u.nivel < 3 ? `${u.nombre.split(' ')[0]} sube a Barista ${u.nivel + 1}.` : 'Evaluación firmada. Queda en su historial.');
+              if (todo && u.nivel < 3) celebrar(`Barista ${u.nivel + 1}.`, `${u.nombre.split(' ')[0]} sube de nivel. Firmado por ti.`);
+              else avisar('Evaluación firmada. Queda en su historial.');
             }}>
             {todo ? (u.nivel < 3 ? `Firmar y subir a Barista ${u.nivel + 1}` : 'Firmar') : 'Firmar como parcial'}
           </button>

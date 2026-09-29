@@ -7,9 +7,12 @@
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import isotipoSvg from '../assets/isotipo.svg?raw';
-import { useAviso, cerrarAviso, vibrar } from './estado';
+import logotipoSvg from '../assets/logotipo.svg?raw';
+import taglineSvg from '../assets/tagline.svg?raw';
+import auxiliarSvg from '../assets/auxiliar.svg?raw';
+import { useAviso, cerrarAviso, useRitual, cerrarRitual, vibrar } from './estado';
 import { leerFoto } from './lib/fotos';
-import { redondear, type Objetivo, type Sabor, ventanaRatio, REFERENCIA_EY, REFERENCIA_TDS } from './lib/calibracion';
+import { redondear, type Objetivo, type Sabor, ventanaRatio } from './lib/calibracion';
 
 /* ═══ NAVEGACIÓN ══════════════════════════════════════════ */
 
@@ -28,8 +31,72 @@ export function useRuta(): string[] {
 
 /* ═══ MARCA ═══════════════════════════════════════════════ */
 
-export function Isotipo({ className = '' }: { className?: string }) {
-  return <span className={`marca ${className}`} aria-hidden="true" dangerouslySetInnerHTML={{ __html: isotipoSvg }} />;
+/*
+ * Las cuatro piezas de marca, recortadas a su área de dibujo (los SVG
+ * originales traen margen) para que `alto` sea la altura real del trazo.
+ * Brand book: logotipo e isotipo nunca por debajo de 50 px de alto.
+ */
+const recorte = (svg: string, caja: string) => svg.replace(/viewBox="[^"]*"/, `viewBox="${caja}"`);
+const MARCAS = {
+  isotipo: recorte(isotipoSvg, '38 40 479 361'),
+  logotipo: recorte(logotipoSvg, '38 35 469 369'),
+  tagline: recorte(taglineSvg, '67 52 664 191'),
+  auxiliar: recorte(auxiliarSvg, '103 106 592 488'),
+};
+export type TipoMarca = keyof typeof MARCAS;
+
+/** Una pieza de marca en la tinta del tema. `revela` la hace subir como el nivel de la taza. */
+export function Marca({ tipo, alto, etiqueta, revela, className = '' }: {
+  tipo: TipoMarca; alto: number; etiqueta?: string; revela?: boolean; className?: string;
+}) {
+  return (
+    <span
+      className={`marca marca-${tipo}${revela ? ' revela' : ''} ${className}`}
+      style={{ height: alto }}
+      role={etiqueta ? 'img' : undefined}
+      aria-label={etiqueta}
+      aria-hidden={etiqueta ? undefined : true}
+      dangerouslySetInnerHTML={{ __html: MARCAS[tipo] }}
+    />
+  );
+}
+
+/** Estado vacío o en calma: el isotipo y una frase corta. */
+export const Vacio = ({ children }: { children: ReactNode }) => (
+  <div className="vacio">
+    <Marca tipo="isotipo" alto={52} revela />
+    <p className="cuerpo">{children}</p>
+  </div>
+);
+
+/**
+ * Ritual cumplido: al terminar algo que importa (la apertura, la receta del
+ * día, un nivel) la pantalla se llena como la taza, aparece el isotipo y una
+ * frase. Se va sola o con un toque.
+ */
+export function Ritual() {
+  const r = useRitual();
+  const [visto, setVisto] = useState(r);
+  useEffect(() => {
+    if (r) {
+      setVisto(r);
+      const t = setTimeout(cerrarRitual, 2400);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setVisto(null), 420);
+    return () => clearTimeout(t);
+  }, [r]);
+  const m = r ?? visto;
+  if (!m) return null;
+  return (
+    <div className="ritual inv" key={m.id} role="status" data-saliendo={r ? 'no' : 'si'} onClick={cerrarRitual}>
+      <div className="ritual-contenido">
+        <Marca tipo="isotipo" alto={92} className="ritual-marca" />
+        <p className="ritual-titulo">{m.titulo}</p>
+        {m.sub && <p className="cuerpo ritual-sub">{m.sub}</p>}
+      </div>
+    </div>
+  );
 }
 
 /* ═══ BARRA SUPERIOR ══════════════════════════════════════ */
@@ -38,8 +105,10 @@ export function Isotipo({ className = '' }: { className?: string }) {
  * Título grande de la pantalla y, arriba, una barra compacta que se queda
  * fija. Cuando el título grande se va bajo la barra, la barra lo repite.
  */
-export function Sup({ titulo, sub, volver, accion }: {
+export function Sup({ titulo, sub, volver, accion, marca }: {
   titulo: string; sub?: string; volver?: string; accion?: { texto: string; hacer: () => void };
+  /** El isotipo junto al título: solo en Inicio, la casa. */
+  marca?: boolean;
 }) {
   const grande = useRef<HTMLHeadingElement>(null);
   const [compacta, setCompacta] = useState(false);
@@ -53,19 +122,23 @@ export function Sup({ titulo, sub, volver, accion }: {
   return (
     <>
       <header className="sup" data-compacta={compacta ? 'si' : 'no'}>
-        {volver ? (
+        {volver && (
           <button type="button" className="sup-volver" onClick={() => (volver === 'atras' ? history.back() : ir(volver))}>
             <span aria-hidden="true">←</span> Atrás
           </button>
-        ) : (
-          <span className="sup-marca" dangerouslySetInnerHTML={{ __html: isotipoSvg }} aria-hidden="true" />
         )}
-        <span className="sup-titulo" aria-hidden="true">{titulo}</span>
+        <span className="sup-centro" aria-hidden="true">
+          {!volver && <span className="sup-firma">Ryo Café</span>}
+          <span className="sup-titulo">{titulo}</span>
+        </span>
         {accion && <button type="button" className="sup-accion" onClick={accion.hacer}>{accion.texto}</button>}
       </header>
-      <div className="encabezado">
-        <h1 className="encabezado-titulo" ref={grande}>{titulo}</h1>
-        {sub && <p className="encabezado-sub">{sub}</p>}
+      <div className={`encabezado${marca ? ' con-marca' : ''}`}>
+        <div className="encabezado-texto">
+          <h1 className="encabezado-titulo" ref={grande}>{titulo}</h1>
+          {sub && <p className="encabezado-sub">{sub}</p>}
+        </div>
+        {marca && <Marca tipo="isotipo" alto={56} revela />}
       </div>
     </>
   );
@@ -252,6 +325,7 @@ export function Gauge({ valor, desde, hasta, vmin, vmax, etiqueta, texto }: {
 export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabor) => void }) {
   const caja = useRef<HTMLDivElement>(null);
   const [onda, setOnda] = useState<{ n: number; x: number; y: number } | null>(null);
+  const balance = !!valor && Math.abs(valor.x) <= 0.25 && Math.abs(valor.y) <= 0.25;
   const desdeEvento = (e: React.PointerEvent) => {
     const r = caja.current!.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * 2 - 1;
@@ -263,6 +337,7 @@ export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabo
     <div
       ref={caja}
       className="brujula"
+      data-balance={balance ? 'si' : 'no'}
       role="application"
       aria-label="Brújula de sabor: toca dónde cae el shot"
       onPointerDown={(e) => {
@@ -281,7 +356,8 @@ export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabo
       <span className="brujula-rotulo" style={{ bottom: 8, left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>Débil</span>
       <span className="brujula-rotulo" style={{ left: 8, top: '50%', transform: 'translateY(-130%)' }}>Ácido<br />subextraído</span>
       <span className="brujula-rotulo" style={{ right: 8, top: '50%', transform: 'translateY(-130%)', textAlign: 'right' }}>Amargo<br />sobreextraído</span>
-      <span className="brujula-rotulo" style={{ left: '50%', top: '50%', transform: 'translate(-50%, 90%)' }}>Balance</span>
+      <span className="brujula-taza" data-visible={balance ? 'si' : 'no'}><Marca tipo="isotipo" alto={52} /></span>
+      <span className="brujula-rotulo brujula-balance" data-oculto={balance ? 'si' : 'no'} style={{ left: '50%', top: '50%', transform: 'translate(-50%, 90%)' }}>Balance</span>
       {onda && <span key={onda.n} className="brujula-onda" style={{ left: onda.x, top: onda.y }} />}
       {valor && <span className="brujula-punto" style={{ left: `${((valor.x + 1) / 2) * 100}%`, top: `${((1 - valor.y) / 2) * 100}%` }} />}
     </div>
@@ -353,27 +429,6 @@ export function GraficaSesion({ shots, objetivo, dosis }: {
   );
 }
 
-/** Brew control chart: extracción contra TDS, con la caja de referencia. */
-export function GraficaControl({ puntos }: { puntos: { ey: number; tds: number; n: number }[] }) {
-  const e: Ejes = { x0: 14, x1: 26, y0: 6, y1: 14 };
-  const { x: px, y: py } = escala(e);
-  return (
-    <Marco e={e} px={px} py={py} marcasX={[14, 16, 18, 20, 22, 24, 26]} marcasY={[6, 8, 10, 12, 14]} etqX="EXTRACCIÓN %" etqY="TDS %">
-      <rect className="zona" x={px(REFERENCIA_EY.min)} y={py(REFERENCIA_TDS.max)} width={px(REFERENCIA_EY.max) - px(REFERENCIA_EY.min)} height={py(REFERENCIA_TDS.min) - py(REFERENCIA_TDS.max)} />
-      <text x={px(15)} y={py(13.3)}>FUERTE · SUB</text>
-      <text x={px(25)} y={py(13.3)} textAnchor="end">FUERTE · SOBRE</text>
-      <text x={px(15)} y={py(6.5)}>DÉBIL · SUB</text>
-      <text x={px(25)} y={py(6.5)} textAnchor="end">DÉBIL · SOBRE</text>
-      {puntos.map((p, i) => (
-        <g key={p.n} className="p" style={{ '--i': i } as React.CSSProperties}>
-          <rect className="punto" x={px(Math.min(26, Math.max(14, p.ey))) - 7} y={py(Math.min(14, Math.max(6, p.tds))) - 7} width={14} height={14} />
-          <text className="etq-punto" x={px(Math.min(26, Math.max(14, p.ey)))} y={py(Math.min(14, Math.max(6, p.tds))) + 3} textAnchor="middle">{p.n}</text>
-        </g>
-      ))}
-    </Marco>
-  );
-}
-
 /** Molienda que funcionó contra días de reposo, con su tendencia. */
 export function GraficaTendencia({ puntos, recta, hoy }: {
   puntos: { x: number; y: number }[]; recta: ((x: number) => number) | null; hoy?: number;
@@ -407,9 +462,7 @@ export function Foto({ id, className = 'foto-mini', sello }: { id?: string; clas
   if (!id) return null;
   if (id === 'demo' || !url) {
     return (
-      <span className={`${className} foto-vacia`} title={sello ?? 'Foto de ejemplo'} style={{ padding: 6 }}>
-        <Isotipo />
-      </span>
+      <span className={`${className} foto-vacia`} title={sello ?? 'Foto de ejemplo'} />
     );
   }
   return <img className={className} src={url} alt={sello ?? 'Foto de evidencia'} />;

@@ -5,6 +5,10 @@
  * Documento interno: noindex y sin enlace desde la página pública.
  */
 import App from '../../ryo/app/App';
+import isotipoSvg from '../../ryo/assets/isotipo.svg?raw';
+
+// El isotipo recortado a su trazo, para la apertura.
+const isotipo = isotipoSvg.replace(/viewBox="[^"]*"/, 'viewBox="38 40 479 361"');
 ---
 <!doctype html>
 <html lang="es-MX" data-tema="champagne">
@@ -31,7 +35,7 @@ import App from '../../ryo/app/App';
       // Tema antes de pintar, para no parpadear: el guardado, o por la hora de Durango.
       (function () {
         var tema = 'auto';
-        try { tema = (JSON.parse(localStorage.getItem('ryo-app:v3') || '{}').tema) || 'auto'; } catch (e) {}
+        try { tema = (JSON.parse(localStorage.getItem('ryo-app:v5') || '{}').tema) || 'auto'; } catch (e) {}
         if (tema === 'auto') {
           var h = (new Date().getUTCHours() + 24 - 6) % 24;
           tema = h >= 7 && h < 19 ? 'champagne' : 'cafe';
@@ -44,9 +48,53 @@ import App from '../../ryo/app/App';
       html[data-tema='cafe'], html[data-tema='cafe'] body { background: #302413; color: #f8f3d1; }
       html, body { background: #f8f3d1; color: #302413; margin: 0; }
       .cargando { min-height: 100dvh; display: grid; place-items: center; font: italic 0.8rem 'JetBrains Mono', monospace; letter-spacing: 0.1em; }
+
+      /* Apertura: el isotipo sube como el nivel de la taza, con su línea de
+         superficie, y la pantalla se desvanece. Una vez por sesión. */
+      #apertura {
+        position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
+        background: #f8f3d1; color: #302413; cursor: pointer;
+        transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      html[data-tema='cafe'] #apertura { background: #302413; color: #f8f3d1; }
+      #apertura.fuera { opacity: 0; pointer-events: none; }
+      .apertura-marca { position: relative; display: block; height: 88px; }
+      .apertura-marca svg {
+        display: block; height: 100%; width: auto;
+        clip-path: inset(100% 0 0 0);
+        animation: apertura-nivel 1150ms cubic-bezier(0.16, 1, 0.3, 1) 150ms forwards;
+      }
+      .apertura-linea {
+        position: absolute; left: -14%; right: -14%; bottom: 0; height: 1px; background: currentColor;
+        animation: apertura-linea 1150ms cubic-bezier(0.16, 1, 0.3, 1) 150ms forwards;
+      }
+      @keyframes apertura-nivel { to { clip-path: inset(0); } }
+      @keyframes apertura-linea {
+        80% { opacity: 1; }
+        to { transform: translateY(-88px); opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .apertura-marca svg { animation: none; clip-path: none; }
+        .apertura-linea { display: none; }
+      }
     </style>
   </head>
   <body>
+    <div id="apertura" aria-hidden="true">
+      <span class="apertura-marca"><Fragment set:html={isotipo} /><span class="apertura-linea"></span></span>
+    </div>
+    <script is:inline>
+      (function () {
+        var a = document.getElementById('apertura');
+        var visto = false;
+        try { visto = sessionStorage.getItem('ryo-apertura') === '1'; sessionStorage.setItem('ryo-apertura', '1'); } catch (e) {}
+        if (visto) { a.remove(); return; }
+        var calma = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var cerrar = function () { a.classList.add('fuera'); setTimeout(function () { a.remove(); }, 500); };
+        a.addEventListener('click', cerrar);
+        setTimeout(cerrar, calma ? 500 : 1600);
+      })();
+    </script>
     <App client:only="react">
       <p class="cargando" slot="fallback">Cargando la barra…</p>
     </App>

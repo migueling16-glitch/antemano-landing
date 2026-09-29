@@ -7,7 +7,7 @@
  */
 import { useState } from 'react';
 import { useEstado, entrar, type Rol } from '../estado';
-import { Isotipo } from '../componentes';
+import { Marca } from '../componentes';
 
 const PERFILES: { id: string; rol: Rol; texto: string }[] = [
   { id: 'u-ana', rol: 'barista', texto: 'Barista 2 · calibra, hace checklists y repasa' },
@@ -23,10 +23,10 @@ export function Entrar() {
   const valido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim());
 
   return (
-    <main className="pant pila" style={{ minHeight: '100dvh', justifyContent: 'center' }}>
-      <div className="pila-s" style={{ alignItems: 'flex-start' }}>
-        <Isotipo className="entrar-marca" />
-        <h1 className="titulo">{e.sucursal.negocio} · barra</h1>
+    <main className="pant pila entrar">
+      <div className="pila-s entrar-cabeza">
+        <Marca tipo="logotipo" alto={112} etiqueta={e.sucursal.negocio} className="entrar-logo" />
+        <h1 className="etq">Barra · uso interno</h1>
         <p className="cuerpo">Checklists, calibración, capacitación y horarios del equipo.</p>
       </div>
 
@@ -69,6 +69,8 @@ export function Entrar() {
           })}
         </section>
       )}
+
+      <Marca tipo="tagline" alto={34} etiqueta="Soft living, deep siping." className="entrar-tagline" />
     </main>
   );
 }

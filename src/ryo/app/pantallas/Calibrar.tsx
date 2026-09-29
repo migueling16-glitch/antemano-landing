@@ -16,16 +16,16 @@
 import { useMemo, useState } from 'react';
 import {
   useEstado, cafe as buscarCafe, usuario, nuevaSesion, guardarShot, evaluarShot, aprobarShot, terminarSesion,
-  programarBoton, maquinaDe, nombreBoton, programadoDe, avisar, vibrar, CONTINUO,
+  programarBoton, maquinaDe, nombreBoton, programadoDe, avisar, celebrar, vibrar, CONTINUO,
   type Estado, type Cafe, type SesionCal, type Shot, type Maquina,
 } from '../estado';
 import {
-  Sup, Seccion, Stepper, Brujula, Gauge, GraficaSesion, GraficaControl, GraficaTendencia,
+  Sup, Seccion, Stepper, Brujula, Gauge, GraficaSesion, GraficaTendencia,
   Estado as Etq, Hoja, ir,
 } from '../componentes';
 import {
-  sugerir, ratioTexto, ventanaRatio, extraccion, tendencia, redondear, enVentana,
-  REFERENCIA_EY, REFERENCIA_TDS, GOTEO, type Objetivo, type Sabor,
+  sugerir, ratioTexto, ventanaRatio, tendencia, redondear, enVentana,
+  GOTEO, type Objetivo, type Sabor,
 } from '../lib/calibracion';
 import { jornadaDe, diasEntre, hora, cuando, fechaCorta } from '../lib/tiempo';
 
@@ -359,12 +359,11 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
   const fijar = (shot: Shot) => {
     aprobarShot(s.id, shot.id);
     vibrar([30, 60, 30]);
-    avisar('Receta del día fijada. Ya la ve todo el turno.');
+    celebrar('Receta del día.', `${shot.dosis.toFixed(1)} → ${shot.rendimiento.toFixed(1)} g · ${shot.tiempo.toFixed(0)} s. Ya la ve todo el turno.`);
     window.scrollTo({ top: 0 });
   };
 
   const n = pendiente ? pendiente.n : s.shots.length + 1;
-  const conTds = s.shots.filter((x) => x.tds);
   const actual = e.recetasDelDia[hoy];
 
   return (
@@ -406,7 +405,6 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
                       <span>{x.rendimiento.toFixed(1)} g · {x.tiempo.toFixed(0)} s</span>
                       <span className="fila-sub">
                         {x.dosis.toFixed(1)} g · molienda {x.molienda} · {ratioTexto(x.dosis, x.rendimiento)}
-                        {x.tds ? ` · EY ${extraccion(x.tds, x.rendimiento, x.dosis).toFixed(1)} %` : ''}
                       </span>
                     </span>
                     {x.aprobado ? <Etq fuerte>Aprobado</Etq> : v.tiempo && v.ratio ? <Etq>En ventana</Etq> : <Etq tenue>Fuera</Etq>}
@@ -414,13 +412,6 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
                 );
               })}
             </div>
-          </Seccion>
-        )}
-
-        {conTds.length > 0 && (
-          <Seccion titulo="Control de extracción">
-            <GraficaControl puntos={conTds.map((x) => ({ n: x.n, tds: x.tds!, ey: extraccion(x.tds!, x.rendimiento, x.dosis) }))} />
-            <p className="cuerpo">Caja con trama: {REFERENCIA_EY.min}–{REFERENCIA_EY.max} % de extracción, TDS {REFERENCIA_TDS.min}–{REFERENCIA_TDS.max} %.</p>
           </Seccion>
         )}
       </main>
@@ -508,13 +499,10 @@ function Evaluacion({ shot, objetivo, paso, s, ctx, onAprobar }: {
   ctx: { boton?: string; pid?: number }; onAprobar: (s: Shot, antes: () => void) => void;
 }) {
   const [sabor, setSabor] = useState<Sabor | undefined>(shot.sabor);
-  const [conTds, setConTds] = useState(!!shot.tds);
-  const [tds, setTds] = useState(shot.tds ?? 10);
   const sug = sabor ? sugerir({ ...shot, sabor }, objetivo, paso, ctx) : null;
-  const ey = conTds ? extraccion(tds, shot.rendimiento, shot.dosis) : undefined;
   const v = enVentana(shot, objetivo);
 
-  const guardar = () => evaluarShot(s.id, shot.id, { sabor, tds: conTds ? tds : undefined });
+  const guardar = () => evaluarShot(s.id, shot.id, { sabor });
 
   return (
     <div className="pila cambia">
@@ -532,28 +520,6 @@ function Evaluacion({ shot, objetivo, paso, s, ctx, onAprobar }: {
 
       <Seccion titulo="¿Cómo sabe?" extra={sabor ? 'Arrastra para ajustar' : 'Toca la brújula'}>
         <Brujula valor={sabor} onCambio={setSabor} />
-      </Seccion>
-
-      <Seccion titulo="Refractómetro" extra="Opcional">
-        <div className="chips">
-          <button type="button" className="chip" aria-pressed={conTds} onClick={() => setConTds(!conTds)}>
-            {conTds ? 'Medí TDS' : 'Agregar TDS'}
-          </button>
-        </div>
-        {conTds && (
-          <>
-            <Stepper etiqueta="TDS" valor={tds} paso={0.1} min={4} max={16} unidad=" %" onCambio={setTds} />
-            <div className={`bloque${ey !== undefined && (ey < REFERENCIA_EY.min || ey > REFERENCIA_EY.max) ? ' inv' : ''}`}>
-              <span className="etq">Extracción = TDS × rendimiento ÷ dosis</span>
-              <span className="num-m">{ey?.toFixed(1)} %</span>
-              <span className="cuerpo">
-                {ey !== undefined && ey >= REFERENCIA_EY.min && ey <= REFERENCIA_EY.max
-                  ? `En referencia (${REFERENCIA_EY.min}–${REFERENCIA_EY.max} %).`
-                  : `Fuera de referencia (${REFERENCIA_EY.min}–${REFERENCIA_EY.max} %). Si el sabor dice otra cosa, gana el sabor.`}
-              </span>
-            </div>
-          </>
-        )}
       </Seccion>
 
       {sug && (

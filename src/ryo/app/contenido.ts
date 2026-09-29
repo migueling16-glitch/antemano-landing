@@ -235,18 +235,6 @@ export const LECCIONES: Leccion[] = [
     ],
   },
   {
-    id: 'l-tds', moduloId: 'm-calibracion', titulo: 'TDS y extracción', minutos: 5,
-    bloques: [
-      { tipo: 'texto', texto: 'El refractómetro mide el TDS: cuánto café disuelto hay en la bebida. Con TDS, rendimiento y dosis sale la extracción.' },
-      { tipo: 'ficha', filas: [['Extracción', 'TDS × rendimiento ÷ dosis'], ['Referencia', '18–22 %'], ['TDS espresso', '8–12 %'], ['Ejemplo', '10 × 36 ÷ 18 = 20 %']] },
-      { tipo: 'clave', texto: 'El número confirma lo que dice el sabor. Si no coinciden, gana el sabor y se revisa la medición.' },
-    ],
-    preguntas: [
-      { id: 'q-tds-1', pregunta: '¿Cómo se calcula la extracción?', respuesta: 'TDS × rendimiento ÷ dosis.' },
-      { id: 'q-tds-2', pregunta: 'Un shot de 18 g → 36 g da TDS 10 %. ¿Cuánto extrajo?', respuesta: '20 %.' },
-    ],
-  },
-  {
     id: 'l-reposo', moduloId: 'm-calibracion', titulo: 'Reposo del café', minutos: 4,
     bloques: [
       { tipo: 'texto', texto: 'Recién tostado, el café suelta CO₂ y corre irregular. Con los días se asienta, y normalmente hay que moler un poco más fino para mantener la receta.' },
@@ -297,7 +285,6 @@ export const RUBRICAS: Record<number, string[]> = {
   2: [
     'Calibra el espresso de la casa en 5 shots o menos',
     'Reprograma un botón de la Linea y comprueba el peso en la báscula',
-    'Mide TDS y extracción de un shot y lo interpreta',
     'Prepara un V60 dentro de receta',
   ],
   3: [

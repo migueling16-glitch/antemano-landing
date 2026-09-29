@@ -3,7 +3,7 @@
  */
 import { useState } from 'react';
 import { useEstado, yo, puede, entrar, salir, cambiarTema, reiniciarDemo, avisar, type Estado } from '../estado';
-import { Sup, Seccion, Avatar, Hoja, ir } from '../componentes';
+import { Sup, Seccion, Avatar, Hoja, Marca, ir } from '../componentes';
 import { progresoDe } from '../estado';
 import { tocaHoy } from '../lib/repaso';
 import { jornadaDe } from '../lib/tiempo';
@@ -67,6 +67,12 @@ export function Mas() {
         </Seccion>
 
         <button type="button" className="boton grande" onClick={() => { salir(); ir('inicio'); }}>Salir</button>
+
+        <footer className="colofon">
+          <Marca tipo="auxiliar" alto={96} etiqueta="Ryo Café" />
+          <Marca tipo="tagline" alto={30} etiqueta="Soft living, deep siping." />
+          <p className="etq">Barra · maqueta</p>
+        </footer>
       </main>
 
       <Hoja abierta={verComo} alCerrar={() => setVerComo(false)} titulo="Ver como">

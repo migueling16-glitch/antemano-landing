@@ -23,6 +23,8 @@ function desdePapel(turno: (typeof TURNOS)[number], id: string, extras: Record<n
   turno.secciones.forEach((sec, si) => {
     sec.tareas.forEach((t, ti) => {
       const base = { id: `${id}-${si}-${ti}`, seccion: sec.titulo, critica: t.critica };
+      // La barra calibra sin refractómetro: esa tarea del papel no pasa a la app.
+      if (/refractómetro/i.test(t.texto)) return;
       if (t.herramienta === 'temperatura') {
         // La tarea de bitácora se vuelve dos lecturas con rango.
         for (const [n, suf] of [[1, 'a'], [2, 'b']] as const) {
@@ -110,12 +112,11 @@ function ejecutada(
 
 type Paso = [molienda: number, tiempo: number, rendimiento: number, x: number, y: number];
 
-function sesion(id: string, cafeId: string, botonId: string, por: string, jornada: string, diasReposo: number, hora: string, pasos: Paso[], tdsFinal?: number): SesionCal {
+function sesion(id: string, cafeId: string, botonId: string, por: string, jornada: string, diasReposo: number, hora: string, pasos: Paso[]): SesionCal {
   const inicio = tsDgo(jornada, hora);
   const shots: Shot[] = pasos.map(([molienda, tiempo, rendimiento, x, y], i) => ({
     id: `${id}-s${i + 1}`, n: i + 1, dosis: 18, molienda, tiempo, rendimiento,
     sabor: { x, y }, en: inicio + (i + 1) * 4 * 60_000,
-    ...(i === pasos.length - 1 && tdsFinal ? { tds: tdsFinal } : {}),
   }));
   const ultimo = shots[shots.length - 1];
   ultimo.aprobado = true;
@@ -146,7 +147,7 @@ function convergencia(final: number, larga = false): Paso[] {
 /* ── Todo ───────────────────────────────────────────────── */
 
 /** Sube cuando cambia la forma del estado: lo guardado con otra versión se descarta. */
-export const VERSION = 3;
+export const VERSION = 5;
 
 export function crearSemilla(): Estado {
   const hoy = jornadaDe();
@@ -169,12 +170,12 @@ export function crearSemilla(): Estado {
     sesion('cal-h14', 'cafe-chiapas', 'b2', 'u-diego', d(-14), 10, '07:45', convergencia(6.0, true)),
     sesion('cal-h11', 'cafe-chiapas', 'b2', 'u-ana', d(-11), 13, '07:36', convergencia(5.5)),
     sesion('cal-h6', 'cafe-chiapas', 'b2', 'u-ana', d(-6), 4, '07:41', convergencia(7.0)),
-    sesion('cal-h4', 'cafe-chiapas', 'b2', 'u-diego', d(-4), 6, '07:50', convergencia(6.5, true), 9.8),
-    sesion('cal-h2', 'cafe-chiapas', 'b2', 'u-ana', d(-2), 8, '07:35', convergencia(6.5), 10.1),
+    sesion('cal-h4', 'cafe-chiapas', 'b2', 'u-diego', d(-4), 6, '07:50', convergencia(6.5, true)),
+    sesion('cal-h2', 'cafe-chiapas', 'b2', 'u-ana', d(-2), 8, '07:35', convergencia(6.5)),
     sesion('cal-h1', 'cafe-chiapas', 'b2', 'u-carla', d(-1), 9, '07:39', convergencia(6.0)),
     sesion('cal-oax', 'cafe-oaxaca', 'b3', 'u-ana', d(-1), 3, '12:10', [[7.5, 31, 38.4, 0.1, 0.05]]),
-    sesion('cal-eti', 'cafe-etiopia', CONTINUO, 'u-carla', d(-3), 13, '12:20', [[6.0, 25, 40.6, -0.4, -0.1], [5.5, 27, 40.2, 0.02, 0.1]], 9.2),
-    sesion('cal-hoy', 'cafe-chiapas', 'b2', 'u-ana', hoy, 10, '07:36', convergencia(6.0), 10.2),
+    sesion('cal-eti', 'cafe-etiopia', CONTINUO, 'u-carla', d(-3), 13, '12:20', [[6.0, 25, 40.6, -0.4, -0.1], [5.5, 27, 40.2, 0.02, 0.1]]),
+    sesion('cal-hoy', 'cafe-chiapas', 'b2', 'u-ana', hoy, 10, '07:36', convergencia(6.0)),
   ];
   const hoySesion = sesiones[sesiones.length - 1];
   const aprobado = hoySesion.shots.find((s) => s.aprobado)!;
@@ -233,13 +234,12 @@ export function crearSemilla(): Estado {
     'u-ana': {
       lecciones: {
         'l-receta': hace(110), 'l-ratio': hace(105), 'l-leer': hace(100), 'l-texturizar': hace(95),
-        'l-vaporizador': hace(95), 'l-criticas': hace(112), 'l-temperaturas': hace(112), 'l-calibrar': hace(5), 'l-tds': hace(2),
+        'l-vaporizador': hace(95), 'l-criticas': hace(112), 'l-temperaturas': hace(112), 'l-calibrar': hace(5),
       },
       repaso: {
         ...repasoDe(['q-receta-1', 'q-receta-2', 'q-ratio-1', 'q-ratio-2', 'q-tex-1', 'q-tex-2', 'q-vap-1', 'q-crit-1', 'q-crit-2', 'q-temp-1'], d(12), 4),
         ...repasoDe(['q-leer-1', 'q-temp-2', 'q-cal-2'], hoy, 2),
         ...repasoDe(['q-leer-2', 'q-leer-3', 'q-cal-1'], d(4), 3),
-        ...repasoDe(['q-tds-1', 'q-tds-2'], d(1), 0),
       },
       evaluaciones: { 1: { por: 'u-carla', en: hace(60), criterios: [true, true, true] } },
       asignadas: [],

@@ -144,7 +144,6 @@ export type Shot = {
   rendimiento: number;
   tiempo: number;
   molienda: number;
-  tds?: number;
   sabor?: Sabor;
   en: number;
   aprobado?: boolean;
@@ -235,7 +234,7 @@ export type Estado = {
 /* ═══ ALMACÉN ═════════════════════════════════════════════ */
 
 export { VERSION };
-const CLAVE = 'ryo-app:v3';
+const CLAVE = 'ryo-app:v5';
 
 function cargar(): Estado {
   try {
@@ -443,7 +442,7 @@ export function guardarShot(sesionId: string, datos: Omit<Shot, 'id' | 'n' | 'en
   return id;
 }
 
-export function evaluarShot(sesionId: string, shotId: string, datos: Pick<Shot, 'sabor' | 'tds'>) {
+export function evaluarShot(sesionId: string, shotId: string, datos: Pick<Shot, 'sabor'>) {
   actualizar((e) => {
     const shot = e.sesiones.find((x) => x.id === sesionId)?.shots.find((x) => x.id === shotId);
     if (shot) Object.assign(shot, datos);
@@ -627,6 +626,32 @@ export function useAviso() {
     (f) => { oyentesAviso.add(f); return () => oyentesAviso.delete(f); },
     () => aviso,
     () => aviso,
+  );
+}
+
+/* ═══ RITUAL CUMPLIDO (interfaz) ═════════════════════════ */
+
+type Ritual = { id: number; titulo: string; sub?: string };
+let ritual: Ritual | null = null;
+const oyentesRitual = new Set<() => void>();
+
+/** Momento de cierre: la apertura lista, la receta fijada, un nivel nuevo. */
+export function celebrar(titulo: string, sub?: string) {
+  ritual = { id: Date.now(), titulo, sub };
+  oyentesRitual.forEach((o) => o());
+}
+
+export function cerrarRitual() {
+  if (!ritual) return;
+  ritual = null;
+  oyentesRitual.forEach((o) => o());
+}
+
+export function useRitual() {
+  return useSyncExternalStore(
+    (f) => { oyentesRitual.add(f); return () => oyentesRitual.delete(f); },
+    () => ritual,
+    () => ritual,
   );
 }
 

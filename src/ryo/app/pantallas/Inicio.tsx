@@ -7,7 +7,7 @@ import {
   useEstado, yo, usuario, plantillasDeHoy, ejecucionDe, fueraDeRango, progresoDe, puede, maquinaDe, nombreBoton,
   plantilla as buscarPlantilla, cafe as buscarCafe, type Estado,
 } from '../estado';
-import { Sup, Seccion, Estado as Etq, BarraProg } from '../componentes';
+import { Sup, Seccion, Estado as Etq, BarraProg, Vacio } from '../componentes';
 import { resumen } from './Checklists';
 import { tocaHoy } from '../lib/repaso';
 import { jornadaDe, hora, fechaCorta, nombreDia, lunesDe, sumarDias, cuando, dgo } from '../lib/tiempo';
@@ -21,7 +21,7 @@ export function turnoDe(e: Estado, usuarioId: string, fecha: string) {
 
 function saludo() {
   const h = dgo().getHours();
-  return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+  return h >= 5 && h < 12 ? 'Buenos días' : h >= 12 && h < 19 ? 'Buenas tardes' : 'Buenas noches';
 }
 
 export function Inicio() {
@@ -41,7 +41,7 @@ export function Inicio() {
 
   return (
     <>
-      <Sup titulo={`${saludo()}, ${u.nombre.split(' ')[0]}`} sub={`${nombreDia(hoy)} ${fechaCorta(hoy).split(' ').slice(1).join(' ')} · ${e.sucursal.nombre}`} />
+      <Sup marca titulo={`${saludo()}, ${u.nombre.split(' ')[0]}`} sub={`${nombreDia(hoy)} ${fechaCorta(hoy).split(' ').slice(1).join(' ')} · ${e.sucursal.nombre}`} />
       <main className="pant pila">
         <section className={`bloque${turnoHoy ? ' inv' : ''}`} aria-label="Turno">
           {turnoHoy ? (
@@ -132,7 +132,7 @@ function PorAtender({ e }: { e: Estado }) {
 
   return (
     <Seccion titulo="Por atender" extra={total ? String(total) : 'Al día'}>
-      {total === 0 && <p className="cuerpo">Nada pendiente de firma.</p>}
+      {total === 0 && <Vacio>Todo en calma. Nada espera tu firma.</Vacio>}
       <div className="lista">
         {sinValidar.map((x) => (
           <a key={x.id} className="fila" href={`#/checklists/ej/${x.id}`}>

@@ -11,14 +11,22 @@ import { useRef, useState } from 'react';
 import {
   useEstado, yo, usuario, plantilla as buscarPlantilla, plantillasDeHoy, ejecucionDe, pendientes, fueraDeRango,
   iniciarEjecucion, marcar, desmarcar, restaurarMarca, registrarFoto, completar, reabrir, validar, puede, nuevoId,
-  avisar, vibrar, maquinaDe, nombreBoton,
+  avisar, celebrar, vibrar, maquinaDe, nombreBoton,
   type Estado, type Plantilla, type Ejecucion, type ItemPlantilla, type Marca,
 } from '../estado';
-import { Sup, Seccion, BarraProg, Casilla, Stepper, Hoja, Foto, Estado as Etq, ir } from '../componentes';
+import { Sup, Seccion, BarraProg, Casilla, Stepper, Hoja, Foto, Estado as Etq, Vacio, ir } from '../componentes';
 import { procesarFoto, guardarFoto, kb, type FotoProcesada } from '../lib/fotos';
 import { jornadaDe, hora, cuando, fechaCorta, minutos, minutosAhora, sumarDias } from '../lib/tiempo';
 
 const ACCIONES_FUERA = ['Aislé el producto', 'Moví a otro refri', 'Avisé al encargado', 'Descarté producto'];
+
+/** Lo que dice la pantalla de ritual al completar cada checklist. */
+function frase(p: Plantilla, hhmm: string): [string, string] {
+  if (p.id === 'p-apertura') return ['Barra lista.', `Apertura completa a las ${hhmm}. Que el turno fluya.`];
+  if (p.id === 'p-cierre') return ['Barra cerrada.', `Cierre completo a las ${hhmm}. A descansar.`];
+  if (p.id === 'p-profunda') return ['Limpieza profunda.', `Hecha a las ${hhmm}. La barra respira.`];
+  return [`${p.nombre}.`, `Completo a las ${hhmm}.`];
+}
 
 /** Minutos desde el inicio de la jornada (que corta a las 5:00). */
 const enJornada = (min: number) => (min < 300 ? min + 1440 : min);
@@ -140,7 +148,7 @@ export function ChecklistsHistorial() {
         {lista.length ? (
           <div className="lista">{lista.map((x) => <FilaEjecucion key={x.id} e={e} ej={x} />)}</div>
         ) : (
-          <p className="cuerpo">Nada con este filtro.</p>
+          <Vacio>Nada con este filtro.</Vacio>
         )}
       </main>
     </>
@@ -217,7 +225,7 @@ function Ejecutar({ e, ej, p }: { e: Estado; ej: Ejecucion; p: Plantilla }) {
     if (fueraSinAccion.length) { irA(fueraSinAccion[0].id); avisar('Anota qué hiciste con la lectura fuera de rango.'); return; }
     completar(ej.id);
     vibrar([30, 60, 30]);
-    avisar(`${p.nombre} completado.`);
+    celebrar(...frase(p, hora(Date.now())));
     window.scrollTo({ top: 0 });
   };
 

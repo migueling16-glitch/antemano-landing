@@ -106,16 +106,21 @@ input::placeholder, textarea::placeholder { color: var(--ink); opacity: 1; font-
 }
 .sup-volver span { display: inline-block; transition: transform 200ms var(--ease); }
 .sup-volver:active span { transform: translateX(-4px); }
+.sup-centro { flex: 1; min-width: 0; display: grid; align-items: center; }
+.sup-centro > * { grid-area: 1 / 1; }
+.sup-firma {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.24em;
+  transition: opacity 220ms var(--ease), transform 320ms var(--ease);
+}
+.sup[data-compacta='si'] .sup-firma { opacity: 0; transform: translateY(-8px); }
 .sup-titulo {
-  flex: 1; min-width: 0;
+  min-width: 0;
   font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   opacity: 0; transform: translateY(8px);
   transition: opacity 220ms var(--ease), transform 320ms var(--ease);
 }
 .sup[data-compacta='si'] .sup-titulo { opacity: 1; transform: none; }
-.sup-marca { width: 34px; flex: none; }
-.sup-marca svg { display: block; width: 100%; height: auto; }
 .sup-accion {
   font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.14em;
   border: 1px solid var(--line); padding: 8px 12px; min-height: 36px;
@@ -125,6 +130,8 @@ input::placeholder, textarea::placeholder { color: var(--ink); opacity: 1; font-
 
 /* Título grande de la pantalla. */
 .encabezado { max-width: var(--ancho); margin: 0 auto; padding: 6px var(--gutter) 0; }
+.encabezado.con-marca { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
+.encabezado-texto { min-width: 0; }
 .encabezado-titulo { font-size: 1.6rem; font-weight: 400; line-height: 1.2; letter-spacing: 0.04em; }
 .encabezado-sub { font-size: 0.88rem; font-style: italic; line-height: 1.5; margin-top: 6px; }
 
@@ -394,12 +401,24 @@ button.fila:disabled { cursor: default; }
   border: 1px dashed var(--line); pointer-events: none;
 }
 .brujula-rotulo { position: absolute; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; pointer-events: none; line-height: 1.35; }
+.brujula-taza {
+  position: absolute; left: 37.5%; top: 37.5%; width: 25%; height: 25%;
+  display: grid; place-items: center; pointer-events: none;
+  clip-path: inset(100% 0 0 0); transition: clip-path 560ms var(--ease);
+}
+.brujula-taza[data-visible='si'] { clip-path: inset(0); }
+.brujula-balance { transition: opacity 200ms var(--ease); }
+.brujula-balance[data-oculto='si'] { opacity: 0; }
 .brujula-punto {
   position: absolute; width: 24px; height: 24px; background: var(--ink);
   transform: translate(-50%, -50%); pointer-events: none;
   transition: left 90ms linear, top 90ms linear;
 }
 .brujula-punto::after { content: ''; position: absolute; inset: 7px; background: var(--surface); }
+/* En balance el punto se vuelve un marco pequeño y deja ver la taza. */
+.brujula-punto { transition: left 90ms linear, top 90ms linear, width 260ms var(--ease), height 260ms var(--ease), background-color 260ms var(--ease); }
+.brujula[data-balance='si'] .brujula-punto { width: 12px; height: 12px; background: transparent; border: 1px solid var(--ink); }
+.brujula[data-balance='si'] .brujula-punto::after { display: none; }
 /* Al tocar, una onda cuadrada, como la de la taza. */
 .brujula-onda {
   position: absolute; width: 24px; height: 24px; border: 1px solid var(--ink);
@@ -427,8 +446,7 @@ button.fila:disabled { cursor: default; }
 /* ═══ FOTO ═══ */
 .foto-previa { width: 100%; border: 1px solid var(--line); display: block; animation: revela 520ms var(--ease) both; }
 .foto-mini { width: 56px; height: 56px; object-fit: cover; border: 1px solid var(--line); flex: none; }
-.foto-vacia { aspect-ratio: 4 / 3; border: 1px solid var(--line); display: grid; place-items: center; }
-.foto-vacia svg { width: 40%; height: auto; }
+.foto-vacia { display: block; border: 1px solid var(--line); background: repeating-linear-gradient(135deg, var(--ink) 0 1px, transparent 1px 6px); }
 @keyframes revela { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0); } }
 
 /* ═══ AVATAR (radio completo: el único formato circular del sistema) ═══ */
@@ -473,8 +491,10 @@ button.fila:disabled { cursor: default; }
 .pasos li::before { content: counter(paso); font-style: normal; font-size: 0.74rem; letter-spacing: 0.1em; padding-top: 3px; }
 
 /* ═══ ENTRAR ═══ */
-.entrar-marca { width: 72px; display: block; animation: revela 1100ms var(--ease) 120ms both; }
-.entrar-marca svg { display: block; width: 100%; height: auto; }
+.entrar { min-height: 100dvh; justify-content: center; }
+.entrar-cabeza { align-items: flex-start; }
+.entrar-logo { margin-bottom: 20px; animation: revela 1200ms var(--ease) 150ms backwards; }
+.entrar-tagline { align-self: flex-start; margin-top: 8px; }
 
 .sacude { animation: niega 360ms var(--ease); }
 @keyframes niega { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
@@ -501,6 +521,37 @@ button.fila:disabled { cursor: default; }
 .cambia { animation: entra 380ms var(--ease) backwards; }
 .bloque.inv, .tarjeta.inv { animation: nivel 620ms var(--ease) backwards; }
 @keyframes nivel { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0); } }
+
+/* ═══ MARCA ═══
+ * Logotipo e isotipo nunca por debajo de 50 px de alto (brand book). */
+.marca { display: inline-block; flex: none; line-height: 0; color: var(--ink); }
+.marca svg { display: block; height: 100%; width: auto; }
+.marca.revela { animation: revela 900ms var(--ease) 200ms backwards; }
+
+/* Estado vacío o en calma. */
+.vacio { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 28px 16px; }
+.vacio .cuerpo { max-width: 22rem; }
+
+/* Firma al final de Más: auxiliar y slogan. */
+.colofon {
+  display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center;
+  padding: 52px 0 12px; margin-top: 12px; border-top: 1px solid var(--line);
+}
+
+/* Ritual cumplido: la pantalla se llena, sube el isotipo, aparece la frase,
+ * y al irse el nivel baja como la taza al terminarla. */
+.ritual {
+  position: fixed; inset: 0; z-index: 80;
+  display: grid; place-items: center; padding: 32px var(--gutter);
+  background: var(--surface); color: var(--ink); text-align: center; cursor: pointer;
+  animation: nivel 700ms var(--ease) both;
+}
+.ritual[data-saliendo='si'] { animation: drena 420ms var(--ease-in) forwards; }
+.ritual-contenido { display: flex; flex-direction: column; align-items: center; gap: 18px; max-width: 22rem; }
+.ritual-marca { animation: revela 900ms var(--ease) 380ms backwards; }
+.ritual-titulo { font-size: 1.45rem; line-height: 1.3; letter-spacing: 0.12em; text-transform: uppercase; animation: entra 520ms var(--ease) 820ms backwards; }
+.ritual-sub { animation: entra 520ms var(--ease) 960ms backwards; }
+@keyframes drena { from { clip-path: inset(0); } to { clip-path: inset(100% 0 0 0); } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0ms !important; transition-duration: 0.001ms !important; }

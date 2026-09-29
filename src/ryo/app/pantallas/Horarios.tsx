@@ -7,7 +7,7 @@ import {
   useEstado, yo, usuario, puede, asignarTurno, publicarSemana, alternarDisponible, solicitarCambio, responderCambio,
   avisar, vibrar, type Estado, type TurnoTipo,
 } from '../estado';
-import { Sup, Seccion, Hoja, Avatar, Estado as Etq, ir } from '../componentes';
+import { Sup, Seccion, Hoja, Avatar, Estado as Etq, Vacio, ir } from '../componentes';
 import { turnoDe } from './Inicio';
 import { jornadaDe, sumarDias, lunesDe, diaCorto, nombreDia, fechaCorta, cuando, horasEntre, hora } from '../lib/tiempo';
 
@@ -246,7 +246,7 @@ export function HorariosCambios() {
     <>
       <Sup titulo="Cambios de turno" volver="horarios" />
       <main className="pant pila">
-        {lista.length === 0 && <p className="cuerpo">No hay cambios en curso.</p>}
+        {lista.length === 0 && <Vacio>No hay cambios en curso.</Vacio>}
         {lista.map((c) => {
           const t = e.turnosTipo.find((x) => x.id === c.turnoId);
           const mio = c.de === u.id;

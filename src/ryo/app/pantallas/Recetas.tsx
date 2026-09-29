@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { RECETAS, receta as buscarReceta, type Receta } from '../contenido';
 import { useEstado, maquinaDe, nombreBoton, cafe as buscarCafe } from '../estado';
-import { Sup, Seccion } from '../componentes';
+import { Sup, Seccion, Vacio } from '../componentes';
 import { jornadaDe } from '../lib/tiempo';
 
 const CATEGORIAS = ['Todas', ...new Set(RECETAS.map((r) => r.categoria))];
@@ -42,7 +42,7 @@ export function RecetasLista() {
             ))}
           </div>
         ) : (
-          <p className="cuerpo">Sin recetas con “{q}”.</p>
+          <Vacio>Sin recetas con “{q}”.</Vacio>
         )}
       </main>
     </>

@@ -30,7 +30,6 @@ export type ShotBase = {
   rendimiento: number;
   tiempo: number;
   molienda: number;
-  tds?: number;
   sabor?: Sabor;
 };
 
@@ -41,11 +40,6 @@ export const ratio = (dosis: number, rendimiento: number) => rendimiento / dosis
 /** "1:2.03" */
 export const ratioTexto = (dosis: number, rendimiento: number) => `1:${ratio(dosis, rendimiento).toFixed(2)}`;
 
-/** Extracción % = TDS % × rendimiento ÷ dosis */
-export const extraccion = (tds: number, rendimiento: number, dosis: number) => (tds * rendimiento) / dosis;
-
-export const REFERENCIA_EY = { min: 18, max: 22 } as const;
-export const REFERENCIA_TDS = { min: 8, max: 12 } as const;
 
 /** El botón continuo: el barista corta a mano en la báscula. */
 export const CONTINUO = 'continuo';
