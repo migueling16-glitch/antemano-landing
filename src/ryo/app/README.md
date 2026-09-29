@@ -9,6 +9,9 @@ teléfono (`localStorage` con la clave `ryo-app:v6` y las fotos en IndexedDB).
   de una sola página estática.
 - PWA instalable: `public/ryo/app/manifest.webmanifest` e íconos. Sin service
   worker todavía.
+- Apertura: la misma intro dibujada de la bio (el isotipo trazo a trazo, un
+  elemento a la vez), en `app.astro`, con la pluma de
+  `src/ryo/assets/isotipo-trazo.svg`. Una vez por sesión; `?apertura` la repite.
 
 ## Estructura
 
