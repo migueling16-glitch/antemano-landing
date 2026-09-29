@@ -5,72 +5,61 @@
  * la apertura de hoy ya está hecha, el cierre está pendiente, ayer quedó un
  * cierre sin validar y hay preguntas de repaso para hoy.
  *
- * Las plantillas de apertura y cierre salen del checklist en papel de Ryo
- * (src/ryo/checklist/datos.ts): las mismas 64 tareas, con las críticas.
+ * Apertura y cierre son las listas reales de la barra; la limpieza profunda
+ * semanal sale del checklist en papel (src/ryo/checklist/datos.ts).
  */
 import type {
   Estado, Plantilla, ItemPlantilla, Ejecucion, SesionCal, Shot, Semana, Marca, Progreso,
 } from './estado';
-import { TURNOS, PERIODICAS, LIMITE_REFRIGERACION } from '../checklist/datos';
+import { PERIODICAS } from '../checklist/datos';
 import { jornadaDe, sumarDias, tsDgo, lunesDe } from './lib/tiempo';
 import { redondear, CONTINUO } from './lib/calibracion';
 import { programar } from './lib/repaso';
 
-/* ── Plantillas desde el checklist en papel ─────────────── */
+/* ── Plantillas: las listas de la barra ────────────────── */
 
-function desdePapel(turno: (typeof TURNOS)[number], id: string, extras: Record<number, ItemPlantilla[]>): Plantilla {
-  const items: ItemPlantilla[] = [];
-  turno.secciones.forEach((sec, si) => {
-    sec.tareas.forEach((t, ti) => {
-      const base = { id: `${id}-${si}-${ti}`, seccion: sec.titulo, critica: t.critica };
-      // La barra calibra sin refractómetro: esa tarea del papel no pasa a la app.
-      if (/refractómetro/i.test(t.texto)) return;
-      if (t.herramienta === 'temperatura') {
-        // La tarea de bitácora se vuelve dos lecturas con rango.
-        for (const [n, suf] of [[1, 'a'], [2, 'b']] as const) {
-          items.push({
-            ...base, id: `${base.id}${suf}`, tipo: 'numero', texto: `Temperatura refrigerador ${n}`,
-            min: 0, max: LIMITE_REFRIGERACION, unidad: '°C', paso: 0.5, inicial: 4,
-          });
-        }
-        return;
-      }
-      if (t.herramienta === 'calibracion') {
-        items.push({ ...base, tipo: 'calibracion', texto: 'Calibrar el espresso del día (dosis, rendimiento, tiempo, sabor)' });
-        return;
-      }
-      if (t.herramienta === 'faltantes') {
-        items.push({ ...base, tipo: 'nota', texto: 'Faltantes para mañana' });
-        return;
-      }
-      if (t.herramienta === 'reporte') {
-        items.push({ ...base, tipo: 'nota', texto: 'Incidencias del turno para el reporte' });
-        return;
-      }
-      items.push({ ...base, tipo: 'check', texto: t.texto });
-    });
-    items.push(...(extras[si] ?? []));
-  });
-  // Evidencia opcional en tareas donde una foto ayuda a validar.
-  for (const it of items) {
-    if (/^Caducidades|^Mesas, sillas|^Vaciar la hielera|^Tarjas/.test(it.texto)) it.foto = 'opcional';
-  }
-  return {
-    id, nombre: turno.titulo.replace('Checklist de ', '').replace(/^./, (c) => c.toUpperCase()),
-    descripcion: turno.bajada, frecuencia: 'diaria', activa: true,
-    horaLimite: turno.id === 'apertura' ? '08:00' : '23:30',
-    items,
-  };
+type Tarea = string | Partial<ItemPlantilla> & { texto: string };
+
+function lista(id: string, seccion: string, tareas: Tarea[]): ItemPlantilla[] {
+  return tareas.map((t, i): ItemPlantilla => ({ id: `${id}-${i}`, seccion, tipo: 'check', ...(typeof t === 'string' ? { texto: t } : t) }));
 }
 
+/**
+ * Apertura y cierre son las listas de la barra de Ryo (nota del 29-sep-2026),
+ * en su orden. Sobre ellas: el stock del refri se anota, la vitrina y la
+ * barra llevan foto, y agua y máquina desconectada son críticas.
+ */
 function crearPlantillas(): Plantilla[] {
-  const [ap, ci] = TURNOS;
-  const apertura = desdePapel(ap, 'p-apertura', {
-    [ap.secciones.length - 1]: [{ id: 'p-apertura-foto', seccion: 'Última revisión', tipo: 'foto', texto: 'Foto de la barra lista para abrir', foto: 'opcional' }],
-  });
-  const cierre = desdePapel(ci, 'p-cierre', {
-    [ci.secciones.length - 1]: [{ id: 'p-cierre-foto', seccion: 'Cierre final', tipo: 'foto', texto: 'Foto de la barra al cerrar', foto: 'obligatoria', critica: true }],
-  });
+  const apertura: Plantilla = {
+    id: 'p-apertura', nombre: 'Apertura', descripcion: 'Agua, máquina, luces, salón, baños y producto.',
+    frecuencia: 'diaria', horaLimite: '08:00', activa: true,
+    items: lista('p-apertura', 'Al llegar', [
+      { texto: 'Checar agua', critica: true },
+      'Revisar limpieza',
+      'Encender máquina',
+      'Encender sonido',
+      'Encender luces',
+      'Revisar barra de endulzantes y agitadores',
+      'Revisar área comedor',
+      'Abrir y revisar baños',
+      { texto: 'Revisar vitrina de pan', foto: 'opcional' },
+      { texto: 'Revisar stock del refri', tipo: 'nota' },
+    ]),
+  };
+  const cierre: Plantilla = {
+    id: 'p-cierre', nombre: 'Cierre', descripcion: 'Barra, máquina, tarja, loza, remojos y desconectar.',
+    frecuencia: 'diaria', horaLimite: '23:30', activa: true,
+    items: lista('p-cierre', 'Al cerrar', [
+      { texto: 'Limpieza de barra general', foto: 'obligatoria' },
+      { texto: 'Limpieza de máquina', foto: 'opcional' },
+      'Limpieza de tarja',
+      'Limpieza de enjuagador',
+      'Limpieza de loza',
+      'Remojar portafiltros',
+      'Remojar trapos',
+      { texto: 'Desconectar máquina', critica: true },
+    ]),
+  };
   const semanal = PERIODICAS.find((p) => p.frecuencia === 'Semanal')!;
   const profunda: Plantilla = {
     id: 'p-profunda', nombre: 'Limpieza profunda', descripcion: 'Semanal · lo que no va en el checklist diario',
@@ -147,7 +136,7 @@ function convergencia(final: number, larga = false): Paso[] {
 /* ── Todo ───────────────────────────────────────────────── */
 
 /** Sube cuando cambia la forma del estado: lo guardado con otra versión se descarta. */
-export const VERSION = 5;
+export const VERSION = 6;
 
 export function crearSemilla(): Estado {
   const hoy = jornadaDe();
@@ -189,21 +178,14 @@ export function crearSemilla(): Estado {
     };
   }
 
-  // Checklists: la apertura de hoy hecha (con una lectura fuera de rango),
-  // el cierre de ayer sin validar, lo demás validado.
-  const refri2 = ap.items.find((i) => i.tipo === 'numero' && i.texto.endsWith('2'))!;
-  const calItem = ap.items.find((i) => i.tipo === 'calibracion')!;
+  // Checklists: la apertura de hoy hecha, el cierre de ayer sin validar, lo
+  // demás validado.
+  const stock = ap.items.find((i) => i.tipo === 'nota')!;
   const ejecuciones: Ejecucion[] = [
-    ejecutada(ap, hoy, 'u-ana', '07:31', '07:58', {
-      especiales: {
-        [refri2.id]: { valor: 8.5, fuera: true, acciones: ['Aislé el producto', 'Avisé al encargado'] },
-        [calItem.id]: { en: aprobado.en, texto: `Receta aprobada: ${aprobado.dosis} g → ${aprobado.rendimiento} g · ${aprobado.tiempo} s` },
-        'p-apertura-foto': { fotoId: undefined },
-      },
+    ejecutada(ap, hoy, 'u-ana', '07:31', '07:52', {
+      especiales: { [stock.id]: { texto: 'Queda 1 L de leche de avena; pedir para mañana.' } },
     }),
-    ejecutada(ci, d(-1), 'u-diego', '22:48', '23:41', {
-      especiales: { [ci.items.find((i) => i.tipo === 'nota' && i.texto.startsWith('Faltantes'))!.id]: { texto: 'Leche de avena (2 L), vasos de 12 oz' } },
-    }),
+    ejecutada(ci, d(-1), 'u-diego', '22:48', '23:31'),
     ejecutada(ap, d(-1), 'u-ana', '07:30', '07:57', { validadaPor: 'u-carla', validadaA: '09:12' }),
     ejecutada(ap, d(-2), 'u-diego', '07:33', '08:06', { validadaPor: 'u-carla' }),
     ejecutada(ci, d(-2), 'u-ana', '22:50', '23:28', { validadaPor: 'u-carla', validadaA: '09:05' }),

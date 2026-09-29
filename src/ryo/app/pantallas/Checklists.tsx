@@ -349,7 +349,7 @@ function Item({ e, ej, item, marca, cerrada, onFoto }: {
       }
     };
     return (
-      <div id={`item-${item.id}`}>
+      <div id={`item-${item.id}`} className={item.foto ? 'item-foto' : undefined}>
         <button type="button" className="fila" onClick={alternar} aria-pressed={!!marca} disabled={cerrada && !marca}>
           <Casilla hecha={!!marca} />
           <span className="fila-texto">{texto}<Firma e={e} m={marca} /></span>

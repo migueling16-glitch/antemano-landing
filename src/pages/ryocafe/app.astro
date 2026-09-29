@@ -35,7 +35,7 @@ const isotipo = isotipoSvg.replace(/viewBox="[^"]*"/, 'viewBox="38 40 479 361"')
       // Tema antes de pintar, para no parpadear: el guardado, o por la hora de Durango.
       (function () {
         var tema = 'auto';
-        try { tema = (JSON.parse(localStorage.getItem('ryo-app:v5') || '{}').tema) || 'auto'; } catch (e) {}
+        try { tema = (JSON.parse(localStorage.getItem('ryo-app:v6') || '{}').tema) || 'auto'; } catch (e) {}
         if (tema === 'auto') {
           var h = (new Date().getUTCHours() + 24 - 6) % 24;
           tema = h >= 7 && h < 19 ? 'champagne' : 'cafe';

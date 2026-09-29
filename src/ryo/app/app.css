@@ -218,6 +218,9 @@ a.bloque { color: inherit; }
   display: grid; grid-template-columns: minmax(6.5rem, 36%) 1fr; gap: 14px; align-items: baseline;
   padding: 14px 0; border-bottom: 1px solid var(--line);
 }
+/* Tarea con foto: el botón de evidencia va dentro de su tarea, arriba del filete. */
+.item-foto { border-bottom: 1px solid var(--line); }
+.item-foto > .fila { border-bottom: 0; padding-bottom: 10px; }
 .firma { font-style: normal; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em; }
 a.fila::after, button.fila.ir::after { content: '→'; font-size: 0.95rem; flex: none; transition: transform 220ms var(--ease); }
 a.fila:active::after, button.fila.ir:active::after { transform: translateX(5px); }

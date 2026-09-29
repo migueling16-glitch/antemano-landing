@@ -1,8 +1,8 @@
 /**
  * Contenido de la maqueta: biblioteca de recetas y capacitación.
  *
- * Es contenido de ejemplo, escrito con criterio de barra para que la maqueta
- * se sienta real. En el sistema lo edita el admin desde la app.
+ * Las recetas siguen el menú real de Ryo; la capacitación es contenido de
+ * ejemplo escrito con criterio de barra. En el sistema lo edita el admin.
  */
 
 /* ═══ BIBLIOTECA DE RECETAS ═══════════════════════════════ */
@@ -10,18 +10,32 @@
 export type Receta = {
   id: string;
   nombre: string;
-  categoria: 'Espresso' | 'Con leche' | 'Matcha y té' | 'Métodos' | 'Frías';
+  /** Los tres grupos del menú de Ryo. */
+  categoria: 'Clásicos' | 'Especiales' | 'Matchas';
   vaso: string;
   temperatura: string;
   tiempo: string;
   gramos: [string, string][];
   pasos: string[];
   estandar: string;
+  /** Las que también se sirven en frío (flecha en el menú). */
+  frio?: { vaso: string; gramos?: [string, string][]; pasos: string[] };
+  /** Receta de la casa todavía sin cantidades definidas. */
+  porConfirmar?: boolean;
 };
 
+/*
+ * El menú de Ryo (nota de la barra, 29-sep-2026). De la nota salen: los tres
+ * grupos, qué va también en frío, 150 ml de leche en el latte, 120 ml en el
+ * matcha latte y el foam del miso caramel latte. Lo demás es una base de
+ * barra para ajustar; los especiales de la casa quedan por confirmar.
+ */
+const DOBLE = ['Espresso', '18 g → 36 g · Doble casa'] as [string, string];
+
 export const RECETAS: Receta[] = [
+  /* ── Clásicos ── */
   {
-    id: 'espresso', nombre: 'Espresso', categoria: 'Espresso', vaso: 'Taza de espresso', temperatura: 'PID 93.5 °C', tiempo: '26–30 s',
+    id: 'espresso', nombre: 'Espresso', categoria: 'Clásicos', vaso: 'Taza de espresso', temperatura: 'PID 93.5 °C', tiempo: '26–30 s',
     gramos: [['Dosis', '18.0 g'], ['Rendimiento', '36.0 g'], ['Ratio', '1:2'], ['Botón', 'Doble casa']],
     pasos: [
       'Purga el grupo 2 segundos.', 'Muele 18.0 g y distribuye parejo.', 'Tampea nivelado, sin girar.',
@@ -30,58 +44,118 @@ export const RECETAS: Receta[] = [
     estandar: 'Crema avellana y continua. Dulce, con acidez limpia. Si sale ácido o amargo, revisa la receta del día antes de servir.',
   },
   {
-    id: 'americano', nombre: 'Americano', categoria: 'Espresso', vaso: 'Vaso 12 oz', temperatura: 'Agua a 85 °C', tiempo: '1 min',
-    gramos: [['Espresso', '18 g → 36 g'], ['Agua caliente', '150 g']],
-    pasos: ['Sirve primero el agua caliente.', 'Extrae el espresso directo sobre el agua.', 'No revuelvas: la crema queda arriba.'],
-    estandar: 'Crema visible en la superficie. El agua primero evita que la crema se rompa.',
-  },
-  {
-    id: 'cortado', nombre: 'Cortado', categoria: 'Con leche', vaso: 'Vaso 4.5 oz', temperatura: 'Leche a 55–60 °C', tiempo: '2 min',
-    gramos: [['Espresso', '18 g → 36 g'], ['Leche', '60 g']],
+    id: 'cortado', nombre: 'Cortado', categoria: 'Clásicos', vaso: 'Vaso 4.5 oz', temperatura: 'Leche a 55–60 °C', tiempo: '2 min',
+    gramos: [DOBLE, ['Leche', '60 ml']],
     pasos: ['Extrae el espresso en el vaso.', 'Texturiza poca leche, casi sin aire.', 'Vierte despacio, pegado a la superficie.'],
-    estandar: 'Proporción 1:1 aproximada. Capa fina de espuma, menos de medio centímetro.',
+    estandar: 'Mitad espresso, mitad leche. Capa fina de espuma, menos de medio centímetro.',
   },
   {
-    id: 'flat-white', nombre: 'Flat white', categoria: 'Con leche', vaso: 'Taza 6 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
-    gramos: [['Doble ristretto', '18 g → 30 g'], ['Leche', '120 g']],
-    pasos: ['Extrae el ristretto en la taza.', 'Aire solo al inicio, 2 segundos. Luego integra.', 'Vierte alto al inicio y baja para dibujar.', 'Arte simple: corazón o tulipán.'],
+    id: 'flat-white', nombre: 'Flat white', categoria: 'Clásicos', vaso: 'Taza 6 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
+    gramos: [DOBLE, ['Leche', '110 ml']],
+    pasos: ['Extrae el espresso en la taza.', 'Aire solo al inicio, 2 segundos. Luego integra.', 'Vierte alto al inicio y baja para dibujar.', 'Arte simple: corazón o tulipán.'],
     estandar: 'Microespuma brillante, sin burbujas visibles. Superficie plana, capa de espuma de 0.5 cm.',
+    frio: {
+      vaso: 'Vaso 12 oz con hielo',
+      gramos: [DOBLE, ['Leche fría', '110 ml'], ['Hielo', 'al borde']],
+      pasos: ['Llena el vaso de hielo.', 'Sirve la leche fría.', 'Extrae el espresso y viértelo encima, despacio.'],
+    },
   },
   {
-    id: 'cappuccino', nombre: 'Cappuccino', categoria: 'Con leche', vaso: 'Taza 8 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
-    gramos: [['Espresso', '18 g → 36 g'], ['Leche', '150 g']],
+    id: 'cappuccino', nombre: 'Cappuccino', categoria: 'Clásicos', vaso: 'Taza 8 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
+    gramos: [DOBLE, ['Leche', '120 ml']],
     pasos: ['Extrae el espresso en la taza.', 'Aire 4–5 segundos: más espuma que un latte.', 'Vierte y termina con la espuma.'],
     estandar: 'Espuma de 1.5 cm, sedosa. Canela solo si el cliente la pide.',
   },
   {
-    id: 'latte', nombre: 'Latte', categoria: 'Con leche', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
-    gramos: [['Espresso', '18 g → 36 g'], ['Leche', '250 g']],
-    pasos: ['Extrae el espresso en el vaso.', 'Aire 2–3 segundos.', 'Vierte y dibuja al final.'],
+    id: 'latte', nombre: 'Latte', categoria: 'Clásicos', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
+    gramos: [DOBLE, ['Leche', '150 ml']],
+    pasos: ['Extrae el espresso en el vaso.', 'Texturiza 150 ml de leche, aire 2–3 segundos.', 'Vierte y dibuja al final.'],
     estandar: 'Espuma de 0.5–1 cm. La leche nunca pasa de 65 °C: se quema y pierde dulzor.',
+    frio: {
+      vaso: 'Vaso 12 oz con hielo',
+      gramos: [DOBLE, ['Leche fría', '150 ml'], ['Hielo', 'al borde']],
+      pasos: ['Llena el vaso de hielo.', 'Sirve 150 ml de leche fría.', 'Extrae el espresso y viértelo encima para marcar la capa.'],
+    },
   },
   {
-    id: 'cold-brew', nombre: 'Cold brew', categoria: 'Frías', vaso: 'Vaso 16 oz con hielo', temperatura: 'Frío', tiempo: '18 h de extracción',
-    gramos: [['Café molienda gruesa', '100 g'], ['Agua fría', '1000 g'], ['Por vaso', '180 g']],
-    pasos: ['Mezcla café y agua en el contenedor.', 'Tapa, etiqueta con fecha y hora.', 'Refrigera 18 horas.', 'Filtra y pasa a jarra etiquetada.', 'Sirve 180 g sobre hielo.'],
-    estandar: 'Dura 3 días refrigerado. Sin etiqueta no se sirve.',
+    id: 'americano', nombre: 'Americano', categoria: 'Clásicos', vaso: 'Vaso 12 oz', temperatura: 'Agua a 85 °C', tiempo: '1 min',
+    gramos: [DOBLE, ['Agua caliente', '150 ml']],
+    pasos: ['Extrae el espresso en el vaso.', 'Completa con el agua caliente.', 'Sirve sin revolver.'],
+    estandar: 'Largo y limpio. Si lo quieren más suave, se agrega agua; nunca se hace un shot más largo.',
+    frio: {
+      vaso: 'Vaso 12 oz con hielo',
+      gramos: [DOBLE, ['Agua fría', '150 ml'], ['Hielo', 'al borde']],
+      pasos: ['Llena el vaso de hielo.', 'Sirve el agua fría.', 'Extrae el espresso y viértelo encima.'],
+    },
   },
   {
-    id: 'matcha-latte', nombre: 'Matcha latte', categoria: 'Matcha y té', vaso: 'Vaso 12 oz', temperatura: 'Agua a 75 °C', tiempo: '2 min',
-    gramos: [['Matcha ceremonial', '3 g'], ['Agua', '60 g'], ['Leche', '180 g']],
-    pasos: ['Tamiza el matcha en el tazón.', 'Agrega el agua a 75 °C.', 'Bate en zigzag hasta que no queden grumos.', 'Texturiza la leche y vierte el matcha encima.'],
+    id: 'long-black', nombre: 'Long black', categoria: 'Clásicos', vaso: 'Taza 6 oz', temperatura: 'Agua a 85 °C', tiempo: '1 min',
+    gramos: [['Agua caliente', '100 ml'], DOBLE],
+    pasos: ['Sirve primero el agua caliente.', 'Extrae el espresso directo sobre el agua.', 'No revuelvas: la crema queda arriba.'],
+    estandar: 'Más corto e intenso que el americano, con la crema intacta en la superficie. El agua va primero.',
+  },
+  {
+    id: 'moka', nombre: 'Moka', categoria: 'Clásicos', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
+    gramos: [DOBLE, ['Chocolate', '20 g'], ['Leche', '150 ml']],
+    pasos: ['Pon el chocolate en el vaso.', 'Extrae el espresso encima y mezcla hasta integrar.', 'Texturiza la leche y vierte.'],
+    estandar: 'Sin chocolate asentado en el fondo: se integra con el espresso antes de la leche.',
+    frio: {
+      vaso: 'Vaso 12 oz con hielo',
+      gramos: [DOBLE, ['Chocolate', '20 g'], ['Leche fría', '150 ml'], ['Hielo', 'al borde']],
+      pasos: ['Integra el chocolate con el espresso en la jarra.', 'Llena el vaso de hielo y sirve la leche fría.', 'Vierte el espresso con chocolate encima.'],
+    },
+  },
+
+  /* ── Especiales ── */
+  {
+    id: 'miso-caramel-latte', nombre: 'Miso caramel latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '3 min',
+    gramos: [DOBLE, ['Caramelo de miso', 'por confirmar'], ['Leche', '150 ml'], ['Foam', 'por confirmar']],
+    pasos: ['Pon el caramelo de miso en el vaso.', 'Extrae el espresso encima e integra.', 'Vierte la leche.', 'Corona con el foam.'],
+    estandar: 'El foam va al final y se sirve de inmediato, antes de que baje.',
+    porConfirmar: true,
+  },
+  {
+    id: 'maple-salt-latte', nombre: 'Maple salt latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
+    gramos: [DOBLE, ['Maple', 'por confirmar'], ['Sal', 'por confirmar'], ['Leche', '150 ml']],
+    pasos: ['Integra el maple con el espresso en el vaso.', 'Vierte la leche texturizada.', 'Termina con la sal.'],
+    estandar: 'Dulce con un final salado: la sal se nota, no domina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'cortadito', nombre: 'Cortadito', categoria: 'Especiales', vaso: 'Vaso 4.5 oz', temperatura: 'Leche a 55–60 °C', tiempo: '2 min',
+    gramos: [DOBLE, ['Azúcar', 'por confirmar'], ['Leche', '60 ml']],
+    pasos: ['Bate el azúcar con las primeras gotas del espresso hasta hacer una espumita.', 'Termina de extraer encima.', 'Vierte la leche despacio.'],
+    estandar: 'Espumita de azúcar visible arriba. Dulce desde el primer sorbo.',
+    porConfirmar: true,
+  },
+  {
+    id: 'ryo-latte', nombre: 'Ryo latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
+    gramos: [DOBLE, ['Leche', '150 ml'], ['Toque de la casa', 'por definir']],
+    pasos: ['Receta de la casa por definir con la barra.'],
+    estandar: 'La bebida firma de Ryo: se define en barra y se registra aquí.',
+    porConfirmar: true,
+  },
+
+  /* ── Matchas ── */
+  {
+    id: 'matcha-latte', nombre: 'Matcha latte', categoria: 'Matchas', vaso: 'Vaso 12 oz', temperatura: 'Agua a 75 °C', tiempo: '2 min',
+    gramos: [['Matcha ceremonial', '3 g'], ['Agua', '60 ml'], ['Leche', '120 ml']],
+    pasos: ['Tamiza el matcha en el tazón.', 'Agrega el agua a 75 °C.', 'Bate en zigzag hasta que no queden grumos.', 'Texturiza 120 ml de leche y vierte el matcha encima.'],
     estandar: 'Sin grumos. El agua hirviendo amarga el matcha: nunca más de 80 °C.',
   },
   {
-    id: 'dirty-matcha', nombre: 'Dirty matcha', categoria: 'Matcha y té', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60 °C', tiempo: '3 min',
-    gramos: [['Matcha latte', 'receta completa'], ['Espresso', '18 g → 36 g']],
-    pasos: ['Prepara el matcha latte.', 'Extrae el espresso.', 'Vierte el espresso encima, despacio, para marcar la capa.'],
-    estandar: 'Tres capas visibles al servir: leche, matcha y espresso.',
+    id: 'ryo-matcha', nombre: 'Ryo matcha', categoria: 'Matchas', vaso: 'Vaso 12 oz', temperatura: 'Agua a 75 °C', tiempo: '2 min',
+    gramos: [['Matcha ceremonial', '3 g'], ['Agua', '60 ml'], ['Toque de la casa', 'por definir']],
+    pasos: ['Receta de la casa por definir con la barra.'],
+    estandar: 'La matcha firma de Ryo: se define en barra y se registra aquí.',
+    porConfirmar: true,
   },
   {
-    id: 'v60', nombre: 'V60', categoria: 'Métodos', vaso: 'Jarra y taza', temperatura: 'Agua a 94 °C', tiempo: '2:45–3:15',
-    gramos: [['Café molienda media', '15 g'], ['Agua', '250 g'], ['Ratio', '1:16.7']],
-    pasos: ['Enjuaga el filtro con agua caliente.', 'Preinfusión: 45 g de agua, 30 segundos.', 'Vierte en espiral hasta 150 g.', 'Completa a 250 g.', 'Termina entre 2:45 y 3:15.'],
-    estandar: 'Si termina antes de 2:45, muele más fino. Si pasa de 3:15, más grueso.',
+    id: 'hojicha', nombre: 'Hojicha', categoria: 'Matchas', vaso: 'Vaso 12 oz', temperatura: 'Agua a 85 °C', tiempo: '2 min',
+    gramos: [['Hojicha', 'por confirmar'], ['Agua', '60 ml'], ['Leche', '120 ml']],
+    pasos: ['Tamiza la hojicha en el tazón.', 'Agrega el agua a 85 °C y bate hasta integrar.', 'Texturiza la leche y vierte la hojicha encima.'],
+    estandar: 'Tostado y suave, sin amargor. Aguanta agua más caliente que el matcha.',
+    porConfirmar: true,
   },
 ];
 
@@ -121,7 +195,6 @@ export const MODULOS: Modulo[] = [
   { id: 'm-leche', nivel: 1, titulo: 'Leche' },
   { id: 'm-higiene', nivel: 1, titulo: 'Higiene y seguridad' },
   { id: 'm-calibracion', nivel: 2, titulo: 'Calibración' },
-  { id: 'm-metodos', nivel: 2, titulo: 'Métodos filtrados' },
   { id: 'm-perfilar', nivel: 3, titulo: 'Perfilar y enseñar' },
 ];
 
@@ -199,7 +272,7 @@ export const LECCIONES: Leccion[] = [
   {
     id: 'l-temperaturas', moduloId: 'm-higiene', titulo: 'Temperaturas de refrigeración', minutos: 3,
     bloques: [
-      { tipo: 'texto', texto: 'La refrigeración va a máximo 7 °C (NOM-251, apartado 5.5.2) y el congelador debe mantener el producto congelado. Se registra en apertura y en cierre.' },
+      { tipo: 'texto', texto: 'La refrigeración va a máximo 7 °C (NOM-251, apartado 5.5.2) y el congelador debe mantener el producto congelado. Se revisa al checar el stock del refri en la apertura.' },
       { tipo: 'clave', texto: 'Si una lectura sale del límite: aislar el producto, anotar la acción y avisar al grupo.' },
     ],
     preguntas: [
@@ -245,16 +318,6 @@ export const LECCIONES: Leccion[] = [
     ],
   },
   {
-    id: 'l-v60', moduloId: 'm-metodos', titulo: 'V60 de la casa', minutos: 6,
-    bloques: [
-      { tipo: 'receta', recetaId: 'v60' },
-      { tipo: 'clave', texto: 'El tiempo total te dice la molienda: rápido → más fino, lento → más grueso.' },
-    ],
-    preguntas: [
-      { id: 'q-v60-1', pregunta: '¿Cuál es la receta del V60 de la casa?', respuesta: '15 g de café, 250 g de agua a 94 °C, en 2:45 a 3:15.' },
-    ],
-  },
-  {
     id: 'l-perfilar', moduloId: 'm-perfilar', titulo: 'Perfilar un café nuevo', minutos: 7,
     bloques: [
       { tipo: 'texto', texto: 'Arranca con la receta base y el reposo mínimo de 5 días. Explora el ratio de 1:1.8 a 1:2.4 con la misma molienda y quédate con el que muestre más dulzor. Esa es la receta objetivo que se registra en el catálogo.' },
@@ -285,7 +348,7 @@ export const RUBRICAS: Record<number, string[]> = {
   2: [
     'Calibra el espresso de la casa en 5 shots o menos',
     'Reprograma un botón de la Linea y comprueba el peso en la báscula',
-    'Prepara un V60 dentro de receta',
+    'Prepara un especial del menú dentro de receta',
   ],
   3: [
     'Perfila un café nuevo y propone su receta objetivo',

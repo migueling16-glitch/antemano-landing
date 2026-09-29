@@ -236,7 +236,7 @@ export type Estado = {
 /* ═══ ALMACÉN ═════════════════════════════════════════════ */
 
 export { VERSION };
-const CLAVE = 'ryo-app:v5';
+const CLAVE = 'ryo-app:v6';
 
 /** Marca de la pestaña: sobrevive a recargar, no a cerrar la app. */
 const SESION = 'ryo-app:sesion';
