@@ -10,7 +10,7 @@ import { Aviso, Ritual, useRuta, Sup } from './componentes';
 import { TEMA_AUTO } from '../config';
 import { dgo } from './lib/tiempo';
 import { Entrar } from './pantallas/Entrar';
-import { Inicio } from './pantallas/Inicio';
+import { Inicio, Avisos } from './pantallas/Inicio';
 import { ChecklistsInicio, ChecklistsHistorial, ChecklistEjecucion } from './pantallas/Checklists';
 import { CalibrarInicio, CalibrarNueva, CalibrarSesion, CalibrarCafe } from './pantallas/Calibrar';
 import { RecetasLista, RecetaFicha } from './pantallas/Recetas';
@@ -28,7 +28,7 @@ const PESTANAS = [
 ] as const;
 
 /** A qué pestaña pertenece cada sección. */
-const PESTANA_DE: Record<string, string> = { aprender: 'mas', horarios: 'mas', admin: 'mas' };
+const PESTANA_DE: Record<string, string> = { aprender: 'mas', horarios: 'mas', admin: 'mas', avisos: 'inicio' };
 
 function temaDe(e: Estado, seccion: string): 'champagne' | 'cafe' {
   if (seccion === 'calibrar') return 'cafe';
@@ -68,6 +68,7 @@ function SinPermiso() {
 function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
   switch (s) {
     case 'inicio': return <Inicio />;
+    case 'avisos': return <Avisos />;
     case 'checklists':
       if (a === 'historial') return <ChecklistsHistorial />;
       if (a === 'ej' && b) return <ChecklistEjecucion id={b} />;

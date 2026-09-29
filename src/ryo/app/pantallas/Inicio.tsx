@@ -8,6 +8,8 @@ import {
   plantilla as buscarPlantilla, cafe as buscarCafe, type Estado,
 } from '../estado';
 import { Sup, Seccion, Estado as Etq, BarraProg, Vacio } from '../componentes';
+import { avisosDe, marcarLeida, marcarTodasLeidas } from '../estado';
+import { personasDe } from '../lib/turnos';
 import { resumen } from './Checklists';
 import { tocaHoy } from '../lib/repaso';
 import { jornadaDe, hora, fechaCorta, nombreDia, lunesDe, sumarDias, cuando, dgo } from '../lib/tiempo';
@@ -38,6 +40,11 @@ export function Inicio() {
   const prog = progresoDe(e, u.id);
   const repaso = Object.values(prog.repaso).filter((x) => tocaHoy(x, hoy)).length;
   const esEncargado = puede(e, 'encargado', 'admin');
+  const semanaHoy = e.semanas.find((s) => s.id === lunesDe(hoy) && s.estado === 'publicada');
+  const contigo = personasDe(e, hoy, semanaHoy?.turnos ?? {})
+    .filter((p) => p.usuarioId !== u.id)
+    .map((p) => `${usuario(e, p.usuarioId)?.nombre.split(' ')[0]} (${p.turno.inicio}–${p.turno.fin})`);
+  const nuevos = avisosDe(e, u.id).filter((n) => !n.leidaPor.includes(u.id));
 
   return (
     <>
@@ -48,6 +55,7 @@ export function Inicio() {
             <>
               <span className="etq">Hoy trabajas</span>
               <span className="num-m">{turnoHoy.nombre} · {turnoHoy.inicio}–{turnoHoy.fin}</span>
+              {contigo.length > 0 && <span className="cuerpo">Con {contigo.join(', ')}.</span>}
             </>
           ) : (
             <>
@@ -57,6 +65,25 @@ export function Inicio() {
           )}
           <a className="enlace" href="#/horarios">Ver horario</a>
         </section>
+
+        {nuevos.length > 0 && (
+          <Seccion titulo="Avisos" extra={`${nuevos.length} nuevo${nuevos.length === 1 ? '' : 's'}`}>
+            <div className="lista">
+              {nuevos.slice(0, 3).map((n) => (
+                <a key={n.id} className="fila" href={n.ruta ?? '#/avisos'} onClick={() => marcarLeida(n.id)}>
+                  <span className="fila-texto">
+                    <span>{n.texto}</span>
+                    <span className="fila-sub">{cuando(jornadaDe(n.en))} · {hora(n.en)}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+            <div className="fila-h entre">
+              <a className="enlace" href="#/avisos">Ver todos</a>
+              <button type="button" className="enlace" onClick={marcarTodasLeidas}>Marcar como leídos</button>
+            </div>
+          </Seccion>
+        )}
 
         <a className="bloque bloque-toque" href="#/calibrar" style={{ textDecoration: 'none' }} aria-label="Receta del día">
           <span className="fila-h entre">
@@ -160,5 +187,41 @@ function PorAtender({ e }: { e: Estado }) {
         ))}
       </div>
     </Seccion>
+  );
+}
+
+/* ═══ AVISOS ══════════════════════════════════════════════ */
+
+/** Todos los avisos: horario publicado, cambios, días libres. */
+export function Avisos() {
+  const e = useEstado();
+  const u = yo(e)!;
+  const lista = avisosDe(e, u.id);
+  const nuevos = lista.filter((n) => !n.leidaPor.includes(u.id)).length;
+  return (
+    <>
+      <Sup titulo="Avisos" sub={nuevos ? `${nuevos} sin leer` : 'Todo leído'} volver="inicio"
+        accion={nuevos ? { texto: 'Leídos', hacer: marcarTodasLeidas } : undefined} />
+      <main className="pant pila">
+        {lista.length ? (
+          <div className="lista">
+            {lista.map((n) => {
+              const leida = n.leidaPor.includes(u.id);
+              return (
+                <a key={n.id} className="fila" href={n.ruta ?? '#/inicio'} onClick={() => marcarLeida(n.id)}>
+                  <span className={`avatar${leida ? '' : ' lleno'}`} aria-hidden="true">{usuario(e, n.de)?.iniciales ?? 'R'}</span>
+                  <span className="fila-texto">
+                    <span className={leida ? 'italica' : ''}>{n.texto}</span>
+                    <span className="fila-sub">{cuando(jornadaDe(n.en))} · {hora(n.en)}{leida ? '' : ' · nuevo'}</span>
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        ) : (
+          <Vacio>Sin avisos por ahora.</Vacio>
+        )}
+      </main>
+    </>
   );
 }

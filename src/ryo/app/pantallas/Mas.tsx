@@ -2,7 +2,7 @@
  * Más: lo que no cabe en la barra inferior, la cuenta y el aviso de privacidad.
  */
 import { useState } from 'react';
-import { useEstado, yo, puede, entrar, salir, cambiarTema, reiniciarDemo, avisar, type Estado } from '../estado';
+import { useEstado, yo, puede, entrar, salir, cambiarTema, reiniciarDemo, avisar, avisosDe, type Estado } from '../estado';
 import { Sup, Seccion, Avatar, Hoja, Marca, ir } from '../componentes';
 import { progresoDe } from '../estado';
 import { tocaHoy } from '../lib/repaso';
@@ -16,6 +16,7 @@ export function Mas() {
   const [verComo, setVerComo] = useState(false);
   const [reiniciar, setReiniciar] = useState(false);
   const repaso = Object.values(progresoDe(e, u.id).repaso).filter((x) => tocaHoy(x, jornadaDe())).length;
+  const sinLeer = avisosDe(e, u.id).filter((n) => !n.leidaPor.includes(u.id)).length;
 
   return (
     <>
@@ -30,6 +31,9 @@ export function Mas() {
         </section>
 
         <div className="lista">
+          <a className="fila" href="#/avisos">
+            <span className="fila-texto"><span>Avisos</span><span className="fila-sub">{sinLeer ? `${sinLeer} sin leer` : 'Todo leído'}</span></span>
+          </a>
           <a className="fila" href="#/aprender">
             <span className="fila-texto"><span>Aprender</span><span className="fila-sub">Lecciones, repaso{repaso ? ` (${repaso} hoy)` : ''} y evaluaciones</span></span>
           </a>

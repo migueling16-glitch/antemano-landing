@@ -8,10 +8,11 @@
  */
 import { useSyncExternalStore } from 'react';
 import { crearSemilla, VERSION } from './semilla';
-import { jornadaDe } from './lib/tiempo';
+import { jornadaDe, fechaCorta, sumarDias } from './lib/tiempo';
 import { programar, type EstadoPregunta } from './lib/repaso';
 import { CONTINUO, type Objetivo, type Sabor } from './lib/calibracion';
 import { borrarFotos } from './lib/fotos';
+import { FRANJAS, type Franja } from './lib/turnos';
 
 /* ═══ TIPOS ═══════════════════════════════════════════════ */
 
@@ -200,6 +201,34 @@ export type CambioTurno = {
   en: number;
 };
 
+/** Días libres o vacaciones: los pide el barista y los aprueba el encargado. */
+export type Ausencia = {
+  id: string;
+  usuarioId: string;
+  /** "AAAA-MM-DD", inclusive */
+  desde: string;
+  hasta: string;
+  tipo: 'dia-libre' | 'vacaciones';
+  motivo: string;
+  estado: 'pendiente' | 'aprobada' | 'rechazada';
+  en: number;
+  resolvio?: string;
+};
+
+/**
+ * Aviso en la bandeja de Inicio. `para` es un usuario, 'todos' o
+ * 'encargados' (encargado y admin). Quien lo generó no lo recibe.
+ */
+export type Notificacion = {
+  id: string;
+  para: string;
+  de?: string;
+  texto: string;
+  ruta?: string;
+  en: number;
+  leidaPor: string[];
+};
+
 export type Progreso = {
   /** leccionId → momento en que se completó */
   lecciones: Record<string, number>;
@@ -228,8 +257,11 @@ export type Estado = {
   recetasDelDia: Record<string, RecetaDelDia>;
   turnosTipo: TurnoTipo[];
   semanas: Semana[];
-  disponibilidad: Record<string, boolean[]>;
+  /** usuarioId → por día (0 = domingo) las franjas en que SÍ puede trabajar */
+  disponibilidad: Record<string, Franja[][]>;
   cambios: CambioTurno[];
+  ausencias: Ausencia[];
+  notificaciones: Notificacion[];
   progreso: Record<string, Progreso>;
 };
 
@@ -505,27 +537,61 @@ export function aprobarShot(sesionId: string, shotId: string) {
 
 /* ── Horarios ───────────────────────────────────────────── */
 
+const rango = (lunes: string) => `${fechaCorta(lunes)} al ${fechaCorta(sumarDias(lunes, 6))}`;
+const primer = (e: Estado, id?: string) => e.usuarios.find((u) => u.id === id)?.nombre.split(' ')[0] ?? 'Alguien';
+
+function notificar(e: Estado, para: string, texto: string, ruta?: string) {
+  e.notificaciones.unshift({ id: nuevoId('not'), para, de: e.usuarioId ?? undefined, texto, ruta, en: Date.now(), leidaPor: [] });
+}
+
+function semanaDe(e: Estado, semanaId: string) {
+  let sem = e.semanas.find((s) => s.id === semanaId);
+  if (!sem) { sem = { id: semanaId, estado: 'borrador', turnos: {} }; e.semanas.push(sem); }
+  return sem;
+}
+
 export function asignarTurno(semanaId: string, usuarioId: string, fecha: string, turnoId: string | null) {
   actualizar((e) => {
-    let sem = e.semanas.find((s) => s.id === semanaId);
-    if (!sem) { sem = { id: semanaId, estado: 'borrador', turnos: {} }; e.semanas.push(sem); }
+    const sem = semanaDe(e, semanaId);
     const k = `${usuarioId}|${fecha}`;
     if (turnoId) sem.turnos[k] = turnoId; else delete sem.turnos[k];
     if (sem.estado === 'publicada') sem.estado = 'borrador';
   });
 }
 
-export function publicarSemana(semanaId: string) {
+/** Copia los turnos de la semana anterior, día por día. */
+export function copiarSemana(semanaId: string) {
   actualizar((e) => {
-    const sem = e.semanas.find((s) => s.id === semanaId);
-    if (sem) { sem.estado = 'publicada'; sem.publicadaEn = Date.now(); }
+    const origen = e.semanas.find((s) => s.id === sumarDias(semanaId, -7));
+    const sem = semanaDe(e, semanaId);
+    sem.turnos = {};
+    for (const [k, t] of Object.entries(origen?.turnos ?? {})) {
+      const [u, fecha] = k.split('|');
+      sem.turnos[`${u}|${sumarDias(fecha, 7)}`] = t;
+    }
+    sem.estado = 'borrador';
   });
 }
 
-export function alternarDisponible(usuarioId: string, dia: number) {
+export function limpiarSemana(semanaId: string) {
+  actualizar((e) => { const sem = semanaDe(e, semanaId); sem.turnos = {}; sem.estado = 'borrador'; });
+}
+
+export function publicarSemana(semanaId: string) {
   actualizar((e) => {
-    const d = e.disponibilidad[usuarioId] ?? Array(7).fill(true);
-    d[dia] = !d[dia];
+    const sem = e.semanas.find((s) => s.id === semanaId);
+    if (!sem) return;
+    const otraVez = !!sem.publicadaEn;
+    sem.estado = 'publicada';
+    sem.publicadaEn = Date.now();
+    notificar(e, 'todos', otraVez ? `Cambió el horario del ${rango(semanaId)}.` : `Ya está el horario del ${rango(semanaId)}.`, '#/horarios');
+  });
+}
+
+export function alternarFranja(usuarioId: string, dia: number, franja: Franja) {
+  actualizar((e) => {
+    const d = e.disponibilidad[usuarioId] ?? Array.from({ length: 7 }, () => FRANJAS.map((f) => f.id));
+    d[dia] = d[dia].includes(franja) ? d[dia].filter((f) => f !== franja) : [...d[dia], franja];
     e.disponibilidad[usuarioId] = d;
   });
 }
@@ -533,6 +599,7 @@ export function alternarDisponible(usuarioId: string, dia: number) {
 export function solicitarCambio(fecha: string, turnoId: string, motivo: string) {
   actualizar((e) => {
     e.cambios.unshift({ id: nuevoId('cam'), de: e.usuarioId!, fecha, turnoId, motivo, estado: 'abierto', en: Date.now() });
+    notificar(e, 'todos', `${primer(e, e.usuarioId!)} busca quién le cubra el ${fechaCorta(fecha)}.`, '#/horarios/cambios');
   });
 }
 
@@ -540,8 +607,17 @@ export function responderCambio(id: string, accion: 'aceptar' | 'aprobar' | 'rec
   actualizar((e) => {
     const c = e.cambios.find((x) => x.id === id);
     if (!c) return;
-    if (accion === 'aceptar') { c.acepta = e.usuarioId!; c.estado = 'aceptado'; }
-    if (accion === 'rechazar') c.estado = 'rechazado';
+    const dia = fechaCorta(c.fecha);
+    if (accion === 'aceptar') {
+      c.acepta = e.usuarioId!;
+      c.estado = 'aceptado';
+      notificar(e, c.de, `${primer(e, c.acepta)} aceptó cubrir tu turno del ${dia}. Falta la aprobación.`, '#/horarios/cambios');
+      notificar(e, 'encargados', `${primer(e, c.acepta)} aceptó cubrir el ${dia} de ${primer(e, c.de)}. Falta tu aprobación.`, '#/horarios/cambios');
+    }
+    if (accion === 'rechazar') {
+      c.estado = 'rechazado';
+      notificar(e, c.de, `No se aprobó el cambio de tu turno del ${dia}.`, '#/horarios/cambios');
+    }
     if (accion === 'aprobar' && c.acepta) {
       c.estado = 'aprobado';
       // El turno pasa a quien aceptó.
@@ -550,7 +626,47 @@ export function responderCambio(id: string, accion: 'aceptar' | 'aprobar' | 'rec
         delete sem.turnos[`${c.de}|${c.fecha}`];
         sem.turnos[`${c.acepta}|${c.fecha}`] = c.turnoId;
       }
+      notificar(e, c.de, `Aprobado: ${primer(e, c.acepta)} cubre tu turno del ${dia}.`, '#/horarios');
+      notificar(e, c.acepta, `Aprobado: el ${dia} trabajas tú en lugar de ${primer(e, c.de)}.`, '#/horarios');
     }
+  });
+}
+
+export function pedirAusencia(desde: string, hasta: string, tipo: Ausencia['tipo'], motivo: string) {
+  actualizar((e) => {
+    const [a, b] = desde <= hasta ? [desde, hasta] : [hasta, desde];
+    e.ausencias.unshift({ id: nuevoId('aus'), usuarioId: e.usuarioId!, desde: a, hasta: b, tipo, motivo, estado: 'pendiente', en: Date.now() });
+    const cuando = a === b ? `el ${fechaCorta(a)}` : `del ${fechaCorta(a)} al ${fechaCorta(b)}`;
+    notificar(e, 'encargados', `${primer(e, e.usuarioId!)} pidió ${tipo === 'vacaciones' ? 'vacaciones' : 'día libre'} ${cuando}.`, '#/horarios/cambios');
+  });
+}
+
+export function responderAusencia(id: string, accion: 'aprobar' | 'rechazar') {
+  actualizar((e) => {
+    const a = e.ausencias.find((x) => x.id === id);
+    if (!a) return;
+    a.estado = accion === 'aprobar' ? 'aprobada' : 'rechazada';
+    a.resolvio = e.usuarioId!;
+    const cuando = a.desde === a.hasta ? `del ${fechaCorta(a.desde)}` : `del ${fechaCorta(a.desde)} al ${fechaCorta(a.hasta)}`;
+    notificar(e, a.usuarioId, `${accion === 'aprobar' ? 'Aprobaron' : 'No aprobaron'} tus ${a.tipo === 'vacaciones' ? 'vacaciones' : 'día libre'} ${cuando}.`, '#/horarios/disponibilidad');
+  });
+}
+
+/** Los avisos que le tocan a alguien, del más nuevo al más viejo. */
+export function avisosDe(e: Estado, usuarioId: string) {
+  const u = e.usuarios.find((x) => x.id === usuarioId);
+  const encargado = u?.rol === 'encargado' || u?.rol === 'admin';
+  return e.notificaciones.filter((n) =>
+    n.de !== usuarioId && (n.para === 'todos' || n.para === usuarioId || (n.para === 'encargados' && encargado)));
+}
+
+export function marcarLeida(id: string) {
+  actualizar((e) => { const n = e.notificaciones.find((x) => x.id === id); if (n && !n.leidaPor.includes(e.usuarioId!)) n.leidaPor.push(e.usuarioId!); });
+}
+
+export function marcarTodasLeidas() {
+  actualizar((e) => {
+    for (const n of avisosDe(e, e.usuarioId!)) if (!n.leidaPor.includes(e.usuarioId!)) n.leidaPor.push(e.usuarioId!);
   });
 }
 

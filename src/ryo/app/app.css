@@ -471,6 +471,62 @@ button.fila:disabled { cursor: default; }
 .semana .celda[data-hoy='si'] { outline: 1px solid var(--ink); outline-offset: -4px; }
 .semana .celda[data-hoy='si'][data-turno] { outline-color: var(--surface); }
 
+/* Semana del equipo: días que la persona no puede (o libres) en trama,
+ * asteriscos donde hay algo por revisar, conteo por día al pie. */
+.semana .celda[data-no-puede='si'] { background: repeating-linear-gradient(135deg, var(--ink) 0 1px, transparent 1px 6px); }
+.semana .cab[data-hoy='si'] { text-decoration: underline; text-underline-offset: 3px; }
+.semana .nombre { gap: 2px; }
+.semana .nombre[data-alerta='si'] { background: var(--ink); color: var(--surface); }
+.semana .pie { align-items: center; text-align: center; font-size: 0.64rem; text-transform: uppercase; min-height: 36px; }
+.semana .pie[data-alerta='si'] { background: var(--ink); color: var(--surface); }
+
+/* ═══ LÍNEA DE TIEMPO DEL DÍA ═══ */
+.linea { --nombre: 64px; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.linea-fila { display: grid; grid-template-columns: var(--nombre) 1fr; align-items: stretch; min-height: 34px; border-bottom: 1px solid var(--line); }
+.linea-nombre { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; }
+.linea-pista { position: relative; }
+.linea-eje { min-height: 26px; border-bottom: 0; }
+.linea-marca { position: absolute; top: 6px; transform: translateX(-50%); font-size: 0.6rem; letter-spacing: 0.06em; white-space: nowrap; }
+.linea-barra {
+  position: absolute; top: 6px; bottom: 6px; background: var(--ink); color: var(--surface);
+  display: grid; place-items: center; font-size: 0.6rem; letter-spacing: 0.1em; overflow: hidden;
+  animation: barra-crece 520ms var(--ease) backwards;
+  transform-origin: left center;
+}
+@keyframes barra-crece { from { transform: scaleX(0); } }
+.linea-tramo {
+  position: absolute; top: 6px; bottom: 6px; border: 1px solid var(--line);
+  display: grid; place-items: center; font-size: 0.62rem; overflow: hidden;
+}
+.linea-tramo[data-n='0'] { background: repeating-linear-gradient(135deg, var(--ink) 0 1px, transparent 1px 5px); }
+.linea-tramo[data-n='2'], .linea-tramo[data-n='3'] { background: var(--ink); color: var(--surface); }
+.linea-local { position: absolute; top: 0; bottom: 0; border-left: 1px dashed var(--line); }
+.linea-ahora { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--ink); z-index: 1; }
+.linea-nota { margin-top: 10px; }
+
+/* ═══ CALENDARIO DEL MES ═══ */
+.calendario { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-cab { text-align: center; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.12em; padding-bottom: 4px; }
+.cal-dia {
+  position: relative; isolation: isolate; min-height: 50px; border: 1px solid var(--line);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  transition: color 220ms var(--ease);
+}
+.cal-dia::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--ink); clip-path: inset(100% 0 0 0); transition: clip-path 320ms var(--ease); }
+.cal-dia[data-turno='si'] { color: var(--surface); }
+.cal-dia[data-turno='si']::before { clip-path: inset(0); }
+.cal-dia[data-fuera='si'] { opacity: 0.4; }
+.cal-dia[data-hoy='si'] .cal-num { text-decoration: underline; text-underline-offset: 3px; }
+.cal-dia[aria-pressed='true'] { outline: 2px solid var(--ink); outline-offset: 2px; }
+.cal-num { font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.cal-turno { font-size: 0.56rem; letter-spacing: 0.1em; min-height: 0.8em; }
+
+/* ═══ DISPONIBILIDAD POR FRANJAS ═══ */
+.franjas { display: grid; grid-template-columns: 1fr repeat(3, 68px); gap: 6px 6px; align-items: center; }
+.franja-cab { text-align: center; }
+.franja-dia { font-size: 0.86rem; }
+.chip.franja { width: 100%; justify-content: center; text-align: center; min-height: 44px; }
+
 /* ═══ BARRA DE PROGRESO ═══ */
 .barra-prog { height: 6px; border: 1px solid var(--line); }
 .barra-prog > span { display: block; height: 100%; background: var(--ink); transition: width 600ms var(--ease); }

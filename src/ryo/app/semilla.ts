@@ -11,8 +11,9 @@
 import type {
   Estado, Plantilla, ItemPlantilla, Ejecucion, SesionCal, Shot, Semana, Marca, Progreso,
 } from './estado';
+import type { Franja } from './lib/turnos';
 import { PERIODICAS } from '../checklist/datos';
-import { jornadaDe, sumarDias, tsDgo, lunesDe } from './lib/tiempo';
+import { jornadaDe, sumarDias, tsDgo, lunesDe, fechaCorta } from './lib/tiempo';
 import { redondear, CONTINUO } from './lib/calibracion';
 import { programar } from './lib/repaso';
 
@@ -136,7 +137,7 @@ function convergencia(final: number, larga = false): Paso[] {
 /* ── Todo ───────────────────────────────────────────────── */
 
 /** Sube cuando cambia la forma del estado: lo guardado con otra versión se descarta. */
-export const VERSION = 6;
+export const VERSION = 7;
 
 export function crearSemilla(): Estado {
   const hoy = jornadaDe();
@@ -192,21 +193,63 @@ export function crearSemilla(): Estado {
     ejecutada(prof, sumarDias(lunesDe(hoy), -2), 'u-diego', '21:10', '22:40', { validadaPor: 'u-carla' }),
   ];
 
-  // Horario: esta semana publicada, la siguiente en borrador.
+  // Horario: esta semana publicada y limpia (sin alertas); la siguiente en
+  // borrador con cuatro cosas por revisar, para que se vean las reglas: un
+  // día libre aprobado con turno, un cierre seguido de apertura, alguien
+  // puesto en un día que no puede y una tarde sin nadie en barra.
   const lunes = lunesDe(hoy);
-  const semana = (inicio: string, estado: Semana['estado']): Semana => {
+  const semana = (inicio: string, estado: Semana['estado'], plan: Record<string, [number[], string][]>): Semana => {
     const t: Record<string, string> = {};
-    const pon = (u: string, dias: number[], turno: string) => dias.forEach((n) => { t[`${u}|${sumarDias(inicio, n)}`] = turno; });
-    pon('u-ana', [0, 1, 2, 3, 4], 't-ap');
-    pon('u-diego', [0, 2, 3], 't-ci');
-    pon('u-diego', [4, 5], 't-cl');
-    pon('u-carla', [1, 2, 3, 4, 5], 't-in');
-    pon('u-carla', [6], 't-ci');
-    pon('u-sofia', [5, 6], 't-ap');
-    pon('u-sofia', [0], 't-in');
-    pon('u-sofia', [1], 't-ci');
+    for (const [u, bloques] of Object.entries(plan)) {
+      for (const [dias, turno] of bloques) dias.forEach((n) => { t[`${u}|${sumarDias(inicio, n)}`] = turno; });
+    }
     return { id: inicio, estado, turnos: t, ...(estado === 'publicada' ? { publicadaEn: tsDgo(sumarDias(inicio, -3), '18:00') } : {}) };
   };
+  const estaSemana = semana(lunes, 'publicada', {
+    'u-ana': [[[0, 1, 2, 3, 4], 't-ap']],
+    'u-diego': [[[0, 2, 3], 't-ci'], [[4, 5], 't-cl']],
+    'u-carla': [[[1, 3, 4, 5], 't-in'], [[6], 't-ci']],
+    'u-sofia': [[[5, 6], 't-ap'], [[0], 't-in'], [[1], 't-ci']],
+  });
+  const siguiente = semana(sumarDias(lunes, 7), 'borrador', {
+    'u-ana': [[[0, 1, 2, 3, 4, 6], 't-ap']],
+    'u-diego': [[[0, 2], 't-ci'], [[4], 't-cl'], [[5], 't-ap']],
+    'u-carla': [[[1, 3, 4, 5], 't-in'], [[6], 't-ci']],
+    'u-sofia': [[[0], 't-in'], [[1], 't-ci'], [[5], 't-cl']],
+  });
+
+  // Disponibilidad por franjas (0 = domingo).
+  const todo = (): Franja[] => ['manana', 'tarde', 'noche'];
+  const tardes = (): Franja[] => ['tarde', 'noche'];
+  const disponibilidad: Estado['disponibilidad'] = {
+    'u-ana': [[], todo(), todo(), todo(), todo(), todo(), todo()],
+    'u-diego': [todo(), tardes(), [], tardes(), tardes(), tardes(), todo()],
+    'u-carla': Array.from({ length: 7 }, todo),
+    'u-sofia': [todo(), todo(), todo(), todo(), [], [], todo()],
+  };
+
+  const ausencias: Estado['ausencias'] = [
+    {
+      id: 'aus-1', usuarioId: 'u-sofia', desde: sumarDias(lunes, 7), hasta: sumarDias(lunes, 7), tipo: 'dia-libre',
+      motivo: 'Trámite en la mañana', estado: 'aprobada', en: tsDgo(d(-4), '10:00'), resolvio: 'u-carla',
+    },
+    {
+      id: 'aus-2', usuarioId: 'u-diego', desde: sumarDias(lunes, 14), hasta: sumarDias(lunes, 16), tipo: 'vacaciones',
+      motivo: 'Viaje familiar', estado: 'pendiente', en: tsDgo(d(-1), '20:10'),
+    },
+  ];
+
+  const aviso = (id: string, para: string, de: string, texto: string, ruta: string, en: number, leidaPor: string[] = []) =>
+    ({ id, para, de, texto, ruta, en, leidaPor });
+  const sab = fechaCorta(sumarDias(lunes, 5));
+  const notificaciones: Estado['notificaciones'] = [
+    aviso('not-1', 'todos', 'u-ana', `Ana busca quién le cubra el ${fechaCorta(sumarDias(lunes, 3))}.`, '#/horarios/cambios', tsDgo(hoy, '06:50')),
+    aviso('not-2', 'encargados', 'u-diego', `Diego pidió vacaciones del ${fechaCorta(sumarDias(lunes, 14))} al ${fechaCorta(sumarDias(lunes, 16))}.`, '#/horarios/cambios', tsDgo(d(-1), '20:10')),
+    aviso('not-3', 'encargados', 'u-ana', `Ana aceptó cubrir el ${sab} de Diego. Falta tu aprobación.`, '#/horarios/cambios', tsDgo(d(-1), '13:20')),
+    aviso('not-4', 'u-diego', 'u-ana', `Ana aceptó cubrir tu turno del ${sab}. Falta la aprobación.`, '#/horarios/cambios', tsDgo(d(-1), '13:20')),
+    aviso('not-5', 'u-sofia', 'u-carla', `Aprobaron tu día libre del ${fechaCorta(sumarDias(lunes, 7))}.`, '#/horarios/disponibilidad', tsDgo(d(-4), '10:00')),
+    aviso('not-6', 'todos', 'u-carla', `Ya está el horario del ${fechaCorta(lunes)} al ${fechaCorta(sumarDias(lunes, 6))}.`, '#/horarios', estaSemana.publicadaEn!, ['u-sofia']),
+  ];
 
   // Capacitación: Ana va en Barista 2; Diego es de nuevo ingreso.
   const hace = (dias: number) => tsDgo(d(-dias), '16:00');
@@ -294,13 +337,10 @@ export function crearSemilla(): Estado {
       { id: 't-ci', nombre: 'Cierre', corto: 'CI', inicio: '15:00', fin: '23:30' },
       { id: 't-cl', nombre: 'Cierre largo', corto: 'CL', inicio: '16:30', fin: '01:00' },
     ],
-    semanas: [semana(lunes, 'publicada'), semana(sumarDias(lunes, 7), 'borrador')],
-    disponibilidad: {
-      'u-ana': [false, true, true, true, true, true, true],
-      'u-diego': [true, true, false, true, true, true, true],
-      'u-carla': [true, true, true, true, true, true, true],
-      'u-sofia': [true, true, true, false, false, true, true],
-    },
+    semanas: [estaSemana, siguiente],
+    disponibilidad,
+    ausencias,
+    notificaciones,
     cambios: [
       {
         id: 'cam-1', de: 'u-diego', fecha: sumarDias(lunes, 5), turnoId: 't-cl', motivo: 'Examen el domingo temprano',
