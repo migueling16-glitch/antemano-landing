@@ -6,6 +6,10 @@
  */
 import App from '../../ryo/app/App';
 import { NEGOCIO } from '../../ryo/config';
+import { VERSION } from '../../ryo/app/semilla';
+
+// La misma clave que usa la app (estado.ts): el tema se lee antes de pintar.
+const clave = `ryo-app:v${VERSION}`;
 import isotipoSvg from '../../ryo/assets/isotipo.svg?raw';
 // La misma pluma de la intro de la bio: los ejes centrales de cada trazo,
 // agrupados en taza, café, persona y ojos. Se regenera con
@@ -40,11 +44,11 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;1,400&display=swap"
     />
-    <script is:inline>
+    <script is:inline define:vars={{ clave }}>
       // Tema antes de pintar, para no parpadear: el guardado, o por la hora de Durango.
       (function () {
         var tema = 'auto';
-        try { tema = (JSON.parse(localStorage.getItem('ryo-app:v6') || '{}').tema) || 'auto'; } catch (e) {}
+        try { tema = (JSON.parse(localStorage.getItem(clave) || '{}').tema) || 'auto'; } catch (e) {}
         if (tema === 'auto') {
           var h = (new Date().getUTCHours() + 24 - 6) % 24;
           tema = h >= 7 && h < 19 ? 'champagne' : 'cafe';

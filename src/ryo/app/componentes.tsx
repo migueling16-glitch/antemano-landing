@@ -225,18 +225,22 @@ export function Hoja({ abierta, alCerrar, titulo, children }: {
     const t = setTimeout(() => setMontada(false), 220);
     return () => clearTimeout(t);
   }, [abierta]);
+  const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!abierta) return;
+    // El foco entra a la hoja y, al cerrarla, vuelve a lo que la abrió.
+    const previo = document.activeElement as HTMLElement | null;
+    panel.current?.focus({ preventScroll: true });
     const f = (e: KeyboardEvent) => { if (e.key === 'Escape') alCerrar(); };
     addEventListener('keydown', f);
-    return () => removeEventListener('keydown', f);
+    return () => { removeEventListener('keydown', f); previo?.focus?.({ preventScroll: true }); };
   }, [abierta, alCerrar]);
   if (!abierta && !montada) return null;
   const v = ultimo.current;
   return (
     <div className="hoja" data-saliendo={abierta ? 'no' : 'si'}>
       <div className="hoja-afuera" onClick={alCerrar} aria-hidden="true" />
-      <div className="hoja-panel inv" role="dialog" aria-modal="true" aria-label={v.titulo}>
+      <div ref={panel} tabIndex={-1} className="hoja-panel inv" role="dialog" aria-modal="true" aria-label={v.titulo}>
         <div className="fila-h entre">
           <p className="etq">{v.titulo}</p>
           <button type="button" className="enlace" onClick={alCerrar}>Cerrar</button>
@@ -322,6 +326,13 @@ export function Gauge({ valor, desde, hasta, vmin, vmax, etiqueta, texto }: {
 
 /* ═══ BRÚJULA DE SABOR ════════════════════════════════════ */
 
+/** El punto de la brújula en palabras, para lectores de pantalla. */
+function describir({ x, y }: Sabor) {
+  const eje = (n: number, menos: string, mas: string) => (Math.abs(n) <= 0.25 ? '' : n < 0 ? menos : mas);
+  const partes = [eje(x, 'ácido', 'amargo'), eje(y, 'débil', 'intenso')].filter(Boolean);
+  return partes.length ? partes.join(' y ') : 'balanceado';
+}
+
 export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabor) => void }) {
   const caja = useRef<HTMLDivElement>(null);
   const [onda, setOnda] = useState<{ n: number; x: number; y: number } | null>(null);
@@ -339,7 +350,18 @@ export function Brujula({ valor, onCambio }: { valor?: Sabor; onCambio: (s: Sabo
       className="brujula"
       data-balance={balance ? 'si' : 'no'}
       role="application"
-      aria-label="Brújula de sabor: toca dónde cae el shot"
+      tabIndex={0}
+      aria-label={`Brújula de sabor: toca dónde cae el shot o usa las flechas.${valor ? ` ${describir(valor).replace(/^./, (c) => c.toUpperCase())}.` : ''}`}
+      onKeyDown={(e) => {
+        const paso = 0.1;
+        const flechas: Record<string, [number, number]> = { ArrowLeft: [-paso, 0], ArrowRight: [paso, 0], ArrowUp: [0, paso], ArrowDown: [0, -paso] };
+        const d = flechas[e.key];
+        if (!d) return;
+        e.preventDefault();
+        const v = valor ?? { x: 0, y: 0 };
+        const lim = (n: number) => redondear(Math.max(-1, Math.min(1, n)), 2);
+        onCambio({ x: lim(v.x + d[0]), y: lim(v.y + d[1]) });
+      }}
       onPointerDown={(e) => {
         (e.target as Element).setPointerCapture?.(e.pointerId);
         desdeEvento(e);

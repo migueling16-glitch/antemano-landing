@@ -236,7 +236,8 @@ export type Estado = {
 /* ═══ ALMACÉN ═════════════════════════════════════════════ */
 
 export { VERSION };
-const CLAVE = 'ryo-app:v6';
+/** Cambia sola con VERSION: lo guardado con otra forma no se lee. */
+export const CLAVE = `ryo-app:v${VERSION}`;
 
 /** Marca de la pestaña: sobrevive a recargar, no a cerrar la app. */
 const SESION = 'ryo-app:sesion';
@@ -672,4 +673,10 @@ export function useRitual() {
 }
 
 /** Vibración corta: en Android se siente; en iPhone no hace nada. */
-export const vibrar = (patron: number | number[] = 10) => { try { navigator.vibrate?.(patron); } catch {} };
+export const vibrar = (patron: number | number[] = 10) => {
+  try {
+    // Solo dentro de un toque: fuera de él Chrome lo bloquea y lo marca como error.
+    if (navigator.userActivation && !navigator.userActivation.isActive) return;
+    navigator.vibrate?.(patron);
+  } catch {}
+};

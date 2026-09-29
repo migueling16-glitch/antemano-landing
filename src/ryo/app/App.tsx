@@ -3,9 +3,9 @@
  * detrás de una sola página estática (/ryocafe/app) sin configurar el
  * servidor.
  */
-import { useEffect, useState, type ReactNode } from 'react';
+import { Component, useEffect, useState, type ReactNode } from 'react';
 import './app.css';
-import { useEstado, yo, puede, salir, subirPendientes, avisar, type Estado } from './estado';
+import { useEstado, yo, puede, salir, subirPendientes, avisar, reiniciarDemo, type Estado } from './estado';
 import { Aviso, Ritual, useRuta, Sup } from './componentes';
 import { TEMA_AUTO } from '../config';
 import { dgo } from './lib/tiempo';
@@ -35,6 +35,30 @@ function temaDe(e: Estado, seccion: string): 'champagne' | 'cafe' {
   if (e.tema !== 'auto') return e.tema;
   const h = dgo().getHours();
   return h >= TEMA_AUTO.amanece && h < TEMA_AUTO.anochece ? 'champagne' : 'cafe';
+}
+
+/**
+ * Si una pantalla falla, no se cae toda la app: se ve un aviso con salida a
+ * Inicio o a reiniciar los datos de ejemplo. La llave es la ruta, así que al
+ * navegar a otra pantalla se vuelve a intentar.
+ */
+class Resguardo extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidCatch(error: Error) { console.error('[ryo] pantalla con error', error); }
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <main className="pant pila">
+        <section className="bloque inv">
+          <span className="etq">Algo falló en esta pantalla</span>
+          <p className="cuerpo">No se perdió nada de lo guardado. Vuelve al inicio; si se repite, reinicia los datos de ejemplo.</p>
+        </section>
+        <a className="boton grande lleno" href="#/inicio">Volver al inicio</a>
+        <button type="button" className="boton grande" onClick={() => { reiniciarDemo(); location.hash = '#/inicio'; }}>Reiniciar datos de ejemplo</button>
+      </main>
+    );
+  }
 }
 
 function SinPermiso() {
@@ -124,7 +148,7 @@ export default function App() {
   return (
     <div className="app" data-enfoque={enfoque ? 'si' : 'no'}>
       {!enLinea && <div className="red" role="status">Sin red · lo que hagas se guarda en el teléfono y se sube al volver</div>}
-      <div className="vista" key={ruta.join('/')}>{pantalla(e, ruta)}</div>
+      <div className="vista" key={ruta.join('/')}><Resguardo>{pantalla(e, ruta)}</Resguardo></div>
       {!enfoque && (
         <nav className="nav" aria-label="Secciones">
           {PESTANAS.map(([id, nombre]) => (

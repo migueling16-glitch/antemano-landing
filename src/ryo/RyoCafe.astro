@@ -316,8 +316,17 @@ const jsonLd = {
                 <li class="item rv" style={`--i:${n}`}>
                   <div class="item-linea">
                     <span class="item-nombre">{item.nombre}</span>
-                    <span class="item-guia" aria-hidden="true"></span>
-                    {MENU_MOSTRAR_PRECIOS && <span class="item-precio">${item.precio}</span>}
+                    {MENU_MOSTRAR_PRECIOS && item.precio ? (
+                      <>
+                        <span class="item-guia" aria-hidden="true"></span>
+                        <span class="item-precio">${item.precio}</span>
+                      </>
+                    ) : item.frio && (
+                      <>
+                        <span class="item-guia" aria-hidden="true"></span>
+                        <span class="item-precio">También frío</span>
+                      </>
+                    )}
                   </div>
                   <p class="item-desc">{item.desc}</p>
                 </li>

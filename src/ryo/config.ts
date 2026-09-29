@@ -89,7 +89,7 @@ export const ACCESOS: Acceso[] = [
   {
     id: 'menu',
     etiqueta: 'Menú',
-    detalle: 'Café de barra, matcha y métodos',
+    detalle: 'Clásicos, especiales y matcha',
     href: '#menu',
     activo: true,
   },
@@ -155,54 +155,53 @@ export const MANIFIESTO_CIERRE = 'Lo simple también puede ser extraordinario.';
 
 /* ─────────────────────────────────────────────────────────────
    MENÚ
-   TODO: el menú real todavía no existe. Esto es una muestra con los
-   clásicos de café y matcha. Mientras `MENU_ES_DEMO` sea true, la página
-   muestra una nota discreta de "menú de muestra" y oculta los precios
-   si `MENU_MOSTRAR_PRECIOS` es false.
+   El menú real de Ryo (nota de la barra, 29-sep-2026): los tres grupos y
+   qué va también en frío. TODO: faltan los precios; mientras
+   `MENU_MOSTRAR_PRECIOS` sea false no se muestran. Si algún día se vuelve
+   a publicar una muestra, `MENU_ES_DEMO` enciende la nota de "muestra".
    ───────────────────────────────────────────────────────────── */
 
-export const MENU_ES_DEMO = true;
-export const MENU_MOSTRAR_PRECIOS = true;
+export const MENU_ES_DEMO = false;
+export const MENU_MOSTRAR_PRECIOS = false;
 
 export type Grupo = {
   nombre: string;
   nota?: string;
-  items: { nombre: string; desc: string; precio: string }[];
+  items: { nombre: string; desc: string; precio?: string; frio?: boolean }[];
 };
 
 export const MENU: Grupo[] = [
   {
-    nombre: 'De barra',
+    nombre: 'Clásicos',
     nota: 'Espresso de la casa',
     items: [
-      { nombre: 'Espresso',    desc: 'Doble ristretto. Cuerpo denso, final dulce.',      precio: '42' },
-      { nombre: 'Americano',   desc: 'Espresso y agua caliente. Nada más.',              precio: '48' },
-      { nombre: 'Cortado',     desc: 'Cortado con leche texturizada, en vaso chico.',    precio: '52' },
-      { nombre: 'Cappuccino',  desc: 'Espuma firme, canela opcional.',                   precio: '56' },
-      { nombre: 'Latte',       desc: 'Leche sedosa, trazo en la superficie.',            precio: '58' },
-      { nombre: 'Flat white',  desc: 'Doble ristretto y microespuma. Sin azúcar.',       precio: '60' },
-      { nombre: 'Cold brew',   desc: 'Dieciocho horas de extracción en frío.',           precio: '62' },
-      { nombre: 'Affogato',    desc: 'Helado de vainilla ahogado en espresso.',          precio: '68' },
+      { nombre: 'Espresso',    desc: 'Doble, de la casa. Cuerpo denso, final dulce.' },
+      { nombre: 'Cortado',     desc: 'Mitad espresso, mitad leche.' },
+      { nombre: 'Flat white',  desc: 'Espresso y microespuma, en taza chica.', frio: true },
+      { nombre: 'Cappuccino',  desc: 'Espuma firme y sedosa.' },
+      { nombre: 'Latte',       desc: 'Leche sedosa, trazo en la superficie.', frio: true },
+      { nombre: 'Americano',   desc: 'Espresso y agua. Nada más.', frio: true },
+      { nombre: 'Long black',  desc: 'El agua primero, el espresso encima: la crema intacta.' },
+      { nombre: 'Moka',        desc: 'Espresso, chocolate y leche.', frio: true },
     ],
   },
   {
-    nombre: 'Matcha y té',
-    nota: 'Matcha ceremonial batido a mano',
+    nombre: 'Especiales',
+    nota: 'De la casa',
     items: [
-      { nombre: 'Matcha latte',   desc: 'Caliente o sobre hielo. Dulzor natural.',       precio: '75' },
-      { nombre: 'Dirty matcha',   desc: 'Matcha con un shot de espresso encima.',        precio: '85' },
-      { nombre: 'Matcha tonic',   desc: 'Matcha, tónica y cítrico. Burbujas largas.',    precio: '80' },
-      { nombre: 'Hojicha latte',  desc: 'Té verde tostado. Notas de caramelo.',          precio: '75' },
-      { nombre: 'Té de la casa',  desc: 'Selección de temporada, en tetera.',            precio: '55' },
+      { nombre: 'Miso caramel latte', desc: 'Caramelo de miso, espresso y leche, con foam.' },
+      { nombre: 'Maple salt latte',   desc: 'Maple y un toque de sal, con espresso y leche.' },
+      { nombre: 'Cortadito',          desc: 'Espresso con espumita de azúcar y leche.' },
+      { nombre: 'Ryo latte',          desc: 'El latte de la casa.' },
     ],
   },
   {
-    nombre: 'De método',
-    nota: 'Grano de temporada, molido al momento',
+    nombre: 'Matchas',
+    nota: 'Batidas al momento',
     items: [
-      { nombre: 'V60',              desc: 'Filtrado lento. Taza limpia y aromática.',    precio: '70' },
-      { nombre: 'Chemex',           desc: 'Para dos. Cuerpo ligero, dulzor largo.',      precio: '95' },
-      { nombre: 'Prensa francesa',  desc: 'Inmersión total. Cuerpo redondo.',            precio: '68' },
+      { nombre: 'Matcha latte', desc: 'Matcha y leche. Dulzor natural.' },
+      { nombre: 'Ryo matcha',   desc: 'La matcha de la casa.' },
+      { nombre: 'Hojicha',      desc: 'Té verde tostado con leche. Notas de caramelo.' },
     ],
   },
 ];
@@ -218,7 +217,8 @@ export const ASSET_BASE = '/ryo';
 export const SITIO = {
   url: 'https://antemano.com.mx/ryocafe',
   titulo: `${NEGOCIO.nombre} — ${NEGOCIO.slogan}`,
-  descripcion: `${NEGOCIO.descriptor} en ${NEGOCIO.ciudad}. Cómo llegar, horarios y menú de café de barra, matcha y métodos.`,
+  // La ciudad ya termina en punto ("Dgo."): no se le agrega otro.
+  descripcion: `${NEGOCIO.descriptor} en ${NEGOCIO.ciudad} Cómo llegar, horarios y menú: clásicos, especiales y matcha.`,
 } as const;
 
 /**

@@ -122,7 +122,7 @@ export function AdminPlantillas() {
     <>
       <Sup titulo="Plantillas" volver="admin" />
       <main className="pant pila">
-        <p className="cuerpo">Salen del checklist en papel de Ryo. En el sistema se editan ítem por ítem; en la maqueta solo se activan o pausan.</p>
+        <p className="cuerpo">Apertura y cierre son las listas de la barra; la limpieza profunda viene del checklist en papel. En el sistema se editan ítem por ítem; en la maqueta solo se activan o pausan.</p>
         {e.plantillas.map((p) => {
           const tipos = p.items.reduce<Record<string, number>>((a, i) => ({ ...a, [i.tipo]: (a[i.tipo] ?? 0) + 1 }), {});
           return (
