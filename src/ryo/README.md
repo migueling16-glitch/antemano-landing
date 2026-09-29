@@ -94,11 +94,10 @@ activan todos, conviene apagar alguno para no pasar de siete.
   temas.
 - **Intro.** Al cargar se dibuja el isotipo **en un solo gesto**, en orden:
   la taza, el café, el mono y al final los ojos, sin pausas entre ellos para
-  que no se sienta armado por partes. Después el café hace un par de ondas
-  —contenidas dentro de la boca de la taza, medida sobre el vector: elipse de
-  71% del ancho y 20% del alto, centrada en 43.4% / 38%— y la marca vuela al
+  que no se sienta armado por partes. Entra el slogan y la marca vuela al
   isotipo de la barra, arriba a la izquierda, mientras el fondo se disuelve.
-  Son unos 2.6 s (antes 3.8 s: se aceleró 1.5× el 29-sep).
+  Son unos 2.6 s (antes 3.8 s: se aceleró 1.5× el 29-sep). Sin ondas al final
+  desde el 29-sep.
 
   El isotipo es un solo path compuesto (sus subtrazos son la silueta y los
   huecos, no las líneas sueltas), así que los elementos no se pueden separar
@@ -113,8 +112,18 @@ activan todos, conviene apagar alguno para no pasar de siete.
   (adelgazamiento Zhang-Suen sobre el dibujo rasterizado) y lo guarda en
   `isotipo-trazo.svg`. La página lo usa como `<mask>` sobre el isotipo real,
   con un trazo más gordo que el del dibujo: al avanzar la máscara, va
-  destapando el arte y se lee como una sola línea gruesa. Al terminar se quita
-  la máscara, porque cubre el 99.7% del dibujo y ese resto quedaría escondido.
+  destapando el arte y se lee como una sola línea gruesa. La máscara cubre el
+  **100%** del dibujo, así que al terminar se quita sin que nada aparezca de
+  golpe.
+
+  El esqueleto se corta en algunos cruces y puntas enroscadas; ahí antes
+  quedaban franjas sin cubrir (piernas, una onda del café, la punta de una
+  espiral) que se "conectaban" de golpe al final. El script las **remienda**:
+  une puntas cercanas cuando el puente va sobre el dibujo (estirando el trazo
+  del elemento que se dibuja después, para que el hueco se llene cuando la
+  pluma llega ahí), y estira la punta más cercana a lo que aún quede sin
+  cubrir, sin acercarse nunca a los ojos. Imprime el porcentaje cubierto al
+  terminar; si baja de 100%, algo cambió en el dibujo.
 
   Los trazos van como `<path>` separados a propósito: SVG reinicia el patrón de
   `stroke-dasharray` en cada subtrazo, así que meterlos todos en un solo `path`
@@ -135,8 +144,8 @@ activan todos, conviene apagar alguno para no pasar de siete.
   grosor único para todos, el contorno de la cabeza —que es gordo— destapaba
   los ojos al pasar cerca, y aparecía un punto antes de que los ojos se
   dibujaran. El margen (`MARGEN_MASCARA`, `MARGEN_FIJO`) está ajustado para que
-  la máscara cubra el 98.9% del dibujo sin que la cabeza alcance los ojos, que
-  están a unas 20 unidades de su eje.
+  la cabeza no alcance los ojos, que están a unas 20 unidades de su eje; el
+  remiendo cubre lo que ese margen deja fuera.
 
   Corre una sola vez por sesión, cualquier toque o tecla se la salta, y no
   corre nunca con `prefers-reduced-motion`. Nace con `hidden` y solo el JS la

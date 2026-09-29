@@ -59,8 +59,7 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
       .cargando { min-height: 100dvh; display: grid; place-items: center; font: italic 0.8rem 'JetBrains Mono', monospace; letter-spacing: 0.1em; }
 
       /* Apertura: el isotipo se dibuja solo en un gesto continuo (la misma
-         intro de la bio), entra el slogan, el café hace una onda y la pantalla
-         se desvanece. Una vez por sesión; nunca con movimiento reducido. */
+         intro de la bio), entra el slogan y la pantalla se desvanece. Una vez por sesión; nunca con movimiento reducido. */
       #apertura {
         position: fixed; inset: 0; z-index: 100;
         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px;
@@ -78,18 +77,6 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
         transition: opacity 470ms cubic-bezier(0.16, 1, 0.3, 1), transform 470ms cubic-bezier(0.16, 1, 0.3, 1);
       }
       #apertura[data-fase='dibujado'] .apertura-slogan { opacity: 1; transform: none; }
-      /* Ondas contenidas en la boca de la taza (medida sobre el vector). */
-      .apertura-ondas { position: absolute; inset: 0; pointer-events: none; }
-      .apertura-onda {
-        position: absolute; left: 43.4%; top: 38%; width: 62%; aspect-ratio: 4.4 / 1;
-        border: 1px solid currentColor; border-radius: 50%;
-        animation: apertura-ondear 1070ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-      @keyframes apertura-ondear {
-        from { transform: translate(-50%, -50%) scale(0.12); opacity: 1; }
-        70% { opacity: 0.8; }
-        to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-      }
     </style>
   </head>
   <body>
@@ -101,7 +88,6 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
           </mask>
           <g mask="url(#apertura-pluma)" data-arte fill="currentColor" set:html={isoInner} />
         </svg>
-        <span class="apertura-ondas" data-ondas></span>
       </div>
       <p class="apertura-slogan">{NEGOCIO.slogan}</p>
     </div>
@@ -140,19 +126,12 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
         capa.addEventListener('pointerdown', cerrar);
         window.addEventListener('keydown', cerrar, { once: true });
 
-        // Terminado el trazo: fuera la máscara (el resto quedaría escondido),
-        // entra el slogan y el café hace una onda dentro de la taza.
+        // Terminado el trazo: fuera la máscara (cubre el 100% del dibujo, así
+        // que quitarla no cambia nada a la vista) y entra el slogan.
         window.setTimeout(() => {
           if (cerrado) return;
           arte.removeAttribute('mask');
           capa.dataset.fase = 'dibujado';
-          const ondas = capa.querySelector<HTMLElement>('[data-ondas]');
-          [0, 160].forEach((r) => window.setTimeout(() => {
-            const o = document.createElement('span');
-            o.className = 'apertura-onda';
-            o.addEventListener('animationend', () => o.remove());
-            ondas?.appendChild(o);
-          }, r));
         }, finDibujo + 40);
         window.setTimeout(cerrar, finDibujo + 830);
       } else {

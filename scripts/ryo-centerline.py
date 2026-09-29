@@ -36,6 +36,18 @@ VECINOS = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
 MARGEN_MASCARA = 1.8
 MARGEN_FIJO = 5.0
 
+# El esqueleto se corta en algunos puntos (cruces, puntas enroscadas) y ahí la
+# máscara no alcanza a tapar el trazo: esos pedazos aparecían de golpe al
+# quitar la máscara al final. Se remiendan con puentes entre puntas cercanas
+# (si el puente va sobre tinta) y alargando la punta más cercana a lo que
+# quede sin cubrir. Los ojos nunca se tocan: si una punta se estira cerca de
+# ellos, los destaparía antes de tiempo.
+PUENTE_MAX = 34      # distancia máxima entre dos puntas para unirlas (unidades)
+EN_TINTA = 0.85      # fracción del puente que debe ir sobre el dibujo
+REMIENDO_MAX = 34    # hasta dónde puede estirarse una punta para tapar un hueco
+RACIMO_MIN = 6       # píxeles (a escala 2) por debajo de los cuales no vale la pena
+LEJOS_DE_OJOS = 16   # ninguna extensión se acerca más que esto a un ojo
+
 # ── Elementos del dibujo ──────────────────────────────────────────────
 # El isotipo es un solo path compuesto: sus subtrazos son la silueta y los
 # huecos, no las líneas sueltas. Así que las piezas se separan por dónde caen,
@@ -340,6 +352,148 @@ def ordenar(trazos):
     return salida
 
 
+def mascara_svg(trazos, vb) -> str:
+    """La máscara tal como la usa la página: trazos blancos, puntas redondas."""
+    caminos = "".join(
+        f'<path stroke-width="{t["mascara"]:.1f}" d="M {" L ".join(f"{x:.1f} {y:.1f}" for x, y in t["pts"])}"/>'
+        for t in trazos
+    )
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {vb.width:g} {vb.height:g}">'
+        f'<rect x="-100" y="-100" width="{vb.width + 200:g}" height="{vb.height + 200:g}" fill="#000"/>'
+        f'<g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">{caminos}</g></svg>'
+    )
+
+
+def sin_cubrir(trazos, vb, escala=2.0):
+    """Racimos de tinta que la máscara no tapa, en unidades del viewBox."""
+    arte = ORIGEN.read_text(encoding="utf-8").replace('fill="currentColor"', 'fill="#000"')
+    A = fitz.open("svg", arte.encode())[0].get_pixmap(matrix=fitz.Matrix(escala, escala), alpha=False, colorspace=fitz.csGRAY)
+    M = fitz.open("svg", mascara_svg(trazos, vb).encode())[0].get_pixmap(matrix=fitz.Matrix(escala, escala), alpha=False, colorspace=fitz.csGRAY)
+    faltan = {
+        (x, y)
+        for y in range(A.height)
+        for x in range(A.width)
+        if A.samples[y * A.stride + x] < UMBRAL and M.samples[y * M.stride + x] < UMBRAL
+    }
+    tinta = sum(1 for y in range(A.height) for x in range(A.width) if A.samples[y * A.stride + x] < UMBRAL)
+    racimos = []
+    while faltan:
+        semilla = faltan.pop()
+        pila, racimo = [semilla], [semilla]
+        while pila:
+            x, y = pila.pop()
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    q = (x + dx, y + dy)
+                    if q in faltan:
+                        faltan.remove(q)
+                        pila.append(q)
+                        racimo.append(q)
+        racimos.append([(x / escala, y / escala) for x, y in racimo])
+    total = sum(len(r) for r in racimos)
+    return racimos, 100.0 * (1 - total / tinta)
+
+
+def dist_a_segmento(p, a, b) -> float:
+    ax, ay = a
+    bx, by = b
+    dx, dy = bx - ax, by - ay
+    L = dx * dx + dy * dy
+    t = 0.0 if L == 0 else max(0.0, min(1.0, ((p[0] - ax) * dx + (p[1] - ay) * dy) / L))
+    return math.dist(p, (ax + t * dx, ay + t * dy))
+
+
+def remendar(trazos, tinta, fx, fy, vb):
+    """Cierra los huecos de la máscara sin cambiar el orden del dibujo."""
+    ojos = [pt for t in trazos if t["grupo"] == "ojos" for pt in t["pts"]]
+    rango = {g: i for i, g in enumerate(ORDEN_GRUPOS)}
+
+    def cerca_de_ojos(a, b, trazo):
+        if trazo["grupo"] == "ojos":
+            return False
+        return any(dist_a_segmento(o, a, b) < LEJOS_DE_OJOS for o in ojos)
+
+    def sobre_tinta(a, b):
+        n = max(2, int(math.dist(a, b)))
+        dentro_ = 0
+        for k in range(n + 1):
+            x = a[0] + (b[0] - a[0]) * k / n
+            y = a[1] + (b[1] - a[1]) * k / n
+            px, py = round(x / fx), round(y / fy)
+            if any((px + dx, py + dy) in tinta for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
+                dentro_ += 1
+        return dentro_ / (n + 1) >= EN_TINTA
+
+    def estirar(trazo, extremo, punto):
+        if extremo == 0:
+            trazo["pts"] = [punto] + trazo["pts"]
+        else:
+            trazo["pts"] = trazo["pts"] + [punto]
+
+    # 1. Puentes entre puntas cercanas unidas por el dibujo.
+    puntas = [(i, e) for i in range(len(trazos)) for e in (0, -1)]
+    candidatos = []
+    for a in range(len(puntas)):
+        for b in range(a + 1, len(puntas)):
+            (i, ei), (j, ej) = puntas[a], puntas[b]
+            if i == j:
+                continue
+            pa, pb = trazos[i]["pts"][ei], trazos[j]["pts"][ej]
+            d = math.dist(pa, pb)
+            if 3 < d <= PUENTE_MAX and sobre_tinta(pa, pb):
+                candidatos.append((d, i, ei, j, ej))
+    usadas = set()
+    puentes = 0
+    for d, i, ei, j, ej in sorted(candidatos):
+        if (i, ei) in usadas or (j, ej) in usadas:
+            continue
+        # Se estira el trazo del elemento que se dibuja después (la pierna, no
+        # el café): el hueco se llena cuando la pluma llega a esa pierna.
+        if rango[trazos[j]["grupo"]] > rango[trazos[i]["grupo"]]:
+            i, ei, j, ej = j, ej, i, ei
+        a, b = trazos[i]["pts"][ei], trazos[j]["pts"][ej]
+        if cerca_de_ojos(a, b, trazos[i]):
+            continue
+        estirar(trazos[i], ei, b)
+        usadas.update({(i, ei), (j, ej)})
+        puentes += 1
+
+    # 2. Lo que siga sin cubrir: la punta más cercana se estira hasta ahí.
+    estirones = 0
+    for _ in range(3):
+        racimos, cubierto = sin_cubrir(trazos, vb)
+        grandes = [r for r in racimos if len(r) >= RACIMO_MIN]
+        if not grandes:
+            break
+        cambio = False
+        for r in grandes:
+            mejor = None
+            for t in trazos:
+                if t["grupo"] == "ojos":
+                    continue
+                for e in (0, -1):
+                    p = t["pts"][e]
+                    d = min(math.dist(p, q) for q in r)
+                    if d <= REMIENDO_MAX and (mejor is None or d < mejor[0]):
+                        mejor = (d, t, e)
+            if not mejor:
+                continue
+            _, t, e = mejor
+            p = t["pts"][e]
+            destino = max(r, key=lambda q: math.dist(p, q))
+            if cerca_de_ojos(p, destino, t):
+                continue
+            estirar(t, e, destino)
+            estirones += 1
+            cambio = True
+        if not cambio:
+            break
+    racimos, cubierto = sin_cubrir(trazos, vb)
+    print(f"remiendo: {puentes} puentes, {estirones} puntas estiradas · cubierto {cubierto:.2f}%")
+    return trazos
+
+
 def mapa_de_verificacion(grupos, vb, destino):
     """Dibuja el esqueleto coloreado por grupo sobre el arte, para revisar a ojo
     que la taza, el café, el mono y los ojos quedaron bien separados."""
@@ -407,6 +561,13 @@ def main() -> int:
 
     for tr in trazos:
         tr["grupo"] = clasificar(tr["pts"], tr["grosor"])
+        # Cada trazo lleva SU grosor: uno global haría que el contorno de la
+        # cabeza destapara los ojos al pasar cerca.
+        tr["mascara"] = tr["grosor"] * MARGEN_MASCARA + MARGEN_FIJO
+
+    doc = fitz.open(str(ORIGEN))
+    vb = doc[0].rect
+    trazos = remendar(trazos, tinta, fx, fy, vb)
 
     grupos = {g: ordenar([t for t in trazos if t["grupo"] == g]) for g in ORDEN_GRUPOS}
     sueltos = [t for t in trazos if t["grupo"] not in grupos]
@@ -420,20 +581,14 @@ def main() -> int:
         if anchos:
             print(f"  {g:<8} {len(anchos):>3} trazos · grosor {min(anchos):.1f}–{max(anchos):.1f}")
 
-    doc = fitz.open(str(ORIGEN))
-    vb = doc[0].rect
-
     piezas = []
     for g in ORDEN_GRUPOS:
         if not grupos[g]:
             continue
         caminos = []
         for tr in grupos[g]:
-            # Cada trazo lleva SU grosor: uno global haría que el contorno de la
-            # cabeza destapara los ojos al pasar cerca.
-            m = tr["grosor"] * MARGEN_MASCARA + MARGEN_FIJO
             d = " L ".join(f"{x:.1f} {y:.1f}" for x, y in tr["pts"])
-            caminos.append(f'<path stroke-width="{m:.1f}" d="M {d}"/>')
+            caminos.append(f'<path stroke-width="{tr["mascara"]:.1f}" d="M {d}"/>')
         piezas.append(f'<g data-grupo="{g}">' + "".join(caminos) + "</g>")
 
     SALIDA.write_text(

@@ -173,7 +173,6 @@ const jsonLd = {
             <use href="#ryo-iso" />
           </g>
         </svg>
-        <span class="ondas" data-ondas></span>
       </div>
       <p class="intro-slogan" data-intro-slogan>{NEGOCIO.slogan}</p>
     </div>
@@ -679,33 +678,6 @@ const jsonLd = {
         position: relative;
       }
 
-      /* Ondas en el café: elipses de 1px. Solo en el intro. */
-      .ondas { position: absolute; inset: 0; pointer-events: none; }
-      /*
-        Medidas tomadas del vector: la boca de la taza es una elipse de ~71%
-        del ancho y ~20% del alto del lienzo, centrada en 43.4% / 38%. La onda
-        más grande (escala 1) se queda por dentro de ese borde: el café no se
-        derrama.
-      */
-      .onda {
-        position: absolute;
-        left: 43.4%;
-        top: 38%;
-        width: 62%;
-        aspect-ratio: 4.4 / 1;
-        margin: 0;
-        border: 1px solid currentColor;
-        /* 50%, no radius-full: en un elemento ancho el radio fijo da forma de
-           píldora y lo que queremos es la elipse de la superficie del café. */
-        border-radius: 50%;
-        animation: ondear 1070ms var(--ease) forwards;
-      }
-      @keyframes ondear {
-        from { transform: translate(-50%, -50%) scale(0.12); opacity: 1; }
-        70% { opacity: 0.8; }
-        to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-      }
-
       .hero-marca { width: clamp(180px, 52vw, 300px); }
       .marca-logo { width: 100%; }
 
@@ -1107,7 +1079,7 @@ const jsonLd = {
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
         .rv, .rv[data-visible='si'] { opacity: 1; transform: none; transition: none; }
-        .banda-pista, .baja, .estado-punto, .onda { animation: none; }
+        .banda-pista, .baja, .estado-punto { animation: none; }
         .cta, .acceso, .boton, body { transition: none; }
         .intro { display: none; }
       }
@@ -1221,7 +1193,6 @@ const jsonLd = {
         const arte = capa.querySelector<SVGGElement>('[data-intro-arte]');
         // Los trazos vienen en el orden del dibujo: taza, café, persona y ojos.
         const pluma = trazosDe(capa);
-        const ondas = capa.querySelector<HTMLElement>('[data-ondas]');
         if (!marca || !fondo || !arte || !pluma.length) {
           capa.remove();
           activarRevelados();
@@ -1258,22 +1229,13 @@ const jsonLd = {
           window.addEventListener(evt, cerrar, { passive: true, once: true }),
         );
 
-        // 1. Terminado el trazo: fuera la máscara (la cubre al 99.7%, el resto
-        //    quedaría escondido), entra el slogan y el café hace ondas.
+        // 1. Terminado el trazo: fuera la máscara (ya cubre el 100% del
+        //    dibujo, así que quitarla no cambia nada a la vista) y entra el
+        //    slogan.
         window.setTimeout(() => {
           if (cerrado) return;
           arte.removeAttribute('mask');
           capa.dataset.fase = 'dibujado';
-          if (ondas) {
-            [0, 160].forEach((retraso) =>
-              window.setTimeout(() => {
-                const o = document.createElement('span');
-                o.className = 'onda';
-                o.addEventListener('animationend', () => o.remove());
-                ondas.appendChild(o);
-              }, retraso),
-            );
-          }
         }, finDibujo + 40);
 
         // 2. Vuela a la esquina mientras el fondo se disuelve.
