@@ -22,14 +22,15 @@ export function Mas() {
     <>
       <Sup titulo="Más" />
       <main className="pant pila">
-        <section className="fila" style={{ borderTop: '1px solid var(--line)' }}>
-          <Avatar texto={u.iniciales} lleno />
+        <section className="bloque inv fila-h" style={{ gap: 14 }} aria-label="Tu cuenta">
+          <Avatar texto={u.iniciales} />
           <span className="fila-texto">
-            <span>{u.nombre}</span>
-            <span className="fila-sub">{u.rol} · Barista {u.nivel} · {u.correo}</span>
+            <span className="subtitulo">{u.nombre}</span>
+            <span className="fila-sub">{u.rol === 'barista' ? 'Barista' : u.rol === 'encargado' ? 'Encargada' : 'Admin'} · nivel Barista {u.nivel} · {u.correo}</span>
           </span>
         </section>
 
+        <Seccion titulo="Ir a">
         <div className="lista">
           <a className="fila" href="#/avisos">
             <span className="fila-texto"><span>Avisos</span><span className="fila-sub">{sinLeer ? `${sinLeer} sin leer` : 'Todo leído'}</span></span>
@@ -46,6 +47,7 @@ export function Mas() {
             </a>
           )}
         </div>
+        </Seccion>
 
         <Seccion titulo="Tema">
           <div className="chips">

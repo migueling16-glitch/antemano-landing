@@ -137,7 +137,7 @@ function convergencia(final: number, larga = false): Paso[] {
 /* ── Todo ───────────────────────────────────────────────── */
 
 /** Sube cuando cambia la forma del estado: lo guardado con otra versión se descarta. */
-export const VERSION = 8;
+export const VERSION = 9;
 
 export function crearSemilla(): Estado {
   const hoy = jornadaDe();
@@ -250,6 +250,7 @@ export function crearSemilla(): Estado {
     aviso('not-3', 'encargados', 'u-ana', `Ana aceptó cubrir el ${sab} de Diego. Falta tu aprobación.`, '#/horarios/cambios', tsDgo(d(-1), '13:20')),
     aviso('not-4', 'u-diego', 'u-ana', `Ana aceptó cubrir tu turno del ${sab}. Falta la aprobación.`, '#/horarios/cambios', tsDgo(d(-1), '13:20')),
     aviso('not-5', 'u-sofia', 'u-carla', `Aprobaron tu día libre del ${fechaCorta(sumarDias(lunes, 7))}.`, '#/horarios/disponibilidad', tsDgo(d(-4), '10:00')),
+    aviso('not-7', 'u-diego', 'u-carla', `Carla te propone cambiar: tú tomas su cierre del ${fechaCorta(sumarDias(lunes, 6))} y ella tu cierre del ${fechaCorta(sumarDias(lunes, 2))}.`, '#/horarios/cambios', tsDgo(hoy, '07:10')),
     aviso('not-6', 'todos', 'u-carla', `Ya está el horario del ${fechaCorta(lunes)} al ${fechaCorta(sumarDias(lunes, 6))}.`, '#/horarios', estaSemana.publicadaEn!, ['u-sofia']),
   ];
 
@@ -346,7 +347,11 @@ export function crearSemilla(): Estado {
     cambios: [
       {
         id: 'cam-1', de: 'u-diego', fecha: sumarDias(lunes, 5), turnoId: 't-cl', motivo: 'Examen el domingo temprano',
-        acepta: 'u-ana', estado: 'aceptado', en: tsDgo(d(-1), '13:20'),
+        acepta: 'u-ana', estado: 'aceptado', en: tsDgo(d(-1), '11:05'), aceptadoEn: tsDgo(d(-1), '13:20'),
+      },
+      {
+        id: 'cam-3', de: 'u-carla', fecha: sumarDias(lunes, 6), turnoId: 't-ci', motivo: 'Comida familiar el domingo',
+        para: 'u-diego', aCambio: { fecha: sumarDias(lunes, 2), turnoId: 't-ci' }, estado: 'abierto', en: tsDgo(hoy, '07:10'),
       },
       { id: 'cam-2', de: 'u-ana', fecha: sumarDias(lunes, 3), turnoId: 't-ap', motivo: 'Cita médica en la mañana', estado: 'abierto', en: tsDgo(hoy, '06:50') },
     ],

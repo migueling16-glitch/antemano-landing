@@ -5,7 +5,7 @@
  * Lógica pura sobre el estado: la pantalla solo la pinta.
  */
 import type { Estado, TurnoTipo, Usuario } from '../estado';
-import { sumarDias, minutos, diaSemana, diaCorto, tsDgo } from './tiempo';
+import { sumarDias, minutos, diaSemana, diaCorto, tsDgo, lunesDe } from './tiempo';
 
 /* ═══ FRANJAS DE DISPONIBILIDAD ═══════════════════════════ */
 
@@ -134,6 +134,55 @@ export function alertasDe(e: Estado, lunes: string, turnos?: Turnos): Alerta[] {
     }
   }
   return alertas;
+}
+
+/* ═══ CAMBIOS DE TURNO: SIMULAR ANTES DE PEDIR ════════════ */
+
+/** Un turno que cambia de manos: `turnoId` null lo quita. */
+export type Movimiento = { usuarioId: string; fecha: string; turnoId: string | null };
+
+/** Los turnos de cada semana tocada, con los movimientos aplicados. */
+export function simular(e: Estado, movs: Movimiento[]): Map<string, Turnos> {
+  const semanas = new Map<string, Turnos>();
+  for (const m of movs) {
+    const lunes = lunesDe(m.fecha);
+    if (!semanas.has(lunes)) semanas.set(lunes, { ...(e.semanas.find((s) => s.id === lunes)?.turnos ?? {}) });
+    const t = semanas.get(lunes)!;
+    const k = `${m.usuarioId}|${m.fecha}`;
+    if (m.turnoId) t[k] = m.turnoId; else delete t[k];
+  }
+  return semanas;
+}
+
+/**
+ * Cómo le queda un cambio a una persona: si de plano no puede (ya trabaja
+ * ese día, o lo tiene libre aprobado), sus horas de esa semana antes y
+ * después, y las alertas nuevas que le saldrían (tope de horas, descanso
+ * entre turnos, disponibilidad).
+ */
+export type Encaje = { puede: boolean; bloqueo?: string; antes: number; despues: number; alertas: Alerta[] };
+
+export function encajeDe(e: Estado, usuarioId: string, movs: Movimiento[]): Encaje {
+  const semanas = simular(e, movs);
+  let bloqueo: string | undefined;
+  for (const m of movs.filter((x) => x.usuarioId === usuarioId && x.turnoId)) {
+    const actual = e.semanas.find((s) => s.id === lunesDe(m.fecha))?.turnos[`${usuarioId}|${m.fecha}`];
+    const suelta = movs.some((x) => x.usuarioId === usuarioId && x.fecha === m.fecha && !x.turnoId);
+    if (actual && !suelta) bloqueo = `Ya trabaja el ${corto(m.fecha)}`;
+    const a = ausenciaEn(e, usuarioId, m.fecha);
+    if (a?.estado === 'aprobada') bloqueo = `Tiene ${a.tipo === 'vacaciones' ? 'vacaciones' : 'día libre'} el ${corto(m.fecha)}`;
+  }
+  // Las horas son las de la semana del turno que recibe (o del primero que se mueve).
+  const principal = lunesDe((movs.find((x) => x.usuarioId === usuarioId && x.turnoId) ?? movs[0]).fecha);
+  const previo = e.semanas.find((s) => s.id === principal)?.turnos ?? {};
+  const antes = horasDe(turnosDe(e, principal, previo, usuarioId));
+  const despues = horasDe(turnosDe(e, principal, semanas.get(principal) ?? previo, usuarioId));
+  const alertas: Alerta[] = [];
+  for (const [lunes, turnos] of semanas) {
+    const ya = new Set(alertasDe(e, lunes).map((a) => a.texto));
+    alertas.push(...alertasDe(e, lunes, turnos).filter((a) => a.usuarioId === usuarioId && !ya.has(a.texto)));
+  }
+  return { puede: !bloqueo, bloqueo, antes, despues, alertas };
 }
 
 /* ═══ COBERTURA DEL DÍA ═══════════════════════════════════ */

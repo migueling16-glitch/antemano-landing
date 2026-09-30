@@ -14,6 +14,20 @@
  * Movimiento: solo transform, opacity y clip-path. El motivo es el de la
  * marca, el nivel del café que sube: pestañas, casillas y bloques
  * protagonistas se llenan de abajo hacia arriba.
+ *
+ * Peso: la regular y la itálica son las de la marca; la negrita (700) es
+ * una extensión para jerarquía. Solo va en lo que se lee de un vistazo:
+ * títulos, pestañas de ficha, lo principal de cada fila, cifras, botones y
+ * alertas. Entre 400 y 700 hay 300 unidades: se distingue aun en letra
+ * chica. JetBrains Mono tiene el mismo ancho en todos sus pesos, así que
+ * nada se mueve al cambiar de peso.
+ *
+ * Gramática (que nadie tenga que adivinar qué se toca):
+ * - Sección = ficha: recuadro con su pestaña invertida arriba a la izquierda.
+ * - Botón = caja con un verbo. Solo los botones son cajas.
+ * - Fila que lleva a otra pantalla = termina en →, y se invierte al tocarla.
+ * - Estado = cuadrito + palabra, nunca caja: lleno listo, vacío en curso,
+ *   punteado pendiente. Un problema va invertido y con "!".
  */
 
 /* ═══ TOKENS ═══ */
@@ -36,6 +50,7 @@
   --s5: 40px;
 
   --gutter: 20px;
+  --pad: 16px; /* aire interior de las fichas */
   --toque: 56px; /* alto mínimo de todo lo que se toca */
   --nav: 64px;
   --barra: 52px;
@@ -72,12 +87,13 @@ input::placeholder, textarea::placeholder { color: var(--ink); opacity: 1; font-
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ═══ TIPOGRAFÍA ═══ */
-.etq { font-size: 0.7rem; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.16em; font-style: normal; }
-.cuerpo { font-style: italic; font-size: 0.92rem; line-height: 1.6; }
-.titulo { font-size: 1.6rem; font-weight: 400; letter-spacing: 0.04em; line-height: 1.2; }
-.subtitulo { font-size: 1.06rem; font-weight: 400; letter-spacing: 0.06em; line-height: 1.35; }
-.num-l { font-size: 2.3rem; line-height: 1.05; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
-.num-m { font-size: 1.35rem; line-height: 1.2; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
+.etq { font-size: 0.76rem; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.12em; font-style: normal; }
+.cuerpo { font-style: italic; font-size: 0.94rem; line-height: 1.6; }
+.titulo { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }
+.subtitulo { font-size: 1.08rem; font-weight: 700; letter-spacing: 0.04em; line-height: 1.35; }
+.num-l { font-size: 2.3rem; font-weight: 700; line-height: 1.05; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.num-m { font-size: 1.35rem; font-weight: 700; line-height: 1.2; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.negrita { font-weight: 700; }
 .recta { font-style: normal; }
 .italica { font-style: italic; }
 
@@ -101,7 +117,7 @@ input::placeholder, textarea::placeholder { color: var(--ink); opacity: 1; font-
 }
 .sup[data-compacta='si'] { border-bottom-color: var(--line); }
 .sup-volver {
-  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em;
+  font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em;
   min-height: 44px; padding-right: 8px; display: inline-flex; align-items: center; gap: 8px;
 }
 .sup-volver span { display: inline-block; transition: transform 200ms var(--ease); }
@@ -121,39 +137,62 @@ input::placeholder, textarea::placeholder { color: var(--ink); opacity: 1; font-
   transition: opacity 220ms var(--ease), transform 320ms var(--ease);
 }
 .sup[data-compacta='si'] .sup-titulo { opacity: 1; transform: none; }
+/* Botón chico: también es caja (todo lo que es caja se toca). */
 .sup-accion {
-  font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.14em;
-  border: 1px solid var(--line); padding: 8px 12px; min-height: 36px;
-  transition: transform 120ms var(--ease);
+  font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  border: 1px solid var(--line); padding: 9px 14px; min-height: 42px;
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  transition: transform 120ms var(--ease), background-color 140ms var(--ease), color 140ms var(--ease);
 }
-.sup-accion:active { transform: scale(0.96); }
+.sup-accion:active { transform: scale(0.96); background: var(--ink); color: var(--surface); }
 
 /* Título grande de la pantalla. */
 .encabezado { max-width: var(--ancho); margin: 0 auto; padding: 6px var(--gutter) 0; }
 .encabezado.con-marca { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
 .encabezado-texto { min-width: 0; }
-.encabezado-titulo { font-size: 1.6rem; font-weight: 400; line-height: 1.2; letter-spacing: 0.04em; }
-.encabezado-sub { font-size: 0.88rem; font-style: italic; line-height: 1.5; margin-top: 6px; }
+.encabezado-titulo { font-size: 1.7rem; font-weight: 700; line-height: 1.2; letter-spacing: 0.02em; }
+.encabezado-sub { font-size: 0.92rem; font-style: italic; line-height: 1.5; margin-top: 6px; }
 
 .red { background: var(--ink); color: var(--surface); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; padding: 8px var(--gutter); }
 
 .pant { max-width: var(--ancho); margin: 0 auto; padding: 24px var(--gutter) var(--s5); }
 .pila { display: flex; flex-direction: column; gap: var(--s3); }
-.pant.pila { gap: 36px; }
+.pant.pila { gap: 28px; }
 .pila-s { display: flex; flex-direction: column; gap: 10px; }
 .fila-h { display: flex; align-items: center; gap: var(--s2); }
 .entre { justify-content: space-between; }
 .rejilla-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .rejilla-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 
-/* Secciones: separadas por aire; una sola línea (la de la lista). */
-.sec { display: flex; flex-direction: column; gap: 14px; }
-.sec-titulo {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 0.74rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.16em;
+/* Secciones: fichas. El recuadro dice dónde empieza y dónde acaba cada
+ * cosa; la pestaña invertida, de qué se trata. Las listas adentro van de
+ * orilla a orilla, así toda la fila se toca. */
+.sec {
+  display: flex; flex-direction: column; gap: 14px;
+  border: 1px solid var(--line); padding: 0 var(--pad) var(--pad);
 }
-.sec-titulo::before { content: ''; width: 8px; height: 8px; background: var(--ink); flex: none; }
-.sec-titulo > .extra { margin-left: auto; font-size: 0.68rem; font-style: italic; text-transform: none; letter-spacing: 0.08em; }
+.sec-titulo {
+  display: flex; align-items: center; gap: 12px;
+  margin: -1px calc(var(--pad) * -1) 0 calc(var(--pad) * -1 - 1px);
+  font-size: 0.8rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.12em; line-height: 1.3;
+}
+.sec-titulo > span:first-child { background: var(--ink); color: var(--surface); padding: 8px 12px 7px; font-weight: 700; }
+.sec-titulo > .extra { margin-left: auto; padding-right: var(--pad); font-size: 0.8rem; font-style: italic; text-transform: none; letter-spacing: 0.06em; text-align: right; }
+.sec .lista { margin: 0 calc(var(--pad) * -1); }
+.sec .lista > * { padding-left: var(--pad); padding-right: var(--pad); }
+.sec > .lista:last-child { margin-bottom: calc(var(--pad) * -1); }
+.sec > .lista:last-child > :last-child { border-bottom: 0; }
+.sec > .pasos:last-child > li:last-child { border-bottom: 0; padding-bottom: 0; }
+/* Dentro de una ficha, un bloque no es otra caja: es una franja de orilla
+ * a orilla (invertida si es la protagonista). */
+.sec > .bloque { border: 0; border-top: 1px solid var(--line); margin: 0 calc(var(--pad) * -1); padding: var(--pad); }
+.sec > .bloque.inv { border-top-color: var(--surface); }
+.sec > .bloque:last-child { margin-bottom: calc(var(--pad) * -1); }
+.sec > .bloque + .bloque { margin-top: -14px; }
+/* Una lista suelta, sin ficha, también va en su recuadro. */
+.pant > .lista { border: 1px solid var(--line); }
+.pant > .lista > * { padding-left: var(--pad); padding-right: var(--pad); }
+.pant > .lista > :last-child { border-bottom: 0; }
 
 /* ═══ NAVEGACIÓN INFERIOR ═══ */
 .nav {
@@ -175,9 +214,9 @@ input::placeholder, textarea::placeholder { color: var(--ink); opacity: 1; font-
   place-items: center;
   padding: 0 8px;
   height: var(--nav);
-  font-size: 0.64rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-decoration: none;
   transition: color 260ms var(--ease);
 }
@@ -191,9 +230,13 @@ input::placeholder, textarea::placeholder { color: var(--ink); opacity: 1; font-
   clip-path: inset(100% 0 0 0);
   transition: clip-path 420ms var(--ease);
 }
-.nav a[aria-current='page'] { color: var(--surface); }
+.nav a[aria-current='page'] { color: var(--surface); font-weight: 700; }
 .nav a[aria-current='page']::before { clip-path: inset(0); }
 .nav a:active { transform: translateY(1px); }
+/* Algo espera en esa pestaña (sin calibrar, checklist atrasado, avisos). */
+.nav a[data-pendiente='si']::after {
+  content: ''; position: absolute; top: 12px; right: 5px; width: 7px; height: 7px; background: currentColor;
+}
 
 /* ═══ BLOQUES Y FILAS ═══ */
 .bloque { border: 1px solid var(--line); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
@@ -210,8 +253,20 @@ a.bloque { color: inherit; }
   text-align: left; text-decoration: none;
 }
 .fila-texto { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
-.fila-sub { font-size: 0.8rem; font-style: italic; line-height: 1.45; }
-.fila-der { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; white-space: nowrap; text-align: right; }
+/* Lo principal de una fila que lleva a algo va en negrita; su detalle, en itálica. */
+a.fila > .fila-texto > :first-child, button.fila.ir > .fila-texto > :first-child { font-weight: 700; }
+.fila-sub { font-size: 0.86rem; font-style: italic; line-height: 1.45; }
+.fila-texto > .estado { align-self: flex-start; margin-top: 2px; }
+.fila-der { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; text-align: right; }
+/* Ahora: lo siguiente por hacer, con su botón. */
+.ahora .boton { margin-top: 6px; }
+/* Tu semana: cifras grandes con su palabra abajo. */
+.cifra { display: flex; flex-direction: column; gap: 2px; }
+/* Lo que toca hoy: lo hecho se tacha y baja. */
+.tarea[data-hecha='si'] .tarea-texto { text-decoration: line-through; text-decoration-thickness: 1px; }
+.tarea[data-hecha='si'] .fila-sub { opacity: 0.75; }
+a.fila, button.fila { transition: background-color 140ms var(--ease), color 140ms var(--ease); }
+a.fila:active, button.fila:not(:disabled):active { background: var(--ink); color: var(--surface); }
 /* Etiqueta y valor: el valor se alinea a la izquierda para que un texto
  * largo baje de renglón limpio. */
 .par {
@@ -219,47 +274,57 @@ a.bloque { color: inherit; }
   padding: 14px 0; border-bottom: 1px solid var(--line);
 }
 /* Tarea con foto: el botón de evidencia va dentro de su tarea, arriba del filete. */
+.item { border-bottom: 1px solid var(--line); }
+.item > .fila { border-bottom: 0; }
 .item-foto { border-bottom: 1px solid var(--line); }
 .item-foto > .fila { border-bottom: 0; padding-bottom: 10px; }
-.firma { font-style: normal; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em; }
-a.fila::after, button.fila.ir::after { content: '→'; font-size: 0.95rem; flex: none; transition: transform 220ms var(--ease); }
+.firma { font-style: normal; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; }
+a.fila::after, button.fila.ir::after { content: '→'; font-size: 1.1rem; flex: none; transition: transform 220ms var(--ease); }
 a.fila:active::after, button.fila.ir:active::after { transform: translateX(5px); }
 button.fila:disabled { cursor: default; }
 
-/* ═══ ESTADOS (dos colores: inversión y texto) ═══ */
+/* ═══ ESTADOS: cuadrito + palabra (nunca caja; las cajas se tocan) ═══
+ * lleno = listo · vacío = en curso · punteado = pendiente · alerta = invertido con "!" */
 .estado {
-  display: inline-flex; align-items: center;
-  font-size: 0.64rem; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.14em;
-  border: 1px solid var(--line); padding: 5px 8px; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 7px; flex: none;
+  font-size: 0.74rem; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap;
 }
-.estado.fuerte { background: var(--ink); color: var(--surface); border-color: var(--ink); }
-.estado.tenue { border-style: dashed; }
+.estado::before { content: ''; width: 10px; height: 10px; flex: none; border: 1px solid currentColor; }
+.estado.fuerte::before { background: currentColor; }
+.estado.tenue::before { border-style: dashed; }
+.estado.alerta { background: var(--ink); color: var(--surface); padding: 5px 9px 5px 8px; font-weight: 700; }
+.estado.alerta::before { content: '!'; width: auto; height: auto; border: 0; background: none; font-size: 0.86rem; line-height: 1; }
 /* Cambió de estado: se estampa, como un sello de goma. */
 .estado.sello { animation: sello 380ms var(--ease); }
 @keyframes sello { 0% { transform: scale(1.35); opacity: 0; } 60% { transform: scale(0.94); opacity: 1; } }
 
 /* ═══ BOTONES ═══ */
 .boton {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 48px; padding: 12px 18px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;
+  min-height: 50px; padding: 12px 18px;
   border: 1px solid var(--line);
-  font-size: 0.76rem; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.14em; text-align: center;
+  font-size: 0.8rem; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.1em; text-align: center;
   transition: transform 140ms var(--ease), background-color 200ms var(--ease), color 200ms var(--ease);
   text-decoration: none;
 }
 .boton:active { transform: scale(0.97); }
+.boton:not(.lleno):not(:disabled):active { background: var(--ink); color: var(--surface); }
 .boton.lleno { background: var(--ink); color: var(--surface); }
-.boton.grande { min-height: var(--toque); width: 100%; font-size: 0.8rem; }
+.boton.grande { min-height: var(--toque); width: 100%; font-size: 0.84rem; }
+/* Un botón que lleva a otra pantalla lo dice con su flecha. */
+a.boton::after { content: '→'; font-size: 1.05em; }
 .boton:disabled { border-style: dashed; cursor: not-allowed; }
 .boton.lleno:disabled { background: transparent; color: var(--ink); }
 .enlace {
-  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em;
-  min-height: 32px; display: inline-flex; align-items: center; align-self: flex-start;
+  font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em;
+  min-height: 40px; display: inline-flex; align-items: center; align-self: flex-start;
   background: linear-gradient(currentColor, currentColor) left bottom / 100% 1px no-repeat;
   transition: background-size 260ms var(--ease);
   text-decoration: none;
 }
 .enlace:active { background-size: 30% 1px; }
+/* Un enlace que lleva a otra pantalla lo dice con su flecha. */
+a.enlace::after { content: '→'; margin-left: 8px; font-size: 0.95rem; }
 
 /* Acción principal abajo, al alcance del pulgar. */
 .pie-accion {
@@ -277,9 +342,9 @@ button.fila:disabled { cursor: default; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   position: relative; isolation: isolate;
-  min-height: 40px; padding: 9px 14px;
+  min-height: 44px; padding: 10px 14px;
   border: 1px solid var(--line);
-  font-size: 0.7rem; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.12em;
+  font-size: 0.74rem; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.08em;
   transition: color 220ms var(--ease), transform 140ms var(--ease);
 }
 .chip::before {
@@ -314,7 +379,7 @@ button.fila:disabled { cursor: default; }
 /* Tablero de Calibrar: el nombre del café lleva a su ficha. */
 .tarjeta-nombre { text-decoration: none; color: inherit; }
 .stepper-nota { font-size: 0.74rem; line-height: 1.45; font-style: italic; }
-.stepper-valor { display: inline-block; font-size: 1.8rem; line-height: 1.05; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
+.stepper-valor { display: inline-block; font-weight: 700; font-size: 1.8rem; line-height: 1.05; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
 .stepper-valor.sube { animation: tic-sube 200ms var(--ease); }
 .stepper-valor.baja { animation: tic-baja 200ms var(--ease); }
 @keyframes tic-sube { from { transform: translateY(45%); opacity: 0.2; } }
@@ -409,7 +474,7 @@ button.fila:disabled { cursor: default; }
   position: absolute; left: 37.5%; top: 37.5%; width: 25%; height: 25%;
   border: 1px dashed var(--line); pointer-events: none;
 }
-.brujula-rotulo { position: absolute; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; pointer-events: none; line-height: 1.35; }
+.brujula-rotulo { position: absolute; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; pointer-events: none; line-height: 1.35; }
 .brujula-taza {
   position: absolute; left: 37.5%; top: 37.5%; width: 25%; height: 25%;
   display: grid; place-items: center; pointer-events: none;
@@ -445,7 +510,7 @@ button.fila:disabled { cursor: default; }
 
 /* ═══ GRÁFICAS ═══ */
 .grafica { width: 100%; height: auto; display: block; overflow: visible; }
-.grafica text { font-family: var(--mono); fill: var(--ink); font-size: 9px; letter-spacing: 0.08em; }
+.grafica text { font-family: var(--mono); fill: var(--ink); font-size: 10px; letter-spacing: 0.08em; }
 .grafica .eje { stroke: var(--ink); stroke-width: 1; }
 .grafica .guia { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 4; opacity: 1; }
 .grafica .zona { fill: url(#trama); stroke: var(--ink); stroke-width: 1; animation: velo 600ms var(--ease) 120ms both; }
@@ -475,13 +540,13 @@ button.fila:disabled { cursor: default; }
 .avatar {
   width: 38px; height: 38px; border-radius: 9999px; flex: none;
   border: 1px solid var(--line); display: grid; place-items: center;
-  font-size: 0.68rem; letter-spacing: 0.08em;
+  font-size: 0.72rem; letter-spacing: 0.06em;
 }
 .avatar.lleno { background: var(--ink); color: var(--surface); }
 
 /* ═══ HORARIO (rejilla) ═══ */
 .semana { display: grid; grid-template-columns: 60px repeat(7, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); overflow-x: auto; }
-.semana > * { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-height: 52px; padding: 4px; font-size: 0.64rem; letter-spacing: 0.06em; display: flex; flex-direction: column; justify-content: center; }
+.semana > * { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-height: 52px; padding: 4px; font-size: 0.68rem; letter-spacing: 0.04em; display: flex; flex-direction: column; justify-content: center; }
 .semana .cab { text-transform: uppercase; align-items: center; text-align: center; line-height: 1.35; }
 .semana .celda { position: relative; isolation: isolate; align-items: center; text-align: center; transition: color 240ms var(--ease); }
 .semana .celda::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--ink); clip-path: inset(100% 0 0 0); transition: clip-path 320ms var(--ease); }
@@ -496,16 +561,16 @@ button.fila:disabled { cursor: default; }
 .semana .cab[data-hoy='si'] { text-decoration: underline; text-underline-offset: 3px; }
 .semana .nombre { gap: 2px; }
 .semana .nombre[data-alerta='si'] { background: var(--ink); color: var(--surface); }
-.semana .pie { align-items: center; text-align: center; font-size: 0.64rem; text-transform: uppercase; min-height: 36px; }
+.semana .pie { align-items: center; text-align: center; font-size: 0.68rem; text-transform: uppercase; min-height: 36px; }
 .semana .pie[data-alerta='si'] { background: var(--ink); color: var(--surface); }
 
 /* ═══ LÍNEA DE TIEMPO DEL DÍA ═══ */
 .linea { --nombre: 64px; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
 .linea-fila { display: grid; grid-template-columns: var(--nombre) 1fr; align-items: stretch; min-height: 34px; border-bottom: 1px solid var(--line); }
-.linea-nombre { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; }
+.linea-nombre { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; }
 .linea-pista { position: relative; }
 .linea-eje { min-height: 26px; border-bottom: 0; }
-.linea-marca { position: absolute; top: 6px; transform: translateX(-50%); font-size: 0.6rem; letter-spacing: 0.06em; white-space: nowrap; }
+.linea-marca { position: absolute; top: 6px; transform: translateX(-50%); font-size: 0.66rem; letter-spacing: 0.06em; white-space: nowrap; }
 .linea-barra {
   position: absolute; top: 6px; bottom: 6px; background: var(--ink); color: var(--surface);
   display: grid; place-items: center; font-size: 0.6rem; letter-spacing: 0.1em; overflow: hidden;
@@ -525,7 +590,7 @@ button.fila:disabled { cursor: default; }
 
 /* ═══ CALENDARIO DEL MES ═══ */
 .calendario { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-.cal-cab { text-align: center; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.12em; padding-bottom: 4px; }
+.cal-cab { text-align: center; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; padding-bottom: 4px; }
 .cal-dia {
   position: relative; isolation: isolate; min-height: 50px; border: 1px solid var(--line);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
@@ -537,14 +602,30 @@ button.fila:disabled { cursor: default; }
 .cal-dia[data-fuera='si'] { opacity: 0.4; }
 .cal-dia[data-hoy='si'] .cal-num { text-decoration: underline; text-underline-offset: 3px; }
 .cal-dia[aria-pressed='true'] { outline: 2px solid var(--ink); outline-offset: 2px; }
-.cal-num { font-size: 0.8rem; font-variant-numeric: tabular-nums; }
-.cal-turno { font-size: 0.56rem; letter-spacing: 0.1em; min-height: 0.8em; }
+.cal-num { font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+.cal-turno { font-size: 0.62rem; letter-spacing: 0.1em; min-height: 0.8em; }
 
 /* ═══ DISPONIBILIDAD POR FRANJAS ═══ */
 .franjas { display: grid; grid-template-columns: 1fr repeat(3, 68px); gap: 6px 6px; align-items: center; }
 .franja-cab { text-align: center; }
 .franja-dia { font-size: 0.86rem; }
 .chip.franja { width: 100%; justify-content: center; text-align: center; min-height: 44px; }
+
+/* ═══ AVANCE DE UNA SOLICITUD: pedido → aceptado → aprobado ═══ */
+.avance { display: grid; grid-template-columns: repeat(3, 1fr); margin: 4px 0 2px; }
+.avance li { position: relative; display: flex; flex-direction: column; gap: 7px; font-size: 0.7rem; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.06em; padding-right: 6px; }
+.avance li::before { content: ''; width: 16px; height: 16px; border: 1px solid currentColor; background: var(--surface); position: relative; z-index: 1; }
+.avance li::after { content: ''; position: absolute; top: 8px; left: 16px; right: 0; height: 1px; background: currentColor; }
+.avance li:last-child::after { display: none; }
+.avance li[data-hecho='si']::before { background: currentColor; }
+.avance li[data-hecho='si'] { font-weight: 700; }
+.avance li[data-falla='si']::before { background: repeating-linear-gradient(135deg, currentColor 0 1px, transparent 1px 4px); }
+
+/* Un detalle que se abre (cómo queda el día). */
+.detalle summary { cursor: pointer; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; min-height: 40px; display: flex; align-items: center; gap: 8px; list-style: none; }
+.detalle summary::-webkit-details-marker { display: none; }
+.detalle summary::before { content: '+'; font-size: 1rem; width: 12px; }
+.detalle[open] summary::before { content: '−'; }
 
 /* ═══ BARRA DE PROGRESO ═══ */
 .barra-prog { height: 6px; border: 1px solid var(--line); }
@@ -566,7 +647,7 @@ button.fila:disabled { cursor: default; }
   padding: 12px 0; border-bottom: 1px solid currentColor;
   font-style: italic; font-size: 0.92rem; line-height: 1.55;
 }
-.pasos li::before { content: counter(paso); font-style: normal; font-size: 0.74rem; letter-spacing: 0.1em; padding-top: 3px; }
+.pasos li::before { content: counter(paso); font-style: normal; font-size: 0.8rem; letter-spacing: 0.1em; padding-top: 3px; }
 
 /* ═══ ENTRAR ═══ */
 .entrar { min-height: 100dvh; justify-content: center; }

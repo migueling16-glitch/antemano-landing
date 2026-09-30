@@ -431,12 +431,9 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
         accion={cerrada ? undefined : { texto: 'Terminar', hacer: terminar }}
       />
       <main className="pant pila">
-        <div className="chips" aria-label="Receta y máquina">
-          <span className="estado fuerte">{conBoton ? boton : 'Continuo'}</span>
-          <span className="estado">{o.dosis} → {o.rendimiento} g</span>
-          <span className="estado">{o.tiempo} ± {o.tolTiempo} s</span>
-          {m && <span className="estado">PID {m.pid.toFixed(1)} °C</span>}
-        </div>
+        <p className="etq" aria-label="Receta y máquina">
+          {conBoton ? `Botón ${boton}` : 'Continuo'} · objetivo {o.dosis} → {o.rendimiento} g en {o.tiempo} ± {o.tolTiempo} s{m ? ` · PID ${m.pid.toFixed(1)} °C` : ''}
+        </p>
 
         {modo === 'cierre' ? (
           <Cierre e={e} s={s} c={c} m={m} />
@@ -628,8 +625,8 @@ function Evaluacion({ shot, previos, objetivo, paso, s, ctx, onAprobar, onCorreg
         <div className="fila-h entre">
           <span className="etq">Shot {shot.n}</span>
           <span className="chips">
-            <Etq {...(v.tiempo ? {} : { fuerte: true })}>{v.tiempo ? 'Tiempo ok' : shot.tiempo < objetivo.tiempo ? 'Rápido' : 'Lento'}</Etq>
-            <Etq {...(v.ratio ? {} : { fuerte: true })}>{v.ratio ? 'Ratio ok' : 'Ratio fuera'}</Etq>
+            <Etq {...(v.tiempo ? { fuerte: true } : { alerta: true })}>{v.tiempo ? 'Tiempo ok' : shot.tiempo < objetivo.tiempo ? 'Rápido' : 'Lento'}</Etq>
+            <Etq {...(v.ratio ? { fuerte: true } : { alerta: true })}>{v.ratio ? 'Ratio ok' : 'Ratio fuera'}</Etq>
           </span>
         </div>
         <span className="num-m">{shot.dosis.toFixed(1)} → {shot.rendimiento.toFixed(1)} g · {shot.tiempo.toFixed(0)} s</span>

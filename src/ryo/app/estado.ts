@@ -8,7 +8,7 @@
  */
 import { useSyncExternalStore } from 'react';
 import { crearSemilla, VERSION } from './semilla';
-import { jornadaDe, fechaCorta, sumarDias } from './lib/tiempo';
+import { jornadaDe, fechaCorta, sumarDias, lunesDe } from './lib/tiempo';
 import { programar, type EstadoPregunta } from './lib/repaso';
 import { CONTINUO, type Objetivo, type Sabor } from './lib/calibracion';
 import { borrarFotos } from './lib/fotos';
@@ -192,15 +192,29 @@ export type Semana = {
   turnos: Record<string, string>;
 };
 
+/**
+ * Cambio de turno. Sin `para`, lo ve todo el equipo y lo toma el primero
+ * que acepte; con `para`, se le pide a una persona. Con `aCambio` es un
+ * intercambio: quien pide se queda con ese turno de `para`.
+ */
 export type CambioTurno = {
   id: string;
   de: string;
   fecha: string;
   turnoId: string;
   motivo: string;
+  para?: string;
+  aCambio?: { fecha: string; turnoId: string };
   acepta?: string;
-  estado: 'abierto' | 'aceptado' | 'aprobado' | 'rechazado';
+  /**
+   * abierto → aceptado → aprobado. Se sale del camino si el encargado lo
+   * rechaza, si la persona a la que se le pidió no puede (declinado) o si
+   * quien lo pidió lo retira.
+   */
+  estado: 'abierto' | 'aceptado' | 'aprobado' | 'rechazado' | 'declinado' | 'retirado';
   en: number;
+  aceptadoEn?: number;
+  resueltoEn?: number;
 };
 
 /** Días libres o vacaciones: los pide el barista y los aprueba el encargado. */
@@ -630,38 +644,87 @@ export function alternarFranja(usuarioId: string, dia: number, franja: Franja) {
   });
 }
 
-export function solicitarCambio(fecha: string, turnoId: string, motivo: string) {
+const nombreTurno = (e: Estado, id: string) => e.turnosTipo.find((t) => t.id === id)?.nombre.toLowerCase() ?? 'turno';
+
+export function solicitarCambio(fecha: string, turnoId: string, motivo: string, opciones: Pick<CambioTurno, 'para' | 'aCambio'> = {}) {
   actualizar((e) => {
-    e.cambios.unshift({ id: nuevoId('cam'), de: e.usuarioId!, fecha, turnoId, motivo, estado: 'abierto', en: Date.now() });
-    notificar(e, 'todos', `${primer(e, e.usuarioId!)} busca quién le cubra el ${fechaCorta(fecha)}.`, '#/horarios/cambios');
+    const de = e.usuarioId!;
+    e.cambios.unshift({ id: nuevoId('cam'), de, fecha, turnoId, motivo, estado: 'abierto', en: Date.now(), ...opciones });
+    const quien = primer(e, de);
+    const suyo = `${nombreTurno(e, turnoId)} del ${fechaCorta(fecha)}`;
+    if (opciones.para && opciones.aCambio) {
+      notificar(e, opciones.para, `${quien} te propone cambiar: tú tomas su ${suyo} y él o ella tu ${nombreTurno(e, opciones.aCambio.turnoId)} del ${fechaCorta(opciones.aCambio.fecha)}.`, '#/horarios/cambios');
+    } else if (opciones.para) {
+      notificar(e, opciones.para, `${quien} te pide que le cubras su ${suyo}.`, '#/horarios/cambios');
+    } else {
+      notificar(e, 'todos', `${quien} busca quién le cubra su ${suyo}.`, '#/horarios/cambios');
+    }
   });
 }
 
-export function responderCambio(id: string, accion: 'aceptar' | 'aprobar' | 'rechazar') {
+/**
+ * - aceptar: quien toma el turno (o acepta el intercambio).
+ * - declinar: la persona a la que se le pidió no puede.
+ * - soltar: quien aceptó ya no puede; vuelve a quedar abierto.
+ * - retirar: quien lo pidió ya no lo necesita.
+ * - aprobar / rechazar: el encargado.
+ */
+export function responderCambio(id: string, accion: 'aceptar' | 'declinar' | 'soltar' | 'retirar' | 'aprobar' | 'rechazar') {
   actualizar((e) => {
     const c = e.cambios.find((x) => x.id === id);
     if (!c) return;
+    const yo = e.usuarioId!;
     const dia = fechaCorta(c.fecha);
-    if (accion === 'aceptar') {
-      c.acepta = e.usuarioId!;
+    const cambio = c.aCambio ? 'el intercambio' : 'cubrir';
+    if (accion === 'aceptar' && c.estado === 'abierto') {
+      c.acepta = yo;
       c.estado = 'aceptado';
-      notificar(e, c.de, `${primer(e, c.acepta)} aceptó cubrir tu turno del ${dia}. Falta la aprobación.`, '#/horarios/cambios');
-      notificar(e, 'encargados', `${primer(e, c.acepta)} aceptó cubrir el ${dia} de ${primer(e, c.de)}. Falta tu aprobación.`, '#/horarios/cambios');
+      c.aceptadoEn = Date.now();
+      notificar(e, c.de, `${primer(e, yo)} aceptó ${cambio === 'cubrir' ? 'cubrir tu turno' : 'el intercambio'} del ${dia}. Falta la aprobación.`, '#/horarios/cambios');
+      notificar(e, 'encargados', `${primer(e, yo)} aceptó ${cambio === 'cubrir' ? 'cubrir' : 'cambiar'} el ${dia} de ${primer(e, c.de)}. Falta tu aprobación.`, '#/horarios/cambios');
     }
-    if (accion === 'rechazar') {
+    if (accion === 'declinar' && c.estado === 'abierto') {
+      c.estado = 'declinado';
+      c.resueltoEn = Date.now();
+      notificar(e, c.de, `${primer(e, yo)} no puede ${c.aCambio ? 'hacer el intercambio' : 'cubrir tu turno'} del ${dia}. Pídeselo a alguien más.`, `#/horarios/cambiar/${c.fecha}`);
+    }
+    if (accion === 'soltar' && c.estado === 'aceptado' && c.acepta === yo) {
+      delete c.acepta;
+      delete c.aceptadoEn;
+      c.estado = 'abierto';
+      notificar(e, c.de, `${primer(e, yo)} ya no puede con tu turno del ${dia}: sigue abierto.`, '#/horarios/cambios');
+    }
+    if (accion === 'retirar' && (c.estado === 'abierto' || c.estado === 'aceptado')) {
+      c.estado = 'retirado';
+      c.resueltoEn = Date.now();
+      const avisarA = c.acepta ?? c.para;
+      if (avisarA) notificar(e, avisarA, `${primer(e, c.de)} retiró su solicitud del ${dia}: ya no hace falta.`, '#/horarios/cambios');
+    }
+    if (accion === 'rechazar' && c.estado === 'aceptado') {
       c.estado = 'rechazado';
+      c.resueltoEn = Date.now();
       notificar(e, c.de, `No se aprobó el cambio de tu turno del ${dia}.`, '#/horarios/cambios');
+      if (c.acepta) notificar(e, c.acepta, `No se aprobó el cambio del ${dia} con ${primer(e, c.de)}.`, '#/horarios/cambios');
     }
-    if (accion === 'aprobar' && c.acepta) {
+    if (accion === 'aprobar' && c.estado === 'aceptado' && c.acepta) {
       c.estado = 'aprobado';
-      // El turno pasa a quien aceptó.
-      const sem = e.semanas.find((s) => s.turnos[`${c.de}|${c.fecha}`]);
-      if (sem) {
-        delete sem.turnos[`${c.de}|${c.fecha}`];
-        sem.turnos[`${c.acepta}|${c.fecha}`] = c.turnoId;
+      c.resueltoEn = Date.now();
+      // El turno pasa a quien aceptó; en un intercambio, el suyo pasa a quien pidió.
+      const mover = (desde: string, hacia: string, fecha: string, turnoId: string) => {
+        const sem = e.semanas.find((s) => s.id === lunesDe(fecha));
+        if (!sem || sem.turnos[`${desde}|${fecha}`] !== turnoId) return;
+        delete sem.turnos[`${desde}|${fecha}`];
+        sem.turnos[`${hacia}|${fecha}`] = turnoId;
+      };
+      mover(c.de, c.acepta, c.fecha, c.turnoId);
+      if (c.aCambio) mover(c.acepta, c.de, c.aCambio.fecha, c.aCambio.turnoId);
+      if (c.aCambio) {
+        notificar(e, c.de, `Aprobado: el ${dia} trabaja ${primer(e, c.acepta)} y tú el ${fechaCorta(c.aCambio.fecha)}.`, '#/horarios');
+        notificar(e, c.acepta, `Aprobado: el ${fechaCorta(c.aCambio.fecha)} trabaja ${primer(e, c.de)} y tú el ${dia}.`, '#/horarios');
+      } else {
+        notificar(e, c.de, `Aprobado: ${primer(e, c.acepta)} cubre tu turno del ${dia}.`, '#/horarios');
+        notificar(e, c.acepta, `Aprobado: el ${dia} trabajas tú en lugar de ${primer(e, c.de)}.`, '#/horarios');
       }
-      notificar(e, c.de, `Aprobado: ${primer(e, c.acepta)} cubre tu turno del ${dia}.`, '#/horarios');
-      notificar(e, c.acepta, `Aprobado: el ${dia} trabajas tú en lugar de ${primer(e, c.de)}.`, '#/horarios');
     }
   });
 }

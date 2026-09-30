@@ -146,14 +146,18 @@ export function Sup({ titulo, sub, volver, accion, marca }: {
 
 /* ═══ PIEZAS PEQUEÑAS ═════════════════════════════════════ */
 
-/** Etiqueta de estado. Si su texto cambia mientras se ve, se estampa. */
-export function Estado({ children, fuerte, tenue }: { children: ReactNode; fuerte?: boolean; tenue?: boolean }) {
+/**
+ * Estado: cuadrito + palabra. `fuerte` = listo (lleno), sin nada = en curso
+ * (vacío), `tenue` = pendiente (punteado), `alerta` = un problema (invertido
+ * con "!"). Si su texto cambia mientras se ve, se estampa.
+ */
+export function Estado({ children, fuerte, tenue, alerta }: { children: ReactNode; fuerte?: boolean; tenue?: boolean; alerta?: boolean }) {
   const texto = typeof children === 'string' ? children : String((children as ReactNode[] | undefined) ?? '');
   const previo = useRef(texto);
   const cambio = previo.current !== texto;
   useEffect(() => { previo.current = texto; });
   return (
-    <span key={texto} className={`estado${fuerte ? ' fuerte' : ''}${tenue ? ' tenue' : ''}${cambio ? ' sello' : ''}`}>{children}</span>
+    <span key={texto} className={`estado${fuerte ? ' fuerte' : ''}${tenue ? ' tenue' : ''}${alerta ? ' alerta' : ''}${cambio ? ' sello' : ''}`}>{children}</span>
   );
 }
 

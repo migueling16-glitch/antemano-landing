@@ -2,7 +2,7 @@
 
 Maqueta navegable del sistema de gestión de la barra, pensada para usarse en
 el celular personal de cada barista. No tiene backend: todo vive en el
-teléfono (`localStorage` con la clave `ryo-app:v7` y las fotos en IndexedDB).
+teléfono (`localStorage` con la clave `ryo-app:v9` y las fotos en IndexedDB).
 
 - Ruta: `/ryocafe/app` (página en `src/pages/ryocafe/app.astro`, noindex).
 - SPA de React con rutas en el hash (`#/calibrar/nueva`), así funciona detrás
@@ -21,12 +21,39 @@ teléfono (`localStorage` con la clave `ryo-app:v7` y las fotos en IndexedDB).
 | `estado.ts` | Tipos, almacén y todas las acciones (lo que luego será la API) |
 | `semilla.ts` | Datos de ejemplo relativos a hoy; `VERSION` descarta lo guardado viejo |
 | `contenido.ts` | Recetas, lecciones, rúbricas y ruta de ingreso |
-| `componentes.tsx` | Piezas del design system que no existían: stepper, brújula, gauge, gráficas, hoja |
+| `componentes.tsx` | Piezas del design system que no existían: stepper, brújula, gráficas, hoja, estados |
 | `lib/calibracion.ts` | Matemática y criterio de calibración (`sugerir`) |
 | `lib/fotos.ts` | Compresión a 1600 px, sello y guardado de evidencias |
 | `lib/repaso.ts` | Repaso espaciado 1 · 3 · 7 · 14 · 30 días |
 | `lib/tiempo.ts` | Hora de Durango y jornada que corta a las 5:00 |
 | `pantallas/` | Una pantalla por módulo |
+
+## Cómo se lee la app (y de dónde sale)
+
+Reglas para que nadie tenga que adivinar, cada una con su fuente:
+
+- **Solo los botones son cajas.** Un estado es cuadrito + palabra (lleno
+  listo, vacío en curso, punteado pendiente; un problema va invertido con
+  "!"). Lo que lleva a otra pantalla termina en →. Con señales débiles de
+  "esto se toca", la gente tarda 22 % más y mira 25 % más de puntos
+  ([NN/g, eyetracking con 71 personas](https://www.nngroup.com/articles/flat-ui-less-attention-cause-uncertainty/)).
+- **Secciones = fichas** con su pestaña invertida: región común con límite
+  claro, pocos tamaños de letra ([NN/g, jerarquía visual](https://www.nngroup.com/articles/visual-hierarchy-ux-definition/)).
+- **Negrita (700) contra regular (400).** Extensión de la marca, que solo
+  trae regular e itálica: va en títulos, pestañas, lo principal de cada
+  fila, cifras, botones y alertas. Mayúsculas solo en palabras sueltas
+  (etiquetas, botones), nunca en frases.
+- **Inicio dice qué hacer ahora.** "Ahora" es lo siguiente por hacer con un
+  solo botón; "Lo que toca hoy" son casillas que se llenan. Hacer la acción
+  fácil y avisar en el momento pesa más que motivar (modelo de Fogg,
+  B = MAP); la barra que se llena usa el gradiente de meta (Nunes y Drèze,
+  2006: 34 % contra 19 % terminó la tarjeta que ya traía avance).
+- **Sin rachas ni ranking.** Quitar las rachas de GitHub cambió cómo
+  trabajaba la gente, incluso en fines de semana (Moldon et al., ICSE
+  2021); en un trabajo por turnos, una racha castiga el día de descanso.
+  "Tu semana" enseña lo que cada quien lleva y solo lo ve esa persona.
+- **Cambios de turno sin sorpresas:** antes de pedir, se ve cómo le queda a
+  cada compañero (horas, descanso, disponibilidad) y cómo quedaría el día.
 
 ## La máquina
 

@@ -11,20 +11,26 @@ import {
   solicitarCambio, responderCambio, pedirAusencia, responderAusencia, avisar, celebrar, vibrar,
   type Estado, type TurnoTipo, type Ausencia,
 } from '../estado';
-import { Sup, Seccion, Hoja, Avatar, Estado as Etq, Vacio, ir } from '../componentes';
+import { Sup, Seccion, Hoja, Avatar, Estado as Etq, Vacio, Casilla, ir } from '../componentes';
 import { turnoDe } from './Inicio';
 import {
   FRANJAS, REGLAS, alertasDe, personasDe, tramosDe, horarioLocal, reloj, diasDe, turnosDe, horasDe, ausenciaEn, icsDe,
-  type Alerta, type Turnos, type Franja,
+  simular, encajeDe, type Alerta, type Turnos, type Franja, type Movimiento, type Encaje,
 } from '../lib/turnos';
 import {
-  jornadaDe, sumarDias, lunesDe, diaCorto, nombreDia, fechaCorta, cuando, hora, diaSemana, minutosAhora,
+  jornadaDe, sumarDias, lunesDe, diaCorto, nombreDia, fechaCorta, cuando, hora, diaSemana, minutosAhora, minutos,
 } from '../lib/tiempo';
 
 const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const numDia = (f: string) => Number(f.slice(8));
 const diaYNum = (f: string) => `${nombreDia(f)} ${fechaCorta(f).split(' ').slice(1).join(' ')}`;
 const primerNombre = (e: Estado, id?: string) => usuario(e, id)?.nombre.split(' ')[0] ?? '';
+/** Un turno que ya empezó (o de un día pasado) ya no se cambia. */
+const empezo = (fecha: string, t: TurnoTipo) => {
+  const hoy = jornadaDe();
+  const enJornada = (m: number) => (m < 300 ? m + 1440 : m);
+  return fecha < hoy || (fecha === hoy && enJornada(minutosAhora()) >= enJornada(minutos(t.inicio)));
+};
 const turnosPublicados = (e: Estado, fecha: string): Turnos =>
   e.semanas.find((s) => s.id === lunesDe(fecha) && s.estado === 'publicada')?.turnos ?? {};
 
@@ -100,9 +106,7 @@ export function HorariosInicio() {
   const hoy = jornadaDe();
   const lunes = lunesDe(hoy);
   const [vista, setVista] = useState<'semana' | 'mes'>('semana');
-  const [pedir, setPedir] = useState<{ fecha: string; t: TurnoTipo } | null>(null);
-  const [motivo, setMotivo] = useState('');
-  const abiertos = e.cambios.filter((c) => c.estado === 'abierto' && c.de !== u.id && c.fecha >= hoy);
+  const abiertos = e.cambios.filter((c) => c.estado === 'abierto' && c.de !== u.id && c.fecha >= hoy && (!c.para || c.para === u.id));
   const esEncargado = puede(e, 'encargado', 'admin');
   const pendientes = (esEncargado ? e.cambios.filter((c) => c.estado === 'aceptado').length : 0)
     + (esEncargado ? e.ausencias.filter((a) => a.estado === 'pendiente').length : 0);
@@ -132,8 +136,8 @@ export function HorariosInicio() {
 
         {vista === 'semana' ? (
           <>
-            <MiSemana e={e} inicio={lunes} titulo="Esta semana" onCambiar={(fecha, t) => setPedir({ fecha, t })} />
-            <MiSemana e={e} inicio={sumarDias(lunes, 7)} titulo="La que sigue" onCambiar={(fecha, t) => setPedir({ fecha, t })} />
+            <MiSemana e={e} inicio={lunes} titulo="Esta semana" onCambiar={(fecha) => ir(`horarios/cambiar/${fecha}`)} />
+            <MiSemana e={e} inicio={sumarDias(lunes, 7)} titulo="La que sigue" onCambiar={(fecha) => ir(`horarios/cambiar/${fecha}`)} />
           </>
         ) : (
           <Calendario e={e} hoy={hoy} />
@@ -150,7 +154,7 @@ export function HorariosInicio() {
               <span>Solicitudes</span>
               <span className="fila-sub">
                 Cambios de turno y días libres
-                {abiertos.length ? ` · ${abiertos.length} busca${abiertos.length === 1 ? '' : 'n'} cambio` : ''}
+                {abiertos.length ? ` · ${abiertos.length} para ti` : ''}
                 {pendientes ? ` · ${pendientes} por resolver` : ''}
               </span>
             </span>
@@ -160,18 +164,6 @@ export function HorariosInicio() {
           </a>
         </div>
       </main>
-
-      <Hoja abierta={!!pedir} alCerrar={() => setPedir(null)} titulo="Pedir cambio">
-        {pedir && <p className="cuerpo">{diaYNum(pedir.fecha)} · {pedir.t.nombre} {pedir.t.inicio}–{pedir.t.fin}. Lo ve el equipo; cuando alguien lo acepte, el encargado lo aprueba.</p>}
-        <label className="campo">
-          <span className="etq">Motivo</span>
-          <input value={motivo} placeholder="Ej. cita médica" onChange={(ev) => setMotivo(ev.target.value)} />
-        </label>
-        <button type="button" className="boton grande lleno" disabled={!motivo.trim()}
-          onClick={() => { solicitarCambio(pedir!.fecha, pedir!.t.id, motivo.trim()); setPedir(null); setMotivo(''); vibrar(12); avisar('Cambio publicado para el equipo.'); }}>
-          {motivo.trim() ? 'Publicar para el equipo' : 'Escribe el motivo'}
-        </button>
-      </Hoja>
     </>
   );
 }
@@ -232,8 +224,8 @@ function MiSemana({ e, inicio, titulo, onCambiar }: {
                     {t ? `${t.nombre} · ${t.inicio}–${t.fin}` : aus?.estado === 'aprobada' ? (aus.tipo === 'vacaciones' ? 'Vacaciones' : 'Día libre') : 'Descanso'}
                   </span>
                 </span>
-                {cambio ? <Etq tenue>{cambio.estado === 'abierto' ? 'Buscando cambio' : 'Por aprobar'}</Etq>
-                  : t && !pasado ? <button type="button" className="sup-accion" onClick={() => onCambiar(f, t)}>Cambiar</button>
+                {cambio ? <a className="enlace" href="#/horarios/cambios">{cambio.estado === 'abierto' ? 'Pedido' : 'Por aprobar'}</a>
+                  : t && !empezo(f, t) ? <button type="button" className="sup-accion" onClick={() => onCambiar(f, t)}>Cambiar</button>
                   : null}
               </div>
             );
@@ -631,6 +623,236 @@ function PedirDias({ abierta, alCerrar, hoy }: { abierta: boolean; alCerrar: () 
   );
 }
 
+/* ═══ PEDIR UN CAMBIO DE TURNO ═══════════════════════════ */
+
+type Cambio = Estado['cambios'][number];
+const MOTIVOS = ['Cita médica', 'Escuela', 'Asunto familiar', 'Trámite'];
+const horasTxt = (n: number) => `${n.toFixed(n % 1 ? 1 : 0)} h`;
+const turnoTxt = (t?: TurnoTipo) => (t ? `${t.nombre} ${t.inicio}–${t.fin}` : 'Turno');
+
+/** Cómo le queda un cambio a alguien, en una etiqueta. */
+function EtqEncaje({ enc }: { enc: Encaje }) {
+  if (!enc.puede) return <Etq tenue>No puede</Etq>;
+  if (enc.alertas.length) return <Etq alerta>Revisar</Etq>;
+  return <Etq fuerte>Le queda bien</Etq>;
+}
+
+/** Horas antes → después y lo que habría que revisar. */
+function detalleEncaje(enc: Encaje) {
+  if (!enc.puede) return enc.bloqueo!;
+  const horas = enc.antes === enc.despues ? `Semana: ${horasTxt(enc.despues)}` : `Semana: ${horasTxt(enc.antes)} → ${horasTxt(enc.despues)}`;
+  return enc.alertas.length ? `${horas} · ${enc.alertas.length} cosa${enc.alertas.length === 1 ? '' : 's'} por revisar` : `${horas} · sin alertas`;
+}
+
+/**
+ * Pedir un cambio en tres pasos: qué necesitas (que te cubran o
+ * intercambiar), con quién (con cómo le queda a cada quien) y por qué.
+ * Antes de mandarlo se ve cómo quedaría el día.
+ */
+export function HorariosCambiar({ fecha }: { fecha: string }) {
+  const e = useEstado();
+  const u = yo(e)!;
+  const hoy = jornadaDe();
+  const t = turnoDe(e, u.id, fecha);
+  const [modo, setModo] = useState<'cubrir' | 'intercambio'>('cubrir');
+  const [para, setPara] = useState<string | null>(null);
+  const [trueque, setTrueque] = useState<{ usuarioId: string; fecha: string; turnoId: string } | null>(null);
+  const [motivo, setMotivo] = useState('');
+  const ya = e.cambios.find((c) => c.de === u.id && c.fecha === fecha && (c.estado === 'abierto' || c.estado === 'aceptado'));
+
+  if (!t || empezo(fecha, t)) {
+    return (
+      <>
+        <Sup titulo="Cambiar turno" volver="horarios" />
+        <main className="pant pila">
+          <Vacio>Este turno ya empezó o no está publicado: ya no se puede cambiar.</Vacio>
+          <a className="boton grande" href="#/horarios">Mi horario</a>
+        </main>
+      </>
+    );
+  }
+  if (ya) {
+    return (
+      <>
+        <Sup titulo="Cambiar turno" sub={`${diaYNum(fecha)} · ${turnoTxt(t)}`} volver="horarios" />
+        <main className="pant pila">
+          <p className="cuerpo">Ya pediste un cambio para este turno. Aquí va cómo va:</p>
+          <Seccion titulo="Tu solicitud"><TarjetaCambio e={e} c={ya} /></Seccion>
+        </main>
+      </>
+    );
+  }
+
+  const soltar: Movimiento = { usuarioId: u.id, fecha, turnoId: null };
+  const candidatos = e.usuarios
+    .filter((x) => x.activo && x.id !== u.id)
+    .map((x) => ({ x, enc: encajeDe(e, x.id, [soltar, { usuarioId: x.id, fecha, turnoId: t.id }]) }))
+    .sort((a, b) => Number(b.enc.puede) - Number(a.enc.puede) || a.enc.alertas.length - b.enc.alertas.length || a.enc.despues - b.enc.despues);
+
+  // Intercambio: turnos publicados de otros, de hoy a dos semanas, en días que yo no trabajo.
+  const lunes = lunesDe(hoy);
+  const opciones = [...diasDe(lunes), ...diasDe(sumarDias(lunes, 7))]
+    .filter((f) => f >= hoy && f !== fecha && !turnoDe(e, u.id, f))
+    .flatMap((f) => personasDe(e, f, turnosPublicados(e, f)).filter((p) => p.usuarioId !== u.id).map((p) => {
+      const movs: Movimiento[] = [
+        soltar, { usuarioId: p.usuarioId, fecha, turnoId: t.id },
+        { usuarioId: p.usuarioId, fecha: f, turnoId: null }, { usuarioId: u.id, fecha: f, turnoId: p.turno.id },
+      ];
+      return { usuarioId: p.usuarioId, fecha: f, turno: p.turno, mio: encajeDe(e, u.id, movs), suyo: encajeDe(e, p.usuarioId, movs) };
+    }))
+    .filter((o) => o.mio.puede && o.suyo.puede)
+    .sort((a, b) => a.mio.alertas.length + a.suyo.alertas.length - (b.mio.alertas.length + b.suyo.alertas.length) || a.fecha.localeCompare(b.fecha));
+
+  // Cómo quedaría: el día del turno y, en un intercambio, el otro día.
+  const movs: Movimiento[] = modo === 'cubrir'
+    ? (para ? [soltar, { usuarioId: para, fecha, turnoId: t.id }] : [])
+    : trueque ? [soltar, { usuarioId: trueque.usuarioId, fecha, turnoId: t.id }, { usuarioId: trueque.usuarioId, fecha: trueque.fecha, turnoId: null }, { usuarioId: u.id, fecha: trueque.fecha, turnoId: trueque.turnoId }] : [];
+  const simulado = movs.length ? simular(e, movs) : null;
+  const elegido = modo === 'cubrir' ? para : trueque?.usuarioId;
+  const alertasSel = modo === 'cubrir'
+    ? candidatos.find((c) => c.x.id === para)?.enc.alertas ?? []
+    : (() => { const o = opciones.find((x) => x.usuarioId === trueque?.usuarioId && x.fecha === trueque?.fecha); return o ? [...o.mio.alertas, ...o.suyo.alertas] : []; })();
+
+  const enviar = () => {
+    if (modo === 'intercambio' && !trueque) {
+      avisar('Elige por cuál turno lo cambias.');
+      document.getElementById('paso-2')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    if (!motivo.trim()) {
+      avisar('Escribe o elige el motivo.');
+      const campo = document.getElementById('motivo') as HTMLInputElement | null;
+      campo?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      campo?.focus({ preventScroll: true });
+      return;
+    }
+    solicitarCambio(fecha, t.id, motivo.trim(), modo === 'intercambio' && trueque
+      ? { para: trueque.usuarioId, aCambio: { fecha: trueque.fecha, turnoId: trueque.turnoId } }
+      : para ? { para } : {});
+    vibrar(12);
+    avisar(elegido ? `Se lo mandaste a ${primerNombre(e, elegido)}. Te avisamos cuando conteste.` : 'Publicado para el equipo. Te avisamos cuando alguien lo tome.');
+    ir('horarios/cambios');
+  };
+
+  const cambiarModo = (m: typeof modo) => { setModo(m); setPara(null); setTrueque(null); vibrar(6); };
+  const companerosHoy = personasDe(e, fecha, turnosPublicados(e, fecha)).filter((p) => p.usuarioId !== u.id);
+
+  return (
+    <>
+      <Sup titulo="Cambiar turno" sub="Tres pasos. Nada cambia hasta que el encargado lo apruebe." volver="horarios" />
+      <main className="pant pila">
+        <section className="bloque inv" aria-label="Tu turno">
+          <span className="etq">Tu turno</span>
+          <span className="num-m">{diaYNum(fecha)}</span>
+          <span className="subtitulo">{turnoTxt(t)}</span>
+          <span className="cuerpo">{companerosHoy.length ? `Ese día también están ${companerosHoy.map((p) => primerNombre(e, p.usuarioId)).join(' y ')}.` : 'Ese día no hay nadie más en barra.'}</span>
+        </section>
+
+        <Seccion titulo="1 · Qué necesitas">
+          <div className="rejilla-2">
+            <button type="button" className="chip" aria-pressed={modo === 'cubrir'} onClick={() => cambiarModo('cubrir')}>Que me cubran</button>
+            <button type="button" className="chip" aria-pressed={modo === 'intercambio'} onClick={() => cambiarModo('intercambio')}>Intercambiar</button>
+          </div>
+          <p className="cuerpo">
+            {modo === 'cubrir'
+              ? 'Alguien más trabaja tu turno y tú descansas ese día.'
+              : 'Alguien trabaja tu turno y tú trabajas uno suyo a cambio: nadie pierde horas.'}
+          </p>
+        </Seccion>
+
+        <div id="paso-2">
+          {modo === 'cubrir' ? (
+            <Seccion titulo="2 · A quién le pides" extra="Toca uno">
+              <div className="lista">
+                <button type="button" className="fila" aria-pressed={para === null} onClick={() => { setPara(null); vibrar(6); }}>
+                  <Casilla hecha={para === null} />
+                  <span className="fila-texto">
+                    <span className="negrita">Todo el equipo</span>
+                    <span className="fila-sub">Lo ven todos; el primero que acepte lo toma.</span>
+                  </span>
+                </button>
+                {candidatos.map(({ x, enc }) => (
+                  <button key={x.id} type="button" className="fila" aria-pressed={para === x.id} disabled={!enc.puede}
+                    onClick={() => { setPara(x.id); vibrar(6); }}>
+                    <Casilla hecha={para === x.id} />
+                    <span className="fila-texto">
+                      <span className="negrita">{x.nombre}</span>
+                      <span className="fila-sub">{detalleEncaje(enc)}</span>
+                      <EtqEncaje enc={enc} />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </Seccion>
+          ) : (
+            <Seccion titulo="2 · Por cuál turno" extra={opciones.length ? 'Toca uno' : undefined}>
+              {opciones.length ? (
+                <div className="lista">
+                  {opciones.map((o) => {
+                    const sel = trueque?.usuarioId === o.usuarioId && trueque.fecha === o.fecha;
+                    const alertas = o.mio.alertas.length + o.suyo.alertas.length;
+                    return (
+                      <button key={`${o.usuarioId}-${o.fecha}`} type="button" className="fila" aria-pressed={sel}
+                        onClick={() => { setTrueque({ usuarioId: o.usuarioId, fecha: o.fecha, turnoId: o.turno.id }); vibrar(6); }}>
+                        <Casilla hecha={sel} />
+                        <span className="fila-texto">
+                          <span className="negrita">{diaYNum(o.fecha)} · {o.turno.nombre} {o.turno.inicio}–{o.turno.fin}</span>
+                          <span className="fila-sub">Es de {primerNombre(e, o.usuarioId)} · tú {horasTxt(o.mio.despues)}, {primerNombre(e, o.usuarioId)} {horasTxt(o.suyo.despues)} esa semana</span>
+                          {alertas ? <Etq alerta>Revisar</Etq> : <Etq fuerte>Queda bien</Etq>}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="cuerpo">No hay turnos de otros en estas dos semanas que caigan en días que tengas libres. Prueba "Que me cubran".</p>
+              )}
+            </Seccion>
+          )}
+        </div>
+
+        {simulado && (
+          <Seccion titulo="Así quedaría" extra={alertasSel.length ? `${alertasSel.length} por revisar` : 'Sin alertas'}>
+            {alertasSel.length > 0 && (
+              <div className="pila-s">
+                {alertasSel.map((a) => <p key={a.texto} className="cuerpo">{a.texto}</p>)}
+              </div>
+            )}
+            <span className="etq">{diaYNum(fecha)}</span>
+            <LineaDia e={e} fecha={fecha} turnos={simulado.get(lunesDe(fecha)) ?? {}} />
+            {trueque && modo === 'intercambio' && (
+              <>
+                <span className="etq">{diaYNum(trueque.fecha)}</span>
+                <LineaDia e={e} fecha={trueque.fecha} turnos={simulado.get(lunesDe(trueque.fecha)) ?? {}} />
+              </>
+            )}
+          </Seccion>
+        )}
+
+        <Seccion titulo="3 · Por qué">
+          <div className="chips">
+            {MOTIVOS.map((m) => (
+              <button key={m} type="button" className="chip" aria-pressed={motivo === m} onClick={() => { setMotivo(m); vibrar(6); }}>{m}</button>
+            ))}
+          </div>
+          <label className="campo">
+            <span className="etq">O escríbelo</span>
+            <input id="motivo" value={motivo} placeholder="Ej. examen el sábado" onChange={(ev) => setMotivo(ev.target.value)} />
+          </label>
+        </Seccion>
+
+        <div className="pie-accion">
+          <button type="button" className="boton grande lleno" onClick={enviar}>
+            {modo === 'intercambio'
+              ? trueque ? `Proponer a ${primerNombre(e, trueque.usuarioId)}` : 'Proponer intercambio'
+              : para ? `Pedírselo a ${primerNombre(e, para)}` : 'Publicar para el equipo'}
+          </button>
+        </div>
+      </main>
+    </>
+  );
+}
+
 /* ═══ SOLICITUDES: CAMBIOS Y DÍAS LIBRES ══════════════════ */
 
 export function HorariosCambios() {
@@ -638,20 +860,47 @@ export function HorariosCambios() {
   const u = yo(e)!;
   const hoy = jornadaDe();
   const edita = puede(e, 'encargado', 'admin');
-  const cambios = e.cambios.filter((c) => c.fecha >= sumarDias(hoy, -7));
+  const recientes = e.cambios.filter((c) => c.fecha >= sumarDias(hoy, -7));
+  const vigente = (c: Cambio) => c.fecha >= hoy;
+  const porAprobar = edita ? recientes.filter((c) => c.estado === 'aceptado') : [];
+  const paraMi = recientes.filter((c) => vigente(c) && c.de !== u.id && (
+    (c.estado === 'abierto' && (!c.para || c.para === u.id)) || (c.estado === 'aceptado' && c.acepta === u.id && !edita)
+  ));
+  const mias = recientes.filter((c) => c.de === u.id);
+  const vistos = new Set([...porAprobar, ...paraMi, ...mias].map((c) => c.id));
+  const equipo = recientes.filter((c) => !vistos.has(c.id));
   const ausencias = e.ausencias.filter((a) => (edita || a.usuarioId === u.id) && a.hasta >= sumarDias(hoy, -7));
+  const nada = !porAprobar.length && !paraMi.length && !mias.length && !equipo.length;
 
   return (
     <>
       <Sup titulo="Solicitudes" sub="Cambios de turno y días libres" volver="horarios" />
       <main className="pant pila">
-        <Seccion titulo="Cambios de turno" extra={`${cambios.length}`}>
-          {cambios.length === 0 && <Vacio>No hay cambios en curso.</Vacio>}
-          {cambios.map((c) => <TarjetaCambio key={c.id} e={e} c={c} />)}
+        {porAprobar.length > 0 && (
+          <Seccion titulo="Por aprobar" extra={`${porAprobar.length}`}>
+            {porAprobar.map((c) => <TarjetaCambio key={c.id} e={e} c={c} />)}
+          </Seccion>
+        )}
+        {paraMi.length > 0 && (
+          <Seccion titulo="Para ti" extra={`${paraMi.length}`}>
+            {paraMi.map((c) => <TarjetaCambio key={c.id} e={e} c={c} />)}
+          </Seccion>
+        )}
+        <Seccion titulo="Tus solicitudes" extra={mias.length ? `${mias.length}` : undefined}>
+          {mias.length ? mias.map((c) => <TarjetaCambio key={c.id} e={e} c={c} />) : (
+            <p className="cuerpo">Para pedir un cambio, ve a tu horario y toca "Cambiar" en el turno.</p>
+          )}
+          <a className="enlace" href="#/horarios">Mi horario</a>
         </Seccion>
+        {equipo.length > 0 && (
+          <Seccion titulo="Del equipo" extra={`${equipo.length}`}>
+            {equipo.map((c) => <TarjetaCambio key={c.id} e={e} c={c} />)}
+          </Seccion>
+        )}
+        {nada && <Vacio>No hay cambios de turno en curso.</Vacio>}
 
-        <Seccion titulo="Días libres y vacaciones" extra={`${ausencias.length}`}>
-          {ausencias.length === 0 && <Vacio>No hay solicitudes de días libres.</Vacio>}
+        <Seccion titulo="Días libres y vacaciones" extra={ausencias.length ? `${ausencias.length}` : undefined}>
+          {ausencias.length === 0 && <p className="cuerpo">No hay solicitudes de días libres.</p>}
           {ausencias.map((a) => {
             const choques = e.semanas.flatMap((s) => Object.entries(s.turnos)
               .filter(([k]) => { const [uid, f] = k.split('|'); return uid === a.usuarioId && f >= a.desde && f <= a.hasta; })
@@ -659,7 +908,7 @@ export function HorariosCambios() {
             return (
               <section key={a.id} className={`bloque${a.estado === 'pendiente' && edita ? ' inv' : ''}`}>
                 <div className="fila-h entre">
-                  <span className="fila-h" style={{ gap: 8 }}><Avatar texto={usuario(e, a.usuarioId)?.iniciales ?? ''} /><span>{a.usuarioId === u.id ? 'Tu solicitud' : usuario(e, a.usuarioId)?.nombre}</span></span>
+                  <span className="fila-h" style={{ gap: 8 }}><Avatar texto={usuario(e, a.usuarioId)?.iniciales ?? ''} /><span className="negrita">{a.usuarioId === u.id ? 'Tu solicitud' : usuario(e, a.usuarioId)?.nombre}</span></span>
                   <EstadoAusencia a={a} />
                 </div>
                 <span className="subtitulo">{a.tipo === 'vacaciones' ? 'Vacaciones' : 'Día libre'} · {a.desde === a.hasta ? diaYNum(a.desde) : `${fechaCorta(a.desde)} – ${fechaCorta(a.hasta)}`}</span>
@@ -679,51 +928,125 @@ export function HorariosCambios() {
   );
 }
 
-function TarjetaCambio({ e, c }: { e: Estado; c: Estado['cambios'][number] }) {
-  const u = yo(e)!;
-  const edita = puede(e, 'encargado', 'admin');
-  const t = e.turnosTipo.find((x) => x.id === c.turnoId);
-  const mio = c.de === u.id;
-  const yaTrabajo = !!turnoDe(e, u.id, c.fecha);
-  // Antes de aprobar: cómo quedaría la semana de quien lo toma.
-  const proyeccion = useMemo(() => {
-    if (c.estado !== 'aceptado' || !edita || !c.acepta) return [];
-    const lunes = lunesDe(c.fecha);
-    const sem = e.semanas.find((s) => s.id === lunes);
-    if (!sem) return [];
-    const simulado = { ...sem.turnos };
-    delete simulado[`${c.de}|${c.fecha}`];
-    simulado[`${c.acepta}|${c.fecha}`] = c.turnoId;
-    const antes = new Set(alertasDe(e, lunes).map((a) => a.texto));
-    return alertasDe(e, lunes, simulado).filter((a) => a.usuarioId === c.acepta && !antes.has(a.texto));
-  }, [e, c, edita]);
-
+/** Pedido → aceptado → aprobado, con cuadros que se llenan. */
+function Avance({ c }: { c: Cambio }) {
+  if (c.estado === 'retirado') return <p className="etq">Retirado por quien lo pidió</p>;
+  const pasos = [
+    { texto: 'Pedido', hecho: true },
+    { texto: c.estado === 'declinado' ? 'No pudo' : c.aCambio ? 'Aceptado' : 'Alguien lo toma', hecho: !!c.acepta, falla: c.estado === 'declinado' },
+    { texto: c.estado === 'rechazado' ? 'Rechazado' : 'Aprobado', hecho: c.estado === 'aprobado', falla: c.estado === 'rechazado' },
+  ];
   return (
-    <section className={`bloque${c.estado === 'aceptado' && edita ? ' inv' : ''}`}>
+    <ol className="avance" aria-label="Avance">
+      {pasos.map((p) => (
+        <li key={p.texto} data-hecho={p.hecho ? 'si' : 'no'} data-falla={p.falla ? 'si' : undefined}>{p.texto}</li>
+      ))}
+    </ol>
+  );
+}
+
+function TarjetaCambio({ e, c }: { e: Estado; c: Cambio }) {
+  const u = yo(e)!;
+  const hoy = jornadaDe();
+  const edita = puede(e, 'encargado', 'admin');
+  const [retirar, setRetirar] = useState(false);
+  const t = e.turnosTipo.find((x) => x.id === c.turnoId);
+  const tc = c.aCambio ? e.turnosTipo.find((x) => x.id === c.aCambio!.turnoId) : undefined;
+  const mio = c.de === u.id;
+  const vigente = c.fecha >= hoy;
+  const puedoTomar = vigente && c.estado === 'abierto' && !mio && (!c.para || c.para === u.id);
+  const dia = (f: string) => diaYNum(f).replace(/^./, (x) => x.toLowerCase());
+  // En segunda persona para quien lo ve: "ya trabajas", "tienes".
+  const ati = (texto?: string) => (texto ?? '').replace(/^Ya trabaja el (.+)$/, 'El $1 ya trabajas').replace(/^Tiene /, 'Tienes ');
+
+  // Los movimientos si se aprobara con esta persona.
+  const movsCon = (otro: string): Movimiento[] => [
+    { usuarioId: c.de, fecha: c.fecha, turnoId: null }, { usuarioId: otro, fecha: c.fecha, turnoId: c.turnoId },
+    ...(c.aCambio ? [{ usuarioId: otro, fecha: c.aCambio.fecha, turnoId: null }, { usuarioId: c.de, fecha: c.aCambio.fecha, turnoId: c.aCambio.turnoId }] : []),
+  ];
+  const paraMi = useMemo(() => (puedoTomar ? encajeDe(e, u.id, movsCon(u.id)) : null), [e, c.id, puedoTomar]); // eslint-disable-line react-hooks/exhaustive-deps
+  const proyeccion = useMemo(() => {
+    if (c.estado !== 'aceptado' || !edita || !c.acepta) return null;
+    const movs = movsCon(c.acepta);
+    const alertas = [...encajeDe(e, c.acepta, movs).alertas, ...(c.aCambio ? encajeDe(e, c.de, movs).alertas : [])];
+    return { alertas, simulado: simular(e, movs) };
+  }, [e, c, edita]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const tipo = c.aCambio ? 'Intercambio' : 'Cubrir';
+  return (
+    <section className={`bloque${(c.estado === 'aceptado' && edita) || (puedoTomar && c.para === u.id) ? ' inv' : ''}`}>
       <div className="fila-h entre">
-        <span className="fila-h" style={{ gap: 8 }}><Avatar texto={usuario(e, c.de)?.iniciales ?? ''} /><span>{mio ? 'Tu turno' : usuario(e, c.de)?.nombre}</span></span>
-        <Etq {...(c.estado === 'aprobado' ? { fuerte: true } : c.estado === 'rechazado' ? { tenue: true } : {})}>
-          {{ abierto: 'Buscando', aceptado: 'Por aprobar', aprobado: 'Aprobado', rechazado: 'Rechazado' }[c.estado]}
-        </Etq>
+        <span className="fila-h" style={{ gap: 10 }}>
+          <Avatar texto={usuario(e, c.de)?.iniciales ?? ''} />
+          <span className="negrita">{mio ? 'Tú' : usuario(e, c.de)?.nombre}</span>
+        </span>
+        <span className="etq">{tipo}</span>
       </div>
-      <span className="subtitulo">{diaYNum(c.fecha)} · {t?.nombre} {t?.inicio}–{t?.fin}</span>
-      <span className="cuerpo">“{c.motivo}”{c.acepta ? ` · lo toma ${usuario(e, c.acepta)?.nombre}` : ''}</span>
-      {proyeccion.length > 0 && (
+      <span className="subtitulo">{diaYNum(c.fecha)} · {turnoTxt(t)}</span>
+      {c.aCambio && (
+        <span className="cuerpo">
+          A cambio, {mio ? 'tú te quedas' : `${primerNombre(e, c.de)} se queda`} con {c.para === u.id ? 'tu turno' : `el turno de ${primerNombre(e, c.para)}`} del {dia(c.aCambio.fecha)}: {turnoTxt(tc)}.
+        </span>
+      )}
+      <span className="cuerpo">
+        “{c.motivo}” · {c.para === u.id ? 'te lo pidió a ti' : c.para ? `${mio ? 'se lo pediste' : 'se lo pidió'} a ${primerNombre(e, c.para)}` : 'lo ve todo el equipo'}
+        {c.acepta && !c.aCambio ? ` · lo toma ${c.acepta === u.id ? 'tú' : primerNombre(e, c.acepta)}` : ''}
+      </span>
+      <Avance c={c} />
+
+      {paraMi?.puede && (
         <div className="pila-s">
-          <span className="etq">Si lo apruebas</span>
-          {proyeccion.map((a) => <p key={a.texto} className="cuerpo">{a.texto}</p>)}
+          <span className="etq">Para ti</span>
+          <p className="cuerpo">{detalleEncaje(paraMi)}.</p>
+          {paraMi.alertas.map((a) => <p key={a.texto} className="cuerpo">{a.texto}</p>)}
         </div>
       )}
-      {c.estado === 'abierto' && !mio && (
-        yaTrabajo
-          ? <span className="cuerpo">Ese día ya trabajas.</span>
-          : <button type="button" className="boton lleno" onClick={() => { responderCambio(c.id, 'aceptar'); vibrar(12); avisar('Aceptado. Falta que el encargado lo apruebe.'); }}>Yo lo tomo</button>
+      {proyeccion && (
+        <div className="pila-s">
+          <span className="etq">Si lo apruebas</span>
+          {proyeccion.alertas.length
+            ? proyeccion.alertas.map((a) => <p key={a.texto} className="cuerpo">{a.texto}</p>)
+            : <p className="cuerpo">No sale ninguna alerta nueva.</p>}
+          <details className="detalle">
+            <summary>Ver cómo queda el día</summary>
+            <LineaDia e={e} fecha={c.fecha} turnos={proyeccion.simulado.get(lunesDe(c.fecha)) ?? {}} />
+          </details>
+        </div>
+      )}
+
+      {puedoTomar && (
+        paraMi && !paraMi.puede ? (
+          <p className="cuerpo">{ati(paraMi.bloqueo)}. No lo puedes tomar.</p>
+        ) : c.para === u.id ? (
+          <div className="rejilla-2">
+            <button type="button" className="boton" onClick={() => { responderCambio(c.id, 'declinar'); vibrar(8); avisar(`Le avisamos a ${primerNombre(e, c.de)} que no puedes.`); }}>No puedo</button>
+            <button type="button" className="boton lleno" onClick={() => { responderCambio(c.id, 'aceptar'); vibrar(12); avisar('Aceptado. Falta que el encargado lo apruebe.'); }}>Acepto</button>
+          </div>
+        ) : (
+          <button type="button" className="boton grande lleno" onClick={() => { responderCambio(c.id, 'aceptar'); vibrar(12); avisar('Aceptado. Falta que el encargado lo apruebe.'); }}>Yo lo tomo</button>
+        )
+      )}
+      {c.estado === 'aceptado' && c.acepta === u.id && vigente && (
+        <button type="button" className="enlace" onClick={() => { responderCambio(c.id, 'soltar'); vibrar(8); avisar('Listo: el turno vuelve a quedar abierto.'); }}>Ya no puedo</button>
       )}
       {c.estado === 'aceptado' && edita && (
         <div className="rejilla-2">
-          <button type="button" className="boton" onClick={() => { responderCambio(c.id, 'rechazar'); avisar('Cambio rechazado.'); }}>Rechazar</button>
+          <button type="button" className="boton" onClick={() => { responderCambio(c.id, 'rechazar'); avisar('Cambio rechazado. Les avisamos.'); }}>Rechazar</button>
           <button type="button" className="boton lleno" onClick={() => { responderCambio(c.id, 'aprobar'); vibrar([30, 60, 30]); avisar('Aprobado: el horario ya cambió y les llegó el aviso.'); }}>Aprobar</button>
         </div>
+      )}
+      {mio && vigente && (c.estado === 'abierto' || c.estado === 'aceptado') && (
+        retirar ? (
+          <div className="rejilla-2">
+            <button type="button" className="boton" onClick={() => setRetirar(false)}>No, déjalo</button>
+            <button type="button" className="boton lleno" onClick={() => { responderCambio(c.id, 'retirar'); vibrar(8); avisar('Solicitud retirada: el turno sigue siendo tuyo.'); }}>Sí, retirar</button>
+          </div>
+        ) : (
+          <button type="button" className="enlace" onClick={() => setRetirar(true)}>Retirar solicitud</button>
+        )
+      )}
+      {mio && c.estado === 'declinado' && vigente && (
+        <a className="enlace" href={`#/horarios/cambiar/${c.fecha}`}>Pedírselo a alguien más</a>
       )}
     </section>
   );

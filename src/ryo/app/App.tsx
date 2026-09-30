@@ -10,12 +10,12 @@ import { Aviso, Ritual, useRuta, Sup } from './componentes';
 import { TEMA_AUTO } from '../config';
 import { dgo } from './lib/tiempo';
 import { Entrar } from './pantallas/Entrar';
-import { Inicio, Avisos } from './pantallas/Inicio';
+import { Inicio, Avisos, pendientesPorPestana } from './pantallas/Inicio';
 import { ChecklistsInicio, ChecklistsHistorial, ChecklistEjecucion } from './pantallas/Checklists';
 import { CalibrarInicio, CalibrarNueva, CalibrarSesion, CalibrarCafe } from './pantallas/Calibrar';
 import { RecetasLista, RecetaFicha } from './pantallas/Recetas';
 import { AprenderInicio, AprenderLeccion, AprenderRepaso, AprenderIngreso, AprenderEquipo, AprenderEvaluar } from './pantallas/Capacitacion';
-import { HorariosInicio, HorariosSemana, HorariosDisponibilidad, HorariosCambios } from './pantallas/Horarios';
+import { HorariosInicio, HorariosSemana, HorariosDisponibilidad, HorariosCambios, HorariosCambiar } from './pantallas/Horarios';
 import { AdminInicio, AdminUsuarios, AdminPlantillas, AdminCafes, AdminMaquina, AdminSucursal } from './pantallas/Admin';
 import { Mas, Privacidad } from './pantallas/Mas';
 
@@ -91,6 +91,7 @@ function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
       if (a === 'semana') return <HorariosSemana key={b ?? 'hoy'} inicio={b} />;
       if (a === 'disponibilidad') return <HorariosDisponibilidad />;
       if (a === 'cambios') return <HorariosCambios />;
+      if (a === 'cambiar' && b) return <HorariosCambiar key={b} fecha={b} />;
       return <HorariosInicio />;
     case 'admin': {
       if (!puede(e, 'encargado', 'admin')) return <SinPermiso />;
@@ -135,6 +136,7 @@ export default function App() {
   const tema = temaDe(e, u ? seccion : '');
   const enfoque = u && ((seccion === 'calibrar' && ruta[1] === 'sesion') || (seccion === 'aprender' && ruta[1] === 'repaso'));
   const pestana = PESTANA_DE[seccion] ?? seccion;
+  const espera = u ? pendientesPorPestana(e, u) : {};
 
   useEffect(() => {
     document.documentElement.dataset.tema = tema;
@@ -153,7 +155,8 @@ export default function App() {
       {!enfoque && (
         <nav className="nav" aria-label="Secciones">
           {PESTANAS.map(([id, nombre]) => (
-            <a key={id} href={`#/${id}`} aria-current={pestana === id ? 'page' : undefined}>{nombre}</a>
+            <a key={id} href={`#/${id}`} aria-current={pestana === id ? 'page' : undefined}
+              data-pendiente={espera[id] ? 'si' : undefined} aria-label={espera[id] ? `${nombre}, con pendientes` : undefined}>{nombre}</a>
           ))}
         </nav>
       )}

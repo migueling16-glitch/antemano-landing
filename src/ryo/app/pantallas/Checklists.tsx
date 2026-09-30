@@ -71,20 +71,23 @@ export function ChecklistsInicio() {
     <>
       <Sup titulo="Checklists" sub={`${cuando(hoy)} · ${fechaCorta(hoy)}`} />
       <main className="pant pila">
-        <Seccion titulo="Hoy">
-          <div className="pila-s">
+        <Seccion titulo="Hoy" extra="Toca uno para abrirlo">
+          <div className="lista">
             {deHoy.map((p) => {
               const ej = ejecucionDe(e, p.id, hoy);
               const r = resumen(p, ej);
               return (
-                <button key={p.id} type="button" className={`bloque bloque-toque${r.atrasada ? ' inv' : ''}`} onClick={() => abrir(p)}>
-                  <span className="fila-h entre">
-                    <span className="subtitulo">{p.nombre}</span>
-                    {r.hecho ? <Etq fuerte>Hecho</Etq> : r.atrasada ? <Etq>Atrasado</Etq> : ej ? <Etq>En curso</Etq> : <Etq tenue>Pendiente</Etq>}
+                <button key={p.id} type="button" className="fila ir tarea" data-hecha={r.hecho ? 'si' : 'no'} onClick={() => abrir(p)}>
+                  <Casilla hecha={r.hecho} />
+                  <span className="fila-texto">
+                    <span className="tarea-texto">{p.nombre}</span>
+                    <span className="fila-sub">{p.descripcion}</span>
+                    {ej && !r.hecho && <BarraProg valor={r.hechas / r.total} />}
+                    <span className="etq">
+                      {r.hecho ? r.texto : ej ? `Vas en ${r.hechas} de ${r.total} · antes de las ${p.horaLimite}` : `${r.total} tareas · antes de las ${p.horaLimite}`}
+                    </span>
                   </span>
-                  <span className="cuerpo">{p.descripcion}</span>
-                  <BarraProg valor={r.hechas / r.total} />
-                  <span className="etq">{r.texto}{ej && !r.hecho ? ` · límite ${p.horaLimite}` : ''}</span>
+                  {r.atrasada && <Etq alerta>Atrasado</Etq>}
                 </button>
               );
             })}
@@ -254,7 +257,7 @@ function Ejecutar({ e, ej, p }: { e: Estado; ej: Ejecucion; p: Plantilla }) {
           <section className={`bloque${r.atrasada ? ' inv' : ''}`}>
             <div className="fila-h entre">
               <span className="etq">{r.hechas} de {r.total}</span>
-              {r.atrasada ? <Etq>Atrasado</Etq> : <span className="etq">Iniciado {hora(ej.iniciadaEn)} · {usuario(e, ej.iniciadaPor)?.iniciales}</span>}
+              {r.atrasada ? <Etq alerta>Atrasado</Etq> : <span className="etq">Iniciado {hora(ej.iniciadaEn)} · {usuario(e, ej.iniciadaPor)?.iniciales}</span>}
             </div>
             <BarraProg valor={r.hechas / r.total} />
           </section>
@@ -350,7 +353,7 @@ function Item({ e, ej, item, marca, cerrada, onFoto }: {
       }
     };
     return (
-      <div id={`item-${item.id}`} className={item.foto ? 'item-foto' : undefined}>
+      <div id={`item-${item.id}`} className={`item${item.foto ? ' item-foto' : ''}`}>
         <button type="button" className="fila" onClick={alternar} aria-pressed={!!marca} disabled={cerrada && !marca}>
           <Casilla hecha={!!marca} />
           <span className="fila-texto">{texto}<Firma e={e} m={marca} /></span>
