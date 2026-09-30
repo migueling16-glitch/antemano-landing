@@ -405,13 +405,14 @@ export const LECCIONES: Leccion[] = [
     id: 'l-leer', moduloId: 'm-espresso', titulo: 'Leer un shot: ácido o amargo', minutos: 5,
     bloques: [
       { tipo: 'texto', texto: 'Ácido, salado o delgado: subextraído, le faltó extracción. Amargo, seco o astringente: sobreextraído, se extrajo de más. El punto está en medio: dulce, con cuerpo y un final limpio.' },
-      { tipo: 'clave', texto: 'Ácido → más fino. Amargo → más grueso. Una variable a la vez.' },
+      { tipo: 'clave', texto: 'Ácido → más fino. Amargo → más grueso. No muevas nada por tu cuenta además de lo que pide la app.' },
+      { tipo: 'texto', texto: 'A veces la app pide dos cosas juntas, molienda y pulsos. No rompe la regla: moler más fino le quita peso a la taza, y los pulsos se lo devuelven. Es un solo ajuste, y la app dice qué tiempo y qué peso espera para que compruebes si acertó.' },
       { tipo: 'texto', texto: 'La brújula de sabor de la app tiene esos dos ejes: de ácido a amargo, y de débil a intenso. Toca dónde cae tu shot y te sugiere el siguiente ajuste.' },
     ],
     preguntas: [
       { id: 'q-leer-1', pregunta: 'El shot corre en 22 s y sabe ácido. ¿Qué ajustas primero?', respuesta: 'Molienda más fina.' },
       { id: 'q-leer-2', pregunta: '¿Qué significa que un shot sepa seco o astringente?', respuesta: 'Que está sobreextraído.' },
-      { id: 'q-leer-3', pregunta: '¿Cuántas variables se cambian entre un shot y el siguiente?', respuesta: 'Una sola.' },
+      { id: 'q-leer-3', pregunta: '¿Cuántas variables se cambian entre un shot y el siguiente?', respuesta: 'Solo lo que pide la app: una, o molienda y pulsos juntos cuando uno compensa al otro.' },
     ],
   },
   {

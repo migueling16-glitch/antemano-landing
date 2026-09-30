@@ -627,6 +627,10 @@ a.enlace::after { content: '→'; margin-left: 8px; font-size: 0.95rem; }
 .detalle summary::before { content: '+'; font-size: 1rem; width: 12px; }
 .detalle[open] summary::before { content: '−'; }
 
+/* ═══ AJUSTE SUGERIDO: los cambios y lo que se espera ═══ */
+.ajuste-cambios li { font-style: normal; font-weight: 700; font-size: 1rem; }
+.prediccion { border-top: 1px solid currentColor; padding-top: 12px; }
+
 /* ═══ TUTORIAL GUIADO: un paso a la vez, en grande ═══ */
 .guia-titulo { font-size: 1.3rem; font-weight: 700; line-height: 1.25; letter-spacing: 0.02em; }
 .guia-que { font-size: 1.05rem; line-height: 1.6; }

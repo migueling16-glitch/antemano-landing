@@ -173,6 +173,8 @@ export type Shot = {
   molienda: number;
   /** Pulsos que tenía el botón en ese shot (con continuo no hay). */
   pulsos?: number;
+  /** Lo que el modelo esperaba de este shot, para compararlo con lo que salió. */
+  previsto?: { tiempo: number; rendimiento: number };
   sabor?: Sabor;
   en: number;
   aprobado?: boolean;
@@ -605,7 +607,7 @@ export function evaluarShot(sesionId: string, shotId: string, datos: Pick<Shot, 
 }
 
 /** Corregir los números de un shot mal capturado. */
-export function corregirShot(sesionId: string, shotId: string, datos: Pick<Shot, 'dosis' | 'rendimiento' | 'molienda' | 'tiempo' | 'pulsos'>) {
+export function corregirShot(sesionId: string, shotId: string, datos: Pick<Shot, 'dosis' | 'rendimiento' | 'molienda' | 'tiempo' | 'pulsos' | 'previsto'>) {
   actualizar((e) => {
     const shot = e.sesiones.find((x) => x.id === sesionId)?.shots.find((x) => x.id === shotId);
     if (shot) Object.assign(shot, datos);

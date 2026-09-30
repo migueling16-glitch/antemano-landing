@@ -67,6 +67,12 @@ Calibración hecha para la **La Marzocco Linea Classic AV de un grupo** de Ryo:
   mueve un pulso (dos shots seguidos con igual molienda y dosis y distintos
   pulsos) y dice "de 120 a 124 pulsos". Se corrige en Administración →
   Máquina.
+- **El modelo** (`lib/calibracion.ts`): tiempo y peso dependen a la vez de
+  molienda y pulsos. La app aprende de los shots de cada café cuánto mueve
+  cada perilla (s y g por punto de molienda, g y s por pulso), pone la meta
+  en la receta movida por el sabor, y resuelve las dos ecuaciones juntas:
+  puede pedir molienda y pulsos en un mismo shot, dice qué tiempo y peso
+  espera, y en el shot siguiente compara lo esperado con lo que salió.
 - **Canastillas** con su capacidad: la dosis debe quedar a 1 g. La sesión
   guarda con cuál se calibró y avisa si la dosis no cabe.
 - Continuo: el barista corta en la báscula (cafés invitados).

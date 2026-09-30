@@ -24,7 +24,7 @@
 import { useMemo, useState } from 'react';
 import {
   useEstado, cafe as buscarCafe, usuario, nuevaSesion, guardarShot, evaluarShot, aprobarShot, terminarSesion,
-  corregirShot, reabrirSesion, recetaDe, canastillaDe, cabe, HOLGURA_CANASTILLA, programarBoton, programarPulsos, pulsosDe, pulsosPara, maquinaDe, nombreBoton, programadoDe, avisar, celebrar,
+  corregirShot, reabrirSesion, recetaDe, canastillaDe, cabe, HOLGURA_CANASTILLA, programarBoton, programarPulsos, pulsosDe, maquinaDe, nombreBoton, programadoDe, avisar, celebrar,
   vibrar, CONTINUO,
   type Estado, type Cafe, type SesionCal, type Shot, type Maquina, type Canastilla,
 } from '../estado';
@@ -32,8 +32,8 @@ import {
   Sup, Seccion, Stepper, Brujula, GraficaSesion, GraficaTendencia, Estado as Etq, Hoja, ir, describirSabor,
 } from '../componentes';
 import {
-  sugerir, ratioTexto, ventanaRatio, tendencia, redondear, enVentana,
-  GOTEO, type Objetivo, type Sabor, type Sugerencia,
+  sugerir, aprender, ratioTexto, ventanaRatio, tendencia, redondear, enVentana,
+  GOTEO, type Objetivo, type Sabor, type Sugerencia, type Contexto, type Modelo,
 } from '../lib/calibracion';
 import { jornadaDe, diasEntre, hora, cuando, fechaCorta } from '../lib/tiempo';
 
@@ -101,10 +101,21 @@ function avisoCanastilla(c: Canastilla | undefined, dosis: number) {
     : `${dosis.toFixed(1)} g es de menos para la canastilla de ${c.gramos} g (${rangoCan(c)}): queda espacio de sobra, la pastilla sale aguada y el agua se abre camino. Sube la dosis o cambia a una canastilla más chica.`;
 }
 
-/** "Reprograma Doble casa a 36 g" dicho en pulsos. */
-function enPulsos(sug: Sugerencia, boton: string | undefined, de: number | undefined, a: number | undefined) {
-  if (sug.reprogramar === undefined || !boton || !a) return sug.accion;
-  return de && de !== a ? `${boton}: de ${de} a ${a} pulsos` : `${boton}: deja ${a} pulsos`;
+/** Los cambios de una sugerencia, uno por renglón, y lo que el modelo espera. */
+function Ajuste({ sug }: { sug: Sugerencia }) {
+  return (
+    <>
+      {sug.cambios.length > 1
+        ? <ol className="pasos ajuste-cambios">{sug.cambios.map((x) => <li key={x}>{x}</li>)}</ol>
+        : <p className="subtitulo">{sug.accion}</p>}
+      {sug.prediccion && (
+        <div className="rejilla-2 prediccion">
+          <Dato etq="Debería tardar" valor={`${sug.prediccion.tiempo} s`} />
+          <Dato etq="Debería pesar" valor={`${sug.prediccion.rendimiento.toFixed(1)} g`} />
+        </div>
+      )}
+    </>
+  );
 }
 
 const Dato = ({ etq, valor, grande }: { etq: string; valor: string; grande?: boolean }) => (
@@ -397,7 +408,7 @@ export function CalibrarSesion({ id }: { id: string }) {
   return <Sesion e={e} s={s} c={c} />;
 }
 
-type Datos = { dosis: number; rendimiento: number; molienda: number; tiempo: number; pulsos?: number };
+type Datos = { dosis: number; rendimiento: number; molienda: number; tiempo: number; pulsos?: number; previsto?: { tiempo: number; rendimiento: number } };
 
 function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
   const o = c.objetivo;
@@ -409,7 +420,12 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
   const hoy = jornadaDe();
   const conBoton = s.botonId !== CONTINUO;
   const boton = nombreBoton(m, s.botonId);
-  const ctx = { boton: conBoton ? boton : undefined, pid: m?.pid };
+  // Lo que este café ha enseñado: cuánto mueve cada perilla al tiempo y al peso.
+  const modelo = useMemo(
+    () => aprender(e.sesiones.filter((x) => x.cafeId === s.cafeId && x.botonId === s.botonId), m?.gPorPulso),
+    [e.sesiones, s.cafeId, s.botonId, m?.gPorPulso],
+  );
+  const ctx = { boton: conBoton ? boton : undefined, pid: m?.pid, modelo, canastilla: canastillaDe(m, s.canastillaId)?.gramos };
   const [confirmar, setConfirmar] = useState<{ shot: Shot; antes: () => void } | null>(null);
   const [corrigiendo, setCorrigiendo] = useState(false);
 
@@ -424,12 +440,15 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
     const sug = sugDe(ultimo);
     if (ultimo && sug) {
       const dosis = sug.ajuste.dosis ?? ultimo.dosis;
+      // Arranca con el ajuste puesto y con lo que el modelo espera que salga:
+      // si acierta, solo hay que guardar.
       return {
         dosis,
-        rendimiento: sug.ajuste.rendimiento ?? (conBoton ? ultimo.rendimiento : redondear(dosis * (o.rendimiento / o.dosis))),
+        rendimiento: sug.prediccion?.rendimiento ?? sug.ajuste.rendimiento ?? (conBoton ? ultimo.rendimiento : redondear(dosis * (o.rendimiento / o.dosis))),
         molienda: sug.ajuste.molienda ?? ultimo.molienda,
-        tiempo: ultimo.tiempo,
-        pulsos: conBoton ? pulsosDe(m, s.botonId) ?? ultimo.pulsos : undefined,
+        tiempo: sug.prediccion?.tiempo ?? ultimo.tiempo,
+        pulsos: conBoton ? sug.ajuste.pulsos ?? pulsosDe(m, s.botonId) ?? ultimo.pulsos : undefined,
+        previsto: sug.prediccion,
       };
     }
     const prog = conBoton ? programadoDe(m, s.botonId) : undefined;
@@ -489,7 +508,7 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
           />
         ) : modo === 'sabor' && pendiente ? (
           <Evaluacion
-            key={pendiente.id} shot={pendiente} previos={s.shots.filter((x) => x.sabor)} objetivo={o} paso={paso} s={s} ctx={ctx} m={m}
+            key={pendiente.id} shot={pendiente} previos={s.shots.filter((x) => x.sabor)} objetivo={o} paso={paso} s={s} ctx={ctx} m={m} modelo={modelo}
             onAprobar={aprobar} onCorregir={() => { setCorrigiendo(true); window.scrollTo({ top: 0 }); }}
           />
         ) : (
@@ -575,6 +594,8 @@ function Composer({ n, inicial, objetivo, paso, s, m, previo, ajuste, otros, tex
     const txt = `Shot ${previo.n}: ${antes.toFixed(dec)}${unidad} → ${valor.toFixed(dec)}${unidad}`;
     return sugerido !== undefined && Math.abs(sugerido - valor) < 1e-6 ? `${txt}, el ajuste sugerido.` : `${txt}.`;
   };
+  // Lo que se movió sin que la app lo pidiera: eso sí enturbia la lectura.
+  const pedidas = Object.keys(ajuste?.ajuste ?? {});
   const movidas = !previo ? [] : [
     Math.abs(molienda - previo.molienda) > 1e-6 && 'molienda',
     Math.abs(dosis - previo.dosis) > 0.05 && 'dosis',
@@ -583,17 +604,17 @@ function Composer({ n, inicial, objetivo, paso, s, m, previo, ajuste, otros, tex
   const k = m?.gPorPulso ?? 0.5;
   const can = canastillaDe(m, s.canastillaId);
   const noCabe = avisoCanastilla(can, dosis);
-  const datos = (): Datos => ({ dosis, rendimiento, molienda, tiempo, ...(conBoton ? { pulsos } : {}) });
+  const deMas = movidas.filter((x) => !pedidas.includes(x));
+  // La predicción solo vale si se aplicó el ajuste tal cual.
+  const datos = (): Datos => ({ dosis, rendimiento, molienda, tiempo, ...(conBoton ? { pulsos } : {}), ...(inicial.previsto && !deMas.length ? { previsto: inicial.previsto } : {}) });
 
   return (
     <div className="pila cambia">
       {ajuste && previo && (
         <section className="bloque inv" aria-label="Ajuste a aplicar">
           <span className="etq">Ajuste del shot {previo.n}</span>
-          <p className="subtitulo">{enPulsos(ajuste, nombreBoton(m, s.botonId), previo.pulsos, inicial.pulsos)}</p>
-          {ajuste.reprogramar !== undefined && (
-            <p className="cuerpo">Para que entregue {ajuste.reprogramar.toFixed(1)} g. Los pulsos ya van así abajo; pesa el shot para comprobarlo.</p>
-          )}
+          <Ajuste sug={ajuste} />
+          <p className="cuerpo">Ya va puesto abajo, con el tiempo y el peso que se esperan: corrige solo lo que salga distinto.</p>
         </section>
       )}
 
@@ -608,9 +629,9 @@ function Composer({ n, inicial, objetivo, paso, s, m, previo, ajuste, otros, tex
           <Stepper etiqueta={`Pulsos de ${nombreBoton(m, s.botonId)}`} valor={pulsos} paso={1} min={20} max={400} dec={0} onCambio={setPulsos}
             nota={`${cambio(pulsos, previo?.pulsos, inicial.pulsos, 0) ?? 'Lo que tiene programado el botón.'} Cada pulso mueve unos ${k.toFixed(2)} g en taza.`} />
         )}
-        {movidas.length > 1 && (
+        {deMas.length > 0 && movidas.length > 1 && (
           <p className="bloque cuerpo" role="note">
-            Moviste {movidas.join(' y ')}. Mueve una sola cosa por shot, así sabes qué cambió el sabor.
+            Moviste {deMas.join(' y ')} además del ajuste. Así ya no se sabe qué cambió el shot, y la predicción deja de valer.
           </p>
         )}
       </Seccion>
@@ -658,18 +679,20 @@ const ATAJOS: { texto: string; eje: 'x' | 'y'; v: number }[] = [
   { texto: 'Intenso', eje: 'y', v: 0.6 },
 ];
 
-function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, onAprobar, onCorregir }: {
+function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, modelo, onAprobar, onCorregir }: {
   shot: Shot; previos: Shot[]; objetivo: Objetivo; paso: number; s: SesionCal; m?: Maquina;
-  ctx: { boton?: string; pid?: number }; onAprobar: (s: Shot, antes: () => void) => void; onCorregir: () => void;
+  ctx: Contexto; modelo: Modelo; onAprobar: (s: Shot, antes: () => void) => void; onCorregir: () => void;
 }) {
   const [sabor, setSabor] = useState<Sabor | undefined>(shot.sabor);
   const sug = sabor ? sugerir({ ...shot, sabor }, objetivo, paso, ctx) : null;
   const v = enVentana(shot, objetivo);
 
   const guardar = () => evaluarShot(s.id, shot.id, { sabor });
-  // El peso que pide la sugerencia, en pulsos de esta máquina.
   const pulsosAhora = shot.pulsos ?? pulsosDe(m, s.botonId);
-  const pulsosNuevos = sug?.reprogramar !== undefined && pulsosAhora ? pulsosPara(m, pulsosAhora, shot.rendimiento, sug.reprogramar) : undefined;
+  const pulsosNuevos = sug?.ajuste.pulsos;
+  // Qué tan cerca quedó de lo que el modelo esperaba.
+  const pv = shot.previsto;
+  const acerto = pv && Math.abs(pv.tiempo - shot.tiempo) <= 2 && Math.abs(pv.rendimiento - shot.rendimiento) <= 1;
   const activo = (a: (typeof ATAJOS)[number]) => !!sabor && (a.v < 0 ? sabor[a.eje] < -0.25 : sabor[a.eje] > 0.25);
   // Tocar un atajo activo regresa ese eje al centro.
   const atajo = (a: (typeof ATAJOS)[number]) => {
@@ -691,6 +714,11 @@ function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, onAprobar, onCor
         </div>
         <span className="num-m">{shot.dosis.toFixed(1)} → {shot.rendimiento.toFixed(1)} g · {shot.tiempo.toFixed(0)} s</span>
         <span className="cuerpo">molienda {shot.molienda}{shot.pulsos ? ` · ${shot.pulsos} pulsos` : ''} · {ratioTexto(shot.dosis, shot.rendimiento)}</span>
+        {pv && (
+          <span className="cuerpo">
+            {acerto ? 'Como se esperaba' : 'Se esperaban'}: {pv.tiempo} s y {pv.rendimiento.toFixed(1)} g{acerto ? '.' : `; salió ${shot.tiempo.toFixed(0)} s y ${shot.rendimiento.toFixed(1)} g. La app aprende de esa diferencia.`}
+          </span>
+        )}
         <button type="button" className="enlace" onClick={onCorregir}>Corregir números</button>
       </section>
 
@@ -710,15 +738,20 @@ function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, onAprobar, onCor
       {sug && (
         <section className={`bloque${sug.aprobar ? ' inv' : ''}`} aria-live="polite">
           <span className="etq">{sug.aprobar ? 'Listo' : 'Siguiente ajuste'}</span>
-          <p className="subtitulo">{enPulsos(sug, ctx.boton, pulsosAhora, pulsosNuevos)}</p>
+          <Ajuste sug={sug} />
           <p className="cuerpo">{sug.porque}</p>
-          {sug.reprogramar !== undefined && ctx.boton && pulsosNuevos && (
-            <>
-              <p className="cuerpo">
-                Meta: {sug.reprogramar.toFixed(1)} g en taza (hoy salen {shot.rendimiento.toFixed(1)} g). En esta máquina cada pulso mueve unos {(m?.gPorPulso ?? 0.5).toFixed(2)} g.
-              </p>
-              <PasosProgramar boton={ctx.boton} de={pulsosAhora} a={pulsosNuevos} gramos={sug.reprogramar} />
-            </>
+          {ctx.boton && pulsosNuevos && sug.prediccion && (
+            <details className="detalle">
+              <summary>Cómo cambiar los pulsos</summary>
+              <PasosProgramar boton={ctx.boton} de={pulsosAhora} a={pulsosNuevos} gramos={sug.prediccion.rendimiento} />
+            </details>
+          )}
+          {!sug.aprobar && (
+            <p className="etq">
+              {modelo.n >= 3
+                ? `Calculado con ${modelo.n} ajustes anteriores de este café`
+                : modelo.n ? `Calculado con ${modelo.n} ajuste${modelo.n === 1 ? '' : 's'} de este café y valores de arranque` : 'Calculado con valores de arranque: mejora con cada shot'}
+            </p>
           )}
         </section>
       )}
@@ -733,16 +766,16 @@ function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, onAprobar, onCor
           <>
             <button type="button" className="boton grande lleno" disabled={!sabor}
               onClick={() => {
-                if (sug?.reprogramar !== undefined) {
-                  programarBoton(s.botonId, sug.reprogramar);
-                  if (pulsosNuevos) programarPulsos(s.botonId, pulsosNuevos);
-                  avisar(pulsosNuevos ? `${ctx.boton} en ${pulsosNuevos} pulsos.` : `${ctx.boton} reprogramado a ${sug.reprogramar.toFixed(1)} g.`);
+                if (pulsosNuevos) {
+                  programarPulsos(s.botonId, pulsosNuevos);
+                  if (sug?.prediccion) programarBoton(s.botonId, sug.prediccion.rendimiento);
+                  avisar(`${ctx.boton} en ${pulsosNuevos} pulsos.`);
                 }
                 guardar();
                 vibrar(12);
                 window.scrollTo({ top: 0 });
               }}>
-              {!sabor ? 'Toca la brújula para seguir' : pulsosNuevos ? `Ya lo puse en ${pulsosNuevos} pulsos · siguiente shot` : sug?.reprogramar !== undefined ? 'Ya lo reprogramé · siguiente shot' : 'Siguiente shot con el ajuste'}
+              {!sabor ? 'Toca la brújula para seguir' : pulsosNuevos ? `Ya quedó en ${pulsosNuevos} pulsos · siguiente shot` : 'Siguiente shot con el ajuste'}
             </button>
             {sabor && (
               <button type="button" className="enlace" style={{ alignSelf: 'center' }} onClick={() => onAprobar(shot, guardar)}>
