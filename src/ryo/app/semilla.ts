@@ -137,7 +137,7 @@ function convergencia(final: number, larga = false): Paso[] {
 /* ── Todo ───────────────────────────────────────────────── */
 
 /** Sube cuando cambia la forma del estado: lo guardado con otra versión se descarta. */
-export const VERSION = 9;
+export const VERSION = 10;
 
 export function crearSemilla(): Estado {
   const hoy = jornadaDe();
@@ -152,24 +152,24 @@ export function crearSemilla(): Estado {
     { id: 'u-sofia', nombre: 'Sofía Treviño', iniciales: 'ST', correo: 'sofia@ryocafe.mx', rol: 'admin', nivel: 3, activo: true, ingreso: d(-500) },
   ];
 
-  // Calibración: dos lotes del Chiapas para que la tendencia de molienda
+  // Calibración: dos lotes del blend de la casa para que la tendencia de molienda
   // contra reposo tenga historia, más los otros cafés.
   const sesiones: SesionCal[] = [
-    sesion('cal-h20', 'cafe-chiapas', 'b2', 'u-carla', d(-20), 4, '07:40', convergencia(7.0)),
-    sesion('cal-h17', 'cafe-chiapas', 'b2', 'u-ana', d(-17), 7, '07:38', convergencia(6.5)),
-    sesion('cal-h14', 'cafe-chiapas', 'b2', 'u-diego', d(-14), 10, '07:45', convergencia(6.0, true)),
-    sesion('cal-h11', 'cafe-chiapas', 'b2', 'u-ana', d(-11), 13, '07:36', convergencia(5.5)),
-    sesion('cal-h6', 'cafe-chiapas', 'b2', 'u-ana', d(-6), 4, '07:41', convergencia(7.0)),
-    sesion('cal-h4', 'cafe-chiapas', 'b2', 'u-diego', d(-4), 6, '07:50', convergencia(6.5, true)),
-    sesion('cal-h2', 'cafe-chiapas', 'b2', 'u-ana', d(-2), 8, '07:35', convergencia(6.5)),
-    sesion('cal-h1', 'cafe-chiapas', 'b2', 'u-carla', d(-1), 9, '07:39', convergencia(6.0)),
-    sesion('cal-oax', 'cafe-oaxaca', 'b3', 'u-ana', d(-1), 3, '12:10', [[7.5, 31, 38.4, 0.1, 0.05]]),
-    sesion('cal-eti', 'cafe-etiopia', CONTINUO, 'u-carla', d(-3), 13, '12:20', [[6.0, 25, 40.6, -0.4, -0.1], [5.5, 27, 40.2, 0.02, 0.1]]),
-    sesion('cal-hoy', 'cafe-chiapas', 'b2', 'u-ana', hoy, 10, '07:36', convergencia(6.0)),
+    sesion('cal-h20', 'cafe-casa', 'b2', 'u-carla', d(-20), 4, '07:40', convergencia(7.0)),
+    sesion('cal-h17', 'cafe-casa', 'b2', 'u-ana', d(-17), 7, '07:38', convergencia(6.5)),
+    sesion('cal-h14', 'cafe-casa', 'b2', 'u-diego', d(-14), 10, '07:45', convergencia(6.0, true)),
+    sesion('cal-h11', 'cafe-casa', 'b2', 'u-ana', d(-11), 13, '07:36', convergencia(5.5)),
+    sesion('cal-h6', 'cafe-casa', 'b2', 'u-ana', d(-6), 4, '07:41', convergencia(7.0)),
+    sesion('cal-h4', 'cafe-casa', 'b2', 'u-diego', d(-4), 6, '07:50', convergencia(6.5, true)),
+    sesion('cal-h2', 'cafe-casa', 'b2', 'u-ana', d(-2), 8, '07:35', convergencia(6.5)),
+    sesion('cal-h1', 'cafe-casa', 'b2', 'u-carla', d(-1), 9, '07:39', convergencia(6.0)),
+    sesion('cal-desc3', 'cafe-descaf', 'b3', 'u-carla', d(-3), 6, '12:20', [[5.5, 24, 37.0, -0.4, -0.1], [5.0, 28, 36.2, 0.02, 0.1]]),
+    sesion('cal-desc1', 'cafe-descaf', 'b3', 'u-ana', d(-1), 8, '12:10', [[5.0, 29, 36.4, 0.1, 0.05]]),
+    sesion('cal-hoy', 'cafe-casa', 'b2', 'u-ana', hoy, 10, '07:36', convergencia(6.0)),
   ];
   const hoySesion = sesiones[sesiones.length - 1];
   const aprobado = hoySesion.shots.find((s) => s.aprobado)!;
-  // Hoy solo está calibrado el de la casa: Oaxaca y Etiopía quedan pendientes.
+  // Hoy solo está calibrado el de la casa: el descafeinado queda pendiente.
   const recetasDelDia: Estado['recetasDelDia'] = {};
   for (const s of sesiones) {
     const a = s.shots.find((x) => x.aprobado)!;
@@ -304,32 +304,27 @@ export function crearSemilla(): Estado {
           botones: [
             { id: 'b1', nombre: 'Sencillo' },
             { id: 'b2', nombre: 'Doble casa' },
-            { id: 'b3', nombre: 'Doble origen' },
+            { id: 'b3', nombre: 'Doble descaf' },
             { id: 'b4', nombre: 'Sin asignar' },
           ],
           programado: {
             b1: { gramos: 18.2, en: tsDgo(d(-20), '07:52'), por: 'u-carla' },
             b2: { gramos: aprobado.rendimiento, en: hoySesion.fin!, por: 'u-ana' },
-            b3: { gramos: 38.4, en: tsDgo(d(-1), '12:14'), por: 'u-ana' },
+            b3: { gramos: 36.4, en: tsDgo(d(-1), '12:14'), por: 'u-ana' },
           },
         },
       },
     ],
     cafes: [
       {
-        id: 'cafe-chiapas', nombre: 'Chiapas · de la casa', origen: 'Chiapas, México', proceso: 'Lavado', tostador: 'Tostado en casa',
-        tueste: d(-10), activo: true, notas: 'Cacao, panela, final limpio.', boton: 'b2', casa: true,
+        id: 'cafe-casa', nombre: 'Blend de la casa', origen: 'Por confirmar', proceso: 'Por confirmar', tostador: 'Por confirmar',
+        tueste: d(-10), activo: true, notas: 'Notas de cata por confirmar con el tostador.', boton: 'b2', casa: true,
         objetivo: { dosis: 18, rendimiento: 36, tiempo: 28, tolTiempo: 2, tolRatio: 0.05 },
       },
       {
-        id: 'cafe-oaxaca', nombre: 'Oaxaca · Pluma', origen: 'Oaxaca, México', proceso: 'Natural', tostador: 'Tostado en casa',
-        tueste: d(-4), activo: true, notas: 'Frutos rojos, cuerpo medio.', boton: 'b3',
-        objetivo: { dosis: 18, rendimiento: 38, tiempo: 30, tolTiempo: 2, tolRatio: 0.05 },
-      },
-      {
-        id: 'cafe-etiopia', nombre: 'Etiopía · Guji', origen: 'Guji, Etiopía', proceso: 'Natural', tostador: 'Tostador invitado',
-        tueste: d(-16), activo: true, notas: 'Floral, durazno, acidez brillante. Café invitado: se sirve con continuo.', boton: CONTINUO,
-        objetivo: { dosis: 18, rendimiento: 40, tiempo: 27, tolTiempo: 2, tolRatio: 0.05 },
+        id: 'cafe-descaf', nombre: 'Descafeinado', origen: 'Por confirmar', proceso: 'Por confirmar', tostador: 'Por confirmar',
+        tueste: d(-9), activo: true, notas: 'Notas de cata por confirmar con el tostador.', boton: 'b3',
+        objetivo: { dosis: 18, rendimiento: 36, tiempo: 28, tolTiempo: 2, tolRatio: 0.05 },
       },
     ],
     sesiones,

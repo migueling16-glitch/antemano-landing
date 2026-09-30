@@ -6,8 +6,8 @@
  * gráfica mientras se captura, brújula de sabor con el rastro de los shots
  * anteriores, y siempre a la vista el ajuste que toca aplicar.
  *
- * Cada café tiene su receta del día: el de la casa, el de origen y el
- * invitado se calibran por separado, y el inicio es un tablero de lo que
+ * En barra hay dos cafés, el blend de la casa y el descafeinado: cada uno
+ * tiene su receta del día y su ficha, y el inicio es un tablero de lo que
  * falta.
  *
  * Está hecha para la La Marzocco Linea Classic AV de un grupo de la barra:
@@ -211,6 +211,7 @@ function TarjetaCafe({ e, c, m, hoy, paso, abierta, siguiente }: {
       ) : (
         <a className={`boton grande${siguiente ? ' lleno' : ''}`} href={`#/calibrar/nueva/${c.id}`}>Calibrar {corto(c)}</a>
       )}
+      <a className="enlace" href={`#/calibrar/cafe/${c.id}`}>Ficha del café</a>
     </section>
   );
 }
@@ -755,13 +756,21 @@ export function CalibrarCafe({ id }: { id: string }) {
 
   return (
     <>
-      <Sup titulo={c.nombre} sub={`${c.origen} · ${c.proceso}`} volver="calibrar" />
+      <Sup titulo={c.nombre} sub={c.casa ? 'El espresso de todas las bebidas del menú' : 'Ficha del café'} volver="calibrar" />
       <main className="pant pila">
         <div className="rejilla-2">
           <div className="bloque"><span className="etq">Días de reposo</span><span className="num-l">{pp.reposo}</span></div>
-          <div className="bloque"><span className="etq">Tueste</span><span className="num-m">{fechaCorta(c.tueste)}</span><span className="cuerpo">{c.tostador}</span></div>
+          <div className="bloque"><span className="etq">Tueste</span><span className="num-m">{fechaCorta(c.tueste)}</span></div>
         </div>
-        <p className="cuerpo">{c.notas}</p>
+
+        <Seccion titulo="Ficha del café">
+          <div className="lista">
+            <FilaDato etq="Origen" valor={c.origen} />
+            <FilaDato etq="Proceso" valor={c.proceso} />
+            <FilaDato etq="Tostador" valor={c.tostador} />
+            <FilaDato etq="Notas de cata" valor={c.notas} />
+          </div>
+        </Seccion>
 
         {rd ? (
           <section className="bloque inv">

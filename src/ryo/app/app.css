@@ -627,6 +627,14 @@ a.enlace::after { content: '→'; margin-left: 8px; font-size: 0.95rem; }
 .detalle summary::before { content: '+'; font-size: 1rem; width: 12px; }
 .detalle[open] summary::before { content: '−'; }
 
+/* ═══ TUTORIAL GUIADO: un paso a la vez, en grande ═══ */
+.guia-titulo { font-size: 1.3rem; font-weight: 700; line-height: 1.25; letter-spacing: 0.02em; }
+.guia-que { font-size: 1.05rem; line-height: 1.6; }
+.guia-senal { padding: 14px; }
+.guia-ancla { display: block; height: 0; scroll-margin-top: 150px; }
+#guia { scroll-margin-top: 64px; }
+.sec-titulo > .extra .enlace { font-style: normal; min-height: 0; }
+
 /* ═══ BARRA DE PROGRESO ═══ */
 .barra-prog { height: 6px; border: 1px solid var(--line); }
 .barra-prog > span { display: block; height: 100%; background: var(--ink); transition: width 600ms var(--ease); }

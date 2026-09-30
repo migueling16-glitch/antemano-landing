@@ -2,7 +2,7 @@
 
 Maqueta navegable del sistema de gestión de la barra, pensada para usarse en
 el celular personal de cada barista. No tiene backend: todo vive en el
-teléfono (`localStorage` con la clave `ryo-app:v9` y las fotos en IndexedDB).
+teléfono (`localStorage` con la clave `ryo-app:v10` y las fotos en IndexedDB).
 
 - Ruta: `/ryocafe/app` (página en `src/pages/ryocafe/app.astro`, noindex).
 - SPA de React con rutas en el hash (`#/calibrar/nueva`), así funciona detrás
