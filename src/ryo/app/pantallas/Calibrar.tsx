@@ -684,7 +684,24 @@ function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, modelo, onAproba
   ctx: Contexto; modelo: Modelo; onAprobar: (s: Shot, antes: () => void) => void; onCorregir: () => void;
 }) {
   const [sabor, setSabor] = useState<Sabor | undefined>(shot.sabor);
-  const sug = sabor ? sugerir({ ...shot, sabor }, objetivo, paso, ctx) : null;
+  // La sugerencia se calcula al pedirla, con el sabor que hay en ese momento
+  // y todo lo que el café ha enseñado hasta ese shot. Si el sabor se mueve
+  // después, queda vieja y hay que recalcular.
+  const [calc, setCalc] = useState<{ sabor: Sabor; sug: Sugerencia } | null>(null);
+  const [calculando, setCalculando] = useState(false);
+  const vigente = !!calc && !!sabor && calc.sabor.x === sabor.x && calc.sabor.y === sabor.y;
+  const sug = vigente ? calc!.sug : null;
+  const calcular = () => {
+    if (!sabor || calculando) return;
+    setCalculando(true);
+    vibrar(10);
+    setTimeout(() => {
+      setCalc({ sabor, sug: sugerir({ ...shot, sabor }, objetivo, paso, ctx) });
+      setCalculando(false);
+      vibrar([20, 40, 20]);
+      requestAnimationFrame(() => document.getElementById('sugerencia')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }, 600);
+  };
   const v = enVentana(shot, objetivo);
 
   const guardar = () => evaluarShot(s.id, shot.id, { sabor });
@@ -735,8 +752,11 @@ function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, modelo, onAproba
         )}
       </Seccion>
 
+      {calc && !vigente && sabor && (
+        <p className="bloque cuerpo" role="note">Moviste el sabor: la sugerencia de antes ya no vale. Vuelve a calcular.</p>
+      )}
       {sug && (
-        <section className={`bloque${sug.aprobar ? ' inv' : ''}`} aria-live="polite">
+        <section id="sugerencia" className={`bloque sugerencia${sug.aprobar ? ' inv' : ''}`} aria-live="polite">
           <span className="etq">{sug.aprobar ? 'Listo' : 'Siguiente ajuste'}</span>
           <Ajuste sug={sug} />
           <p className="cuerpo">{sug.porque}</p>
@@ -757,7 +777,11 @@ function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, modelo, onAproba
       )}
 
       <div className="pie-accion pila-s">
-        {sug?.aprobar ? (
+        {!sug ? (
+          <button type="button" className={`boton grande lleno${calculando ? ' cargando' : ''}`} disabled={!sabor} onClick={calcular}>
+            <span>{!sabor ? 'Primero toca la brújula' : calculando ? 'Calculando…' : calc ? 'Recalcular sugerencia' : 'Calcular sugerencia'}</span>
+          </button>
+        ) : sug.aprobar ? (
           <>
             <button type="button" className="boton grande lleno" onClick={() => onAprobar(shot, guardar)}>Aprobar shot {shot.n}</button>
             <button type="button" className="enlace" style={{ alignSelf: 'center' }} onClick={() => { guardar(); window.scrollTo({ top: 0 }); }}>Hacer otro shot</button>

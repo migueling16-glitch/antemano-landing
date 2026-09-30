@@ -628,6 +628,8 @@ a.enlace::after { content: '→'; margin-left: 8px; font-size: 0.95rem; }
 .detalle[open] summary::before { content: '−'; }
 
 /* ═══ AJUSTE SUGERIDO: los cambios y lo que se espera ═══ */
+.sugerencia { scroll-margin-top: 64px; }
+.boton.cargando::after { animation-duration: 600ms; }
 .ajuste-cambios li { font-style: normal; font-weight: 700; font-size: 1rem; }
 .prediccion { border-top: 1px solid currentColor; padding-top: 12px; }
 
