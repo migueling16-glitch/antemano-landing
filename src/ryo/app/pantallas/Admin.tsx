@@ -4,7 +4,7 @@
  */
 import { useState } from 'react';
 import {
-  useEstado, yo, puede, invitar, cambiarRol, alternarActivo, alternarPlantilla, agregarCafe, cambiarPid, renombrarBoton,
+  useEstado, yo, puede, invitar, cambiarRol, alternarActivo, alternarPlantilla, agregarCafe, cambiarPid, renombrarBoton, programarPulsos, cambiarGPorPulso, pulsosDe, guardarCanastilla, HOLGURA_CANASTILLA,
   asignarBoton, maquinaDe, nombreBoton, programadoDe, avisar, vibrar, CONTINUO, type Rol,
 } from '../estado';
 import { Sup, Seccion, Hoja, Avatar, Stepper, Estado as Etq } from '../componentes';
@@ -216,7 +216,8 @@ export function AdminMaquina() {
   const e = useEstado();
   const m = maquinaDe(e);
   const [pid, setPid] = useState(m?.pid ?? 93.5);
-  const [renombrar, setRenombrar] = useState<{ id: string; nombre: string } | null>(null);
+  const [renombrar, setRenombrar] = useState<{ id: string; nombre: string; pulsos: number } | null>(null);
+  const [can, setCan] = useState<{ id: string | null; nombre: string; gramos: number } | null>(null);
   if (!m) return <><Sup titulo="Máquina" volver="admin" /><main className="pant"><p className="cuerpo">Sin máquina registrada.</p></main></>;
 
   return (
@@ -234,19 +235,42 @@ export function AdminMaquina() {
           </button>
         </Seccion>
 
+        <Seccion titulo="Flujómetro" extra="Volumétrica">
+          <p className="cuerpo">
+            Cada botón corta al llegar a sus pulsos: giros del flujómetro con el agua que entra al grupo. Es agua, no bebida; por eso el peso se comprueba en la báscula. La app calcula cuántos gramos en taza mueve un pulso con los shots de calibración; aquí se puede corregir a mano.
+          </p>
+          <Stepper etiqueta="Gramos en taza por pulso" valor={m.gPorPulso} paso={0.05} min={0.15} max={1.5} dec={2} unidad=" g" onCambio={cambiarGPorPulso}
+            nota="Para medirlo: sube 10 pulsos un botón, sin mover molienda ni dosis, y divide entre 10 lo que subió el peso." />
+        </Seccion>
+
+        <Seccion titulo="Canastillas" extra={`${m.canastillas.length} en barra`}>
+          <p className="cuerpo">
+            La capacidad de cada canastilla. La dosis debe quedar a {HOLGURA_CANASTILLA} g de esa capacidad: la app avisa al calibrar si no cabe. Toca una para corregirla.
+          </p>
+          <div className="lista">
+            {m.canastillas.map((x) => (
+              <button key={x.id} type="button" className="fila ir" onClick={() => setCan({ id: x.id, nombre: x.nombre, gramos: x.gramos })}>
+                <span className="fila-texto"><span>{x.nombre}</span><span className="fila-sub">Dosis de {x.gramos - HOLGURA_CANASTILLA} a {x.gramos + HOLGURA_CANASTILLA} g</span></span>
+                <span className="fila-der">{x.gramos} g</span>
+              </button>
+            ))}
+          </div>
+          <button type="button" className="boton grande" onClick={() => setCan({ id: null, nombre: '', gramos: 18 })}>Agregar canastilla</button>
+        </Seccion>
+
         <Seccion titulo="Botones" extra="4 dosis y continuo">
-          <p className="cuerpo">Lo que entrega cada botón según la última medición en la báscula. Toca uno para cambiarle el nombre.</p>
+          <p className="cuerpo">Los pulsos de cada botón y lo que entregó en la báscula la última vez. Toca uno para cambiar su nombre o sus pulsos.</p>
           <div className="lista">
             {m.botones.map((b) => {
               const cafes = e.cafes.filter((x) => x.activo && x.boton === b.id);
               const p = programadoDe(m, b.id);
               return (
-                <button key={b.id} type="button" className="fila ir" onClick={() => setRenombrar({ id: b.id, nombre: b.nombre })}>
+                <button key={b.id} type="button" className="fila ir" onClick={() => setRenombrar({ id: b.id, nombre: b.nombre, pulsos: pulsosDe(m, b.id) ?? 120 })}>
                   <span className="avatar" style={{ borderRadius: 0 }}>{b.id.slice(1)}</span>
                   <span className="fila-texto">
                     <span>{b.nombre}</span>
                     <span className="fila-sub">
-                      {p ? `${p.gramos.toFixed(1)} g · ${cuando(jornadaDe(p.en)).toLowerCase()} ${hora(p.en)}` : 'Sin medir'}
+                      {pulsosDe(m, b.id) ? `${pulsosDe(m, b.id)} pulsos · ` : 'Sin pulsos · '}{p ? `${p.gramos.toFixed(1)} g ${cuando(jornadaDe(p.en)).toLowerCase()} ${hora(p.en)}` : 'sin medir'}
                       {cafes.length ? ` · ${cafes.map((x) => x.nombre.split(' · ')[0]).join(', ')}` : ''}
                     </span>
                   </span>
@@ -261,14 +285,32 @@ export function AdminMaquina() {
         </Seccion>
       </main>
 
-      <Hoja abierta={!!renombrar} alCerrar={() => setRenombrar(null)} titulo="Nombre del botón">
+      <Hoja abierta={!!can} alCerrar={() => setCan(null)} titulo="Canastilla">
+        {can && (
+          <>
+            <label className="campo"><span className="etq">Nombre</span>
+              <input value={can.nombre} placeholder="Ej. Doble" onChange={(ev) => setCan({ ...can, nombre: ev.target.value })} />
+            </label>
+            <Stepper etiqueta="Capacidad" valor={can.gramos} paso={1} min={5} max={25} dec={0} unidad=" g" onCambio={(v) => setCan({ ...can, gramos: v })}
+              nota="La que trae grabada o la que indica el fabricante." />
+            <button type="button" className="boton grande lleno" disabled={!can.nombre.trim()}
+              onClick={() => { guardarCanastilla(can.id, can.nombre, can.gramos); setCan(null); avisar('Canastilla guardada.'); }}>
+              {can.nombre.trim() ? 'Guardar' : 'Escribe el nombre'}
+            </button>
+          </>
+        )}
+      </Hoja>
+
+      <Hoja abierta={!!renombrar} alCerrar={() => setRenombrar(null)} titulo="Botón">
         {renombrar && (
           <>
             <label className="campo"><span className="etq">Botón {renombrar.id.slice(1)}</span>
               <input value={renombrar.nombre} onChange={(ev) => setRenombrar({ ...renombrar, nombre: ev.target.value })} />
             </label>
+            <Stepper etiqueta="Pulsos programados" valor={renombrar.pulsos} paso={1} min={20} max={400} dec={0}
+              onCambio={(v) => setRenombrar({ ...renombrar, pulsos: v })} nota="Pon aquí lo mismo que tiene la máquina." />
             <button type="button" className="boton grande lleno" disabled={!renombrar.nombre.trim()}
-              onClick={() => { renombrarBoton(renombrar.id, renombrar.nombre); setRenombrar(null); avisar('Botón renombrado.'); }}>Guardar</button>
+              onClick={() => { renombrarBoton(renombrar.id, renombrar.nombre); programarPulsos(renombrar.id, renombrar.pulsos); setRenombrar(null); avisar('Botón guardado.'); }}>Guardar</button>
           </>
         )}
       </Hoja>

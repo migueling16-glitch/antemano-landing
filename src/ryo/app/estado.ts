@@ -120,8 +120,30 @@ export type Maquina = {
   botones: { id: string; nombre: string }[];
   /** botonId → última medición */
   programado: Record<string, Programacion>;
+  /**
+   * botonId → pulsos programados. La máquina es volumétrica: el flujómetro
+   * gira con el agua que entra al grupo y cada giro es un pulso; al llegar a
+   * los pulsos del botón, corta. Cuenta agua que entra, no bebida en taza.
+   */
+  pulsos: Record<string, number>;
+  /**
+   * Las canastillas del portafiltro que hay en barra, cada una con su
+   * capacidad en gramos. La dosis tiene que caber: de más, el café toca la
+   * regadera y no hay espacio para que el agua se reparta; de menos, la
+   * pastilla queda aguada y el agua se abre camino (canalización).
+   */
+  canastillas: Canastilla[];
+  /**
+   * Gramos en taza que mueve un pulso en esta máquina. Se aprende de los
+   * shots: mismo café, misma molienda y dosis, distintos pulsos.
+   */
+  gPorPulso: number;
 };
 export { CONTINUO };
+
+export type Canastilla = { id: string; nombre: string; gramos: number };
+/** Cuánto se puede alejar la dosis de la capacidad de la canastilla. */
+export const HOLGURA_CANASTILLA = 1;
 
 export type Cafe = {
   id: string;
@@ -138,6 +160,8 @@ export type Cafe = {
   boton: string;
   /** El espresso de la casa: el que llevan las bebidas del menú. */
   casa?: boolean;
+  /** La canastilla con la que se sirve. */
+  canastilla?: string;
 };
 
 export type Shot = {
@@ -147,6 +171,8 @@ export type Shot = {
   rendimiento: number;
   tiempo: number;
   molienda: number;
+  /** Pulsos que tenía el botón en ese shot (con continuo no hay). */
+  pulsos?: number;
   sabor?: Sabor;
   en: number;
   aprobado?: boolean;
@@ -158,6 +184,8 @@ export type SesionCal = {
   molinoId: string;
   /** id del botón volumétrico, o CONTINUO */
   botonId: string;
+  /** La canastilla con la que se calibró. */
+  canastillaId?: string;
   por: string;
   jornada: string;
   diasReposo: number;
@@ -179,6 +207,8 @@ export type RecetaDelDia = {
   rendimiento: number;
   tiempo: number;
   molienda: number;
+  pulsos?: number;
+  canastillaId?: string;
 };
 
 export type TurnoTipo = { id: string; nombre: string; corto: string; inicio: string; fin: string };
@@ -350,6 +380,21 @@ export const maquinaDe = (e: Estado) => e.equipos.find((x) => x.tipo === 'maquin
 export const nombreBoton = (m: Maquina | undefined, botonId: string) =>
   botonId === CONTINUO ? 'Continuo' : m?.botones.find((b) => b.id === botonId)?.nombre ?? botonId;
 export const programadoDe = (m: Maquina | undefined, botonId: string) => m?.programado[botonId];
+export const pulsosDe = (m: Maquina | undefined, botonId: string) => m?.pulsos[botonId];
+export const canastillaDe = (m: Maquina | undefined, id?: string) => m?.canastillas.find((c) => c.id === id);
+/** Si la dosis cabe en la canastilla: 'bien', 'de-mas' o 'de-menos'. */
+export function cabe(c: Canastilla | undefined, dosis: number): 'bien' | 'de-mas' | 'de-menos' {
+  if (!c) return 'bien';
+  if (dosis > c.gramos + HOLGURA_CANASTILLA + 1e-6) return 'de-mas';
+  if (dosis < c.gramos - HOLGURA_CANASTILLA - 1e-6) return 'de-menos';
+  return 'bien';
+}
+
+/** Pulsos para pasar de un peso en taza a otro, con lo que esta máquina mueve por pulso. */
+export function pulsosPara(m: Maquina | undefined, pulsos: number, gramosAhora: number, gramosMeta: number) {
+  const k = m?.gPorPulso || 0.5;
+  return Math.max(1, Math.round(pulsos + (gramosMeta - gramosAhora) / k));
+}
 
 /** La receta del día de un café. */
 export const recetaDe = (e: Estado, jornada: string, cafeId: string): RecetaDelDia | undefined =>
@@ -482,12 +527,30 @@ export function validar(ejecucionId: string) {
 
 /* ── Calibración ────────────────────────────────────────── */
 
-export function nuevaSesion(cafeId: string, molinoId: string, diasReposo: number, botonId: string): string {
+export function guardarCanastilla(id: string | null, nombre: string, gramos: number) {
+  actualizar((e) => {
+    const m = maquinaDe(e);
+    if (!m || !nombre.trim()) return;
+    const c = m.canastillas.find((x) => x.id === id);
+    if (c) { c.nombre = nombre.trim(); c.gramos = gramos; } else m.canastillas.push({ id: nuevoId('can'), nombre: nombre.trim(), gramos });
+  });
+}
+
+export function nuevaSesion(cafeId: string, molinoId: string, diasReposo: number, botonId: string, canastillaId?: string): string {
   const id = nuevoId('cal');
   actualizar((e) => {
-    e.sesiones.push({ id, cafeId, molinoId, botonId, por: e.usuarioId!, jornada: jornadaDe(), diasReposo, inicio: Date.now(), shots: [] });
+    e.sesiones.push({ id, cafeId, molinoId, botonId, canastillaId, por: e.usuarioId!, jornada: jornadaDe(), diasReposo, inicio: Date.now(), shots: [] });
   });
   return id;
+}
+
+/** Cambiar los pulsos programados de un botón. */
+export function programarPulsos(botonId: string, pulsos: number) {
+  actualizar((e) => { const m = maquinaDe(e); if (m) m.pulsos[botonId] = Math.round(pulsos); });
+}
+
+export function cambiarGPorPulso(g: number) {
+  actualizar((e) => { const m = maquinaDe(e); if (m) m.gPorPulso = g; });
 }
 
 /** Reprogramar un botón: la app anota lo que ahora entrega en la báscula. */
@@ -517,7 +580,19 @@ export function guardarShot(sesionId: string, datos: Omit<Shot, 'id' | 'n' | 'en
   const id = nuevoId('shot');
   actualizar((e) => {
     const s = e.sesiones.find((x) => x.id === sesionId);
-    if (s) s.shots.push({ ...datos, id, n: s.shots.length + 1, en: Date.now() });
+    if (!s) return;
+    const m = maquinaDe(e);
+    const previo = s.shots[s.shots.length - 1];
+    if (m && datos.pulsos && s.botonId !== CONTINUO) {
+      m.pulsos[s.botonId] = datos.pulsos;
+      // Misma molienda y dosis, distintos pulsos: la diferencia de peso dice
+      // cuánto mueve un pulso en esta máquina. Se promedia con lo que ya se sabía.
+      if (previo?.pulsos && previo.pulsos !== datos.pulsos && previo.molienda === datos.molienda && Math.abs(previo.dosis - datos.dosis) < 0.15) {
+        const k = (datos.rendimiento - previo.rendimiento) / (datos.pulsos - previo.pulsos);
+        if (k >= 0.15 && k <= 1.5) m.gPorPulso = Math.round(((m.gPorPulso + k) / 2) * 100) / 100;
+      }
+    }
+    s.shots.push({ ...datos, id, n: s.shots.length + 1, en: Date.now() });
   });
   return id;
 }
@@ -530,7 +605,7 @@ export function evaluarShot(sesionId: string, shotId: string, datos: Pick<Shot, 
 }
 
 /** Corregir los números de un shot mal capturado. */
-export function corregirShot(sesionId: string, shotId: string, datos: Pick<Shot, 'dosis' | 'rendimiento' | 'molienda' | 'tiempo'>) {
+export function corregirShot(sesionId: string, shotId: string, datos: Pick<Shot, 'dosis' | 'rendimiento' | 'molienda' | 'tiempo' | 'pulsos'>) {
   actualizar((e) => {
     const shot = e.sesiones.find((x) => x.id === sesionId)?.shots.find((x) => x.id === shotId);
     if (shot) Object.assign(shot, datos);
@@ -570,6 +645,8 @@ export function aprobarShot(sesionId: string, shotId: string) {
       jornada: s.jornada, cafeId: s.cafeId, sesionId, shotId, por: e.usuarioId!, en: Date.now(),
       botonId: s.botonId,
       dosis: shot.dosis, rendimiento: shot.rendimiento, tiempo: shot.tiempo, molienda: shot.molienda,
+      ...(shot.pulsos ? { pulsos: shot.pulsos } : {}),
+      ...(s.canastillaId ? { canastillaId: s.canastillaId } : {}),
     };
     // El shot aprobado es la medición más reciente de ese botón.
     const m = maquinaDe(e);

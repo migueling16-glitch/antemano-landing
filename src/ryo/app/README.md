@@ -2,7 +2,7 @@
 
 Maqueta navegable del sistema de gestión de la barra, pensada para usarse en
 el celular personal de cada barista. No tiene backend: todo vive en el
-teléfono (`localStorage` con la clave `ryo-app:v10` y las fotos en IndexedDB).
+teléfono (`localStorage` con la clave `ryo-app:v11` y las fotos en IndexedDB).
 
 - Ruta: `/ryocafe/app` (página en `src/pages/ryocafe/app.astro`, noindex).
 - SPA de React con rutas en el hash (`#/calibrar/nueva`), así funciona detrás
@@ -59,9 +59,16 @@ Reglas para que nadie tenga que adivinar, cada una con su fuente:
 
 Calibración hecha para la **La Marzocco Linea Classic AV de un grupo** de Ryo:
 
-- Botón volumétrico: la máquina corta sola. La molienda mueve el tiempo; el
-  peso se cambia reprogramando el botón (la app da los pasos y anota lo que
-  entrega cada botón).
+- Volumétrica, programada en **pulsos**: el flujómetro gira con el agua que
+  entra al grupo y el botón corta al llegar a sus pulsos. Cuenta agua, no
+  bebida: con los mismos pulsos el peso cambia si cambian molienda o dosis.
+  La molienda mueve el tiempo; el peso se corrige con pulsos. La app guarda
+  los pulsos de cada botón y de cada shot, aprende cuántos gramos en taza
+  mueve un pulso (dos shots seguidos con igual molienda y dosis y distintos
+  pulsos) y dice "de 120 a 124 pulsos". Se corrige en Administración →
+  Máquina.
+- **Canastillas** con su capacidad: la dosis debe quedar a 1 g. La sesión
+  guarda con cuál se calibró y avisa si la dosis no cabe.
 - Continuo: el barista corta en la báscula (cafés invitados).
 - El tiempo lo marca la botonera: la app lo captura con un stepper, no lo
   cronometra.

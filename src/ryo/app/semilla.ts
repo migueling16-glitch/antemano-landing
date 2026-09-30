@@ -106,11 +106,12 @@ function sesion(id: string, cafeId: string, botonId: string, por: string, jornad
   const inicio = tsDgo(jornada, hora);
   const shots: Shot[] = pasos.map(([molienda, tiempo, rendimiento, x, y], i) => ({
     id: `${id}-s${i + 1}`, n: i + 1, dosis: 18, molienda, tiempo, rendimiento,
+    ...(botonId === CONTINUO ? {} : { pulsos: 120 }),
     sabor: { x, y }, en: inicio + (i + 1) * 4 * 60_000,
   }));
   const ultimo = shots[shots.length - 1];
   ultimo.aprobado = true;
-  return { id, cafeId, molinoId: 'eq-molino', botonId, por, jornada, diasReposo, inicio, fin: ultimo.en, shots, aprobadoId: ultimo.id };
+  return { id, cafeId, molinoId: 'eq-molino', botonId, canastillaId: 'can-18', por, jornada, diasReposo, inicio, fin: ultimo.en, shots, aprobadoId: ultimo.id };
 }
 
 /**
@@ -137,7 +138,7 @@ function convergencia(final: number, larga = false): Paso[] {
 /* ── Todo ───────────────────────────────────────────────── */
 
 /** Sube cuando cambia la forma del estado: lo guardado con otra versión se descarta. */
-export const VERSION = 10;
+export const VERSION = 11;
 
 export function crearSemilla(): Estado {
   const hoy = jornadaDe();
@@ -177,7 +178,7 @@ export function crearSemilla(): Estado {
     recetasDelDia[s.jornada][s.cafeId] = {
       jornada: s.jornada, cafeId: s.cafeId, sesionId: s.id, shotId: a.id, por: s.por, en: s.fin!,
       botonId: s.botonId,
-      dosis: a.dosis, rendimiento: a.rendimiento, tiempo: a.tiempo, molienda: a.molienda,
+      dosis: a.dosis, rendimiento: a.rendimiento, tiempo: a.tiempo, molienda: a.molienda, ...(a.pulsos ? { pulsos: a.pulsos } : {}), canastillaId: 'can-18',
     };
   }
 
@@ -307,6 +308,14 @@ export function crearSemilla(): Estado {
             { id: 'b3', nombre: 'Doble descaf' },
             { id: 'b4', nombre: 'Sin asignar' },
           ],
+          pulsos: { b1: 70, b2: 120, b3: 120 },
+          canastillas: [
+            { id: 'can-7', nombre: 'Sencilla', gramos: 7 },
+            { id: 'can-14', nombre: 'Doble chica', gramos: 14 },
+            { id: 'can-18', nombre: 'Doble', gramos: 18 },
+            { id: 'can-21', nombre: 'Triple', gramos: 21 },
+          ],
+          gPorPulso: 0.5,
           programado: {
             b1: { gramos: 18.2, en: tsDgo(d(-20), '07:52'), por: 'u-carla' },
             b2: { gramos: aprobado.rendimiento, en: hoySesion.fin!, por: 'u-ana' },
@@ -318,12 +327,12 @@ export function crearSemilla(): Estado {
     cafes: [
       {
         id: 'cafe-casa', nombre: 'Blend de la casa', origen: 'Por confirmar', proceso: 'Por confirmar', tostador: 'Por confirmar',
-        tueste: d(-10), activo: true, notas: 'Notas de cata por confirmar con el tostador.', boton: 'b2', casa: true,
+        tueste: d(-10), activo: true, notas: 'Notas de cata por confirmar con el tostador.', boton: 'b2', casa: true, canastilla: 'can-18',
         objetivo: { dosis: 18, rendimiento: 36, tiempo: 28, tolTiempo: 2, tolRatio: 0.05 },
       },
       {
         id: 'cafe-descaf', nombre: 'Descafeinado', origen: 'Por confirmar', proceso: 'Por confirmar', tostador: 'Por confirmar',
-        tueste: d(-9), activo: true, notas: 'Notas de cata por confirmar con el tostador.', boton: 'b3',
+        tueste: d(-9), activo: true, notas: 'Notas de cata por confirmar con el tostador.', boton: 'b3', canastilla: 'can-18',
         objetivo: { dosis: 18, rendimiento: 36, tiempo: 28, tolTiempo: 2, tolRatio: 0.05 },
       },
     ],
