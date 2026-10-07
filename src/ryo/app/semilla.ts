@@ -44,6 +44,7 @@ function crearPlantillas(): Plantilla[] {
       'Revisar área comedor',
       'Abrir y revisar baños',
       { texto: 'Revisar vitrina de pan', foto: 'opcional' },
+      { texto: 'Temperatura del refri', tipo: 'numero', critica: true, min: 0, max: 7, unidad: '°C', paso: 0.5, inicial: 3.5 },
       { texto: 'Revisar stock del refri', tipo: 'nota' },
     ]),
   };
@@ -91,10 +92,13 @@ function ejecutada(
     if (it.tipo === 'foto' || it.foto === 'obligatoria') m.fotoId = 'demo';
     marcas[it.id] = { ...m, ...opciones.especiales?.[it.id] };
   });
+  // Lo que se completa en la noche se valida a la mañana siguiente.
+  let tv = tsDgo(jornada, opciones.validadaA ?? '09:30');
+  if (tv < t1) tv += 86_400_000;
   return {
     id: `ej-${p.id}-${jornada}`, plantillaId: p.id, jornada, iniciadaPor: por, iniciadaEn: t0,
     completadaEn: t1, completadaPor: por, marcas,
-    ...(opciones.validadaPor ? { validadaPor: opciones.validadaPor, validadaEn: tsDgo(jornada, opciones.validadaA ?? '09:30') } : {}),
+    ...(opciones.validadaPor ? { validadaPor: opciones.validadaPor, validadaEn: tv } : {}),
   };
 }
 
@@ -138,7 +142,7 @@ function convergencia(final: number, larga = false): Paso[] {
 /* ── Todo ───────────────────────────────────────────────── */
 
 /** Sube cuando cambia la forma del estado: lo guardado con otra versión se descarta. */
-export const VERSION = 11;
+export const VERSION = 12;
 
 export function crearSemilla(): Estado {
   const hoy = jornadaDe();
@@ -185,15 +189,67 @@ export function crearSemilla(): Estado {
   // Checklists: la apertura de hoy hecha, el cierre de ayer sin validar, lo
   // demás validado.
   const stock = ap.items.find((i) => i.tipo === 'nota')!;
+  // Dos semanas de historia para que el Panel tenga tendencias: casi todo a
+  // tiempo, algunos tarde, un cierre que no se hizo y un par de lecturas
+  // del refri fuera de rango.
+  const refri = ap.items.find((i) => i.tipo === 'numero')!;
+  const quienAp = ['u-ana', 'u-ana', 'u-diego', 'u-ana', 'u-sofia', 'u-ana', 'u-diego'];
+  const quienCi = ['u-diego', 'u-carla', 'u-diego', 'u-sofia', 'u-diego', 'u-carla', 'u-sofia'];
+  // Esta semana va mejor que la anterior: menos atrasos y se valida más rápido.
+  const finAp = ['07:52', '07:55', '08:12', '07:49', '07:58', '08:21', '08:09', '07:51', '08:15', '07:56', '07:53', '07:59'];
+  const finCi = ['23:22', '23:18', '23:25', '23:25', '23:12', '23:28', '23:51', '23:44', '23:26', '23:15', '23:24', '23:19'];
+  const historia: Ejecucion[] = [];
+  for (let k = 3; k <= 14; k++) {
+    const j = d(-k);
+    const i = k - 3;
+    const lect = k === 6 ? { [refri.id]: { valor: 8.5, fuera: true, acciones: ['Moví a otro refri', 'Avisé al encargado'] } } : {};
+    historia.push(ejecutada(ap, j, quienAp[k % 7], '07:30', finAp[i], { validadaPor: 'u-carla', validadaA: k < 7 ? ['09:10', '09:40', '10:05'][k % 3] : ['12:30', '14:10', '10:40', '13:00'][k % 4], especiales: lect }));
+    if (k !== 8) historia.push(ejecutada(ci, j, quienCi[k % 7], '22:45', finCi[i], { validadaPor: k % 3 ? 'u-carla' : 'u-sofia', validadaA: k < 7 ? '09:20' : '13:45' }));
+  }
   const ejecuciones: Ejecucion[] = [
     ejecutada(ap, hoy, 'u-ana', '07:31', '07:52', {
       especiales: { [stock.id]: { texto: 'Queda 1 L de leche de avena; pedir para mañana.' } },
     }),
     ejecutada(ci, d(-1), 'u-diego', '22:48', '23:31'),
-    ejecutada(ap, d(-1), 'u-ana', '07:30', '07:57', { validadaPor: 'u-carla', validadaA: '09:12' }),
+    ejecutada(ap, d(-1), 'u-ana', '07:30', '07:57', {
+      validadaPor: 'u-carla', validadaA: '09:12',
+      especiales: { [refri.id]: { valor: 7.5, fuera: true, acciones: ['Avisé al encargado'] } },
+    }),
     ejecutada(ap, d(-2), 'u-diego', '07:33', '08:06', { validadaPor: 'u-carla' }),
     ejecutada(ci, d(-2), 'u-ana', '22:50', '23:28', { validadaPor: 'u-carla', validadaA: '09:05' }),
     ejecutada(prof, sumarDias(lunesDe(hoy), -2), 'u-diego', '21:10', '22:40', { validadaPor: 'u-carla' }),
+    ...historia,
+  ];
+
+  const incidencias: Estado['incidencias'] = [
+    {
+      id: 'inc-refri', titulo: 'Temperatura del refri: 7.5 °C', detalle: 'Fuera del rango 0 a 7 °C. Ana lo vio al abrir.',
+      origen: 'lectura', categoria: 'inocuidad', prioridad: 'alta', ejecucionId: `ej-${ap.id}-${d(-1)}`, itemId: refri.id,
+      abiertaPor: 'u-ana', abiertaEn: tsDgo(d(-1), '07:41'), responsable: 'u-diego', vence: hoy,
+      seguimiento: [
+        { por: 'u-carla', en: tsDgo(d(-1), '09:12'), texto: 'Asignada a Diego, para hoy.' },
+        { por: 'u-diego', en: tsDgo(d(-1), '17:30'), texto: 'El empaque de la puerta no sella bien. Llamé al técnico.' },
+      ],
+    },
+    {
+      id: 'inc-vapor', titulo: 'Gotea la llave del vaporizador', detalle: 'Gotea poquito al cerrarla, sobre todo en la mañana.',
+      origen: 'reporte', categoria: 'equipo', prioridad: 'normal', abiertaPor: 'u-ana', abiertaEn: tsDgo(d(-2), '08:40'), seguimiento: [],
+    },
+    {
+      id: 'inc-refri-ant', titulo: 'Temperatura del refri: 8.5 °C', detalle: 'Fuera del rango 0 a 7 °C.',
+      origen: 'lectura', categoria: 'inocuidad', prioridad: 'alta', ejecucionId: `ej-${ap.id}-${d(-6)}`, itemId: refri.id,
+      abiertaPor: quienAp[6 % 7], abiertaEn: tsDgo(d(-6), '07:44'), responsable: 'u-carla', vence: d(-5),
+      seguimiento: [{ por: 'u-carla', en: tsDgo(d(-6), '10:40'), texto: 'Producto movido al refri de atrás.' }],
+      cerradaPor: 'u-carla', cerradaEn: tsDgo(d(-5), '12:00'), cierre: 'Se descongeló y se limpió el refri; volvió a 3 °C.',
+    },
+  ];
+
+  const bitacora: Estado['bitacora'] = [
+    { id: 'bit-1', jornada: hoy, categoria: 'producto', texto: 'Queda 1 L de leche de avena. Pedido hecho para mañana a primera hora.', por: 'u-carla', en: tsDgo(hoy, '09:05') },
+    { id: 'bit-2', jornada: d(-1), categoria: 'equipo', texto: 'El refri amaneció en 7.5 °C. El técnico viene el jueves; mientras, revisar la temperatura a medio día también.', por: 'u-carla', en: tsDgo(d(-1), '09:15'), fijada: true },
+    { id: 'bit-3', jornada: d(-1), categoria: 'turno', texto: 'Cierre tranquilo. Diego terminó a las 23:31; faltó validar.', por: 'u-sofia', en: tsDgo(d(-1), '23:40') },
+    { id: 'bit-4', jornada: d(-2), categoria: 'clientes', texto: 'Dos clientes preguntaron por leche de almendra. Valorar tenerla.', por: 'u-carla', en: tsDgo(d(-2), '18:10') },
+    { id: 'bit-5', jornada: d(-3), categoria: 'personal', texto: 'Diego ya calibra solo el descafeinado; falta practicar el blend en hora pico.', por: 'u-carla', en: tsDgo(d(-3), '16:00') },
   ];
 
   // Horario: esta semana publicada y limpia (sin alertas); la siguiente en
@@ -360,6 +416,8 @@ export function crearSemilla(): Estado {
       { id: 'cam-2', de: 'u-ana', fecha: sumarDias(lunes, 3), turnoId: 't-ap', motivo: 'Cita médica en la mañana', estado: 'abierto', en: tsDgo(hoy, '06:50') },
     ],
     progreso,
+    incidencias,
+    bitacora,
   };
 }
 

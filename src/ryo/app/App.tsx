@@ -16,8 +16,10 @@ import { CalibrarInicio, CalibrarNueva, CalibrarSesion, CalibrarCafe } from './p
 import { RecetasLista, RecetaFicha } from './pantallas/Recetas';
 import { AprenderInicio, AprenderLeccion, AprenderRepaso, AprenderIngreso, AprenderEquipo, AprenderEvaluar } from './pantallas/Capacitacion';
 import { HorariosInicio, HorariosSemana, HorariosDisponibilidad, HorariosCambios, HorariosCambiar } from './pantallas/Horarios';
-import { AdminInicio, AdminUsuarios, AdminPlantillas, AdminCafes, AdminMaquina, AdminSucursal } from './pantallas/Admin';
+import { AdminInicio, AdminUsuarios, AdminPlantillas, AdminPlantilla, AdminCafes, AdminMaquina, AdminSucursal } from './pantallas/Admin';
 import { Mas, Privacidad } from './pantallas/Mas';
+import { PanelInicio, PanelIndicador, PanelPersona } from './pantallas/Panel';
+import { PanelIncidencias, PanelIncidencia, PanelBitacora, PanelReporte } from './pantallas/Herramientas';
 
 const PESTANAS = [
   ['inicio', 'Inicio'],
@@ -27,8 +29,12 @@ const PESTANAS = [
   ['mas', 'Más'],
 ] as const;
 
+/** El encargado y el admin tienen Panel en lugar de Más (Más queda dentro). */
+const PESTANAS_ENCARGADO = [...PESTANAS.slice(0, 4), ['panel', 'Panel']] as const;
+
 /** A qué pestaña pertenece cada sección. */
 const PESTANA_DE: Record<string, string> = { aprender: 'mas', horarios: 'mas', admin: 'mas', avisos: 'inicio' };
+const PESTANA_DE_ENCARGADO: Record<string, string> = { aprender: 'panel', horarios: 'panel', admin: 'panel', mas: 'panel', avisos: 'inicio' };
 
 function temaDe(e: Estado, seccion: string): 'champagne' | 'cafe' {
   if (seccion === 'calibrar') return 'cafe';
@@ -99,6 +105,7 @@ function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
       if (soloAdmin && !puede(e, 'admin')) return <SinPermiso />;
       if (a === 'usuarios') return <AdminUsuarios />;
       if (a === 'plantillas') return <AdminPlantillas />;
+      if (a === 'plantilla' && b) return <AdminPlantilla key={b} id={b} />;
       if (a === 'cafes') return <AdminCafes />;
       if (a === 'maquina') return <AdminMaquina />;
       if (a === 'sucursal') return <AdminSucursal />;
@@ -106,6 +113,17 @@ function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
     }
     case 'mas':
       return a === 'privacidad' ? <Privacidad /> : <Mas />;
+    case 'panel': {
+      // La responsable de una incidencia (aunque sea barista) puede verla y cerrarla.
+      if (a === 'incidencia' && b) return <PanelIncidencia key={b} id={b} />;
+      if (!puede(e, 'encargado', 'admin')) return <SinPermiso />;
+      if (a === 'indicador' && b) return <PanelIndicador key={b} id={b} />;
+      if (a === 'persona' && b) return <PanelPersona key={b} id={b} />;
+      if (a === 'incidencias') return <PanelIncidencias />;
+      if (a === 'bitacora') return <PanelBitacora />;
+      if (a === 'reporte') return <PanelReporte />;
+      return <PanelInicio />;
+    }
     default:
       return <Inicio />;
   }
@@ -135,7 +153,8 @@ export default function App() {
   const seccion = ruta[0];
   const tema = temaDe(e, u ? seccion : '');
   const enfoque = u && ((seccion === 'calibrar' && ruta[1] === 'sesion') || (seccion === 'aprender' && ruta[1] === 'repaso'));
-  const pestana = PESTANA_DE[seccion] ?? seccion;
+  const encargado = !!u && puede(e, 'encargado', 'admin');
+  const pestana = (encargado ? PESTANA_DE_ENCARGADO : PESTANA_DE)[seccion] ?? seccion;
   const espera = u ? pendientesPorPestana(e, u) : {};
 
   useEffect(() => {
@@ -154,7 +173,7 @@ export default function App() {
       <div className="vista" key={ruta.join('/')}><Resguardo>{pantalla(e, ruta)}</Resguardo></div>
       {!enfoque && (
         <nav className="nav" aria-label="Secciones">
-          {PESTANAS.map(([id, nombre]) => (
+          {(encargado ? PESTANAS_ENCARGADO : PESTANAS).map(([id, nombre]) => (
             <a key={id} href={`#/${id}`} aria-current={pestana === id ? 'page' : undefined}
               data-pendiente={espera[id] ? 'si' : undefined} aria-label={espera[id] ? `${nombre}, con pendientes` : undefined}>{nombre}</a>
           ))}

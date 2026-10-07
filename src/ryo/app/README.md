@@ -2,7 +2,7 @@
 
 Maqueta navegable del sistema de gestión de la barra, pensada para usarse en
 el celular personal de cada barista. No tiene backend: todo vive en el
-teléfono (`localStorage` con la clave `ryo-app:v11` y las fotos en IndexedDB).
+teléfono (`localStorage` con la clave `ryo-app:v12` y las fotos en IndexedDB).
 
 - Ruta: `/ryocafe/app` (página en `src/pages/ryocafe/app.astro`, noindex).
 - SPA de React con rutas en el hash (`#/calibrar/nueva`), así funciona detrás
@@ -54,6 +54,42 @@ Reglas para que nadie tenga que adivinar, cada una con su fuente:
   "Tu semana" enseña lo que cada quien lleva y solo lo ve esa persona.
 - **Cambios de turno sin sorpresas:** antes de pedir, se ve cómo le queda a
   cada compañero (horas, descanso, disponibilidad) y cómo quedaría el día.
+
+## Panel del encargado y del admin
+
+Para encargado y admin, la quinta pestaña es **Panel** en lugar de Más (Más
+queda dentro). Está ordenado por gestión por excepción:
+
+- **Por decidir:** solo lo que espera una decisión, con el botón ahí mismo.
+  Los checklists completos y sin lecturas fuera de rango se validan **en
+  lote** con un toque, y se puede deshacer. Cambios de turno sin alertas y
+  días libres se aprueban desde la bandeja (como Deputy desde el celular).
+- **Hoy en vivo:** checklists, recetas del día, quién está en barra, huecos,
+  incidencias y la nota fijada de la bitácora.
+- **Indicadores** (`lib/indicadores.ts`): 7 días contra los 7 anteriores,
+  como hace Toast:
+  - checklists a tiempo;
+  - horas para validar;
+  - incidencias nuevas;
+  - shots por receta;
+  - horas sin nadie en barra;
+  - repasos al día.
+
+  Cada uno lleva su mini gráfica de barras (sparkline, Tufte) y un detalle
+  de 14 días. Sin pasteles ni velocímetros (NN/g: largo y posición se leen
+  más rápido).
+- **Equipo:** una fila por persona con lo que hay que mirar (atrasos,
+  repasos vencidos, alertas de horario) y su ficha completa.
+- **Incidencias:** una lectura fuera de rango abre una sola; cualquiera
+  puede reportar un problema desde Checklists. Cada una tiene responsable,
+  fecha, seguimiento y un cierre con nota (como las acciones de
+  SafetyCulture y Crunchtime). A quien se le asigna le aparece en su Inicio.
+- **Bitácora:** notas por día y categoría, fijables y con búsqueda (como el
+  log book de 7shifts).
+- **Reporte de la semana:** texto listo para compartir o copiar.
+- **Editor de plantillas** (Administración): datos, frecuencia, hora límite
+  y tareas. Las tareas se agregan, se editan en una hoja (tipo, rango, foto,
+  crítica), se ordenan con ↑ ↓ y se borran con deshacer.
 
 ## La máquina
 

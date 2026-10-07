@@ -4,10 +4,10 @@
  */
 import { useState } from 'react';
 import {
-  useEstado, yo, puede, invitar, cambiarRol, alternarActivo, alternarPlantilla, agregarCafe, cambiarPid, renombrarBoton, programarPulsos, cambiarGPorPulso, pulsosDe, guardarCanastilla, HOLGURA_CANASTILLA,
-  asignarBoton, maquinaDe, nombreBoton, programadoDe, avisar, vibrar, CONTINUO, type Rol,
+  useEstado, yo, puede, invitar, cambiarRol, alternarActivo, agregarCafe, editarPlantilla, nuevaPlantilla, cambiarPid, renombrarBoton, programarPulsos, cambiarGPorPulso, pulsosDe, guardarCanastilla, HOLGURA_CANASTILLA,
+  asignarBoton, maquinaDe, nombreBoton, programadoDe, avisar, vibrar, CONTINUO, type Rol, type Plantilla, type ItemPlantilla,
 } from '../estado';
-import { Sup, Seccion, Hoja, Avatar, Stepper, Estado as Etq } from '../componentes';
+import { Sup, Seccion, Hoja, Avatar, Stepper, Estado as Etq, ir } from '../componentes';
 import { jornadaDe, sumarDias, cuando, hora } from '../lib/tiempo';
 
 const ROLES: Rol[] = ['barista', 'encargado', 'admin'];
@@ -18,7 +18,7 @@ export function AdminInicio() {
   const esAdmin = puede(e, 'admin');
   return (
     <>
-      <Sup titulo="Administración" sub={`${e.sucursal.negocio} · ${e.sucursal.nombre}`} volver="mas" />
+      <Sup titulo="Administración" sub={`${e.sucursal.negocio} · ${e.sucursal.nombre}`} volver="panel" />
       <main className="pant pila">
         <div className="lista">
           {esAdmin && (
@@ -116,29 +116,185 @@ export function AdminUsuarios() {
 
 /* ═══ PLANTILLAS ══════════════════════════════════════════ */
 
+const DIAS_SEM = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+/** Cómo es una tarea, en palabras cortas. */
+function rasgos(i: ItemPlantilla) {
+  const r: string[] = [];
+  if (i.critica) r.push('crítica');
+  if (i.tipo === 'numero') r.push(`lectura ${i.min ?? '–'} a ${i.max ?? '–'} ${i.unidad ?? ''}`.trim());
+  if (i.tipo === 'nota') r.push('se anota');
+  if (i.tipo === 'foto' || i.foto === 'obligatoria') r.push('foto obligatoria');
+  else if (i.foto === 'opcional') r.push('foto opcional');
+  if (i.tipo === 'calibracion') r.push('se marca al calibrar');
+  return r;
+}
+
 export function AdminPlantillas() {
   const e = useEstado();
+  const [nueva, setNueva] = useState(false);
+  const [nombre, setNombre] = useState('');
   return (
     <>
-      <Sup titulo="Plantillas" volver="admin" />
+      <Sup titulo="Plantillas" sub="Los checklists del equipo" volver="admin" accion={{ texto: 'Nueva', hacer: () => setNueva(true) }} />
       <main className="pant pila">
-        <p className="cuerpo">Apertura y cierre son las listas de la barra; la limpieza profunda viene del checklist en papel. En el sistema se editan ítem por ítem; en la maqueta solo se activan o pausan.</p>
-        {e.plantillas.map((p) => {
-          const tipos = p.items.reduce<Record<string, number>>((a, i) => ({ ...a, [i.tipo]: (a[i.tipo] ?? 0) + 1 }), {});
-          return (
-            <section key={p.id} className="bloque">
-              <div className="fila-h entre">
-                <span className="subtitulo">{p.nombre}</span>
-                {p.activa ? <Etq fuerte>Activa</Etq> : <Etq tenue>Pausada</Etq>}
-              </div>
-              <span className="cuerpo">
-                {p.frecuencia === 'diaria' ? 'Diaria' : 'Semanal'} · límite {p.horaLimite} · {p.items.length} ítems ({Object.entries(tipos).map(([k, v]) => `${v} ${k}`).join(', ')}) · {p.items.filter((i) => i.critica).length} críticos
+        <p className="cuerpo">Toca una para editar sus tareas, su hora límite y qué lleva foto. Los cambios aplican desde el siguiente checklist; los ya empezados conservan lo marcado.</p>
+        <div className="lista">
+          {e.plantillas.map((pl) => (
+            <a key={pl.id} className="fila" href={`#/admin/plantilla/${pl.id}`}>
+              <span className="fila-texto">
+                <span>{pl.nombre}</span>
+                <span className="fila-sub">
+                  {pl.frecuencia === 'diaria' ? 'Diaria' : `Semanal, ${DIAS_SEM[pl.dia ?? 0].toLowerCase()}`} · límite {pl.horaLimite} · {pl.items.length} tareas · {((n) => `${n} crítica${n === 1 ? '' : 's'}`)(pl.items.filter((i) => i.critica).length)}
+                </span>
+                {pl.activa ? <Etq fuerte>Activa</Etq> : <Etq tenue>Pausada</Etq>}
               </span>
-              <button type="button" className="boton" onClick={() => { alternarPlantilla(p.id); vibrar(10); }}>{p.activa ? 'Pausar' : 'Activar'}</button>
-            </section>
-          );
-        })}
+            </a>
+          ))}
+        </div>
       </main>
+      <Hoja abierta={nueva} alCerrar={() => setNueva(false)} titulo="Nueva plantilla">
+        <label className="campo"><span className="etq">Nombre</span>
+          <input value={nombre} placeholder="Ej. Cambio de turno" onChange={(ev) => setNombre(ev.target.value)} />
+        </label>
+        <p className="cuerpo">Nace pausada: actívala cuando tenga sus tareas.</p>
+        <button type="button" className="boton grande lleno" disabled={!nombre.trim()}
+          onClick={() => { const id = nuevaPlantilla(nombre.trim()); setNueva(false); setNombre(''); ir(`admin/plantilla/${id}`); }}>
+          {nombre.trim() ? 'Crear y editar' : 'Escribe el nombre'}
+        </button>
+      </Hoja>
+    </>
+  );
+}
+
+/**
+ * Editor de una plantilla: cada cambio se guarda al momento. Las tareas se
+ * ordenan con ↑ ↓ (más fácil que arrastrar con el pulgar) y se editan en una
+ * hoja; borrar se puede deshacer.
+ */
+export function AdminPlantilla({ id }: { id: string }) {
+  const e = useEstado();
+  const pl = e.plantillas.find((x) => x.id === id);
+  const [editando, setEditando] = useState<string | null>(null);
+  if (!pl) return <><Sup titulo="Plantilla" volver="admin/plantillas" /><main className="pant"><p className="cuerpo">No encontrada.</p></main></>;
+  const item = pl.items.find((i) => i.id === editando);
+  const cambiar = (fn: (x: Plantilla) => void) => editarPlantilla(pl.id, fn);
+  const editarItem = (fn: (i: ItemPlantilla) => void) => cambiar((x) => { const i = x.items.find((y) => y.id === editando); if (i) fn(i); });
+  const mover = (idx: number, d: -1 | 1) => cambiar((x) => {
+    const j = idx + d;
+    if (j < 0 || j >= x.items.length) return;
+    [x.items[idx], x.items[j]] = [x.items[j], x.items[idx]];
+  });
+  const agregar = () => {
+    const nuevo: ItemPlantilla = { id: `${pl.id}-${Date.now().toString(36)}`, seccion: pl.items[pl.items.length - 1]?.seccion ?? 'Tareas', tipo: 'check', texto: '' };
+    cambiar((x) => { x.items.push(nuevo); });
+    setEditando(nuevo.id);
+  };
+  const borrar = () => {
+    const idx = pl.items.findIndex((i) => i.id === editando);
+    const quitado = pl.items[idx];
+    cambiar((x) => { x.items = x.items.filter((i) => i.id !== editando); });
+    setEditando(null);
+    avisar(`Borraste: ${quitado.texto || 'tarea sin nombre'}`, { etiqueta: 'Deshacer', hacer: () => editarPlantilla(pl.id, (x) => { x.items.splice(idx, 0, quitado); }) });
+  };
+  const cerrarHoja = () => {
+    // Una tarea que se quedó sin texto no sirve: se quita sola.
+    if (item && !item.texto.trim()) cambiar((x) => { x.items = x.items.filter((i) => i.id !== item.id); });
+    setEditando(null);
+  };
+
+  return (
+    <>
+      <Sup titulo={pl.nombre || 'Plantilla'} sub="Cada cambio se guarda al momento" volver="admin/plantillas" />
+      <main className="pant pila">
+        <Seccion titulo="Datos">
+          <label className="campo"><span className="etq">Nombre</span>
+            <input value={pl.nombre} onChange={(ev) => cambiar((x) => { x.nombre = ev.target.value; })} />
+          </label>
+          <label className="campo"><span className="etq">Para qué es</span>
+            <input value={pl.descripcion} placeholder="Ej. Barra, máquina y desconectar" onChange={(ev) => cambiar((x) => { x.descripcion = ev.target.value; })} />
+          </label>
+          <span className="etq">Cada cuándo</span>
+          <div className="chips">
+            <button type="button" className="chip" aria-pressed={pl.frecuencia === 'diaria'} onClick={() => cambiar((x) => { x.frecuencia = 'diaria'; delete x.dia; })}>Diaria</button>
+            <button type="button" className="chip" aria-pressed={pl.frecuencia === 'semanal'} onClick={() => cambiar((x) => { x.frecuencia = 'semanal'; x.dia ??= 6; })}>Semanal</button>
+          </div>
+          {pl.frecuencia === 'semanal' && (
+            <div className="chips">{DIAS_SEM.map((d, i) => (
+              <button key={d} type="button" className="chip" aria-pressed={pl.dia === i} onClick={() => cambiar((x) => { x.dia = i; })}>{d}</button>
+            ))}</div>
+          )}
+          <label className="campo"><span className="etq">Hora límite</span>
+            <input type="time" value={pl.horaLimite} onChange={(ev) => ev.target.value && cambiar((x) => { x.horaLimite = ev.target.value; })} />
+          </label>
+          <button type="button" className="chip" aria-pressed={pl.activa} onClick={() => { cambiar((x) => { x.activa = !x.activa; }); vibrar(8); }}>
+            {pl.activa ? 'Activa: le aparece al equipo' : 'Pausada: no le aparece a nadie'}
+          </button>
+        </Seccion>
+
+        <Seccion titulo="Tareas" extra={`${pl.items.length} · toca una para editarla`}>
+          <div className="lista">
+            {pl.items.map((i, idx) => (
+              <div key={i.id} className="fila tarea-plantilla">
+                <span className="avatar" style={{ borderRadius: 0 }}>{idx + 1}</span>
+                <button type="button" className="fila-texto tp-texto" onClick={() => setEditando(i.id)}>
+                  <span className={i.critica ? 'negrita' : ''}>{i.texto || 'Sin nombre'}</span>
+                  {rasgos(i).length > 0 && <span className="fila-sub">{rasgos(i).join(' · ')}</span>}
+                </button>
+                <span className="tp-mover">
+                  <button type="button" className="sup-accion" aria-label={`Subir ${i.texto}`} disabled={idx === 0} onClick={() => mover(idx, -1)}>↑</button>
+                  <button type="button" className="sup-accion" aria-label={`Bajar ${i.texto}`} disabled={idx === pl.items.length - 1} onClick={() => mover(idx, 1)}>↓</button>
+                </span>
+              </div>
+            ))}
+          </div>
+          <button type="button" className="boton grande" onClick={agregar}>Agregar tarea</button>
+        </Seccion>
+      </main>
+
+      <Hoja abierta={!!item} alCerrar={cerrarHoja} titulo="Tarea">
+        {item && (
+          <>
+            <label className="campo"><span className="etq">Qué hay que hacer</span>
+              <input autoFocus value={item.texto} placeholder="Ej. Limpiar la tarja" onChange={(ev) => editarItem((i) => { i.texto = ev.target.value; })} />
+            </label>
+            <span className="etq">Cómo se registra</span>
+            <div className="chips">
+              {([['check', 'Se palomea'], ['numero', 'Lectura con rango'], ['foto', 'Solo foto'], ['nota', 'Se anota']] as const).map(([t, n]) => (
+                <button key={t} type="button" className="chip" aria-pressed={item.tipo === t}
+                  onClick={() => editarItem((i) => {
+                    i.tipo = t;
+                    if (t === 'numero') { i.min ??= 0; i.max ??= 7; i.unidad ??= '°C'; i.paso ??= 0.5; i.inicial ??= 3.5; }
+                  })}>{n}</button>
+              ))}
+            </div>
+            {item.tipo === 'numero' && (
+              <div className="rejilla-3">
+                <label className="campo"><span className="etq">Mínimo</span><input type="number" inputMode="decimal" value={item.min ?? ''} onChange={(ev) => editarItem((i) => { i.min = ev.target.value === '' ? undefined : Number(ev.target.value); })} /></label>
+                <label className="campo"><span className="etq">Máximo</span><input type="number" inputMode="decimal" value={item.max ?? ''} onChange={(ev) => editarItem((i) => { i.max = ev.target.value === '' ? undefined : Number(ev.target.value); })} /></label>
+                <label className="campo"><span className="etq">Unidad</span><input value={item.unidad ?? ''} onChange={(ev) => editarItem((i) => { i.unidad = ev.target.value; })} /></label>
+              </div>
+            )}
+            {item.tipo === 'check' && (
+              <>
+                <span className="etq">Foto de evidencia</span>
+                <div className="chips">
+                  {([[undefined, 'Sin foto'], ['opcional', 'Opcional'], ['obligatoria', 'Obligatoria']] as const).map(([f, n]) => (
+                    <button key={n} type="button" className="chip" aria-pressed={item.foto === f} onClick={() => editarItem((i) => { if (f) i.foto = f; else delete i.foto; })}>{n}</button>
+                  ))}
+                </div>
+              </>
+            )}
+            <button type="button" className="chip" aria-pressed={!!item.critica} onClick={() => editarItem((i) => { i.critica = !i.critica; })}>
+              {item.critica ? 'Crítica: no se completa sin ella' : 'Marcar como crítica'}
+            </button>
+            <div className="rejilla-2">
+              <button type="button" className="boton" onClick={borrar}>Borrar tarea</button>
+              <button type="button" className="boton lleno" onClick={cerrarHoja}>Listo</button>
+            </div>
+          </>
+        )}
+      </Hoja>
     </>
   );
 }

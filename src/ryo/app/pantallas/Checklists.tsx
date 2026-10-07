@@ -17,6 +17,7 @@ import {
 } from '../estado';
 import { Sup, Seccion, BarraProg, Casilla, Stepper, Hoja, Foto, Estado as Etq, Vacio, ir } from '../componentes';
 import { procesarFoto, guardarFoto, kb, type FotoProcesada } from '../lib/fotos';
+import { ReportarIncidencia } from './Herramientas';
 import { jornadaDe, hora, cuando, fechaCorta, minutos, minutosAhora, sumarDias } from '../lib/tiempo';
 
 const ACCIONES_FUERA = ['Aislé el producto', 'Moví a otro refri', 'Avisé al encargado', 'Descarté producto'];
@@ -58,6 +59,7 @@ export function ChecklistsInicio() {
   const hoy = jornadaDe();
   const deHoy = plantillasDeHoy(e, hoy);
   const esEncargado = puede(e, 'encargado', 'admin');
+  const [reportar, setReportar] = useState(false);
   const porValidar = e.ejecuciones
     .filter((x) => x.completadaEn && !x.validadaEn)
     .sort((a, b) => (b.completadaEn ?? 0) - (a.completadaEn ?? 0));
@@ -103,6 +105,8 @@ export function ChecklistsInicio() {
         )}
 
         <a className="boton grande" href="#/checklists/historial">Historial</a>
+        <button type="button" className="boton grande" onClick={() => setReportar(true)}>Reportar un problema</button>
+        <ReportarIncidencia abierta={reportar} alCerrar={() => setReportar(false)} />
       </main>
     </>
   );

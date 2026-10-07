@@ -19,6 +19,7 @@ import {
 import { Sup, Seccion, Estado as Etq, Casilla, Vacio, BarraProg } from '../componentes';
 import { personasDe, turnosDe, horasDe } from '../lib/turnos';
 import { resumen } from './Checklists';
+import { porDecidir } from './Panel';
 import { tocaHoy } from '../lib/repaso';
 import { jornadaDe, hora, fechaCorta, nombreDia, lunesDe, sumarDias, cuando, dgo, tsDgo } from '../lib/tiempo';
 
@@ -99,6 +100,18 @@ export function tareasDe(e: Estado, u: Usuario, hoy = jornadaDe()): Tarea[] {
     t.push({ id: `leccion-${a.leccionId}`, texto: 'Lección que te asignaron', detalle: `${a.motivo} · ${usuario(e, a.por)?.nombre.split(' ')[0]}`, ruta: `#/aprender/leccion/${a.leccionId}`, hecha: false, accion: 'Abrir la lección' });
   }
 
+  for (const x of e.incidencias.filter((i) => i.responsable === u.id && !i.cerradaEn)) {
+    t.push({
+      id: `incidencia-${x.id}`,
+      texto: `Resolver: ${x.titulo}`,
+      detalle: x.vence ? `Para el ${fechaCorta(x.vence)}${x.vence < hoy ? ' · ya venció' : ''}` : 'Te la asignaron',
+      ruta: `#/panel/incidencia/${x.id}`,
+      hecha: false,
+      urgente: x.prioridad === 'alta' || (!!x.vence && x.vence <= hoy),
+      accion: 'Ver la incidencia',
+    });
+  }
+
   for (const c of e.cambios.filter((x) => x.estado === 'abierto' && x.para === u.id && x.fecha >= hoy)) {
     t.push({
       id: `cambio-${c.id}`,
@@ -166,7 +179,8 @@ export function pendientesPorPestana(e: Estado, u: Usuario, hoy = jornadaDe()) {
     inicio: avisosDe(e, u.id).some((n) => !n.leidaPor.includes(u.id)),
     checklists: tareas.some((t) => t.id.startsWith('checklist-') && t.urgente),
     calibrar: tareas.some((t) => t.id === 'calibrar' && !t.hecha),
-    mas: tareas.some((t) => t.id.startsWith('cambio-')) || (puede(e, 'encargado', 'admin') && firmasDe(e, hoy).length > 0),
+    mas: tareas.some((t) => t.id.startsWith('cambio-')),
+    panel: puede(e, 'encargado', 'admin') && porDecidir(e) > 0,
   } as Record<string, boolean>;
 }
 
@@ -234,7 +248,7 @@ export function Inicio() {
   const nuevos = avisosDe(e, u.id).filter((n) => !n.leidaPor.includes(u.id));
   const tareas = tareasDe(e, u, hoy);
   const listas = tareas.filter((t) => t.hecha).length;
-  const firmas = esEncargado ? firmasDe(e, hoy) : [];
+  const decidir = esEncargado ? porDecidir(e) : 0;
   const siguiente = tareas.find((t) => !t.hecha);
 
   const fecha = `${nombreDia(hoy)} ${fechaCorta(hoy).split(' ').slice(1).join(' ')}`;
@@ -268,8 +282,9 @@ export function Inicio() {
         </Seccion>
 
         {esEncargado && (
-          <Seccion titulo="Para tu firma" extra={firmas.length ? `${firmas.length} por revisar` : 'Al día'}>
-            {firmas.length ? <ListaTareas tareas={firmas} /> : <Vacio>Todo en calma. Nada espera tu firma.</Vacio>}
+          <Seccion titulo="Tu Panel" extra={decidir ? `${decidir} por decidir` : 'Al día'}>
+            <p className="cuerpo">{decidir ? 'Validaciones, cambios de turno, días libres e incidencias esperan tu decisión.' : 'Nada espera tu decisión. Los indicadores de la semana están en el Panel.'}</p>
+            <a className={`boton grande${decidir ? ' lleno' : ''}`} href="#/panel">Abrir el Panel</a>
           </Seccion>
         )}
 

@@ -627,6 +627,44 @@ a.enlace::after { content: '→'; margin-left: 8px; font-size: 0.95rem; }
 .detalle summary::before { content: '+'; font-size: 1rem; width: 12px; }
 .detalle[open] summary::before { content: '−'; }
 
+/* ═══ PANEL ═══ */
+/* Mini barras: una por día, la última llena (sparkline de barras). */
+.mini-barras { display: block; flex: none; }
+.mini-barras .mb { fill: none; stroke: currentColor; stroke-width: 1; }
+.mini-barras .mb-ultima { fill: currentColor; }
+.indicador { align-items: center; }
+.indicador .estado { white-space: normal; line-height: 1.35; align-self: flex-start; }
+.indicador .fila-texto { padding-right: 4px; }
+.ind-lado { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.ind-valor { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.decision .boton { margin-top: 4px; }
+.decision-fila { align-items: flex-start; }
+.decision-enlace { text-decoration: none; }
+.decision-acciones { margin-top: 8px; }
+.nota-hoy { gap: 6px; }
+/* Barras por día con su valor y su fecha. */
+.barras-dias { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; align-items: end; height: 150px; }
+.bd-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; min-width: 0; }
+.bd-valor { font-size: 0.56rem; letter-spacing: 0; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bd-barra { width: 100%; background: var(--ink); min-height: 0; transform-origin: bottom; animation: crece-v 520ms var(--ease) backwards; }
+@keyframes crece-v { from { transform: scaleY(0); } }
+.bd-dia { font-size: 0.58rem; line-height: 1.2; text-align: center; letter-spacing: 0; }
+.bd-col[data-hoy='si'] .bd-dia { font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+/* Barras horizontales por categoría. */
+.barras-h { display: flex; flex-direction: column; gap: 10px; }
+.bh-fila { display: grid; grid-template-columns: 6.5rem 1fr 2rem; align-items: center; gap: 10px; }
+.bh-barra { height: 14px; background: var(--ink); min-width: 3px; }
+.bh-n { text-align: right; font-weight: 700; }
+/* Bitácora y reporte. */
+.nota-texto { font-size: 0.95rem; line-height: 1.55; }
+.reporte { border: 1px solid var(--line); padding: var(--pad); white-space: pre-wrap; font-size: 0.86rem; line-height: 1.6; user-select: text; -webkit-user-select: text; }
+/* Editor de plantillas. */
+.tarea-plantilla { gap: 10px; }
+.tp-texto { text-align: left; cursor: pointer; padding: 4px 0; }
+.tp-mover { display: flex; gap: 6px; flex: none; }
+.tp-mover .sup-accion { min-width: 42px; padding: 8px; }
+.sup-accion:disabled { border-style: dashed; opacity: 0.5; }
+
 /* ═══ AJUSTE SUGERIDO: los cambios y lo que se espera ═══ */
 .sugerencia { scroll-margin-top: 64px; }
 .boton.cargando::after { animation-duration: 600ms; }

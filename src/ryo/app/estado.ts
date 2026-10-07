@@ -267,6 +267,42 @@ export type Ausencia = {
  * Aviso en la bandeja de Inicio. `para` es un usuario, 'todos' o
  * 'encargados' (encargado y admin). Quien lo generó no lo recibe.
  */
+/**
+ * Algo que hay que resolver: una lectura fuera de rango (se abre sola) o
+ * algo que alguien reporta. Tiene responsable, fecha para resolverse,
+ * seguimiento y un cierre con nota: no se cierra sin decir qué se hizo.
+ */
+export type Incidencia = {
+  id: string;
+  titulo: string;
+  detalle?: string;
+  origen: 'lectura' | 'reporte';
+  categoria: 'equipo' | 'inocuidad' | 'producto' | 'limpieza' | 'personal' | 'otro';
+  prioridad: 'alta' | 'normal';
+  ejecucionId?: string;
+  itemId?: string;
+  abiertaPor: string;
+  abiertaEn: number;
+  responsable?: string;
+  /** "AAAA-MM-DD" */
+  vence?: string;
+  seguimiento: { por: string; en: number; texto: string }[];
+  cerradaPor?: string;
+  cerradaEn?: number;
+  cierre?: string;
+};
+
+/** Bitácora del encargado: notas por día y categoría para pasarse el turno. */
+export type NotaBitacora = {
+  id: string;
+  jornada: string;
+  categoria: 'turno' | 'equipo' | 'personal' | 'producto' | 'clientes' | 'otro';
+  texto: string;
+  por: string;
+  en: number;
+  fijada?: boolean;
+};
+
 export type Notificacion = {
   id: string;
   para: string;
@@ -312,6 +348,8 @@ export type Estado = {
   ausencias: Ausencia[];
   notificaciones: Notificacion[];
   progreso: Record<string, Progreso>;
+  incidencias: Incidencia[];
+  bitacora: NotaBitacora[];
 };
 
 /* ═══ ALMACÉN ═════════════════════════════════════════════ */
@@ -474,6 +512,19 @@ export function marcar(ejecucionId: string, itemId: string, datos: Partial<Marca
     if (!ej || ej.completadaEn) return;
     const previa = ej.marcas[itemId];
     ej.marcas[itemId] = { ...previa, ...datos, por: e.usuarioId!, en: previa?.en ?? Date.now() };
+    // Una lectura fuera de rango abre una incidencia (una sola por ítem).
+    if (datos.fuera && !e.incidencias.some((x) => x.ejecucionId === ejecucionId && x.itemId === itemId && !x.cerradaEn)) {
+      const it = e.plantillas.find((p) => p.id === ej.plantillaId)?.items.find((i) => i.id === itemId);
+      if (it) {
+        e.incidencias.unshift({
+          id: nuevoId('inc'), titulo: `${it.texto}: ${datos.valor ?? ''} ${it.unidad ?? ''}`.trim(),
+          detalle: `Fuera del rango ${it.min ?? '–'} a ${it.max ?? '–'} ${it.unidad ?? ''}.`.trim(),
+          origen: 'lectura', categoria: 'inocuidad', prioridad: 'alta', ejecucionId, itemId,
+          abiertaPor: e.usuarioId!, abiertaEn: Date.now(), vence: jornadaDe(), seguimiento: [],
+        });
+        notificar(e, 'encargados', `${primer(e, e.usuarioId!)} registró ${it.texto.toLowerCase()} fuera de rango: ${datos.valor} ${it.unidad ?? ''}.`, '#/panel/incidencias');
+      }
+    }
   });
 }
 
@@ -521,10 +572,107 @@ export function reabrir(ejecucionId: string) {
 }
 
 export function validar(ejecucionId: string) {
+  validarVarios([ejecucionId]);
+}
+
+/** Validar de un jalón los checklists que están en orden. */
+export function validarVarios(ids: string[]) {
   actualizar((e) => {
-    const ej = e.ejecuciones.find((x) => x.id === ejecucionId);
-    if (ej) { ej.validadaPor = e.usuarioId!; ej.validadaEn = Date.now(); }
+    for (const ej of e.ejecuciones.filter((x) => ids.includes(x.id) && x.completadaEn && !x.validadaEn)) {
+      ej.validadaPor = e.usuarioId!;
+      ej.validadaEn = Date.now();
+    }
   });
+}
+
+/** Deshacer una validación en lote. */
+export function quitarValidacion(ids: string[]) {
+  actualizar((e) => {
+    for (const ej of e.ejecuciones.filter((x) => ids.includes(x.id))) { delete ej.validadaEn; delete ej.validadaPor; }
+  });
+}
+
+/* ── Plantillas ─────────────────────────────────────────── */
+
+/** Edita una plantilla en su lugar. Lo ya ejecutado conserva sus marcas. */
+export function editarPlantilla(id: string, fn: (p: Plantilla) => void) {
+  actualizar((e) => { const p = e.plantillas.find((x) => x.id === id); if (p) fn(p); });
+}
+
+export function nuevaPlantilla(nombre: string): string {
+  const id = nuevoId('p');
+  actualizar((e) => {
+    e.plantillas.push({
+      id, nombre, descripcion: '', frecuencia: 'diaria', horaLimite: '12:00', activa: false,
+      items: [{ id: `${id}-0`, seccion: 'Tareas', tipo: 'check', texto: 'Primera tarea' }],
+    });
+  });
+  return id;
+}
+
+/* ── Incidencias ────────────────────────────────────────── */
+
+export function reportarIncidencia(datos: Pick<Incidencia, 'titulo' | 'categoria' | 'prioridad'> & { detalle?: string }) {
+  const id = nuevoId('inc');
+  actualizar((e) => {
+    e.incidencias.unshift({ ...datos, id, origen: 'reporte', abiertaPor: e.usuarioId!, abiertaEn: Date.now(), seguimiento: [] });
+    notificar(e, 'encargados', `${primer(e, e.usuarioId!)} reportó: ${datos.titulo}.`, `#/panel/incidencia/${id}`);
+  });
+  return id;
+}
+
+export function asignarIncidencia(id: string, responsable: string, vence?: string) {
+  actualizar((e) => {
+    const x = e.incidencias.find((i) => i.id === id);
+    if (!x) return;
+    x.responsable = responsable;
+    if (vence) x.vence = vence;
+    x.seguimiento.push({ por: e.usuarioId!, en: Date.now(), texto: `Asignada a ${primer(e, responsable)}${vence ? `, para el ${fechaCorta(vence)}` : ''}.` });
+    if (responsable !== e.usuarioId) notificar(e, responsable, `Te toca resolver: ${x.titulo}${vence ? ` (para el ${fechaCorta(vence)})` : ''}.`, `#/panel/incidencia/${id}`);
+  });
+}
+
+export function comentarIncidencia(id: string, texto: string) {
+  actualizar((e) => {
+    const x = e.incidencias.find((i) => i.id === id);
+    if (x) x.seguimiento.push({ por: e.usuarioId!, en: Date.now(), texto });
+  });
+}
+
+export function cerrarIncidencia(id: string, cierre: string) {
+  actualizar((e) => {
+    const x = e.incidencias.find((i) => i.id === id);
+    if (!x) return;
+    x.cerradaPor = e.usuarioId!;
+    x.cerradaEn = Date.now();
+    x.cierre = cierre;
+    if (x.abiertaPor !== e.usuarioId) notificar(e, x.abiertaPor, `Se resolvió: ${x.titulo}.`, `#/panel/incidencia/${id}`);
+  });
+}
+
+export function reabrirIncidencia(id: string) {
+  actualizar((e) => {
+    const x = e.incidencias.find((i) => i.id === id);
+    if (!x) return;
+    delete x.cerradaEn; delete x.cerradaPor; delete x.cierre;
+    x.seguimiento.push({ por: e.usuarioId!, en: Date.now(), texto: 'La reabrió.' });
+  });
+}
+
+/* ── Bitácora ───────────────────────────────────────────── */
+
+export function anotarBitacora(categoria: NotaBitacora['categoria'], texto: string) {
+  actualizar((e) => {
+    e.bitacora.unshift({ id: nuevoId('bit'), jornada: jornadaDe(), categoria, texto, por: e.usuarioId!, en: Date.now() });
+  });
+}
+
+export function fijarNota(id: string) {
+  actualizar((e) => { const n = e.bitacora.find((x) => x.id === id); if (n) n.fijada = !n.fijada; });
+}
+
+export function borrarNota(id: string) {
+  actualizar((e) => { e.bitacora = e.bitacora.filter((x) => x.id !== id || x.por !== e.usuarioId); });
 }
 
 /* ── Calibración ────────────────────────────────────────── */
