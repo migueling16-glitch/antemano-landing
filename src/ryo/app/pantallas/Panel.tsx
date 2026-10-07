@@ -203,10 +203,10 @@ export function PanelInicio({ vista = 'hoy' }: { vista?: VistaPanel }) {
         <Pestanas etiqueta="Vista del Panel" activa={vista}
           onCambio={(v) => location.replace(v === 'hoy' ? '#/panel' : `#/panel/${v}`)}
           opciones={[
-            { id: 'hoy', texto: 'Hoy', n: total },
-            { id: 'datos', texto: 'Datos' },
-            { id: 'equipo', texto: 'Equipo', n: equipo.filter((f) => f.ojo.length).length },
-            { id: 'herramientas', texto: 'Más' },
+            { id: 'hoy', texto: 'Hoy', n: total, leyenda: 'Lo que espera tu decisión y cómo va el día' },
+            { id: 'datos', texto: 'Datos', leyenda: 'Cómo va la semana contra la anterior' },
+            { id: 'equipo', texto: 'Equipo', n: equipo.filter((f) => f.ojo.length).length, leyenda: 'Cada persona y lo que conviene mirar' },
+            { id: 'herramientas', texto: 'Más', leyenda: 'Incidencias, bitácora, reporte, horarios y ajustes' },
           ]} />
 
         {vista === 'hoy' && <>
@@ -250,15 +250,18 @@ export function PanelInicio({ vista = 'hoy' }: { vista?: VistaPanel }) {
 
         {vista === 'datos' && <>
         <p className="meta">Los últimos 7 días contra los 7 anteriores. Toca uno para verlo día por día.</p>
-        <Seccion titulo="Indicadores" extra="7 días">
+        <Seccion titulo="Indicadores" extra="7 días" ayuda={<>
+          Cada número junta los últimos 7 días y lo compara con los 7 anteriores. Las barritas son los días: la llena es hoy.
+          Con ✓ mejoró; con ! empeoró. Toca uno para verlo día por día.
+        </>}>
           <div className="lista">
             {inds.map((i) => (
               <a key={i.id} className="fila indicador" href={`#/panel/indicador/${i.id}`}>
                 <span className="fila-texto">
-                  <span>{i.nombre}</span>
+                  <span data-leyenda={i.que}>{i.nombre}</span>
                   <Cambio i={i} />
                 </span>
-                <span className="ind-lado">
+                <span className="ind-lado" data-leyenda="Cada barra es un día de los últimos 7; la llena es hoy.">
                   <span className="ind-valor">{Number.isFinite(i.valor) ? i.texto(i.valor) : '–'}</span>
                   <MiniBarras serie={i.serie} />
                 </span>
@@ -270,7 +273,10 @@ export function PanelInicio({ vista = 'hoy' }: { vista?: VistaPanel }) {
         </>}
 
         {vista === 'equipo' && (
-        <Seccion titulo="Equipo" extra="Últimos 14 días">
+        <Seccion titulo="Equipo" extra="Últimos 14 días" ayuda={<>
+          Sale marcada una persona cuando conviene mirarla: menos de 80 % de checklists a tiempo, 3 o más repasos vencidos,
+          una alerta de su horario o una lección asignada sin terminar. Es para apoyar, no para calificar.
+        </>}>
           <div className="lista">
             {equipo.map((f) => <FilaPersona key={f.u.id} f={f} />)}
           </div>
@@ -324,7 +330,7 @@ function FilaPersona({ f }: { f: FichaPersona }) {
   const nivel = f.u.rol === 'barista' ? `Barista ${f.u.nivel}` : f.u.rol === 'encargado' ? 'Encargada' : 'Admin';
   return (
     <a className="fila" href={`#/panel/persona/${f.u.id}`}>
-      <Avatar texto={f.u.iniciales} />
+      <Avatar texto={f.u.iniciales} nombre={f.u.nombre} />
       <span className="fila-texto">
         <span>{f.u.nombre}</span>
         <span className="fila-sub">

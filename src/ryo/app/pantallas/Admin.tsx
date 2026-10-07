@@ -68,7 +68,7 @@ export function AdminUsuarios() {
         <div className="lista">
           {e.usuarios.map((x) => (
             <button key={x.id} type="button" className="fila ir" onClick={() => setEditar(x.id)} style={{ opacity: x.activo ? 1 : 0.55 }}>
-              <Avatar texto={x.iniciales} lleno={x.id === e.usuarioId} />
+              <Avatar texto={x.iniciales} lleno={x.id === e.usuarioId} nombre={x.nombre} />
               <span className="fila-texto">
                 <span>{x.nombre}</span>
                 <span className="fila-sub">{x.rol} · {x.correo}</span>
@@ -242,8 +242,8 @@ export function AdminPlantilla({ id }: { id: string }) {
                   {rasgos(i).length > 0 && <span className="fila-sub">{rasgos(i).join(' · ')}</span>}
                 </button>
                 <span className="tp-mover">
-                  <button type="button" className="sup-accion" aria-label={`Subir ${i.texto}`} disabled={idx === 0} onClick={() => mover(idx, -1)}>↑</button>
-                  <button type="button" className="sup-accion" aria-label={`Bajar ${i.texto}`} disabled={idx === pl.items.length - 1} onClick={() => mover(idx, 1)}>↓</button>
+                  <button type="button" className="sup-accion" aria-label={`Subir ${i.texto}`} data-leyenda="Subir esta tarea un lugar" disabled={idx === 0} onClick={() => mover(idx, -1)}>↑</button>
+                  <button type="button" className="sup-accion" aria-label={`Bajar ${i.texto}`} data-leyenda="Bajar esta tarea un lugar" disabled={idx === pl.items.length - 1} onClick={() => mover(idx, 1)}>↓</button>
                 </span>
               </div>
             ))}

@@ -108,6 +108,46 @@ de legibilidad):
     barra se ve como información;
   - la lista no repite lo que ya está en "Ahora".
 
+## Ayuda dentro de la app
+
+En el celular no existe "pasar el mouse". La ayuda tiene tres niveles y un
+solo símbolo: el **círculo con "?"**, la única forma redonda además de los
+avatares, para que nunca se confunda con un botón o un estado.
+
+1. **Visible siempre (lo esencial):** etiquetas, notas bajo los controles y
+   por qué algo no se puede. Nada necesario para terminar una tarea se
+   esconde (NN/g, tooltips).
+2. **"?" que se toca** (`Leyenda`, o `<Seccion ayuda>`): un toggletip, no un
+   tooltip.
+   - Se abre con un toque y se cierra tocando fuera, con Esc o tocando otra
+     vez. No desaparece solo (WCAG 1.4.13).
+   - Solo donde algo se lee sin palabras: indicadores y sus barritas,
+     quién sale marcado en Equipo, la brújula de sabor, los pulsos de la
+     máquina y el calendario del mes.
+3. **Mantener presionado (celular) o dejar el mouse encima**
+   (`data-leyenda`, `LeyendasFlotantes`): el nombre o para qué sirve un
+   símbolo o abreviatura.
+   - Dónde: pestañas, pestañas internas, iniciales, celdas del horario y
+     del calendario, ↑ ↓ del editor, + / − y el número de los steppers, la
+     etiqueta "Crítica" y los nombres de los indicadores.
+   - Es un extra, como en Android: lo que se mantuvo presionado no se
+     activa al soltar, y nada esencial vive ahí.
+   - `data-sin-largo` lo deja solo para el mouse donde mantener presionado
+     ya hace otra cosa (los + / − repiten).
+
+Además:
+- **Pistas de primera vez:** una por pantalla, una sola cosa, en el
+  momento. Lo de "una a la vez" es de NN/g, sobre coach marks.
+- **Glosario:** "¿Qué es?" junto a las palabras de la barra.
+- **Guía rápida** (`#/guia`): ejemplos vivos de qué se toca, qué dice cada
+  marca y cómo se acomoda cada pantalla.
+
+**Dónde no:**
+- botones y filas que ya dicen lo que hacen (sería repetir su texto);
+- campos de formulario (la etiqueta va afuera y visible);
+- la cuadrícula del horario del equipo, que ya trae su leyenda visible
+  abajo.
+
 ## Panel del encargado y del admin
 
 Para encargado y admin, la quinta pestaña es **Panel** en lugar de Más (Más

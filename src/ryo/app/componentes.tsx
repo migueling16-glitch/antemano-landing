@@ -166,12 +166,166 @@ export function Estado({ children, fuerte, tenue, alerta }: { children: ReactNod
  * Sección = ficha con su pestaña. `consulta` la vuelve de solo lectura:
  * fondo tenue y sin recuadro, para que se distinga de lo que se registra.
  */
-export const Seccion = ({ titulo, extra, consulta, children }: { titulo: string; extra?: ReactNode; consulta?: boolean; children: ReactNode }) => (
+export const Seccion = ({ titulo, extra, consulta, ayuda, children }: {
+  titulo: string; extra?: ReactNode; consulta?: boolean;
+  /** Cómo se lee esta sección: sale con el "?" de su pestaña. Solo donde algo se lee sin palabras. */
+  ayuda?: ReactNode;
+  children: ReactNode;
+}) => (
   <section className={`sec${consulta ? ' consulta' : ''}`}>
-    <h2 className="sec-titulo"><span>{titulo}</span>{extra && <span className="extra">{extra}</span>}</h2>
+    <h2 className="sec-titulo">
+      <span>{titulo}</span>
+      {extra && <span className="extra">{extra}</span>}
+      {ayuda && <Leyenda etiqueta={`Cómo se lee: ${titulo.toLowerCase()}`}>{ayuda}</Leyenda>}
+    </h2>
     {children}
   </section>
 );
+
+/* ═══ AYUDA: TOGGLETIP ════════════════════════════════════ */
+
+/**
+ * El "?" que se toca. En celular no existe pasar el mouse, así que la
+ * explicación se abre con un toque (toggletip, no tooltip) y se cierra
+ * tocando fuera, con Esc o tocando otra vez. No desaparece sola (WCAG
+ * 1.4.13). Nunca lleva algo esencial: eso va visible.
+ */
+export function Leyenda({ children, etiqueta = 'Cómo se lee' }: { children: ReactNode; etiqueta?: string }) {
+  const [abierta, setAbierta] = useState(false);
+  const caja = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!abierta) return;
+    const fuera = (e: PointerEvent) => { if (!caja.current?.contains(e.target as Node)) setAbierta(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setAbierta(false); };
+    document.addEventListener('pointerdown', fuera);
+    addEventListener('keydown', esc);
+    return () => { document.removeEventListener('pointerdown', fuera); removeEventListener('keydown', esc); };
+  }, [abierta]);
+  return (
+    <span className="leyenda" ref={caja}>
+      <button type="button" className="ayuda-marca" aria-expanded={abierta} aria-label={etiqueta}
+        onClick={() => { setAbierta(!abierta); vibrar(6); }} />
+      <span role="status" className="leyenda-region">{abierta && <span className="globo">{children}</span>}</span>
+    </span>
+  );
+}
+
+/* ═══ AYUDA: MANTENER PRESIONADO / PASAR EL MOUSE ═════════ */
+
+type Globo = { texto: string; x: number; y: number; arriba: boolean };
+
+/**
+ * Lo que dice `data-leyenda` en cualquier elemento: con el mouse aparece
+ * al detenerse encima; en el teléfono, al mantener presionado (como en
+ * Android). Es un extra para símbolos y abreviaturas: nada esencial vive
+ * aquí. `data-sin-largo` lo deja solo para el mouse (donde mantener
+ * presionado ya hace otra cosa, como en los + / − que repiten).
+ */
+export function LeyendasFlotantes() {
+  const [g, setG] = useState<Globo | null>(null);
+  const globo = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let timer = 0;
+    let cerrar = 0;
+    let suprimir = false;
+    let inicio: { x: number; y: number } | null = null;
+    let actual: Element | null = null;
+    const con = (t: EventTarget | null) => (t instanceof Element ? t.closest('[data-leyenda]') : null);
+    const mostrar = (el: Element, tactil: boolean) => {
+      const texto = el.getAttribute('data-leyenda');
+      if (!texto) return;
+      const r = el.getBoundingClientRect();
+      const x = Math.min(Math.max(r.left + r.width / 2, 146), innerWidth - 146);
+      const arriba = tactil ? r.top > 110 : r.bottom > innerHeight - 140;
+      setG({ texto, x, y: arriba ? r.top - 10 : r.bottom + 10, arriba });
+    };
+    const ocultar = () => { clearTimeout(timer); actual = null; setG(null); };
+    const enGlobo = (t: EventTarget | null) => !!(t instanceof Node && globo.current?.contains(t));
+
+    const sobre = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      const el = con(e.target);
+      if (enGlobo(e.target)) { clearTimeout(cerrar); return; }
+      if (!el || el === actual) return;
+      clearTimeout(timer); clearTimeout(cerrar);
+      actual = el;
+      timer = window.setTimeout(() => mostrar(el, false), 450);
+    };
+    const sale = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || !actual) return;
+      const hacia = e.relatedTarget as Node | null;
+      if (hacia && (actual.contains(hacia) || enGlobo(hacia))) return;
+      clearTimeout(timer);
+      // Un respiro para poder pasar el mouse al globo sin que se cierre.
+      cerrar = window.setTimeout(ocultar, 150);
+    };
+    const baja = (e: PointerEvent) => {
+      // Un toque nuevo nunca se ignora: solo el que llega justo al soltar.
+      suprimir = false;
+      if (enGlobo(e.target)) return;
+      if (e.pointerType === 'mouse') { ocultar(); return; }
+      setG(null);
+      const el = con(e.target);
+      if (!el || el.hasAttribute('data-sin-largo')) return;
+      inicio = { x: e.clientX, y: e.clientY };
+      clearTimeout(timer);
+      timer = window.setTimeout(() => { mostrar(el, true); suprimir = true; vibrar(12); }, 520);
+    };
+    const mueve = (e: PointerEvent) => {
+      if (!inicio || e.pointerType === 'mouse') return;
+      if (Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) > 10) { clearTimeout(timer); inicio = null; }
+    };
+    const suelta = () => {
+      clearTimeout(timer);
+      inicio = null;
+      // Si el navegador no manda el clic al soltar, el siguiente toque no se pierde.
+      if (suprimir) window.setTimeout(() => { suprimir = false; }, 450);
+    };
+    // Lo que se mantuvo presionado para leer su leyenda no se activa al soltar.
+    const clic = (e: MouseEvent) => { if (suprimir) { e.preventDefault(); e.stopPropagation(); suprimir = false; } };
+    const menu = (e: Event) => { if (con(e.target)) e.preventDefault(); };
+    const foco = (e: FocusEvent) => { const el = con(e.target); if (el && (e.target as Element).matches(':focus-visible')) mostrar(el, false); };
+    const sinFoco = () => ocultar();
+    const tecla = (e: KeyboardEvent) => { if (e.key === 'Escape') ocultar(); };
+
+    document.addEventListener('pointerover', sobre);
+    document.addEventListener('pointerout', sale);
+    document.addEventListener('pointerdown', baja, true);
+    document.addEventListener('pointermove', mueve, true);
+    document.addEventListener('pointerup', suelta, true);
+    document.addEventListener('pointercancel', suelta, true);
+    document.addEventListener('click', clic, true);
+    document.addEventListener('contextmenu', menu);
+    document.addEventListener('focusin', foco);
+    document.addEventListener('focusout', sinFoco);
+    addEventListener('keydown', tecla);
+    addEventListener('scroll', ocultar, { passive: true });
+    addEventListener('hashchange', ocultar);
+    return () => {
+      document.removeEventListener('pointerover', sobre);
+      document.removeEventListener('pointerout', sale);
+      document.removeEventListener('pointerdown', baja, true);
+      document.removeEventListener('pointermove', mueve, true);
+      document.removeEventListener('pointerup', suelta, true);
+      document.removeEventListener('pointercancel', suelta, true);
+      document.removeEventListener('click', clic, true);
+      document.removeEventListener('contextmenu', menu);
+      document.removeEventListener('focusin', foco);
+      document.removeEventListener('focusout', sinFoco);
+      removeEventListener('keydown', tecla);
+      removeEventListener('scroll', ocultar);
+      removeEventListener('hashchange', ocultar);
+      clearTimeout(timer); clearTimeout(cerrar);
+    };
+  }, []);
+  if (!g) return null;
+  return (
+    <div ref={globo} className="globo globo-flotante" role="tooltip" data-arriba={g.arriba ? 'si' : 'no'}
+      style={{ left: g.x, top: g.y }} onPointerLeave={(e) => { if (e.pointerType === 'mouse') setG(null); }}>
+      {g.texto}
+    </div>
+  );
+}
 
 /* ═══ PESTAÑAS INTERNAS ═══════════════════════════════════ */
 
@@ -181,12 +335,12 @@ export const Seccion = ({ titulo, extra, consulta, children }: { titulo: string;
  * Filtrar es con chips; hacer, con botones; ir a otra pantalla, con filas.
  */
 export function Pestanas<T extends string>({ opciones, activa, onCambio, etiqueta }: {
-  opciones: { id: T; texto: string; n?: number }[]; activa: T; onCambio: (id: T) => void; etiqueta: string;
+  opciones: { id: T; texto: string; n?: number; leyenda?: string }[]; activa: T; onCambio: (id: T) => void; etiqueta: string;
 }) {
   return (
     <div className="pestanas" role="tablist" aria-label={etiqueta}>
       {opciones.map((o) => (
-        <button key={o.id} type="button" role="tab" aria-selected={o.id === activa}
+        <button key={o.id} type="button" role="tab" aria-selected={o.id === activa} data-leyenda={o.leyenda}
           onClick={() => { if (o.id !== activa) { onCambio(o.id); vibrar(6); window.scrollTo({ top: 0 }); } }}>
           {o.texto}{o.n ? <span className="n" aria-label={`${o.n} pendientes`}>{o.n}</span> : null}
         </button>
@@ -255,8 +409,9 @@ export const BarraProg = ({ valor }: { valor: number }) => (
   </div>
 );
 
-export const Avatar = ({ texto, lleno }: { texto: string; lleno?: boolean }) => (
-  <span className={`avatar${lleno ? ' lleno' : ''}`} aria-hidden="true">{texto}</span>
+/** Las iniciales; con `nombre`, al mantener presionado (o con el mouse) dice de quién son. */
+export const Avatar = ({ texto, lleno, nombre }: { texto: string; lleno?: boolean; nombre?: string }) => (
+  <span className={`avatar${lleno ? ' lleno' : ''}`} aria-hidden="true" data-leyenda={nombre}>{texto}</span>
 );
 
 /** Casilla cuadrada. Rebota al marcarse: el toque se siente. */
@@ -375,6 +530,8 @@ export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity
       type="button"
       tabIndex={-1}
       aria-label={`${dir > 0 ? 'Subir' : 'Bajar'} ${etiqueta}`}
+      data-leyenda={`${dir > 0 ? 'Sube' : 'Baja'} ${paso}${unidad ?? ''}. Mantén presionado para ir rápido.`}
+      data-sin-largo="" 
       onPointerDown={(e) => { e.preventDefault(); empezar(dir); }}
       onPointerUp={parar}
       onPointerLeave={parar}
@@ -390,6 +547,7 @@ export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity
         {boton(-1)}
         <div
           className={`stepper-centro${arrastrando ? ' arrastrando' : ''}`}
+          data-leyenda="Arrastra a los lados para cambiar rápido, o usa − y +." 
           role="spinbutton"
           tabIndex={0}
           aria-label={etiqueta}

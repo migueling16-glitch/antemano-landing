@@ -6,7 +6,8 @@
 import { Component, useEffect, useState, type ReactNode } from 'react';
 import './app.css';
 import { useEstado, yo, puede, salir, subirPendientes, avisar, reiniciarDemo, TALLA_LETRA, type Estado } from './estado';
-import { Aviso, Ritual, useRuta, Sup } from './componentes';
+import { Aviso, Ritual, useRuta, Sup, LeyendasFlotantes } from './componentes';
+import { Guia } from './pantallas/Guia';
 import { TEMA_AUTO } from '../config';
 import { dgo } from './lib/tiempo';
 import { Entrar } from './pantallas/Entrar';
@@ -21,16 +22,17 @@ import { Mas, Privacidad, Glosario } from './pantallas/Mas';
 import { PanelInicio, PanelIndicador, PanelPersona } from './pantallas/Panel';
 import { PanelIncidencias, PanelIncidencia, PanelBitacora, PanelReporte } from './pantallas/Herramientas';
 
+/** [id, nombre, para qué sirve (sale al mantener presionado o con el mouse)] */
 const PESTANAS = [
-  ['inicio', 'Inicio'],
-  ['checklists', 'Checklists'],
-  ['calibrar', 'Calibrar'],
-  ['recetas', 'Recetas'],
-  ['mas', 'Más'],
+  ['inicio', 'Inicio', 'Lo que te toca hoy'],
+  ['checklists', 'Checklists', 'Apertura, cierre y limpieza, tarea por tarea'],
+  ['calibrar', 'Calibrar', 'La receta del día de cada café'],
+  ['recetas', 'Recetas', 'Cómo se prepara cada bebida del menú'],
+  ['mas', 'Más', 'Horarios, aprender, avisos y ajustes'],
 ] as const;
 
 /** El encargado y el admin tienen Panel en lugar de Más (Más queda dentro). */
-const PESTANAS_ENCARGADO = [...PESTANAS.slice(0, 4), ['panel', 'Panel']] as const;
+const PESTANAS_ENCARGADO = [...PESTANAS.slice(0, 4), ['panel', 'Panel', 'Decidir, ver los datos y al equipo']] as const;
 
 /** A qué pestaña pertenece cada sección. */
 const PESTANA_DE: Record<string, string> = { aprender: 'mas', horarios: 'mas', admin: 'mas', avisos: 'inicio' };
@@ -116,6 +118,8 @@ function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
       return a === 'privacidad' ? <Privacidad /> : <Mas />;
     case 'glosario':
       return <Glosario />;
+    case 'guia':
+      return <Guia />;
     case 'panel': {
       // La responsable de una incidencia (aunque sea barista) puede verla y cerrarla.
       if (a === 'incidencia' && b) return <PanelIncidencia key={b} id={b} />;
@@ -171,7 +175,7 @@ export default function App() {
   // Alguien dado de baja pierde el acceso al momento.
   useEffect(() => { if (u && !u.activo) salir(); }, [u]);
 
-  if (!u) return <div className="app" data-enfoque="si"><div className="vista"><Entrar /></div><Aviso /></div>;
+  if (!u) return <div className="app" data-enfoque="si"><div className="vista"><Entrar /></div><Aviso /><LeyendasFlotantes /></div>;
 
   return (
     <div className="app" data-enfoque={enfoque ? 'si' : 'no'}>
@@ -179,8 +183,9 @@ export default function App() {
       <div className="vista" key={ruta.join('/')}><Resguardo>{pantalla(e, ruta)}</Resguardo></div>
       {!enfoque && (
         <nav className="nav" aria-label="Secciones">
-          {(encargado ? PESTANAS_ENCARGADO : PESTANAS).map(([id, nombre]) => (
+          {(encargado ? PESTANAS_ENCARGADO : PESTANAS).map(([id, nombre, para]) => (
             <a key={id} href={`#/${id}`} aria-current={pestana === id ? 'page' : undefined}
+              data-leyenda={`${para}${espera[id] ? ` · ${espera[id]} pendiente${espera[id] === 1 ? '' : 's'}` : ''}`}
               aria-label={espera[id] ? `${nombre}, ${espera[id]} pendiente${espera[id] === 1 ? '' : 's'}` : undefined}>
               {nombre}{espera[id] ? <span className="nav-n" aria-hidden="true">{espera[id] > 9 ? '9+' : espera[id]}</span> : null}
             </a>
@@ -189,6 +194,7 @@ export default function App() {
       )}
       <Aviso />
       <Ritual />
+      <LeyendasFlotantes />
     </div>
   );
 }

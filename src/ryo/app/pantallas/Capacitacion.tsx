@@ -309,7 +309,7 @@ export function AprenderEquipo() {
             const atrasadas = Object.values(p.repaso).filter((x) => x.proxima < hoy).length;
             return (
               <a key={u.id} className="fila" href={`#/aprender/evaluar/${u.id}`}>
-                <Avatar texto={u.iniciales} />
+                <Avatar texto={u.iniciales} nombre={u.nombre} />
                 <span className="fila-texto">
                   <span>{u.nombre}</span>
                   <span className="fila-sub">

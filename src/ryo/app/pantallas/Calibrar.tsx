@@ -159,9 +159,9 @@ export function CalibrarInicio({ vista = 'cafes' }: { vista?: VistaCal }) {
         <Pestanas etiqueta="Vista" activa={vista}
           onCambio={(v) => location.replace(v === 'cafes' ? '#/calibrar' : `#/calibrar/${v}`)}
           opciones={[
-            { id: 'cafes', texto: 'Cafés', n: activos.length - listos },
-            { id: 'maquina', texto: 'Máquina' },
-            { id: 'sesiones', texto: 'Sesiones' },
+            { id: 'cafes', texto: 'Cafés', n: activos.length - listos, leyenda: 'Cada café y su receta de hoy' },
+            { id: 'maquina', texto: 'Máquina', leyenda: 'Pulsos de cada botón, canastilla y temperatura' },
+            { id: 'sesiones', texto: 'Sesiones', leyenda: 'Las calibraciones de hoy' },
           ]} />
 
         {vista === 'cafes' && (
@@ -176,7 +176,10 @@ export function CalibrarInicio({ vista = 'cafes' }: { vista?: VistaCal }) {
         )}
 
         {vista === 'maquina' && m && (
-          <Seccion consulta titulo="Máquina" extra={`PID ${m.pid.toFixed(1)} °C`}>
+          <Seccion consulta titulo="Máquina" extra={`PID ${m.pid.toFixed(1)} °C`} ayuda={<>
+            Cada botón corta al llegar a sus pulsos, que cuentan el agua que entra. Lo que cae en la taza lo dice la báscula:
+            por eso al lado va el último peso medido. La app aprende cuánto mueve cada pulso.
+          </>}>
             <p className="cuerpo">
               {m.detalle}. Volumétrica: cada botón corta al llegar a sus pulsos de agua. Aquí van los pulsos y lo que entregaron en la báscula la última vez (cada pulso mueve unos {m.gPorPulso.toFixed(2)} g en taza):
             </p>
@@ -761,7 +764,10 @@ function Evaluacion({ shot, previos, objetivo, paso, s, ctx, m, modelo, onAproba
         <button type="button" className="enlace" onClick={onCorregir}>Corregir números</button>
       </section>
 
-      <Seccion titulo="¿Cómo sabe?" extra={sabor ? describirSabor(sabor) : 'Toca o arrastra'}>
+      <Seccion titulo="¿Cómo sabe?" extra={sabor ? describirSabor(sabor) : 'Toca o arrastra'} ayuda={<>
+        Toca dónde cae el sabor. A la izquierda, ácido: le faltó extraer. A la derecha, amargo: se extrajo de más.
+        Arriba, intenso; abajo, débil. El centro es el balance: ahí se aprueba.
+      </>}>
         <Brujula valor={sabor} previos={previos.map((x) => ({ n: x.n, sabor: x.sabor! }))} onCambio={setSabor} />
         <div className="chips" role="group" aria-label="Atajos de sabor">
           {ATAJOS.map((a) => (

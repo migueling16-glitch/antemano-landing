@@ -689,13 +689,77 @@ a.enlace::after { content: '→'; margin-left: 8px; font-size: var(--t-sec); }
 .pestanas button[aria-selected='true'] { background: var(--ink); color: var(--surface); }
 .pestanas .n { font-size: 11px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; border: 1px solid currentColor; letter-spacing: 0; }
 
-/* ═══ PISTA: ayuda corta la primera vez que entras a una pantalla ═══ */
-.pista { border: 1px dashed var(--line); padding: 14px var(--pad); display: flex; flex-direction: column; gap: 8px; animation: entra 380ms var(--ease) backwards; }
+/* ═══ AYUDA ═══
+ * Todo lo que es ayuda lleva el círculo con "?": es la única forma redonda
+ * además de los avatares, así nunca se confunde con un botón (caja) ni con
+ * un estado (cuadrito). Tres niveles:
+ * 1. Visible siempre: lo esencial (etiquetas, notas, por qué algo no se puede).
+ * 2. "?" que se toca (.leyenda): cómo se lee algo que no tiene palabras.
+ * 3. Mantener presionado o pasar el mouse ([data-leyenda]): el nombre de un
+ *    símbolo o abreviatura. Es un extra; nada esencial vive ahí. */
+.ayuda-marca { width: 40px; height: 40px; display: inline-grid; place-items: center; flex: none; margin: -8px -6px -8px 0; }
+.ayuda-marca::before {
+  content: '?'; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor;
+  display: grid; place-items: center; font-size: 13px; font-weight: 700; line-height: 1; letter-spacing: 0;
+  transition: background-color 140ms var(--ease), color 140ms var(--ease);
+}
+.ayuda-marca[aria-expanded='true']::before { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.leyenda { position: relative; display: inline-flex; align-items: center; }
+.globo {
+  display: block; background: var(--ink); color: var(--surface); border: 1px solid var(--ink);
+  padding: 10px 12px; font-size: var(--t-sec); line-height: 1.5; font-weight: 400;
+  text-transform: none; letter-spacing: var(--track); text-align: left; white-space: normal;
+  animation: aparecer 160ms var(--ease) both;
+}
+.leyenda .globo { position: absolute; right: -6px; top: calc(100% + 6px); width: min(290px, 82vw); z-index: 25; }
+/* En la pestaña de una sección: debajo, a todo lo ancho de la ficha. */
+.sec-titulo { position: relative; }
+.sec-titulo > .leyenda { margin-left: auto; margin-right: 8px; position: static; }
+.sec-titulo > .extra + .leyenda { margin-left: 6px; }
+.sec-titulo .leyenda .globo { left: var(--pad); right: var(--pad); width: auto; top: calc(100% + 6px); }
+/* El globo de mantener presionado / pasar el mouse. */
+.globo-flotante { position: fixed; z-index: 90; width: max-content; max-width: min(280px, calc(100vw - 24px)); transform: translate(-50%, 0); pointer-events: auto; animation: none; }
+.globo-flotante[data-arriba='si'] { transform: translate(-50%, -100%); }
+[data-leyenda] { -webkit-touch-callout: none; }
+
+/* ═══ GUÍA RÁPIDA: ejemplo a la izquierda, qué significa a la derecha ═══ */
+.guia-fila { display: grid; grid-template-columns: minmax(0, 44%) 1fr; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.sec > .guia-fila:last-child { border-bottom: 0; padding-bottom: 0; }
+.guia-ejemplo { display: flex; align-items: center; min-width: 0; }
+.guia-ejemplo .boton { min-height: 44px; padding: 8px 12px; pointer-events: none; }
+.guia-ejemplo .chip { min-height: 38px; padding: 6px 10px; pointer-events: none; }
+.guia-ejemplo .pestanas { position: static; width: 100%; }
+.guia-ejemplo .pestanas button { min-height: 40px; }
+.guia-mini-fila { padding: 8px 10px; border: 1px solid var(--line); min-height: 0; gap: 8px; pointer-events: none; }
+.guia-pestana { position: relative; display: inline-block; padding: 14px 18px 8px 0; font-size: var(--t-meta); text-transform: uppercase; letter-spacing: var(--track-mayus); }
+.guia-pestana .nav-n { top: 0; right: 0; }
+.guia-mini { display: block; width: 100%; height: 44px; padding: 10px; font-size: var(--t-meta); text-transform: uppercase; letter-spacing: var(--track-mayus); }
+.guia-mini-ficha { border: 1px solid var(--line); padding: 0; }
+.guia-mini-consulta { background: color-mix(in srgb, var(--ink) 7%, var(--surface)); padding: 0; }
+.guia-mini-tab { display: inline-block; background: var(--ink); color: var(--surface); padding: 3px 8px; font-weight: 700; }
+.guia-mini-pista { padding: 10px; width: 100%; }
+
+/* ═══ PISTA: ayuda corta la primera vez que entras a una pantalla ═══
+ * Fondo tenue (es para leer) y el mismo círculo "?" de toda la ayuda. */
+.pista {
+  background: color-mix(in srgb, var(--ink) 7%, var(--surface)); padding: 14px var(--pad);
+  display: flex; flex-direction: column; gap: 8px; animation: entra 380ms var(--ease) backwards;
+}
+.pista > .etq { display: flex; align-items: center; gap: 8px; }
+.pista > .etq::before {
+  content: '?'; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor;
+  display: grid; place-items: center; font-size: 12px; font-weight: 700; letter-spacing: 0; flex: none;
+}
 .pista p { font-size: var(--t-sec); line-height: 1.55; }
+.pista .fila-h { gap: 18px; flex-wrap: wrap; }
 
 /* ═══ TÉRMINO: palabra de la barra con su explicación a un toque ═══ */
 .termino { font: inherit; text-transform: inherit; letter-spacing: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
-.ayuda { flex: none; white-space: nowrap; font-size: var(--t-meta); text-transform: none; letter-spacing: var(--track); color: var(--suave); text-decoration: underline; text-underline-offset: 3px; min-height: 32px; padding: 0 2px; }
+.ayuda { flex: none; white-space: nowrap; font-size: var(--t-meta); text-transform: none; letter-spacing: var(--track); color: var(--suave); min-height: 36px; padding: 0 2px; display: inline-flex; align-items: center; gap: 6px; }
+.ayuda::before {
+  content: '?'; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid currentColor;
+  display: grid; place-items: center; font-size: 11px; font-weight: 700; letter-spacing: 0; flex: none;
+}
 .etq-fila { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 
 /* Tarea crítica: lo dice con palabra, no con un estilo de letra. */

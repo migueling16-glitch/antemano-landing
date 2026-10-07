@@ -128,7 +128,11 @@ export function HorariosInicio() {
       <Sup titulo="Horarios" sub={`Mis turnos · ${e.sucursal.nombre}`} volver={esEncargado ? 'panel/herramientas' : 'mas'} />
       <main className="pant pila">
         <Pestanas etiqueta="Vista" activa={vista} onCambio={setVista}
-          opciones={[{ id: 'semana', texto: 'Semana' }, { id: 'mes', texto: 'Mes' }, { id: 'hoy', texto: 'Hoy en barra' }]} />
+          opciones={[
+            { id: 'semana', texto: 'Semana', leyenda: 'Tus turnos de esta semana y la que sigue' },
+            { id: 'mes', texto: 'Mes', leyenda: 'Tu mes en calendario' },
+            { id: 'hoy', texto: 'Hoy en barra', leyenda: 'Quién trabaja hoy y quién está ahora' },
+          ]} />
         <Pista id="horarios">Aquí ves tus turnos. Para cambiar uno, toca "Cambiar" junto al día: puedes pedir que te cubran o intercambiarlo.</Pista>
 
         {vista === 'semana' && (
@@ -178,7 +182,7 @@ function HoyEnBarra({ e, hoy }: { e: Estado; hoy: string }) {
             const estado = ahora < p.ini ? 'Entra' : ahora >= p.fin ? 'Ya salió' : 'En barra';
             return (
               <div key={p.usuarioId} className="fila">
-                <Avatar texto={usuario(e, p.usuarioId)?.iniciales ?? ''} lleno={estado === 'En barra'} />
+                <Avatar texto={usuario(e, p.usuarioId)?.iniciales ?? ''} lleno={estado === 'En barra'} nombre={usuario(e, p.usuarioId)?.nombre} />
                 <span className="fila-texto">
                   <span>{usuario(e, p.usuarioId)?.nombre}</span>
                   <span className="fila-sub">{p.turno.nombre} · {reloj(p.ini)}–{reloj(p.fin)}</span>
@@ -252,7 +256,10 @@ function Calendario({ e, hoy }: { e: Estado; hoy: string }) {
   const companeros = personasDe(e, elegido, turnosPublicados(e, elegido)).filter((p) => p.usuarioId !== u.id);
 
   return (
-    <Seccion titulo="Mi mes" extra={nombreMes}>
+    <Seccion titulo="Mi mes" extra={nombreMes} ayuda={<>
+      Los días llenos son los que trabajas, con la clave del turno ({e.turnosTipo.map((t) => `${t.corto} ${t.nombre.toLowerCase()}`).join(', ')}).
+      LIB es día libre y VAC, vacaciones. Toca un día para ver tu horario y con quién te toca.
+    </>}>
       <div className="fila-h entre">
         <button type="button" className="sup-accion" onClick={() => mover(-1)}>← Anterior</button>
         <button type="button" className="sup-accion" onClick={() => mover(1)}>Siguiente →</button>
@@ -265,6 +272,7 @@ function Calendario({ e, hoy }: { e: Estado; hoy: string }) {
           const fuera = f.slice(0, 7) !== mes;
           return (
             <button key={f} type="button" className="cal-dia" data-turno={tt ? 'si' : undefined} data-hoy={f === hoy ? 'si' : undefined}
+              data-leyenda={`${diaYNum(f)}: ${tt ? `${tt.nombre} ${tt.inicio}–${tt.fin}` : a?.estado === 'aprobada' ? (a.tipo === 'vacaciones' ? 'vacaciones' : 'día libre') : 'sin turno'}`}
               data-fuera={fuera ? 'si' : undefined} aria-pressed={f === elegido} onClick={() => setElegido(f)}
               aria-label={`${diaYNum(f)}: ${tt ? tt.nombre : a?.estado === 'aprobada' ? 'libre' : 'sin turno'}`}>
               <span className="cal-num">{numDia(f)}</span>
@@ -349,7 +357,7 @@ export function HorariosSemana({ inicio }: { inicio?: string }) {
                 <div className="chips" role="group" aria-label="Pincel">
                   <button type="button" className="chip" aria-pressed={pincel === 'editar'} onClick={() => setPincel('editar')}>Editar</button>
                   {e.turnosTipo.map((t) => (
-                    <button key={t.id} type="button" className="chip" aria-pressed={pincel === t.id} onClick={() => setPincel(t.id)}>{t.corto} · {t.inicio}</button>
+                    <button key={t.id} type="button" className="chip" aria-pressed={pincel === t.id} onClick={() => setPincel(t.id)} data-leyenda={`${t.nombre} ${t.inicio}–${t.fin}`}>{t.corto} · {t.inicio}</button>
                   ))}
                   <button type="button" className="chip" aria-pressed={pincel === 'descanso'} onClick={() => setPincel('descanso')}>Descanso</button>
                 </div>
@@ -471,10 +479,11 @@ function FilaSemana({ e, usuarioId, dias, hoy, tipo, turnos, horas, alertaFila, 
           'data-no-puede': !t && (puede.length === 0 || libre) ? 'si' : undefined,
         };
         const etiqueta = `${u.nombre}, ${nombreDia(f)}: ${t ? t.nombre : libre ? 'libre' : 'descanso'}${alerta ? ', con alerta' : ''}`;
+        const leyenda = `${u.nombre.split(' ')[0]} · ${diaCorto(f)} ${numDia(f)}: ${t ? `${t.nombre} ${t.inicio}–${t.fin}` : libre ? (aus!.tipo === 'vacaciones' ? 'vacaciones' : 'día libre') : 'descanso'}${alerta ? ' · hay algo por revisar' : ''}`;
         return onCelda ? (
-          <button key={f} type="button" {...props} onClick={() => onCelda(f)} aria-label={etiqueta}>{contenido}</button>
+          <button key={f} type="button" {...props} onClick={() => onCelda(f)} aria-label={etiqueta} data-leyenda={leyenda}>{contenido}</button>
         ) : (
-          <div key={f} {...props} aria-label={etiqueta}>{contenido}</div>
+          <div key={f} {...props} aria-label={etiqueta} data-leyenda={leyenda}>{contenido}</div>
         );
       })}
     </>
@@ -906,7 +915,7 @@ export function HorariosCambios() {
             return (
               <section key={a.id} className={`bloque${a.estado === 'pendiente' && edita ? ' inv' : ''}`}>
                 <div className="fila-h entre">
-                  <span className="fila-h" style={{ gap: 8 }}><Avatar texto={usuario(e, a.usuarioId)?.iniciales ?? ''} /><span className="negrita">{a.usuarioId === u.id ? 'Tu solicitud' : usuario(e, a.usuarioId)?.nombre}</span></span>
+                  <span className="fila-h" style={{ gap: 8 }}><Avatar texto={usuario(e, a.usuarioId)?.iniciales ?? ''} nombre={usuario(e, a.usuarioId)?.nombre} /><span className="negrita">{a.usuarioId === u.id ? 'Tu solicitud' : usuario(e, a.usuarioId)?.nombre}</span></span>
                   <EstadoAusencia a={a} />
                 </div>
                 <span className="subtitulo">{a.tipo === 'vacaciones' ? 'Vacaciones' : 'Día libre'} · {a.desde === a.hasta ? diaYNum(a.desde) : `${fechaCorta(a.desde)} – ${fechaCorta(a.hasta)}`}</span>
@@ -975,7 +984,7 @@ function TarjetaCambio({ e, c }: { e: Estado; c: Cambio }) {
     <section className={`bloque${(c.estado === 'aceptado' && edita) || (puedoTomar && c.para === u.id) ? ' inv' : ''}`}>
       <div className="fila-h entre">
         <span className="fila-h" style={{ gap: 10 }}>
-          <Avatar texto={usuario(e, c.de)?.iniciales ?? ''} />
+          <Avatar texto={usuario(e, c.de)?.iniciales ?? ''} nombre={usuario(e, c.de)?.nombre} />
           <span className="negrita">{mio ? 'Tú' : usuario(e, c.de)?.nombre}</span>
         </span>
         <span className="etq">{tipo}</span>

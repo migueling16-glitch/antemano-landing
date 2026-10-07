@@ -277,7 +277,9 @@ export function Inicio() {
     <>
       <Sup marca titulo={`${saludo()}, ${u.nombre.split(' ')[0]}`} sub={`${fecha} · ${turno}`} />
       <main className="pant pila">
-        <Pista id="inicio">Aquí empieza cada turno. "Ahora" es lo siguiente que te toca; tócalo y te lleva directo. Abajo está lo demás del día.</Pista>
+        <Pista id="inicio">
+          Aquí empieza cada turno. "Ahora" es lo siguiente que te toca; tócalo y te lleva directo. ¿Primera vez? <a className="enlace" href="#/guia">Cómo se usa la app</a>
+        </Pista>
 
         <section className="bloque inv ahora" aria-label="Ahora">
           <span className="etq">{siguiente?.urgente ? 'Ahora · ya es hora' : 'Ahora'}</span>

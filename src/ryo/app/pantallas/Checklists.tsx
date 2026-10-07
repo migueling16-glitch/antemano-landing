@@ -21,7 +21,10 @@ import { Sup, Seccion, BarraProg, Casilla, Stepper, Hoja, Foto, Estado as Etq, V
 function VistasChecklists({ activa }: { activa: 'hoy' | 'historial' }) {
   return (
     <Pestanas etiqueta="Vista" activa={activa} onCambio={(v) => location.replace(v === 'hoy' ? '#/checklists' : '#/checklists/historial')}
-      opciones={[{ id: 'hoy', texto: 'Hoy' }, { id: 'historial', texto: 'Historial' }]} />
+      opciones={[
+        { id: 'hoy', texto: 'Hoy', leyenda: 'Los checklists que tocan hoy' },
+        { id: 'historial', texto: 'Historial', leyenda: 'Los últimos 14 días, con filtros' },
+      ]} />
   );
 }
 import { procesarFoto, guardarFoto, kb, type FotoProcesada } from '../lib/fotos';
@@ -340,7 +343,7 @@ function Firma({ e, m }: { e: Estado; m?: Marca }) {
 function Item({ e, ej, item, marca, cerrada, onFoto }: {
   e: Estado; ej: Ejecucion; item: ItemPlantilla; marca?: Marca; cerrada: boolean; onFoto: () => void;
 }) {
-  const texto = <span>{item.texto}{item.critica && <span className="etiqueta-critica">Crítica</span>}</span>;
+  const texto = <span>{item.texto}{item.critica && <span className="etiqueta-critica" data-leyenda="Obligatoria: el checklist no se completa sin ella.">Crítica</span>}</span>;
   const faltaFoto = item.foto === 'obligatoria' && marca && !marca.fotoId;
 
   const botonFoto = item.foto && (

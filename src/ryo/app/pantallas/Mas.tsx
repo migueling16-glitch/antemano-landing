@@ -61,6 +61,9 @@ export function Mas() {
 
         <Seccion titulo="Ayuda">
           <div className="lista">
+            <a className="fila" href="#/guia">
+              <span className="fila-texto"><span>Cómo se usa la app</span><span className="fila-sub">Qué se toca, qué dice cada marca y dónde pedir ayuda</span></span>
+            </a>
             <a className="fila" href="#/glosario">
               <span className="fila-texto"><span>Palabras de la barra</span><span className="fila-sub">Qué es ratio, pulsos, canastilla, validar…</span></span>
             </a>
