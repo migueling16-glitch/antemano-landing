@@ -106,7 +106,7 @@ function Ficha({ r }: { r: Receta }) {
 
         {r.tutorial && !frio && <Guia t={r.tutorial} nombre={r.nombre} />}
 
-        <Seccion titulo="Cantidades">
+        <Seccion consulta titulo="Cantidades">
           <div className="lista cambia" key={frio ? 'frio' : 'caliente'}>
             {version.gramos.map(([k, v]) => (
               <div key={k} className="par">
@@ -121,7 +121,7 @@ function Ficha({ r }: { r: Receta }) {
           <ol className="pasos cambia" key={frio ? 'frio' : 'caliente'}>{version.pasos.map((p) => <li key={p}>{p}</li>)}</ol>
         </Seccion>
 
-        <Seccion titulo="Estándar">
+        <Seccion consulta titulo="Estándar">
           <p className="cuerpo">{r.estandar}</p>
         </Seccion>
 

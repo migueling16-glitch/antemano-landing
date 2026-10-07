@@ -15,7 +15,15 @@ import {
   type Estado, type Plantilla, type Ejecucion, type ItemPlantilla, type Marca,
   recetaCasa,
 } from '../estado';
-import { Sup, Seccion, BarraProg, Casilla, Stepper, Hoja, Foto, Estado as Etq, Vacio, ir } from '../componentes';
+import { Sup, Seccion, BarraProg, Casilla, Stepper, Hoja, Foto, Estado as Etq, Vacio, Pestanas, Pista, ir } from '../componentes';
+
+/** Las dos vistas de Checklists. */
+function VistasChecklists({ activa }: { activa: 'hoy' | 'historial' }) {
+  return (
+    <Pestanas etiqueta="Vista" activa={activa} onCambio={(v) => location.replace(v === 'hoy' ? '#/checklists' : '#/checklists/historial')}
+      opciones={[{ id: 'hoy', texto: 'Hoy' }, { id: 'historial', texto: 'Historial' }]} />
+  );
+}
 import { procesarFoto, guardarFoto, kb, type FotoProcesada } from '../lib/fotos';
 import { ReportarIncidencia } from './Herramientas';
 import { jornadaDe, hora, cuando, fechaCorta, minutos, minutosAhora, sumarDias } from '../lib/tiempo';
@@ -73,6 +81,7 @@ export function ChecklistsInicio() {
     <>
       <Sup titulo="Checklists" sub={`${cuando(hoy)} · ${fechaCorta(hoy)}`} />
       <main className="pant pila">
+        <VistasChecklists activa="hoy" />
         <Seccion titulo="Hoy" extra="Toca uno para abrirlo">
           <div className="lista">
             {deHoy.map((p) => {
@@ -104,7 +113,6 @@ export function ChecklistsInicio() {
           </Seccion>
         )}
 
-        <a className="boton grande" href="#/checklists/historial">Historial</a>
         <button type="button" className="boton grande" onClick={() => setReportar(true)}>Reportar un problema</button>
         <ReportarIncidencia abierta={reportar} alCerrar={() => setReportar(false)} />
       </main>
@@ -146,8 +154,9 @@ export function ChecklistsHistorial() {
 
   return (
     <>
-      <Sup titulo="Historial" sub="Últimos 14 días" volver="checklists" />
+      <Sup titulo="Checklists" sub="Historial de los últimos 14 días" />
       <main className="pant pila">
+        <VistasChecklists activa="historial" />
         <div className="chips" role="group" aria-label="Filtro">
           {([['todas', 'Todas'], ['sin-validar', 'Sin validar'], ['incidencias', 'Fuera de rango']] as const).map(([id, t]) => (
             <button key={id} type="button" className="chip" aria-pressed={filtro === id} onClick={() => setFiltro(id)}>{t}</button>
@@ -259,14 +268,16 @@ function Ejecutar({ e, ej, p }: { e: Estado; ej: Ejecucion; p: Plantilla }) {
           </section>
         ) : (
           <section className={`bloque${r.atrasada ? ' inv' : ''}`}>
-            <div className="fila-h entre">
-              <span className="etq">{r.hechas} de {r.total}</span>
-              {r.atrasada ? <Etq alerta>Atrasado</Etq> : <span className="etq">Iniciado {hora(ej.iniciadaEn)} · {usuario(e, ej.iniciadaPor)?.iniciales}</span>}
+            <div className="fila-h entre" style={{ alignItems: 'flex-start' }}>
+              <span className="subtitulo">Vas en {r.hechas} de {r.total}</span>
+              {r.atrasada && <Etq alerta>Atrasado</Etq>}
             </div>
             <BarraProg valor={r.hechas / r.total} />
+            <span className="meta">Lo empezó {usuario(e, ej.iniciadaPor)?.nombre.split(' ')[0]} a las {hora(ej.iniciadaEn)}</span>
           </section>
         )}
 
+        {!cerrada && <Pista id="checklist">Toca cada tarea cuando la hagas: queda tu nombre y la hora. Las que dicen CRÍTICA son obligatorias. Si te equivocas, toca otra vez y se deshace.</Pista>}
         {secciones.map((sec) => {
           const items = p.items.filter((i) => i.seccion === sec);
           const hechas = items.filter((i) => !faltan.includes(i)).length;
@@ -329,7 +340,7 @@ function Firma({ e, m }: { e: Estado; m?: Marca }) {
 function Item({ e, ej, item, marca, cerrada, onFoto }: {
   e: Estado; ej: Ejecucion; item: ItemPlantilla; marca?: Marca; cerrada: boolean; onFoto: () => void;
 }) {
-  const texto = <span className={item.critica ? 'recta' : 'italica'}>{item.texto}</span>;
+  const texto = <span>{item.texto}{item.critica && <span className="etiqueta-critica">Crítica</span>}</span>;
   const faltaFoto = item.foto === 'obligatoria' && marca && !marca.fotoId;
 
   const botonFoto = item.foto && (

@@ -11,7 +11,7 @@ import {
   solicitarCambio, responderCambio, pedirAusencia, responderAusencia, avisar, celebrar, vibrar,
   type Estado, type TurnoTipo, type Ausencia,
 } from '../estado';
-import { Sup, Seccion, Hoja, Avatar, Estado as Etq, Vacio, Casilla, ir } from '../componentes';
+import { Sup, Seccion, Hoja, Avatar, Estado as Etq, Vacio, Casilla, Pestanas, Pista, ir } from '../componentes';
 import { turnoDe } from './Inicio';
 import {
   FRANJAS, REGLAS, alertasDe, personasDe, tramosDe, horarioLocal, reloj, diasDe, turnosDe, horasDe, ausenciaEn, icsDe,
@@ -105,7 +105,7 @@ export function HorariosInicio() {
   const u = yo(e)!;
   const hoy = jornadaDe();
   const lunes = lunesDe(hoy);
-  const [vista, setVista] = useState<'semana' | 'mes'>('semana');
+  const [vista, setVista] = useState<'semana' | 'mes' | 'hoy'>('semana');
   const abiertos = e.cambios.filter((c) => c.estado === 'abierto' && c.de !== u.id && c.fecha >= hoy && (!c.para || c.para === u.id));
   const esEncargado = puede(e, 'encargado', 'admin');
   const pendientes = (esEncargado ? e.cambios.filter((c) => c.estado === 'aceptado').length : 0)
@@ -125,26 +125,23 @@ export function HorariosInicio() {
 
   return (
     <>
-      <Sup titulo="Horarios" sub={e.sucursal.nombre} volver="mas" />
+      <Sup titulo="Horarios" sub={`Mis turnos · ${e.sucursal.nombre}`} volver={esEncargado ? 'panel/herramientas' : 'mas'} />
       <main className="pant pila">
-        <HoyEnBarra e={e} hoy={hoy} />
+        <Pestanas etiqueta="Vista" activa={vista} onCambio={setVista}
+          opciones={[{ id: 'semana', texto: 'Semana' }, { id: 'mes', texto: 'Mes' }, { id: 'hoy', texto: 'Hoy en barra' }]} />
+        <Pista id="horarios">Aquí ves tus turnos. Para cambiar uno, toca "Cambiar" junto al día: puedes pedir que te cubran o intercambiarlo.</Pista>
 
-        <div className="chips" role="group" aria-label="Vista">
-          <button type="button" className="chip" aria-pressed={vista === 'semana'} onClick={() => setVista('semana')}>Por semana</button>
-          <button type="button" className="chip" aria-pressed={vista === 'mes'} onClick={() => setVista('mes')}>Mes</button>
-        </div>
-
-        {vista === 'semana' ? (
+        {vista === 'semana' && (
           <>
             <MiSemana e={e} inicio={lunes} titulo="Esta semana" onCambiar={(fecha) => ir(`horarios/cambiar/${fecha}`)} />
             <MiSemana e={e} inicio={sumarDias(lunes, 7)} titulo="La que sigue" onCambiar={(fecha) => ir(`horarios/cambiar/${fecha}`)} />
+            <button type="button" className="boton grande" onClick={agregarACalendario}>Agregar a mi calendario</button>
           </>
-        ) : (
-          <Calendario e={e} hoy={hoy} />
         )}
+        {vista === 'mes' && <Calendario e={e} hoy={hoy} />}
+        {vista === 'hoy' && <HoyEnBarra e={e} hoy={hoy} />}
 
-        <button type="button" className="boton grande" onClick={agregarACalendario}>Agregar a mi calendario</button>
-
+        <Seccion titulo="Equipo y solicitudes">
         <div className="lista">
           <a className="fila" href="#/horarios/semana">
             <span className="fila-texto"><span>Semana del equipo</span><span className="fila-sub">{esEncargado ? 'Armar, revisar y publicar' : 'Quién trabaja cada día y a qué hora'}</span></span>
@@ -163,6 +160,7 @@ export function HorariosInicio() {
             <span className="fila-texto"><span>Mi disponibilidad</span><span className="fila-sub">Franjas por día, días libres y vacaciones</span></span>
           </a>
         </div>
+        </Seccion>
       </main>
     </>
   );
@@ -173,7 +171,7 @@ function HoyEnBarra({ e, hoy }: { e: Estado; hoy: string }) {
   const personas = personasDe(e, hoy, turnosPublicados(e, hoy));
   const ahora = minutosAhora() < 300 ? minutosAhora() + 1440 : minutosAhora();
   return (
-    <Seccion titulo="Hoy en barra" extra={diaYNum(hoy)}>
+    <Seccion consulta titulo="Hoy en barra" extra={diaYNum(hoy)}>
       {personas.length ? (
         <div className="lista">
           {personas.map((p) => {

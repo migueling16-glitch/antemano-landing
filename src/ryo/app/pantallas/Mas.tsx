@@ -2,8 +2,9 @@
  * Más: lo que no cabe en la barra inferior, la cuenta y el aviso de privacidad.
  */
 import { useState } from 'react';
-import { useEstado, yo, puede, entrar, salir, cambiarTema, reiniciarDemo, avisar, avisosDe, type Estado } from '../estado';
-import { Sup, Seccion, Avatar, Hoja, Marca, ir } from '../componentes';
+import { useEstado, yo, puede, entrar, salir, cambiarTema, cambiarLetra, reiniciarDemo, avisar, avisosDe, type Estado } from '../estado';
+import { Sup, Seccion, Avatar, Hoja, Marca, ir, reiniciarPistas } from '../componentes';
+import { GLOSARIO } from '../contenido';
 import { progresoDe } from '../estado';
 import { tocaHoy } from '../lib/repaso';
 import { jornadaDe } from '../lib/tiempo';
@@ -47,6 +48,26 @@ export function Mas() {
             </a>
           )}
         </div>
+        </Seccion>
+
+        <Seccion titulo="Tamaño de letra" extra="Solo en este teléfono">
+          <div className="rejilla-3">
+            {([['normal', 'Normal'], ['grande', 'Grande'], ['muy-grande', 'Muy grande']] as const).map(([t, n]) => (
+              <button key={t} type="button" className="chip" aria-pressed={(e.letra ?? 'normal') === t} onClick={() => cambiarLetra(t)}>{n}</button>
+            ))}
+          </div>
+          <p className="cuerpo">Toda la app crece, botones incluidos. Úsalo si te cuesta leer.</p>
+        </Seccion>
+
+        <Seccion titulo="Ayuda">
+          <div className="lista">
+            <a className="fila" href="#/glosario">
+              <span className="fila-texto"><span>Palabras de la barra</span><span className="fila-sub">Qué es ratio, pulsos, canastilla, validar…</span></span>
+            </a>
+            <button type="button" className="fila ir" onClick={() => { reiniciarPistas(); avisar('Las pistas de primera vez vuelven a salir en cada pantalla.'); }}>
+              <span className="fila-texto"><span>Volver a ver las pistas</span><span className="fila-sub">La ayuda corta que sale la primera vez en cada pantalla</span></span>
+            </button>
+          </div>
         </Seccion>
 
         <Seccion titulo="Tema">
@@ -96,6 +117,29 @@ export function Mas() {
         <p className="cuerpo">Vuelve a los datos de ejemplo de hoy. Se borran los shots, marcas y fotos que hiciste en este teléfono.</p>
         <button type="button" className="boton grande lleno" onClick={() => { reiniciarDemo(); setReiniciar(false); ir('inicio'); avisar('Datos de ejemplo restaurados.'); }}>Reiniciar</button>
       </Hoja>
+    </>
+  );
+}
+
+/** Todas las palabras de la barra, en orden alfabético. */
+export function Glosario() {
+  const lista = Object.values(GLOSARIO).sort((a, b) => a.palabra.localeCompare(b.palabra, 'es'));
+  return (
+    <>
+      <Sup titulo="Palabras de la barra" sub="Para quien llega nuevo" volver="atras" />
+      <main className="pant pila">
+        <div className="lista">
+          {lista.map((g) => (
+            <div key={g.palabra} className="fila" style={{ alignItems: 'flex-start' }}>
+              <span className="fila-texto">
+                <span className="negrita">{g.palabra}</span>
+                <span className="cuerpo">{g.que}</span>
+                {g.ejemplo && <span className="meta ejemplo">Ejemplo: {g.ejemplo}</span>}
+              </span>
+            </div>
+          ))}
+        </div>
+      </main>
     </>
   );
 }

@@ -330,6 +330,8 @@ export type Estado = {
   /** "Mantener la sesión en este teléfono". Si no, abrir la app de nuevo pide iniciar sesión. */
   recordar?: boolean;
   tema: 'auto' | 'champagne' | 'cafe';
+  /** Tamaño de letra de este teléfono: toda la app crece (todo va en rem). */
+  letra?: 'normal' | 'grande' | 'muy-grande';
   sucursal: { id: string; negocio: string; nombre: string; apertura: string; cierre: string };
   usuarios: Usuario[];
   plantillas: Plantilla[];
@@ -492,6 +494,9 @@ export function salir() {
   actualizar((e) => { e.usuarioId = null; e.recordar = false; });
 }
 export const cambiarTema = (tema: Estado['tema']) => actualizar((e) => { e.tema = tema; });
+export const cambiarLetra = (letra: NonNullable<Estado['letra']>) => actualizar((e) => { e.letra = letra; });
+/** El tamaño de la raíz para cada opción de letra. */
+export const TALLA_LETRA = { normal: '100%', grande: '112.5%', 'muy-grande': '125%' } as const;
 
 /* ── Checklists ─────────────────────────────────────────── */
 

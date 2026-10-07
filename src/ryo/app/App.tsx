@@ -5,7 +5,7 @@
  */
 import { Component, useEffect, useState, type ReactNode } from 'react';
 import './app.css';
-import { useEstado, yo, puede, salir, subirPendientes, avisar, reiniciarDemo, type Estado } from './estado';
+import { useEstado, yo, puede, salir, subirPendientes, avisar, reiniciarDemo, TALLA_LETRA, type Estado } from './estado';
 import { Aviso, Ritual, useRuta, Sup } from './componentes';
 import { TEMA_AUTO } from '../config';
 import { dgo } from './lib/tiempo';
@@ -17,7 +17,7 @@ import { RecetasLista, RecetaFicha } from './pantallas/Recetas';
 import { AprenderInicio, AprenderLeccion, AprenderRepaso, AprenderIngreso, AprenderEquipo, AprenderEvaluar } from './pantallas/Capacitacion';
 import { HorariosInicio, HorariosSemana, HorariosDisponibilidad, HorariosCambios, HorariosCambiar } from './pantallas/Horarios';
 import { AdminInicio, AdminUsuarios, AdminPlantillas, AdminPlantilla, AdminCafes, AdminMaquina, AdminSucursal } from './pantallas/Admin';
-import { Mas, Privacidad } from './pantallas/Mas';
+import { Mas, Privacidad, Glosario } from './pantallas/Mas';
 import { PanelInicio, PanelIndicador, PanelPersona } from './pantallas/Panel';
 import { PanelIncidencias, PanelIncidencia, PanelBitacora, PanelReporte } from './pantallas/Herramientas';
 
@@ -83,6 +83,7 @@ function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
       if (a === 'nueva') return <CalibrarNueva key={b ?? 'nueva'} cafeId={b} />;
       if (a === 'sesion' && b) return <CalibrarSesion id={b} />;
       if (a === 'cafe' && b) return <CalibrarCafe id={b} />;
+      if (a === 'maquina' || a === 'sesiones') return <CalibrarInicio vista={a} />;
       return <CalibrarInicio />;
     case 'recetas':
       return a ? <RecetaFicha id={a} /> : <RecetasLista />;
@@ -113,6 +114,8 @@ function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
     }
     case 'mas':
       return a === 'privacidad' ? <Privacidad /> : <Mas />;
+    case 'glosario':
+      return <Glosario />;
     case 'panel': {
       // La responsable de una incidencia (aunque sea barista) puede verla y cerrarla.
       if (a === 'incidencia' && b) return <PanelIncidencia key={b} id={b} />;
@@ -122,6 +125,7 @@ function pantalla(e: Estado, [s, a, b]: string[]): ReactNode {
       if (a === 'incidencias') return <PanelIncidencias />;
       if (a === 'bitacora') return <PanelBitacora />;
       if (a === 'reporte') return <PanelReporte />;
+      if (a === 'datos' || a === 'equipo' || a === 'herramientas') return <PanelInicio vista={a} />;
       return <PanelInicio />;
     }
     default:
@@ -155,7 +159,9 @@ export default function App() {
   const enfoque = u && ((seccion === 'calibrar' && ruta[1] === 'sesion') || (seccion === 'aprender' && ruta[1] === 'repaso'));
   const encargado = !!u && puede(e, 'encargado', 'admin');
   const pestana = (encargado ? PESTANA_DE_ENCARGADO : PESTANA_DE)[seccion] ?? seccion;
-  const espera = u ? pendientesPorPestana(e, u) : {};
+  const espera: Record<string, number> = u ? pendientesPorPestana(e, u) : {};
+
+  useEffect(() => { document.documentElement.style.fontSize = TALLA_LETRA[e.letra ?? 'normal']; }, [e.letra]);
 
   useEffect(() => {
     document.documentElement.dataset.tema = tema;
@@ -175,7 +181,9 @@ export default function App() {
         <nav className="nav" aria-label="Secciones">
           {(encargado ? PESTANAS_ENCARGADO : PESTANAS).map(([id, nombre]) => (
             <a key={id} href={`#/${id}`} aria-current={pestana === id ? 'page' : undefined}
-              data-pendiente={espera[id] ? 'si' : undefined} aria-label={espera[id] ? `${nombre}, con pendientes` : undefined}>{nombre}</a>
+              aria-label={espera[id] ? `${nombre}, ${espera[id]} pendiente${espera[id] === 1 ? '' : 's'}` : undefined}>
+              {nombre}{espera[id] ? <span className="nav-n" aria-hidden="true">{espera[id] > 9 ? '9+' : espera[id]}</span> : null}
+            </a>
           ))}
         </nav>
       )}

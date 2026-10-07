@@ -18,7 +18,7 @@ import {
   plantilla as buscarPlantilla, recetaDe, avisar, vibrar, avisosDe,
   type Estado, type Ejecucion,
 } from '../estado';
-import { Sup, Seccion, Estado as Etq, Avatar, Vacio, Casilla, ir } from '../componentes';
+import { Sup, Seccion, Estado as Etq, Avatar, Vacio, Casilla, Pestanas, Pista, ir } from '../componentes';
 import { LECCIONES, MODULOS, NIVELES } from '../contenido';
 import {
   indicadores, veredicto, cumplimiento, porPersona, dias, tocaban, type Indicador, type FichaPersona,
@@ -177,7 +177,9 @@ export function porDecidir(e: Estado) {
 
 /* ═══ PANEL ═══════════════════════════════════════════════ */
 
-export function PanelInicio() {
+export type VistaPanel = 'hoy' | 'datos' | 'equipo' | 'herramientas';
+
+export function PanelInicio({ vista = 'hoy' }: { vista?: VistaPanel }) {
   const e = useEstado();
   const u = yo(e)!;
   const hoy = jornadaDe();
@@ -198,6 +200,17 @@ export function PanelInicio() {
     <>
       <Sup titulo="Panel" sub={`${nombreDia(hoy)} ${fechaCorta(hoy).split(' ').slice(1).join(' ')} · ${u.rol === 'admin' ? 'Admin' : 'Encargada'}: ${u.nombre.split(' ')[0]}`} />
       <main className="pant pila">
+        <Pestanas etiqueta="Vista del Panel" activa={vista}
+          onCambio={(v) => location.replace(v === 'hoy' ? '#/panel' : `#/panel/${v}`)}
+          opciones={[
+            { id: 'hoy', texto: 'Hoy', n: total },
+            { id: 'datos', texto: 'Datos' },
+            { id: 'equipo', texto: 'Equipo', n: equipo.filter((f) => f.ojo.length).length },
+            { id: 'herramientas', texto: 'Más' },
+          ]} />
+
+        {vista === 'hoy' && <>
+        <Pista id="panel">Aquí decides y supervisas. "Hoy" junta lo que espera tu decisión; en "Datos" ves cómo va la semana y en "Equipo", a cada persona.</Pista>
         <Seccion titulo="Por decidir" extra={total ? `${total}` : 'Al día'}>
           {total === 0 && <Vacio>Nada espera tu decisión. Buen trabajo.</Vacio>}
           {enOrden.length > 0 && (
@@ -233,8 +246,11 @@ export function PanelInicio() {
         </Seccion>
 
         <HoyEnVivo e={e} hoy={hoy} />
+        </>}
 
-        <Seccion titulo="Indicadores" extra="7 días contra los 7 anteriores">
+        {vista === 'datos' && <>
+        <p className="meta">Los últimos 7 días contra los 7 anteriores. Toca uno para verlo día por día.</p>
+        <Seccion titulo="Indicadores" extra="7 días">
           <div className="lista">
             {inds.map((i) => (
               <a key={i.id} className="fila indicador" href={`#/panel/indicador/${i.id}`}>
@@ -251,12 +267,17 @@ export function PanelInicio() {
           </div>
         </Seccion>
 
+        </>}
+
+        {vista === 'equipo' && (
         <Seccion titulo="Equipo" extra="Últimos 14 días">
           <div className="lista">
             {equipo.map((f) => <FilaPersona key={f.u.id} f={f} />)}
           </div>
         </Seccion>
+        )}
 
+        {vista === 'herramientas' && <>
         <Seccion titulo="Herramientas">
           <div className="lista">
             <a className="fila" href="#/panel/incidencias">
@@ -290,9 +311,10 @@ export function PanelInicio() {
             </a>
             <a className="fila" href="#/horarios"><span className="fila-texto"><span>Mi horario</span><span className="fila-sub">Turnos, disponibilidad y cambios</span></span></a>
             <a className="fila" href="#/aprender"><span className="fila-texto"><span>Aprender</span><span className="fila-sub">Lecciones y repaso</span></span></a>
-            <a className="fila" href="#/mas"><span className="fila-texto"><span>Cuenta y ajustes</span><span className="fila-sub">Tema, perfil de prueba, salir</span></span></a>
+            <a className="fila" href="#/mas"><span className="fila-texto"><span>Cuenta y ajustes</span><span className="fila-sub">Tamaño de letra, tema, ayuda, salir</span></span></a>
           </div>
         </Seccion>
+        </>}
       </main>
     </>
   );
@@ -326,7 +348,7 @@ function HoyEnVivo({ e, hoy }: { e: Estado; hoy: string }) {
   const abiertas = e.incidencias.filter((x) => !x.cerradaEn);
   const nota = e.bitacora.find((n) => n.fijada) ?? e.bitacora.find((n) => n.jornada === hoy);
   return (
-    <Seccion titulo="Hoy en vivo" extra={`${hora(Date.now())}`}>
+    <Seccion consulta titulo="Hoy en vivo" extra={`${hora(Date.now())}`}>
       <div className="lista">
         {tocaban(e, hoy).map((p) => {
           const ej = e.ejecuciones.find((x) => x.plantillaId === p.id && x.jornada === hoy);
@@ -390,7 +412,7 @@ export function PanelIndicador({ id }: { id: string }) {
 
   return (
     <>
-      <Sup titulo={i.nombre} sub={i.que} volver="panel" />
+      <Sup titulo={i.nombre} sub={i.que} volver="panel/datos" />
       <main className="pant pila">
         <section className="bloque inv">
           <span className="etq">Últimos 7 días</span>
@@ -398,7 +420,7 @@ export function PanelIndicador({ id }: { id: string }) {
           <span className="cuerpo">Los 7 anteriores: {Number.isFinite(i.antes) ? i.texto(i.antes) : 'sin datos'}.</span>
           <Cambio i={i} />
         </section>
-        <Seccion titulo="Día por día" extra="14 días">
+        <Seccion consulta titulo="Día por día" extra="14 días">
           <BarrasDias js={js} serie={serie14} texto={i.texto} />
         </Seccion>
         <Desglose e={e} id={id} hoy={hoy} />
@@ -565,7 +587,7 @@ export function PanelPersona({ id }: { id: string }) {
 
   return (
     <>
-      <Sup titulo={u.nombre} sub={`${u.rol === 'barista' ? nivel?.nombre : u.rol === 'encargado' ? 'Encargada' : 'Admin'} · desde ${fechaCorta(u.ingreso)}`} volver="panel" />
+      <Sup titulo={u.nombre} sub={`${u.rol === 'barista' ? nivel?.nombre : u.rol === 'encargado' ? 'Encargada' : 'Admin'} · desde ${fechaCorta(u.ingreso)}`} volver="panel/equipo" />
       <main className="pant pila">
         {f.ojo.length > 0 && (
           <section className="bloque inv">
@@ -573,7 +595,7 @@ export function PanelPersona({ id }: { id: string }) {
             {f.ojo.map((x) => <span key={x} className="subtitulo">{x}</span>)}
           </section>
         )}
-        <Seccion titulo="Últimos 14 días">
+        <Seccion consulta titulo="Últimos 14 días">
           <div className="rejilla-3">
             {cifra(String(f.checklists), 'checklists')}
             {cifra(Number.isFinite(f.aTiempo) ? `${Math.round(f.aTiempo)} %` : '–', 'a tiempo')}

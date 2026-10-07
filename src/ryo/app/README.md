@@ -55,6 +55,59 @@ Reglas para que nadie tenga que adivinar, cada una con su fuente:
 - **Cambios de turno sin sorpresas:** antes de pedir, se ve cómo le queda a
   cada compañero (horas, descanso, disponibilidad) y cómo quedaría el día.
 
+## Reglas para que se entienda sin explicación
+
+Del segundo pase de UX (investigación en NN/g, WCAG 2.2, Hoober, estudios
+de legibilidad):
+
+- **Letra:**
+  - Una escala fija: `--t-meta`, `--t-sec`, `--t-base`, `--t-sub`,
+    `--t-tit`, más `--t-num` y `--t-cifra` para números. Antes había 35
+    tallas distintas.
+  - Todo va en rem, así que **Más → Tamaño de letra** (Normal, Grande, Muy
+    grande) agranda la app completa.
+  - Sin itálica en textos: la itálica es 10–50 % menos legible en párrafos,
+    y queda solo para ejemplos.
+  - Mayúsculas solo en palabras sueltas. El tracking de la marca (0.1em)
+    va solo en mayúsculas; el texto corrido usa 0.02em.
+- **Tono:** lo secundario va en la misma tinta al 70 % (`--suave`, contraste
+  de 5:1 o más) y el placeholder más tenue, con "Ej.", para que no parezca un
+  dato ya escrito.
+- **Tres tipos de sección, distinguibles de un vistazo:**
+  - protagonista invertida: lo que toca ahora;
+  - ficha con recuadro: donde se registra o se elige;
+  - **consulta**, con fondo tenue y sin recuadro: solo para leer
+    (`<Seccion consulta>`).
+- **Cómo dividir una pantalla:**
+  - **pestañas internas** (`Pestanas`) para vistas hermanas del mismo tema:
+    Panel (Hoy · Datos · Equipo · Más), Calibrar (Cafés · Máquina ·
+    Sesiones), Checklists (Hoy · Historial) y Horarios (Semana · Mes · Hoy
+    en barra). Se quedan pegadas arriba y la vista vive en la ruta;
+  - **chips** para filtrar;
+  - **botones** para hacer;
+  - **filas con →** para ir a otra pantalla.
+
+  Un nivel extra como máximo (divulgación progresiva).
+- **Botones:**
+  - Uno principal por pantalla: lleno, abajo, al alcance del pulgar.
+  - Los secundarios con recuadro; los terciarios como enlace.
+  - Nada que cierre o borre en las esquinas de arriba (el 49 % usa el
+    teléfono con una mano). Por eso "Terminar sin receta" bajó.
+  - Áreas táctiles de 44–48 px.
+- **Símbolos:**
+  - ✓ hecho, ! problema, → ir, siempre junto a su palabra;
+  - pendientes como número en las pestañas.
+- **Ayuda en el momento, no tutorial:**
+  - una **pista** corta la primera vez en cada pantalla (`Pista`; se pueden
+    volver a ver desde Más);
+  - las palabras de la barra con **"¿Qué es?"** a un toque (`Termino`,
+    glosario en `contenido.ts`).
+- **Inicio sabe si estás en turno:**
+  - en turno, "Ahora" es lo siguiente de la barra;
+  - fuera de turno, solo lo tuyo (repaso, incidencias, cambios), y lo de la
+    barra se ve como información;
+  - la lista no repite lo que ya está en "Ahora".
+
 ## Panel del encargado y del admin
 
 Para encargado y admin, la quinta pestaña es **Panel** en lugar de Más (Más

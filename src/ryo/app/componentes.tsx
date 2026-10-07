@@ -11,6 +11,7 @@ import logotipoSvg from '../assets/logotipo.svg?raw';
 import taglineSvg from '../assets/tagline.svg?raw';
 import auxiliarSvg from '../assets/auxiliar.svg?raw';
 import { useAviso, cerrarAviso, useRitual, cerrarRitual, vibrar } from './estado';
+import { GLOSARIO } from './contenido';
 import { leerFoto } from './lib/fotos';
 import { redondear, type Objetivo, type Sabor, ventanaRatio } from './lib/calibracion';
 
@@ -161,12 +162,92 @@ export function Estado({ children, fuerte, tenue, alerta }: { children: ReactNod
   );
 }
 
-export const Seccion = ({ titulo, extra, children }: { titulo: string; extra?: ReactNode; children: ReactNode }) => (
-  <section className="sec">
+/**
+ * Sección = ficha con su pestaña. `consulta` la vuelve de solo lectura:
+ * fondo tenue y sin recuadro, para que se distinga de lo que se registra.
+ */
+export const Seccion = ({ titulo, extra, consulta, children }: { titulo: string; extra?: ReactNode; consulta?: boolean; children: ReactNode }) => (
+  <section className={`sec${consulta ? ' consulta' : ''}`}>
     <h2 className="sec-titulo"><span>{titulo}</span>{extra && <span className="extra">{extra}</span>}</h2>
     {children}
   </section>
 );
+
+/* ═══ PESTAÑAS INTERNAS ═══════════════════════════════════ */
+
+/**
+ * Vistas hermanas de una misma pantalla (Hoy · Datos · Equipo…). Cambian
+ * la vista sin agregar pasos al botón de atrás y se quedan pegadas arriba.
+ * Filtrar es con chips; hacer, con botones; ir a otra pantalla, con filas.
+ */
+export function Pestanas<T extends string>({ opciones, activa, onCambio, etiqueta }: {
+  opciones: { id: T; texto: string; n?: number }[]; activa: T; onCambio: (id: T) => void; etiqueta: string;
+}) {
+  return (
+    <div className="pestanas" role="tablist" aria-label={etiqueta}>
+      {opciones.map((o) => (
+        <button key={o.id} type="button" role="tab" aria-selected={o.id === activa}
+          onClick={() => { if (o.id !== activa) { onCambio(o.id); vibrar(6); window.scrollTo({ top: 0 }); } }}>
+          {o.texto}{o.n ? <span className="n" aria-label={`${o.n} pendientes`}>{o.n}</span> : null}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Pestaña interna guardada en la ruta (#/panel/datos): sobrevive a recargar y al botón de atrás. */
+export function usePestana<T extends string>(base: string, ids: readonly T[], actual?: string): [T, (id: T) => void] {
+  const activa = (ids.includes(actual as T) ? actual : ids[0]) as T;
+  return [activa, (id: T) => { location.replace(`#/${base}${id === ids[0] ? '' : `/${id}`}`); }];
+}
+
+/* ═══ PISTA DE PRIMERA VEZ ════════════════════════════════ */
+
+const CLAVE_PISTAS = 'ryo-app:pistas';
+const pistasVistas = (): string[] => { try { return JSON.parse(localStorage.getItem(CLAVE_PISTAS) ?? '[]'); } catch { return []; } };
+export const reiniciarPistas = () => { try { localStorage.removeItem(CLAVE_PISTAS); } catch { /* sin almacenamiento */ } };
+
+/**
+ * Una frase de ayuda la primera vez que alguien entra a una pantalla. En
+ * lugar de un tutorial al inicio (NN/g: no mejoran el desempeño), ayuda en
+ * el momento y en el lugar. "Entendido" no la vuelve a mostrar.
+ */
+export function Pista({ id, children }: { id: string; children: ReactNode }) {
+  const [vista, setVista] = useState(() => pistasVistas().includes(id));
+  if (vista) return null;
+  return (
+    <aside className="pista" role="note">
+      <span className="etq">Primera vez aquí</span>
+      <p>{children}</p>
+      <button type="button" className="enlace" onClick={() => {
+        try { localStorage.setItem(CLAVE_PISTAS, JSON.stringify([...pistasVistas(), id])); } catch { /* sin almacenamiento */ }
+        setVista(true);
+        vibrar(6);
+      }}>Entendido</button>
+    </aside>
+  );
+}
+
+/* ═══ TÉRMINO DEL GLOSARIO ════════════════════════════════ */
+
+/** Una palabra de la barra: a un toque, qué significa y un ejemplo. */
+export function Termino({ id, children, className = 'termino' }: { id: string; children?: ReactNode; className?: string }) {
+  const [abierto, setAbierto] = useState(false);
+  const g = GLOSARIO[id];
+  if (!g) return <>{children}</>;
+  return (
+    <>
+      <button type="button" className={className} onClick={() => { setAbierto(true); vibrar(6); }} aria-label={`Qué es ${g.palabra.toLowerCase()}`}>
+        {children ?? g.palabra}
+      </button>
+      <Hoja abierta={abierto} alCerrar={() => setAbierto(false)} titulo={g.palabra}>
+        <p className="cuerpo" style={{ fontSize: 'var(--t-base)' }}>{g.que}</p>
+        {g.ejemplo && <p className="cuerpo ejemplo">Ejemplo: {g.ejemplo}</p>}
+        <a className="enlace" href="#/glosario" onClick={() => setAbierto(false)}>Todas las palabras</a>
+      </Hoja>
+    </>
+  );
+}
 
 export const BarraProg = ({ valor }: { valor: number }) => (
   <div className="barra-prog" role="progressbar" aria-valuenow={Math.round(valor * 100)} aria-valuemin={0} aria-valuemax={100}>
@@ -260,9 +341,9 @@ export function Hoja({ abierta, alCerrar, titulo, children }: {
 /** Pixeles de arrastre por cada paso. */
 const PX_POR_PASO = 14;
 
-export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity, dec = 1, unidad, fuera, nota, onCambio }: {
+export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity, dec = 1, unidad, fuera, nota, ayuda, onCambio }: {
   etiqueta: string; valor: number; paso: number; min?: number; max?: number; dec?: number; unidad?: string;
-  fuera?: boolean; nota?: ReactNode; onCambio: (v: number) => void;
+  fuera?: boolean; nota?: ReactNode; /** id del glosario: muestra "¿Qué es?" junto a la etiqueta */ ayuda?: string; onCambio: (v: number) => void;
 }) {
   const valorRef = useRef(valor);
   valorRef.current = valor;
@@ -304,7 +385,7 @@ export function Stepper({ etiqueta, valor, paso, min = -Infinity, max = Infinity
   const texto = `${valor.toFixed(dec)}${unidad ?? ''}`;
   return (
     <div className="pila-s">
-      <span className="etq">{etiqueta}</span>
+      <span className="etq-fila"><span className="etq">{etiqueta}</span>{ayuda && <Termino id={ayuda} className="ayuda">¿Qué es?</Termino>}</span>
       <div className="stepper" data-fuera={fuera ? 'si' : 'no'}>
         {boton(-1)}
         <div

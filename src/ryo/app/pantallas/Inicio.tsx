@@ -16,12 +16,12 @@ import {
   plantilla as buscarPlantilla, cafe as buscarCafe, recetaCasa, recetaDe, avisosDe, marcarLeida, marcarTodasLeidas,
   type Estado, type Usuario,
 } from '../estado';
-import { Sup, Seccion, Estado as Etq, Casilla, Vacio, BarraProg } from '../componentes';
+import { Sup, Seccion, Estado as Etq, Casilla, Vacio, BarraProg, Pista } from '../componentes';
 import { personasDe, turnosDe, horasDe } from '../lib/turnos';
 import { resumen } from './Checklists';
 import { porDecidir } from './Panel';
 import { tocaHoy } from '../lib/repaso';
-import { jornadaDe, hora, fechaCorta, nombreDia, lunesDe, sumarDias, cuando, dgo, tsDgo } from '../lib/tiempo';
+import { jornadaDe, hora, fechaCorta, nombreDia, lunesDe, sumarDias, cuando, dgo, tsDgo, minutos, minutosAhora } from '../lib/tiempo';
 
 /** El turno publicado de alguien en una fecha. */
 export function turnoDe(e: Estado, usuarioId: string, fecha: string) {
@@ -176,12 +176,12 @@ export function firmasDe(e: Estado, hoy = jornadaDe()): Tarea[] {
 export function pendientesPorPestana(e: Estado, u: Usuario, hoy = jornadaDe()) {
   const tareas = tareasDe(e, u, hoy);
   return {
-    inicio: avisosDe(e, u.id).some((n) => !n.leidaPor.includes(u.id)),
-    checklists: tareas.some((t) => t.id.startsWith('checklist-') && t.urgente),
-    calibrar: tareas.some((t) => t.id === 'calibrar' && !t.hecha),
-    mas: tareas.some((t) => t.id.startsWith('cambio-')),
-    panel: puede(e, 'encargado', 'admin') && porDecidir(e) > 0,
-  } as Record<string, boolean>;
+    inicio: avisosDe(e, u.id).filter((n) => !n.leidaPor.includes(u.id)).length,
+    checklists: tareas.filter((t) => t.id.startsWith('checklist-') && t.urgente).length,
+    calibrar: e.cafes.filter((c) => c.activo && !recetaDe(e, hoy, c.id)).length,
+    mas: tareas.filter((t) => t.id.startsWith('cambio-')).length,
+    panel: puede(e, 'encargado', 'admin') ? porDecidir(e) : 0,
+  } as Record<string, number>;
 }
 
 function ListaTareas({ tareas }: { tareas: Tarea[] }) {
@@ -217,7 +217,7 @@ function TuSemana({ e, u, hoy }: { e: Estado; u: Usuario; hoy: string }) {
     </div>
   );
   return (
-    <Seccion titulo="Tu semana" extra={horas ? `${horas.toFixed(horas % 1 ? 1 : 0)} h de turno` : undefined}>
+    <Seccion consulta titulo="Tu semana" extra={horas ? `${horas.toFixed(horas % 1 ? 1 : 0)} h de turno` : undefined}>
       <div className="rejilla-3">
         {cifra(checklists, 'checklist', 'checklists')}
         {cifra(recetas, 'receta', 'recetas')}
@@ -249,7 +249,24 @@ export function Inicio() {
   const tareas = tareasDe(e, u, hoy);
   const listas = tareas.filter((t) => t.hecha).length;
   const decidir = esEncargado ? porDecidir(e) : 0;
-  const siguiente = tareas.find((t) => !t.hecha);
+
+  // ¿Estás en turno ahora? Lo de la barra (checklists, calibrar) toca a
+  // quien está en turno; lo personal (repaso, incidencias, cambios) es tuyo
+  // siempre.
+  const enJ = (m: number) => (m < 300 ? m + 1440 : m);
+  const ahoraMin = enJ(minutosAhora());
+  const ini = turnoHoy ? enJ(minutos(turnoHoy.inicio)) : 0;
+  let fin = turnoHoy ? enJ(minutos(turnoHoy.fin)) : 0;
+  if (turnoHoy && fin <= ini) fin += 1440;
+  const momento = !turnoHoy ? 'descanso' : ahoraMin < ini ? 'antes' : ahoraMin >= fin ? 'despues' : 'turno';
+  const personal = (t: Tarea) => !t.id.startsWith('checklist-') && t.id !== 'calibrar';
+  const siguiente = momento === 'turno' ? tareas.find((t) => !t.hecha) : tareas.find((t) => !t.hecha && personal(t));
+  // La lista no repite lo que ya está en "Ahora".
+  const resto = tareas.filter((t) => t !== siguiente);
+  const contexto = momento === 'antes'
+    ? `Tu turno empieza a las ${turnoHoy!.inicio}.`
+    : momento === 'despues' ? `Tu turno de hoy terminó a las ${turnoHoy!.fin}.`
+      : momento === 'descanso' ? 'Hoy descansas.' : '';
 
   const fecha = `${nombreDia(hoy)} ${fechaCorta(hoy).split(' ').slice(1).join(' ')}`;
   const turno = turnoHoy
@@ -260,25 +277,34 @@ export function Inicio() {
     <>
       <Sup marca titulo={`${saludo()}, ${u.nombre.split(' ')[0]}`} sub={`${fecha} · ${turno}`} />
       <main className="pant pila">
+        <Pista id="inicio">Aquí empieza cada turno. "Ahora" es lo siguiente que te toca; tócalo y te lleva directo. Abajo está lo demás del día.</Pista>
+
         <section className="bloque inv ahora" aria-label="Ahora">
-          <span className="etq">{siguiente ? (siguiente.urgente ? 'Ahora · ya es hora' : 'Ahora') : 'Ahora'}</span>
+          <span className="etq">{siguiente?.urgente ? 'Ahora · ya es hora' : 'Ahora'}</span>
+          {contexto && <span className="cuerpo">{contexto}{siguiente ? ' Esto es tuyo:' : ''}</span>}
           {siguiente ? (
             <>
               <span className="subtitulo">{siguiente.texto}</span>
               <span className="cuerpo">{siguiente.detalle}</span>
               <a className="boton grande lleno" href={siguiente.ruta}>{siguiente.accion}</a>
             </>
+          ) : momento === 'turno' ? (
+            <>
+              <span className="subtitulo">Todo listo por ahora.</span>
+              <span className="cuerpo">No queda nada pendiente en tu lista. Buen turno.</span>
+            </>
           ) : (
             <>
-              <span className="subtitulo">Todo listo por hoy.</span>
-              <span className="cuerpo">No queda nada pendiente en tu lista. Buen turno.</span>
+              <span className="subtitulo">Nada pendiente para ti.</span>
+              <a className="enlace" href="#/horarios">Mi horario</a>
             </>
           )}
         </section>
 
-        <Seccion titulo="Lo que toca hoy" extra={listas === tareas.length ? 'Todo listo' : `${listas} de ${tareas.length} listas`}>
+        <Seccion titulo={momento === 'turno' ? 'Después' : 'En la barra hoy'} extra={listas === tareas.length ? 'Todo listo' : `${listas} de ${tareas.length} listas`}>
+          {momento !== 'turno' && <p className="meta">Lo hace quien está en turno; puedes verlo y ayudar.</p>}
           <BarraProg valor={tareas.length ? listas / tareas.length : 1} />
-          <ListaTareas tareas={tareas} />
+          <ListaTareas tareas={resto} />
         </Seccion>
 
         {esEncargado && (
@@ -307,7 +333,7 @@ export function Inicio() {
           </Seccion>
         )}
 
-        <Seccion titulo="Espresso de hoy" extra={rd ? `${hora(rd.en)} · ${usuario(e, rd.por)?.nombre.split(' ')[0]}` : undefined}>
+        <Seccion consulta titulo="Espresso de hoy" extra={rd ? `${hora(rd.en)} · ${usuario(e, rd.por)?.nombre.split(' ')[0]}` : undefined}>
           {rd && cafeHoy ? (
             <>
               <span className="num-m">{rd.dosis.toFixed(1)} → {rd.rendimiento.toFixed(1)} g · {rd.tiempo.toFixed(0)} s</span>

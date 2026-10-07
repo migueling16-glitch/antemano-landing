@@ -48,7 +48,10 @@ const mascara = { x: vbX - 40, y: vbY - 40, w: vbW + 80, h: vbH + 80 };
       // Tema antes de pintar, para no parpadear: el guardado, o por la hora de Durango.
       (function () {
         var tema = 'auto';
-        try { tema = (JSON.parse(localStorage.getItem(clave) || '{}').tema) || 'auto'; } catch (e) {}
+        var guardado = {};
+        try { guardado = JSON.parse(localStorage.getItem(clave) || '{}'); tema = guardado.tema || 'auto'; } catch (e) {}
+        var tallas = { grande: '112.5%', 'muy-grande': '125%' };
+        if (tallas[guardado.letra]) document.documentElement.style.fontSize = tallas[guardado.letra];
         if (tema === 'auto') {
           var h = (new Date().getUTCHours() + 24 - 6) % 24;
           tema = h >= 7 && h < 19 ? 'champagne' : 'cafe';

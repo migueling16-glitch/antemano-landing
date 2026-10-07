@@ -72,7 +72,7 @@ export function Entrar() {
           <span className="etq">Correo</span>
           <input
             type="email" inputMode="email" autoComplete="username" autoCapitalize="none" spellCheck={false}
-            value={correo} placeholder="nombre@ryocafe.mx"
+            value={correo} placeholder="Ej. nombre@ryocafe.mx"
             onChange={(ev) => { setCorreo(ev.target.value); setError(null); }}
           />
         </label>
@@ -147,7 +147,7 @@ function Olvido({ abierta, alCerrar, correoInicial }: { abierta: boolean; alCerr
           <p className="cuerpo">Escribe el correo con el que te invitaron y te mandamos un enlace para crear una nueva.</p>
           <label className="campo">
             <span className="etq">Correo</span>
-            <input type="email" inputMode="email" autoCapitalize="none" value={correo} placeholder="nombre@ryocafe.mx"
+            <input type="email" inputMode="email" autoCapitalize="none" value={correo} placeholder="Ej. nombre@ryocafe.mx"
               onChange={(ev) => setCorreo(ev.target.value)} />
           </label>
           <button type="button" className="boton grande lleno" disabled={!CORREO_OK.test(correo.trim())} onClick={() => setEnviado(true)}>

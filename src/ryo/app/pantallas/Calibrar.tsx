@@ -29,7 +29,7 @@ import {
   type Estado, type Cafe, type SesionCal, type Shot, type Maquina, type Canastilla,
 } from '../estado';
 import {
-  Sup, Seccion, Stepper, Brujula, GraficaSesion, GraficaTendencia, Estado as Etq, Hoja, ir, describirSabor,
+  Sup, Seccion, Stepper, Brujula, GraficaSesion, GraficaTendencia, Estado as Etq, Hoja, ir, describirSabor, Pestanas, Pista, Termino,
 } from '../componentes';
 import {
   sugerir, aprender, ratioTexto, ventanaRatio, tendencia, redondear, enVentana,
@@ -134,7 +134,9 @@ const FilaDato = ({ etq, valor }: { etq: string; valor: string }) => (
 
 /* ═══ INICIO: EL TABLERO DEL DÍA ══════════════════════════ */
 
-export function CalibrarInicio() {
+type VistaCal = 'cafes' | 'maquina' | 'sesiones';
+
+export function CalibrarInicio({ vista = 'cafes' }: { vista?: VistaCal }) {
   const e = useEstado();
   const m = maquinaDe(e);
   const hoy = jornadaDe();
@@ -154,14 +156,27 @@ export function CalibrarInicio() {
         sub={listos === activos.length ? 'Todos los cafés tienen receta hoy' : `${listos} de ${activos.length} cafés con receta hoy`}
       />
       <main className="pant pila">
-        <div className="pila-s">
-          {activos.map((c) => (
-            <TarjetaCafe key={c.id} e={e} c={c} m={m} hoy={hoy} paso={paso} abierta={abiertaDe(c)} siguiente={siguiente?.id === c.id} />
-          ))}
-        </div>
+        <Pestanas etiqueta="Vista" activa={vista}
+          onCambio={(v) => location.replace(v === 'cafes' ? '#/calibrar' : `#/calibrar/${v}`)}
+          opciones={[
+            { id: 'cafes', texto: 'Cafés', n: activos.length - listos },
+            { id: 'maquina', texto: 'Máquina' },
+            { id: 'sesiones', texto: 'Sesiones' },
+          ]} />
 
-        {m && (
-          <Seccion titulo="Máquina" extra={`PID ${m.pid.toFixed(1)} °C`}>
+        {vista === 'cafes' && (
+          <>
+            <Pista id="calibrar">Cada café necesita su receta del día antes de servir. Toca "Calibrar" en el que falta: la app te guía shot por shot y te dice qué mover.</Pista>
+            <div className="pila-s">
+              {activos.map((c) => (
+                <TarjetaCafe key={c.id} e={e} c={c} m={m} hoy={hoy} paso={paso} abierta={abiertaDe(c)} siguiente={siguiente?.id === c.id} />
+              ))}
+            </div>
+          </>
+        )}
+
+        {vista === 'maquina' && m && (
+          <Seccion consulta titulo="Máquina" extra={`PID ${m.pid.toFixed(1)} °C`}>
             <p className="cuerpo">
               {m.detalle}. Volumétrica: cada botón corta al llegar a sus pulsos de agua. Aquí van los pulsos y lo que entregaron en la báscula la última vez (cada pulso mueve unos {m.gPorPulso.toFixed(2)} g en taza):
             </p>
@@ -183,7 +198,8 @@ export function CalibrarInicio() {
           </Seccion>
         )}
 
-        {sesionesHoy.length > 0 && (
+        {vista === 'sesiones' && sesionesHoy.length === 0 && <p className="cuerpo">Hoy todavía no hay sesiones de calibración.</p>}
+        {vista === 'sesiones' && sesionesHoy.length > 0 && (
           <Seccion titulo="Sesiones de hoy">
             <div className="lista">
               {sesionesHoy.map((s) => {
@@ -334,7 +350,7 @@ export function CalibrarNueva({ cafeId: pedido }: { cafeId?: string }) {
           </Seccion>
         )}
 
-        <Seccion titulo="Objetivo">
+        <Seccion consulta titulo="Objetivo">
           <div className="lista">
             <FilaDato etq="Receta" valor={`${o.dosis} g → ${o.rendimiento} g`} />
             <FilaDato etq="Tiempo" valor={`${o.tiempo} ± ${o.tolTiempo} s`} />
@@ -489,12 +505,14 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
         titulo={cerrada ? 'Sesión cerrada' : modo === 'corregir' ? `Shot ${n} · corregir` : pendiente ? `Shot ${n} · sabor` : `Shot ${n}`}
         sub={`${c.nombre} · ${s.diasReposo} días de reposo`}
         volver="calibrar"
-        accion={cerrada ? undefined : { texto: 'Terminar', hacer: terminar }}
       />
       <main className="pant pila">
-        <p className="etq" aria-label="Receta y máquina">
-          {conBoton ? `Botón ${boton}` : 'Continuo'}{canastillaDe(m, s.canastillaId) ? ` · canastilla de ${canastillaDe(m, s.canastillaId)!.gramos} g` : ''} · objetivo {o.dosis} → {o.rendimiento} g en {o.tiempo} ± {o.tolTiempo} s{m ? ` · PID ${m.pid.toFixed(1)} °C` : ''}
+        <p className="meta" aria-label="Receta y máquina">
+          Objetivo: {o.dosis} → {o.rendimiento} g en {o.tiempo} ± {o.tolTiempo} s · {conBoton ? `botón ${boton}` : 'continuo'}{canastillaDe(m, s.canastillaId) ? ` · canastilla de ${canastillaDe(m, s.canastillaId)!.gramos} g` : ''}{m ? ` · PID ${m.pid.toFixed(1)} °C` : ''}
         </p>
+        {modo === 'shot' && s.shots.length === 0 && (
+          <Pista id="calibrar-shot">Pon la molienda y la dosis, tira el shot y anota lo que marcó la máquina y la báscula. Si no sabes qué es algo, toca "¿Qué es?".</Pista>
+        )}
 
         {modo === 'cierre' ? (
           <Cierre e={e} s={s} c={c} m={m} />
@@ -517,6 +535,10 @@ function Sesion({ e, s, c }: { e: Estado; s: SesionCal; c: Cafe }) {
             previo={ultimo} ajuste={porAplicar(ultimo)} otros={s.shots}
             onGuardar={(d) => { guardarShot(s.id, d); vibrar(15); window.scrollTo({ top: 0 }); }}
           />
+        )}
+
+        {!cerrada && (
+          <button type="button" className="enlace" style={{ alignSelf: 'center' }} onClick={terminar}>Terminar sin receta</button>
         )}
 
         {s.shots.length > 0 && (
@@ -619,14 +641,14 @@ function Composer({ n, inicial, objetivo, paso, s, m, previo, ajuste, otros, tex
       )}
 
       <Seccion titulo="Antes del shot">
-        <Stepper etiqueta={`Molienda · paso ${paso}`} valor={molienda} paso={paso} min={0} max={40} dec={decMol} onCambio={setMolienda}
+        <Stepper ayuda="molienda" etiqueta={`Molienda · paso ${paso}`} valor={molienda} paso={paso} min={0} max={40} dec={decMol} onCambio={setMolienda}
           nota={cambio(molienda, previo?.molienda, ajuste?.ajuste.molienda, decMol)} />
-        <Stepper etiqueta={can ? `Dosis · canastilla de ${can.gramos} g` : 'Dosis'} valor={dosis} paso={0.1} min={5} max={25} unidad=" g" onCambio={setDosis}
+        <Stepper ayuda="dosis" etiqueta={can ? `Dosis · canastilla de ${can.gramos} g` : 'Dosis'} valor={dosis} paso={0.1} min={5} max={25} unidad=" g" onCambio={setDosis}
           fuera={!!noCabe}
           nota={[cambio(dosis, previo?.dosis, ajuste?.ajuste.dosis, 1, ' g'), can && !noCabe ? `Cabe: la canastilla va de ${rangoCan(can)}.` : null].filter(Boolean).join(' ') || undefined} />
         {noCabe && <p className="bloque inv recta" role="alert">{noCabe}</p>}
         {conBoton && (
-          <Stepper etiqueta={`Pulsos de ${nombreBoton(m, s.botonId)}`} valor={pulsos} paso={1} min={20} max={400} dec={0} onCambio={setPulsos}
+          <Stepper ayuda="pulsos" etiqueta={`Pulsos de ${nombreBoton(m, s.botonId)}`} valor={pulsos} paso={1} min={20} max={400} dec={0} onCambio={setPulsos}
             nota={`${cambio(pulsos, previo?.pulsos, inicial.pulsos, 0) ?? 'Lo que tiene programado el botón.'} Cada pulso mueve unos ${k.toFixed(2)} g en taza.`} />
         )}
         {deMas.length > 0 && movidas.length > 1 && (
@@ -642,17 +664,17 @@ function Composer({ n, inicial, objetivo, paso, s, m, previo, ajuste, otros, tex
             ? `Engancha, báscula en cero y presiona ${nombreBoton(m, s.botonId)}. La máquina corta sola: anota el tiempo de la botonera y pesa cuando deje de gotear.`
             : `Presiona continuo y corta cuando la báscula marque ${corte.toFixed(1)} g. Anota el tiempo de la botonera.`}
         </p>
-        <Stepper etiqueta="Tiempo en la botonera" valor={tiempo} paso={1} min={5} max={60} dec={0} unidad=" s" onCambio={setTiempo}
+        <Stepper ayuda="tiempo" etiqueta="Tiempo en la máquina" valor={tiempo} paso={1} min={5} max={60} dec={0} unidad=" s" onCambio={setTiempo}
           fuera={!v.tiempo}
           nota={v.tiempo
             ? `En tiempo: objetivo ${objetivo.tiempo} ± ${objetivo.tolTiempo} s.`
             : `${Math.abs(dT)} s ${dT < 0 ? 'rápido' : 'lento'}: objetivo ${objetivo.tiempo} ± ${objetivo.tolTiempo} s.`} />
-        <Stepper etiqueta={conBoton ? 'Lo que marcó la báscula' : 'Rendimiento en la báscula'} valor={rendimiento} paso={0.1} min={10} max={80} unidad=" g"
+        <Stepper ayuda="rendimiento" etiqueta={conBoton ? 'Lo que marcó la báscula' : 'Rendimiento en la báscula'} valor={rendimiento} paso={0.1} min={10} max={80} unidad=" g"
           onCambio={setRendimiento} fuera={!v.ratio}
           nota={`Ratio 1:${r.toFixed(2)}, ${v.ratio ? 'en ventana' : r < rmin ? 'corto' : 'largo'} (1:${rmin.toFixed(2)}–1:${rmax.toFixed(2)}).`} />
       </Seccion>
 
-      <Seccion titulo="Dónde cae" extra={v.tiempo && v.ratio ? 'En la zona' : 'Fuera de la zona'}>
+      <Seccion consulta titulo="Dónde cae" extra={v.tiempo && v.ratio ? 'En la zona' : 'Fuera de la zona'}>
         <GraficaSesion shots={otros} objetivo={objetivo} dosis={objetivo.dosis} vivo={{ n, tiempo, rendimiento }} />
         <p className="cuerpo">La zona con trama es la receta objetivo. El shot {n} se mueve con los números; se llena al caer en la zona.</p>
       </Seccion>
@@ -885,7 +907,7 @@ export function CalibrarCafe({ id }: { id: string }) {
           <div className="bloque"><span className="etq">Tueste</span><span className="num-m">{fechaCorta(c.tueste)}</span></div>
         </div>
 
-        <Seccion titulo="Ficha del café">
+        <Seccion consulta titulo="Ficha del café">
           <div className="lista">
             <FilaDato etq="Origen" valor={c.origen} />
             <FilaDato etq="Proceso" valor={c.proceso} />
@@ -909,7 +931,7 @@ export function CalibrarCafe({ id }: { id: string }) {
           </section>
         )}
 
-        <Seccion titulo="Receta objetivo">
+        <Seccion consulta titulo="Receta objetivo">
           <div className="lista">
             <FilaDato etq="Dosis" valor={`${o.dosis} g`} />
             <FilaDato etq="Rendimiento" valor={`${o.rendimiento} g`} />
@@ -922,7 +944,7 @@ export function CalibrarCafe({ id }: { id: string }) {
         </Seccion>
 
         {mem.puntos.length > 1 && (
-          <Seccion titulo="Molienda contra reposo" extra={`${mem.puntos.length} calibraciones`}>
+          <Seccion consulta titulo="Molienda contra reposo" extra={`${mem.puntos.length} calibraciones`}>
             <GraficaTendencia puntos={mem.puntos} recta={mem.recta} hoy={pp.reposo} />
             <p className="cuerpo">
               Cada punto es una calibración aprobada. Conforme el café reposa, se muele más fino.

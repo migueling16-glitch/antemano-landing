@@ -547,3 +547,25 @@ export const ONBOARDING = [
   { semana: 3, titulo: 'Leche', lecciones: ['l-texturizar', 'l-vaporizador'], practica: '10 flat whites con retroalimentación' },
   { semana: 4, titulo: 'Evaluación Barista 1', lecciones: [], practica: 'Evaluación práctica con el encargado' },
 ];
+
+/* ═══ GLOSARIO ════════════════════════════════════════════ */
+
+/**
+ * Las palabras de la barra, dichas para alguien que llega nuevo. Se abren
+ * a un toque desde donde aparecen (reconocer en lugar de recordar).
+ */
+export const GLOSARIO: Record<string, { palabra: string; que: string; ejemplo?: string }> = {
+  molienda: { palabra: 'Molienda', que: 'Qué tan fino muele el molino. Número más bajo = más fino. Más fino frena el agua: el shot tarda más y sale más intenso.', ejemplo: 'De 6 a 5.5 es moler un paso más fino.' },
+  dosis: { palabra: 'Dosis', que: 'Cuántos gramos de café molido van en el portafiltro. Se pesa en la báscula.', ejemplo: '18 g en la canastilla de 18.' },
+  rendimiento: { palabra: 'Rendimiento', que: 'Cuántos gramos de bebida caen en la taza. Se pesa con la taza en la báscula.', ejemplo: '36 g de espresso.' },
+  ratio: { palabra: 'Ratio', que: 'Cuánta bebida sale por cada gramo de café: rendimiento ÷ dosis. Más corto concentra; más largo aligera.', ejemplo: '18 g → 36 g es 1:2.' },
+  pulsos: { palabra: 'Pulsos', que: 'Lo que cuenta la máquina para saber cuánta agua pasar. Cada botón corta al llegar a sus pulsos. Cuenta agua que entra, no bebida que cae: por eso se pesa.', ejemplo: '120 pulsos ≈ 36 g en taza con nuestra receta.' },
+  canastilla: { palabra: 'Canastilla', que: 'El filtro de metal dentro del portafiltro. Cada una tiene su capacidad en gramos y la dosis debe quedar a 1 g de ella.', ejemplo: 'En la de 18 g caben de 17 a 19 g.' },
+  pid: { palabra: 'PID', que: 'El control de temperatura de la caldera de café. Es uno para todos los cafés y solo lo cambia el encargado.', ejemplo: '93.5 °C.' },
+  tiempo: { palabra: 'Tiempo del shot', que: 'Los segundos que tarda en salir el espresso. Lo marca la pantalla de la máquina; aquí solo se anota.', ejemplo: '28 s, con margen de ± 2.' },
+  validar: { palabra: 'Validar', que: 'Cuando el encargado revisa un checklist completado y confirma que está bien. Cierra el ciclo: quien lo hizo sabe que alguien lo vio.' },
+  critica: { palabra: 'Tarea crítica', que: 'Una tarea de seguridad, inocuidad o dinero. El checklist no se puede completar sin ella.' },
+  incidencia: { palabra: 'Incidencia', que: 'Un problema que hay que resolver: una lectura fuera de rango o algo que alguien reportó. Tiene responsable y no se cierra sin decir qué se hizo.' },
+  jornada: { palabra: 'Jornada', que: 'El día de trabajo. Corta a las 5:00, así un cierre después de medianoche cuenta en el día que empezó.' },
+  receta: { palabra: 'Receta del día', que: 'La dosis, rendimiento, tiempo y molienda aprobados hoy al calibrar. Es la que usa todo el turno.' },
+};
