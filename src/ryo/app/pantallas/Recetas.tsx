@@ -1,52 +1,89 @@
 /**
  * Recetas del menú de Ryo: se consultan con una mano y a medio servicio.
- * Búsqueda, los tres grupos del menú y la ficha con gramos, pasos y el
- * estándar de calidad; las que también van en frío cambian de versión
- * con un toque.
+ *
+ * La lista tiene las mismas secciones que el menú del cliente (Café, Matcha,
+ * Sin café, Bar): el barista busca donde el cliente vio la bebida. Cada fila
+ * trae el vaso en corte (src/ryo/vaso.ts), el mismo dibujo del menú público,
+ * así barra y cliente hablan del mismo vaso. La ficha abre con "Cómo se
+ * arma": el dibujo grande con sus capas numeradas en el orden en que se
+ * sirven; luego gramos, pasos y el estándar. Las que también van en frío
+ * cambian de versión (y de dibujo) con un toque.
  */
 import { useState } from 'react';
 import { RECETAS, receta as buscarReceta, type Receta, type Tutorial } from '../contenido';
 import { useEstado, maquinaDe, nombreBoton, cafe as buscarCafe, recetaCasa } from '../estado';
-import { Sup, Seccion, Vacio, Estado as Etq, BarraProg } from '../componentes';
+import { Sup, Seccion, Vacio, Estado as Etq, BarraProg, Pestanas } from '../componentes';
 import { vibrar } from '../estado';
 import { jornadaDe } from '../lib/tiempo';
+import { GUIA } from '../../menuGuia';
+import { svgVaso, leyendaDe, spriteVasos, CSS_VASO, type Vaso } from '../../vaso';
 
-const CATEGORIAS = ['Todas', ...new Set(RECETAS.map((r) => r.categoria))];
 const PENDIENTE = /^por (confirmar|definir)$/;
+
+/** Las secciones del menú del cliente y qué grupos de recetas caen en cada una. */
+const SECCIONES = [
+  { id: 'cafe', texto: 'Café', grupos: ['Clásicos', 'Especiales'] },
+  { id: 'matcha', texto: 'Matcha', grupos: ['Matcha'] },
+  { id: 'sin-cafe', texto: 'Sin café', grupos: ['Sin café', 'Mocktails'] },
+  { id: 'bar', texto: 'Bar', grupos: ['Cócteles'] },
+] as const;
+type SeccionId = (typeof SECCIONES)[number]['id'];
+
+/** Las tramas y estilos de los vasos: una vez por pantalla. */
+function BaseVasos() {
+  return (
+    <>
+      <style>{CSS_VASO}</style>
+      <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: spriteVasos() }} />
+    </>
+  );
+}
+
+const vasoDe = (r: Receta, frio = false): Vaso | undefined => {
+  const g = GUIA[r.id];
+  return frio && g?.frio ? g.frio : g?.vaso;
+};
 
 export function RecetasLista() {
   const [q, setQ] = useState('');
-  const [cat, setCat] = useState('Todas');
+  const [sec, setSec] = useState<SeccionId>('cafe');
   const norm = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const lista = RECETAS.filter((r) => (cat === 'Todas' || r.categoria === cat) && norm(r.nombre).includes(norm(q.trim())));
+  const buscando = q.trim().length > 0;
+  const enSeccion = SECCIONES.find((s) => s.id === sec)!.grupos as readonly string[];
+  // Buscando, se busca en todo el menú; si no, solo en la sección elegida.
+  const lista = RECETAS.filter((r) => (buscando ? norm(r.nombre).includes(norm(q.trim())) : enSeccion.includes(r.categoria)));
   const grupos = [...new Set(lista.map((r) => r.categoria))];
 
   return (
     <>
+      <BaseVasos />
       <Sup titulo="Recetas" sub={`El menú de Ryo · ${RECETAS.length} bebidas`} />
       <main className="pant pila">
         <label className="buscador">
           <span className="sr">Buscar receta</span>
-          <input type="search" value={q} placeholder="Buscar: latte, matcha…" onChange={(ev) => setQ(ev.target.value)} />
+          <input type="search" value={q} placeholder="Buscar en todo el menú: latte, matcha…" onChange={(ev) => setQ(ev.target.value)} />
         </label>
-        <div className="chips" role="group" aria-label="Grupo del menú">
-          {CATEGORIAS.map((c) => (
-            <button key={c} type="button" className="chip" aria-pressed={cat === c} onClick={() => setCat(c)}>{c}</button>
-          ))}
-        </div>
+        {!buscando && (
+          <Pestanas etiqueta="Sección del menú" activa={sec} onCambio={setSec}
+            opciones={SECCIONES.map((s) => ({ id: s.id, texto: s.texto, leyenda: `${RECETAS.filter((r) => (s.grupos as readonly string[]).includes(r.categoria)).length} bebidas` }))} />
+        )}
         {lista.length ? (
           grupos.map((g) => (
             <Seccion key={g} titulo={g} extra={`${lista.filter((r) => r.categoria === g).length}`}>
               <div className="lista">
-                {lista.filter((r) => r.categoria === g).map((r) => (
-                  <a key={r.id} className="fila" href={`#/recetas/${r.id}`}>
-                    <span className="fila-texto">
-                      <span>{r.nombre}</span>
-                      <span className="fila-sub">{r.vaso}{r.frio ? ' · también en frío' : ''}</span>
-                    </span>
-                    {r.porConfirmar ? <Etq tenue>Por confirmar</Etq> : r.tutorial ? <Etq fuerte>Tutorial</Etq> : null}
-                  </a>
-                ))}
+                {lista.filter((r) => r.categoria === g).map((r) => {
+                  const vaso = vasoDe(r);
+                  return (
+                    <a key={r.id} className="fila receta-fila" href={`#/recetas/${r.id}`}>
+                      {vaso && <span className="receta-vaso" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svgVaso(vaso) }} />}
+                      <span className="fila-texto">
+                        <span>{r.nombre}</span>
+                        <span className="fila-sub">{PENDIENTE.test(r.vaso) ? 'Vaso por confirmar' : r.vaso}{r.frio ? ' · también en frío' : ''}</span>
+                        {r.porConfirmar ? <Etq tenue>Por confirmar</Etq> : r.tutorial ? <Etq fuerte>Tutorial</Etq> : null}
+                      </span>
+                    </a>
+                  );
+                })}
               </div>
             </Seccion>
           ))
@@ -64,6 +101,31 @@ export function RecetaFicha({ id }: { id: string }) {
   return <Ficha key={r.id} r={r} />;
 }
 
+/**
+ * El vaso grande y sus capas, de arriba hacia abajo como se ven, numeradas
+ * en el orden en que se sirven: el 1 va primero, hasta abajo.
+ */
+function ComoSeArma({ vaso }: { vaso: Vaso }) {
+  const capas = leyendaDe(vaso);
+  return (
+    <section className="vaso-ficha" aria-label="Cómo se arma">
+      <div className="vaso-ficha-dibujo vaso-llenar" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svgVaso(vaso, { recorte: true, numerar: true }) }} />
+      <div className="pila-s">
+        <span className="etq">Cómo se arma</span>
+        <ul className="vaso-ficha-capas">
+          {capas.map((c) => (
+            <li key={c.nombre}>
+              <span className="vaso-ficha-n" aria-hidden="true">{c.n ?? c.marca}</span>
+              <span>{c.n ? <span className="sr">Paso {c.n}: </span> : null}{c.nombre}</span>
+            </li>
+          ))}
+        </ul>
+        {capas.some((c) => c.n) && <span className="meta">El 1 va primero, hasta abajo.</span>}
+      </div>
+    </section>
+  );
+}
+
 function Ficha({ r }: { r: Receta }) {
   const e = useEstado();
   const rd = recetaCasa(e, jornadaDe());
@@ -73,8 +135,11 @@ function Ficha({ r }: { r: Receta }) {
     ? { vaso: r.frio.vaso, temperatura: 'Frío, con hielo', gramos: r.frio.gramos ?? r.gramos, pasos: r.frio.pasos }
     : { vaso: r.vaso, temperatura: r.temperatura, gramos: r.gramos, pasos: r.pasos };
 
+  const vaso = vasoDe(r, frio);
+
   return (
     <>
+      <BaseVasos />
       <Sup titulo={r.nombre} sub={`${r.categoria} · ${version.vaso}`} volver="recetas" />
       <main className="pant pila">
         {r.frio && (
@@ -83,6 +148,8 @@ function Ficha({ r }: { r: Receta }) {
             <button type="button" className="chip" aria-pressed={frio} onClick={() => setFrio(true)}>Frío</button>
           </div>
         )}
+
+        {vaso && <ComoSeArma key={frio ? 'vaso-frio' : 'vaso-caliente'} vaso={vaso} />}
 
         {r.menu && (
           <Seccion consulta titulo="En el menú">

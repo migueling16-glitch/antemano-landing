@@ -12,6 +12,8 @@ Ruta actual: `/ryocafe` en la web de Antemano (antemano.com.mx/ryocafe) · Astro
 src/ryo/
 ├── RyoCafe.astro       página completa (HTML + CSS + JS, autocontenida)
 ├── Menu.astro          el menú interactivo (pestañas, buscador, compartir); lo usan la landing y /ryocafe/menu
+├── menuGuia.ts         lo que ayuda a elegir: firmas, "qué es", etiquetas y cómo va cada vaso
+├── vaso.ts             el dibujo de cada bebida por dentro (lo usan el menú y la app)
 ├── config.ts           contenido, horarios, menú, accesos  ← lo único que hay que editar
 ├── pluma.ts            cómo se dibuja el isotipo (intro de la bio y apertura de la app)
 ├── assets/             marcas en SVG con fill="currentColor" (toman el color del tema)
@@ -169,9 +171,32 @@ activan todos, conviene apagar alguno para no pasar de siete.
 
 `Menu.astro` es el recurso que se comparte con los clientes. Se muestra igual en
 la landing (sección 03) y solo, en `/ryocafe/menu`, que es la dirección del QR de
-la barra. Se edita únicamente `MENU` y `MENU_TABS` en `config.ts`.
+la barra. El menú oficial (el PDF tal cual) se edita en `MENU` de `config.ts`; lo
+que ayuda a elegir, en `menuGuia.ts`.
 
-Decisiones, con la razón (investigación previa a rediseñarlo):
+**Hecho para que se recuerde** (Made to Stick, Chip y Dan Heath: una idea se
+queda si es Simple, Inesperada, Concreta, Creíble, Emocional y cuenta una Historia):
+
+- **Concreto e inesperado — el vaso por dentro** (`vaso.ts`): cada bebida
+  dibujada en corte, capa por capa, de abajo hacia arriba en el orden en que se
+  sirve. Vapor = caliente, cubos = frío; sin ninguno, el menú no lo dice. Al
+  abrir una bebida el vaso grande se llena y sus capas llevan número (1 =
+  abajo). Dos tintas y tramas, nada más; el líquido siempre va café sobre
+  champagne, así el espresso es oscuro en cualquier tema. Es el mismo dibujo de
+  la app de barra, para que cliente y barista hablen del mismo vaso.
+- **Simple — una firma por sección**: "si solo pides una cosa", en un bloque
+  invertido arriba de cada pestaña. Y una línea de "qué es" en los 13 clásicos
+  que el PDF deja sin descripción.
+- **Creíble**: cifras arriba (36 bebidas · 14 platillos · 8 con algo hecho en
+  casa) y solo datos que el menú ya dice o que Ryo confirmó.
+- **Emocional e historia — "¿Qué se te antoja?"**: Primera vez (las cinco
+  firmas, un recorrido), Algo frío, Sin cafeína, Hecho en casa. Filtran todo el
+  menú a la vez, como el buscador.
+
+Lo que es supuesto (orden de capas, recipiente, textos de "qué es") está
+marcado así en `menuGuia.ts` y se valida con la entrevista de menú.
+
+Decisiones de la primera versión que siguen:
 
 - **Pestañas, no una lista larga.** Son 50 platillos en cuatro mundos distintos;
   Nielsen Norman Group recomienda pestañas cuando el contenido se divide en
@@ -187,10 +212,12 @@ Decisiones, con la razón (investigación previa a rediseñarlo):
   actualiza con `history.replaceState` para no llenar el historial. Sin JS, las
   pestañas son enlaces `<a href="#id">` y se ven todas las secciones seguidas.
 - **Deslizar** a los lados cambia de pestaña; flechas, Inicio y Fin también.
-- **Mismo estilo que el PDF oficial**: líneas centradas, nombre en mayúsculas con
-  el precio al lado (solo el número, sin `$` ni puntos guía; Cornell encontró que
-  el símbolo de moneda hace gastar menos), variantes y descripciones en cursiva,
-  Bar y Mocktails en fondo oscuro y el slogan al cierre.
+- **Del PDF oficial se queda** el isotipo y el rótulo de cada página, los
+  nombres en mayúsculas, el precio solo con el número (sin `$` ni puntos guía;
+  Cornell encontró que el símbolo de moneda hace gastar menos), variantes y
+  descripciones en cursiva, Bar y Mocktails en fondo oscuro y el slogan al
+  cierre. Las filas van alineadas a la izquierda con el precio en su columna:
+  centradas, con un dibujo al lado, no se leían.
 - **Página del QR ligera**: sin intro ni imágenes pesadas. El 53 % de las visitas
   móviles se va si tarda más de 3 s (Google/SOASTA), y quien escanea está de pie
   frente a la barra con prisa. Trae el estado Abierto/Cerrado en vivo, cómo

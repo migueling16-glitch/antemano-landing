@@ -923,3 +923,19 @@ a.enlace::after { content: '→'; margin-left: 8px; font-size: var(--t-sec); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0ms !important; transition-duration: 0.001ms !important; }
 }
+
+/* ═══ RECETAS: el vaso en corte ═══
+ * El mismo dibujo del menú público (src/ryo/vaso.ts). En la lista, chico y a
+ * escala (una taza de espresso se ve chica junto a un vaso alto); en la
+ * ficha, grande, con sus capas numeradas en el orden en que se sirven. */
+.receta-fila { align-items: center; }
+.receta-vaso { width: 46px; flex: none; margin: -6px 0; }
+.vaso-ficha {
+  display: grid; grid-template-columns: minmax(100px, 38%) minmax(0, 1fr); gap: 18px; align-items: center;
+  padding: 18px; border: 1px solid var(--line);
+}
+.vaso-ficha-dibujo { justify-self: center; width: 100%; max-width: 150px; }
+.vaso-ficha-dibujo .vaso { max-height: 190px; }
+.vaso-ficha-capas { display: flex; flex-direction: column; gap: 10px; }
+.vaso-ficha-capas li { display: grid; grid-template-columns: 1.3em minmax(0, 1fr); gap: 10px; align-items: baseline; font-size: var(--t-sec); line-height: 1.35; }
+.vaso-ficha-n { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
