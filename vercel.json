@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/ryocafe", "destination": "https://ryocafe.com/", "permanent": true },
+    { "source": "/ryocafe/:path*", "destination": "https://ryocafe.com/:path*", "permanent": true }
+  ]
+}

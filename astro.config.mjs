@@ -1,9 +1,8 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
-import react from '@astrojs/react';
 
+// Ryo Café se mudó a su propio proyecto y dominio (ryocafe.com); las rutas
+// viejas /ryocafe/* redirigen allá (vercel.json).
 export default defineConfig({
-  // React solo se usa en la maqueta de la app de Ryo (src/ryo/app). Las demás
-  // páginas no cargan nada de React: Astro solo manda JS donde hay una isla.
-  integrations: [tailwind(), react()],
+  integrations: [tailwind()],
 });
