@@ -2,13 +2,17 @@
  * Iniciar sesión con correo y contraseña. Solo con invitación: si el correo
  * no está dado de alta, no hay cuenta que crear.
  *
- * En la maqueta no hay servidor: entra cualquier correo del equipo con una
- * contraseña de 4 caracteres o más, y los perfiles de prueba llenan los
- * datos de un toque.
+ * Con el equipo real conectado (nube/config.ts), entrar es con Supabase y
+ * la demo queda aparte, a un toque, con sus datos de ejemplo solo en este
+ * teléfono. Sin conexión configurada, la app es la maqueta: entra cualquier
+ * correo del equipo con una contraseña de 4 caracteres o más.
  */
 import { useEffect, useState, type FormEvent } from 'react';
-import { useEstado, entrar, vibrar, type Rol } from '../estado';
+import { useEstado, entrar, vibrar, avisar, type Rol } from '../estado';
 import { Marca, Casilla, Hoja } from '../componentes';
+import { hayNube } from '../nube/config';
+import { entrarNube, entrarDemo, recuperarClave, crearClave } from '../nube/sync';
+import { crearSemilla } from '../semilla';
 
 const PERFILES: { id: string; rol: Rol; texto: string }[] = [
   { id: 'u-ana', rol: 'barista', texto: 'Barista 2' },
@@ -20,7 +24,9 @@ const PERFILES: { id: string; rol: Rol; texto: string }[] = [
 const CORREO_OK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function Entrar() {
-  const e = useEstado();
+  const actual = useEstado();
+  // Los perfiles de la demo salen siempre de los datos de ejemplo, aunque el teléfono tenga los del equipo real.
+  const e = hayNube ? demoDatos : actual;
   const [correo, setCorreo] = useState('');
   const [clave, setClave] = useState('');
   const [verClave, setVerClave] = useState(false);
@@ -39,6 +45,17 @@ export function Entrar() {
     if (!c) return fallar('Escribe tu correo.');
     if (!CORREO_OK.test(c)) return fallar('Ese correo no se ve completo.');
     if (clave.length < 4) return fallar(clave ? 'La contraseña es muy corta.' : 'Escribe tu contraseña.');
+    if (hayNube) {
+      setError(null);
+      setEntrando(true);
+      vibrar(15);
+      entrarNube(c, clave, recordar).then((err) => {
+        setEntrando(false);
+        if (err) return fallar(err);
+        if (location.hash.length < 3) location.hash = '#/inicio';
+      });
+      return;
+    }
     const u = e.usuarios.find((x) => x.correo.toLowerCase() === c);
     if (!u) return fallar('Ese correo no tiene invitación. Pídela a tu encargado.');
     if (!u.activo) return fallar('Esta cuenta está dada de baja.');
@@ -107,20 +124,37 @@ export function Entrar() {
         <button type="button" className="enlace" onClick={() => setOlvido(true)}>¿Olvidaste tu contraseña?</button>
       </form>
 
-      <section className="pila-s entrar-prueba" aria-label="Perfiles de prueba">
-        <span className="etq">Maqueta · perfiles de prueba</span>
-        <p className="cuerpo">Toca uno para llenar sus datos y luego inicia sesión.</p>
-        <div className="chips">
-          {PERFILES.map((p) => {
-            const u = e.usuarios.find((x) => x.id === p.id)!;
-            return (
-              <button key={p.id} type="button" className="chip" aria-pressed={correo.trim().toLowerCase() === u.correo} onClick={() => probar(p.id)}>
-                {u.nombre.split(' ')[0]} · {p.texto}
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      {hayNube ? (
+        <section className="pila-s entrar-prueba" aria-label="Demo">
+          <span className="etq">¿Solo quieres verla? Entra a la demo</span>
+          <p className="cuerpo">Datos de ejemplo, solo en este teléfono. Nada de lo que hagas ahí llega al equipo real.</p>
+          <div className="chips">
+            {PERFILES.map((p) => {
+              const u = e.usuarios.find((x) => x.id === p.id)!;
+              return (
+                <button key={p.id} type="button" className="chip" onClick={() => { vibrar(10); entrarDemo(p.id); if (location.hash.length < 3) location.hash = '#/inicio'; }}>
+                  {u.nombre.split(' ')[0]} · {p.texto}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ) : (
+        <section className="pila-s entrar-prueba" aria-label="Perfiles de prueba">
+          <span className="etq">Maqueta · perfiles de prueba</span>
+          <p className="cuerpo">Toca uno para llenar sus datos y luego inicia sesión.</p>
+          <div className="chips">
+            {PERFILES.map((p) => {
+              const u = e.usuarios.find((x) => x.id === p.id)!;
+              return (
+                <button key={p.id} type="button" className="chip" aria-pressed={correo.trim().toLowerCase() === u.correo} onClick={() => probar(p.id)}>
+                  {u.nombre.split(' ')[0]} · {p.texto}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <Marca tipo="tagline" alto={34} etiqueta="Soft living, deep siping." className="entrar-tagline" />
 
@@ -134,7 +168,15 @@ function Olvido({ abierta, alCerrar, correoInicial }: { abierta: boolean; alCerr
   const [correo, setCorreo] = useState(correoInicial);
   const [enviado, setEnviado] = useState(false);
   useEffect(() => { if (abierta) setCorreo(correoInicial); }, [abierta]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [mandando, setMandando] = useState(false);
   const cerrar = () => { alCerrar(); setTimeout(() => setEnviado(false), 250); };
+  const mandar = async () => {
+    if (!hayNube) { setEnviado(true); return; }
+    setMandando(true);
+    const err = await recuperarClave(correo);
+    setMandando(false);
+    if (err) avisar(`No se pudo mandar el enlace: ${err}`); else setEnviado(true);
+  };
   return (
     <Hoja abierta={abierta} alCerrar={cerrar} titulo="Recuperar contraseña">
       {enviado ? (
@@ -150,11 +192,73 @@ function Olvido({ abierta, alCerrar, correoInicial }: { abierta: boolean; alCerr
             <input type="email" inputMode="email" autoCapitalize="none" value={correo} placeholder="Ej. nombre@ryocafe.mx"
               onChange={(ev) => setCorreo(ev.target.value)} />
           </label>
-          <button type="button" className="boton grande lleno" disabled={!CORREO_OK.test(correo.trim())} onClick={() => setEnviado(true)}>
-            {CORREO_OK.test(correo.trim()) ? 'Mandarme el enlace' : 'Escribe tu correo'}
+          <button type="button" className="boton grande lleno" disabled={!CORREO_OK.test(correo.trim()) || mandando} onClick={mandar}>
+            {mandando ? 'Mandando…' : CORREO_OK.test(correo.trim()) ? 'Mandarme el enlace' : 'Escribe tu correo'}
           </button>
         </>
       )}
     </Hoja>
+  );
+}
+
+/** Los perfiles de la demo (nombres y correos de ejemplo). */
+const demoDatos = crearSemilla();
+
+/**
+ * Al abrir el enlace de la invitación (o el de "olvidé mi contraseña"):
+ * crear la contraseña con la que va a entrar desde ahora.
+ */
+export function NuevaClave({ tipo }: { tipo: 'invitacion' | 'recuperacion' }) {
+  const [clave, setClave] = useState('');
+  const [otra, setOtra] = useState('');
+  const [ver, setVer] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
+
+  const guardar = async (ev: FormEvent) => {
+    ev.preventDefault();
+    if (clave.length < 8) return setError('Usa al menos 8 caracteres.');
+    if (clave !== otra) return setError('Las dos contraseñas no coinciden.');
+    setError(null);
+    setGuardando(true);
+    const err = await crearClave(clave);
+    setGuardando(false);
+    if (err) return setError(err);
+    vibrar(15);
+    avisar(tipo === 'invitacion' ? 'Listo: ya eres parte de la barra.' : 'Contraseña cambiada.');
+    location.hash = '#/inicio';
+  };
+
+  return (
+    <main className="pant pila entrar">
+      <div className="pila-s entrar-cabeza">
+        <Marca tipo="logotipo" alto={104} etiqueta="Ryo Café" className="entrar-logo" />
+        <h1 className="titulo">{tipo === 'invitacion' ? 'Bienvenido a la barra' : 'Nueva contraseña'}</h1>
+        <p className="cuerpo">
+          {tipo === 'invitacion'
+            ? 'Crea la contraseña con la que vas a entrar desde ahora. Tu correo ya quedó confirmado.'
+            : 'Escribe tu nueva contraseña dos veces.'}
+        </p>
+      </div>
+      <form className="pila" onSubmit={guardar} noValidate>
+        <label className="campo">
+          <span className="etq">Contraseña</span>
+          <span className="campo-clave">
+            <input type={ver ? 'text' : 'password'} autoComplete="new-password" value={clave} placeholder="Mínimo 8 caracteres"
+              onChange={(ev) => { setClave(ev.target.value); setError(null); }} />
+            <button type="button" className="enlace" onClick={() => setVer(!ver)} aria-pressed={ver}>{ver ? 'Ocultar' : 'Mostrar'}</button>
+          </span>
+        </label>
+        <label className="campo">
+          <span className="etq">Otra vez</span>
+          <input type={ver ? 'text' : 'password'} autoComplete="new-password" value={otra} placeholder="La misma contraseña"
+            onChange={(ev) => { setOtra(ev.target.value); setError(null); }} />
+        </label>
+        {error && <p className="bloque inv error sacude" role="alert">{error}</p>}
+        <button type="submit" className={`boton grande lleno${guardando ? ' cargando' : ''}`}>
+          <span>{guardando ? 'Guardando…' : 'Guardar y entrar'}</span>
+        </button>
+      </form>
+    </main>
   );
 }

@@ -94,13 +94,23 @@ export async function guardarFoto(id: string, blob: Blob) {
   });
 }
 
-export async function leerFoto(id: string): Promise<Blob | undefined> {
+/** La foto como quedó en este teléfono (sin ir a la red). */
+export async function leerFotoLocal(id: string): Promise<Blob | undefined> {
   const base = await abrir();
   return new Promise((res) => {
     const r = base.transaction('fotos').objectStore('fotos').get(id);
     r.onsuccess = () => res(r.result as Blob | undefined);
     r.onerror = () => res(undefined);
   });
+}
+
+/** Con el equipo real conectado, una foto que tomó otro teléfono se baja de Storage (nube/sync.ts). */
+let remota: ((id: string) => Promise<Blob | undefined>) | null = null;
+export const usarFotosRemotas = (fn: typeof remota) => { remota = fn; };
+
+export async function leerFoto(id: string): Promise<Blob | undefined> {
+  const local = await leerFotoLocal(id).catch(() => undefined);
+  return local ?? (remota ? remota(id).catch(() => undefined) : undefined);
 }
 
 export async function borrarFotos() {

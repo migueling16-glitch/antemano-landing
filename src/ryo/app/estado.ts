@@ -1,10 +1,15 @@
 /**
- * Estado de la maqueta.
+ * Estado de la app.
  *
- * Todo vive en el teléfono (localStorage; las fotos en IndexedDB). La forma
- * de los datos es la del modelo acordado en la Fase 0 (negocio → sucursal →
- * operación), para que pasar a Supabase sea cambiar de dónde se leen y
- * escriben, no rediseñar.
+ * Las pantallas leen y cambian un solo objeto (Estado) y siempre en el
+ * teléfono: por eso todo es instantáneo y funciona sin red. Hay dos fuentes
+ * que nunca se mezclan:
+ *   · demo: datos de ejemplo, solo en este teléfono (localStorage; las fotos
+ *     en IndexedDB). Es la maqueta que se puede enseñar.
+ *   · nube: el equipo real. nube/sync.ts carga el Estado desde Supabase,
+ *     sube cada cambio (alCambiar) y trae lo que cambian los demás
+ *     (reemplazar). La forma de los datos es la del modelo de la Fase 0
+ *     (negocio → sucursal → operación).
  */
 import { useSyncExternalStore } from 'react';
 import { crearSemilla, VERSION } from './semilla';
@@ -359,27 +364,69 @@ export type Estado = {
 export { VERSION };
 /** Cambia sola con VERSION: lo guardado con otra forma no se lee. */
 export const CLAVE = `ryo-app:v${VERSION}`;
+/** La copia local de la nube va aparte: la demo nunca se mezcla con datos reales. */
+export const CLAVE_NUBE = `ryo-app:nube:v${VERSION}`;
+
+export type Fuente = 'demo' | 'nube';
+const FUENTE = 'ryo-app:fuente';
+const fuenteGuardada = (): Fuente => { try { return localStorage.getItem(FUENTE) === 'nube' ? 'nube' : 'demo'; } catch { return 'demo'; } };
+let fuenteActual: Fuente = typeof window === 'undefined' ? 'demo' : fuenteGuardada();
+/** De dónde vienen los datos que se ven: la demo o el equipo real (Supabase). */
+export const fuente = () => fuenteActual;
 
 /** Marca de la pestaña: sobrevive a recargar, no a cerrar la app. */
 const SESION = 'ryo-app:sesion';
 const sesionViva = () => { try { return sessionStorage.getItem(SESION) === '1'; } catch { return false; } };
 
-function cargar(): Estado {
+/** Antes de cargar la nube: la forma del Estado, sin datos. */
+export const estadoVacio = (): Estado => ({
+  v: VERSION, usuarioId: null, tema: 'auto',
+  sucursal: { id: '', negocio: 'Ryo Café', nombre: '', apertura: '', cierre: '' },
+  usuarios: [], plantillas: [], ejecuciones: [], fotos: {}, equipos: [], cafes: [], sesiones: [], recetasDelDia: {},
+  turnosTipo: [], semanas: [], disponibilidad: {}, cambios: [], ausencias: [], notificaciones: [], progreso: {},
+  incidencias: [], bitacora: [],
+});
+
+function cargar(f: Fuente = fuenteActual): Estado {
   try {
-    const guardado = JSON.parse(localStorage.getItem(CLAVE) ?? 'null') as Estado | null;
+    const guardado = JSON.parse(localStorage.getItem(f === 'nube' ? CLAVE_NUBE : CLAVE) ?? 'null') as Estado | null;
     if (guardado && guardado.v === VERSION) {
-      if (!guardado.recordar && !sesionViva()) guardado.usuarioId = null;
+      // En la nube la sesión la decide Supabase (sync.ts); en la demo, esta marca.
+      if (f === 'demo' && !guardado.recordar && !sesionViva()) guardado.usuarioId = null;
       return guardado;
     }
   } catch {}
-  return crearSemilla();
+  return f === 'nube' ? estadoVacio() : crearSemilla();
 }
 
 let estado: Estado = typeof window === 'undefined' ? crearSemilla() : cargar();
 const oyentes = new Set<() => void>();
+const vigias = new Set<(antes: Estado, despues: Estado) => void>();
 
 function guardar() {
-  try { localStorage.setItem(CLAVE, JSON.stringify(estado)); } catch {}
+  try { localStorage.setItem(fuenteActual === 'nube' ? CLAVE_NUBE : CLAVE, JSON.stringify(estado)); } catch {}
+}
+
+/** Cada cambio que hace esta persona (no los que llegan de la nube): lo usa sync.ts para subirlo. */
+export function alCambiar(fn: (antes: Estado, despues: Estado) => void) {
+  vigias.add(fn);
+  return () => { vigias.delete(fn); };
+}
+
+/** Pone un Estado completo (el que llega de la nube) sin tratarlo como un cambio propio. */
+export function reemplazar(nuevo: Estado) {
+  estado = nuevo;
+  guardar();
+  oyentes.forEach((o) => o());
+}
+
+/** Cambia entre la demo y el equipo real. */
+export function usarFuente(f: Fuente, inicial?: Estado) {
+  fuenteActual = f;
+  try { localStorage.setItem(FUENTE, f); } catch {}
+  estado = inicial ?? cargar(f);
+  guardar();
+  oyentes.forEach((o) => o());
 }
 
 export function useEstado(): Estado {
@@ -394,14 +441,17 @@ export const leerEstado = () => estado;
 
 /** Cambia el estado sobre una copia y avisa a la interfaz. */
 export function actualizar(fn: (e: Estado) => void) {
+  const antes = estado;
   const copia = structuredClone(estado);
   fn(copia);
   estado = copia;
   guardar();
   oyentes.forEach((o) => o());
+  vigias.forEach((v) => v(antes, copia));
 }
 
 export function reiniciarDemo() {
+  if (fuenteActual === 'nube') return;
   const usuarioId = estado.usuarioId;
   estado = { ...crearSemilla(), usuarioId };
   guardar();
@@ -409,8 +459,9 @@ export function reiniciarDemo() {
   oyentes.forEach((o) => o());
 }
 
+/** Los id los genera el teléfono (así funciona sin red); 12 caracteres al azar bastan para no chocar. */
 export const nuevoId = (prefijo: string) =>
-  `${prefijo}-${(globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)).slice(0, 8)}`;
+  `${prefijo}-${(globalThis.crypto?.randomUUID?.().replace(/-/g, '') ?? Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)).slice(0, 12)}`;
 
 /* ═══ CONSULTAS ═══════════════════════════════════════════ */
 
@@ -504,7 +555,9 @@ export function iniciarEjecucion(plantillaId: string): string {
   const hoy = jornadaDe();
   const existente = ejecucionDe(estado, plantillaId, hoy);
   if (existente) return existente.id;
-  const id = nuevoId('ej');
+  // Siempre el mismo id para el mismo checklist del mismo día: si dos
+  // teléfonos lo empiezan sin red, al sincronizar es uno solo.
+  const id = `ej-${plantillaId}-${hoy}`;
   actualizar((e) => {
     e.ejecuciones.push({ id, plantillaId, jornada: hoy, iniciadaPor: e.usuarioId!, iniciadaEn: Date.now(), marcas: {} });
   });
@@ -555,8 +608,9 @@ export function registrarFoto(meta: FotoMeta) {
   actualizar((e) => { e.fotos[meta.id] = meta; });
 }
 
-/** Al volver la red, lo que esperaba en el teléfono se sube. */
+/** Al volver la red, lo que esperaba en el teléfono se sube. En la nube lo hace sync.ts de verdad. */
 export function subirPendientes(): number {
+  if (fuenteActual === 'nube') return 0;
   const n = Object.values(estado.fotos).filter((f) => f.estado === 'pendiente').length;
   if (n) actualizar((e) => { Object.values(e.fotos).forEach((f) => { f.estado = 'subida'; }); });
   return n;
@@ -1045,7 +1099,7 @@ export function invitar(nombre: string, correo: string, rol: Rol) {
   const partes = nombre.trim().split(/\s+/);
   actualizar((e) => {
     e.usuarios.push({
-      id: nuevoId('u'), nombre: nombre.trim(), correo: correo.trim(), rol, nivel: 1, activo: true, invitado: true,
+      id: nuevoId('u'), nombre: nombre.trim(), correo: correo.trim().toLowerCase(), rol, nivel: 1, activo: true, invitado: true,
       iniciales: partes.slice(0, 2).map((p) => p[0]).join('').toUpperCase(), ingreso: jornadaDe(),
     });
   });

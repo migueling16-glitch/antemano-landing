@@ -2,7 +2,7 @@
  * Más: lo que no cabe en la barra inferior, la cuenta y el aviso de privacidad.
  */
 import { useState } from 'react';
-import { useEstado, yo, puede, entrar, salir, cambiarTema, cambiarLetra, reiniciarDemo, avisar, avisosDe, type Estado } from '../estado';
+import { useEstado, yo, puede, entrar, salir, cambiarTema, cambiarLetra, reiniciarDemo, avisar, avisosDe, fuente, type Estado } from '../estado';
 import { Sup, Seccion, Avatar, Hoja, Marca, ir, reiniciarPistas } from '../componentes';
 import { GLOSARIO } from '../contenido';
 import { progresoDe } from '../estado';
@@ -84,12 +84,16 @@ export function Mas() {
 
         <Seccion titulo="Maqueta">
           <div className="lista">
-            <button type="button" className="fila ir" onClick={() => setVerComo(true)}>
+            {fuente() === 'demo' && (
+              <>
+              <button type="button" className="fila ir" onClick={() => setVerComo(true)}>
               <span className="fila-texto"><span>Ver como otro perfil</span><span className="fila-sub">Barista, encargada o admin</span></span>
             </button>
             <button type="button" className="fila ir" onClick={() => setReiniciar(true)}>
               <span className="fila-texto"><span>Reiniciar datos de ejemplo</span><span className="fila-sub">Borra lo que hiciste en este teléfono</span></span>
             </button>
+              </>
+            )}
             <a className="fila" href="#/mas/privacidad">
               <span className="fila-texto"><span>Aviso de privacidad</span><span className="fila-sub">Qué datos guarda el sistema y para qué</span></span>
             </a>
@@ -101,7 +105,7 @@ export function Mas() {
         <footer className="colofon">
           <Marca tipo="auxiliar" alto={96} etiqueta="Ryo Café" />
           <Marca tipo="tagline" alto={30} etiqueta="Soft living, deep siping." />
-          <p className="etq">Barra · maqueta</p>
+          <p className="etq">{fuente() === 'demo' ? 'Barra · demo' : 'Barra'}</p>
         </footer>
       </main>
 

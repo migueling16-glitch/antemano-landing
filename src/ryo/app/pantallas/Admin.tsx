@@ -5,8 +5,9 @@
 import { useState } from 'react';
 import {
   useEstado, yo, puede, invitar, cambiarRol, alternarActivo, agregarCafe, editarPlantilla, nuevaPlantilla, cambiarPid, renombrarBoton, programarPulsos, cambiarGPorPulso, pulsosDe, guardarCanastilla, HOLGURA_CANASTILLA,
-  asignarBoton, maquinaDe, nombreBoton, programadoDe, avisar, vibrar, CONTINUO, type Rol, type Plantilla, type ItemPlantilla,
+  asignarBoton, maquinaDe, nombreBoton, programadoDe, avisar, vibrar, fuente, CONTINUO, type Rol, type Plantilla, type ItemPlantilla,
 } from '../estado';
+import { invitarNube } from '../nube/sync';
 import { Sup, Seccion, Hoja, Avatar, Stepper, Estado as Etq, ir } from '../componentes';
 import { jornadaDe, sumarDias, cuando, hora } from '../lib/tiempo';
 
@@ -85,7 +86,13 @@ export function AdminUsuarios() {
         <span className="etq">Rol</span>
         <div className="chips">{ROLES.map((r) => <button key={r} type="button" className="chip" aria-pressed={rol === r} onClick={() => setRol(r)}>{r}</button>)}</div>
         <button type="button" className="boton grande lleno" disabled={!valido}
-          onClick={() => { invitar(nombre, correo, rol); setInvitando(false); setNombre(''); setCorreo(''); vibrar(12); avisar('Invitación enviada (en la maqueta no sale ningún correo).'); }}>
+          onClick={() => {
+            invitar(nombre, correo, rol); setInvitando(false); setNombre(''); setCorreo(''); vibrar(12);
+            if (fuente() === 'nube') {
+              avisar('Mandando la invitación…');
+              invitarNube(correo).then((err) => avisar(err ?? `Invitación enviada a ${correo.trim().toLowerCase()}.`));
+            } else avisar('Invitación enviada (en la demo no sale ningún correo).');
+          }}>
           {valido ? 'Mandar invitación' : 'Nombre y correo'}
         </button>
       </Hoja>

@@ -186,6 +186,9 @@ input::placeholder, textarea::placeholder { color: color-mix(in srgb, currentCol
 .encabezado-sub { font-size: var(--t-sec); line-height: 1.5; margin-top: 6px; color: var(--suave); }
 
 .red { background: var(--ink); color: var(--surface); font-size: var(--t-meta); text-transform: uppercase; letter-spacing: var(--track-mayus); padding: 8px var(--gutter); }
+/* Demo (con el equipo real conectado): se dice siempre, sin gritar, y con salida. */
+.red.demo { background: var(--surface); color: var(--ink); border-bottom: 1px dashed var(--line); text-transform: none; letter-spacing: var(--track); }
+.red.demo a { font-weight: 700; text-underline-offset: 3px; }
 
 .pant { max-width: var(--ancho); margin: 0 auto; padding: 24px var(--gutter) var(--s5); }
 .pila { display: flex; flex-direction: column; gap: var(--s3); }

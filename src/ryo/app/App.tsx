@@ -5,7 +5,10 @@
  */
 import { Component, useEffect, useState, type ReactNode } from 'react';
 import './app.css';
-import { useEstado, yo, puede, salir, subirPendientes, avisar, reiniciarDemo, TALLA_LETRA, type Estado } from './estado';
+import { useEstado, yo, puede, salir, subirPendientes, avisar, reiniciarDemo, fuente, TALLA_LETRA, type Estado } from './estado';
+import { hayNube } from './nube/config';
+import { iniciarNube, useNube } from './nube/sync';
+import { NuevaClave } from './pantallas/Entrar';
 import { Aviso, Ritual, useRuta, Sup, LeyendasFlotantes } from './componentes';
 import { Guia } from './pantallas/Guia';
 import { TEMA_AUTO } from '../config';
@@ -164,6 +167,10 @@ export default function App() {
   const encargado = !!u && puede(e, 'encargado', 'admin');
   const pestana = (encargado ? PESTANA_DE_ENCARGADO : PESTANA_DE)[seccion] ?? seccion;
   const espera: Record<string, number> = u ? pendientesPorPestana(e, u) : {};
+  const nube = useNube();
+  const demo = hayNube && fuente() === 'demo';
+
+  useEffect(() => { iniciarNube(); }, []);
 
   useEffect(() => { document.documentElement.style.fontSize = TALLA_LETRA[e.letra ?? 'normal']; }, [e.letra]);
 
@@ -175,11 +182,23 @@ export default function App() {
   // Alguien dado de baja pierde el acceso al momento.
   useEffect(() => { if (u && !u.activo) salir(); }, [u]);
 
+  // Llegó por el enlace del correo: primero crea su contraseña.
+  if (nube.pideClave) return <div className="app" data-enfoque="si"><div className="vista"><NuevaClave tipo={nube.pideClave} /></div><Aviso /></div>;
   if (!u) return <div className="app" data-enfoque="si"><div className="vista"><Entrar /></div><Aviso /><LeyendasFlotantes /></div>;
 
   return (
     <div className="app" data-enfoque={enfoque ? 'si' : 'no'}>
-      {!enLinea && <div className="red" role="status">Sin red · lo que hagas se guarda en el teléfono y se sube al volver</div>}
+      {!enLinea && (
+        <div className="red" role="status">
+          Sin red · lo que hagas se guarda en el teléfono y se sube al volver
+          {!demo && nube.pendientes > 0 ? ` (${nube.pendientes} pendiente${nube.pendientes === 1 ? '' : 's'})` : ''}
+        </div>
+      )}
+      {demo && (
+        <div className="red demo" role="status">
+          Demo · datos de ejemplo, solo en este teléfono · <a href="#/mas" onClick={() => salir()}>Salir de la demo</a>
+        </div>
+      )}
       <div className="vista" key={ruta.join('/')}><Resguardo>{pantalla(e, ruta)}</Resguardo></div>
       {!enfoque && (
         <nav className="nav" aria-label="Secciones">
