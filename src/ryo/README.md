@@ -11,6 +11,7 @@ Ruta actual: `/ryocafe` en la web de Antemano (antemano.com.mx/ryocafe) · Astro
 ```
 src/ryo/
 ├── RyoCafe.astro       página completa (HTML + CSS + JS, autocontenida)
+├── Menu.astro          el menú interactivo (pestañas, buscador, compartir); lo usan la landing y /ryocafe/menu
 ├── config.ts           contenido, horarios, menú, accesos  ← lo único que hay que editar
 ├── pluma.ts            cómo se dibuja el isotipo (intro de la bio y apertura de la app)
 ├── assets/             marcas en SVG con fill="currentColor" (toman el color del tema)
@@ -21,13 +22,16 @@ src/ryo/
 └── README.md
 
 src/pages/ryocafe.astro wrapper de 3 líneas que monta la página en la ruta
+src/pages/ryocafe/menu.astro  página ligera solo con el menú: es a donde apunta el QR
 
 public/ryo/
+├── qr/                 QR del menú (SVG, PNG) y tarjeta A6 para la barra (PDF, PNG)
 ├── favicon.svg         isotipo sobre champagne
 ├── og.png              imagen para compartir (se rehace con scripts/ryo-og.py)
 └── marcas/             los 8 masters de dos tintas, tal como vienen del manual
 
 scripts/ryo-og.py         regenera public/ryo/og.png
+scripts/ryo-qr.py         regenera el QR y la tarjeta de barra (y verifica que se lean)
 scripts/ryo-centerline.py regenera src/ryo/assets/isotipo-trazo.svg
 ```
 
@@ -59,6 +63,8 @@ Todo vive en `config.ts`:
 | `ACCESOS`              | Los destinos. `activo: false` los deja escritos pero apagados.         |
 | `MANIFIESTO`           | Líneas del manifiesto; cada una se revela por separado.                |
 | `MENU`                 | El menú oficial (PDF Ryo-Menu-Oficial-A5): Bebidas, Bar y Cocina, con precios y variantes. Cócteles y mocktails aún sin precio. |
+| `MENU_TABS`            | Las 5 pestañas (Café, Matcha, Sin café, Bar, Cocina), la parte del PDF a la que pertenece cada una y cuáles van en fondo oscuro. Cada grupo de `MENU` dice en qué pestaña va (`tab`). |
+| `MENU_URL`             | Dirección del menú que lleva el QR. Si cambia, hay que regenerar y reimprimir el QR. |
 | `MENU_ES_DEMO`         | `true` muestra el aviso de "menú de muestra". Poner en `false` al publicar el real. |
 | `MENU_MOSTRAR_PRECIOS` | `true` (precios del menú oficial). `false` oculta todos los precios sin tocar los datos. |
 | `TEMA_AUTO`            | Horas entre las que la página abre en tema claro.                      |
@@ -158,6 +164,53 @@ activan todos, conviene apagar alguno para no pasar de siete.
 - **Datos estructurados.** La página emite JSON-LD de tipo `CafeOrCoffeeShop`
   con dirección y horarios, generado desde `config.ts`. Ayuda a que Google
   muestre el horario en la búsqueda local.
+
+## El menú y el QR
+
+`Menu.astro` es el recurso que se comparte con los clientes. Se muestra igual en
+la landing (sección 03) y solo, en `/ryocafe/menu`, que es la dirección del QR de
+la barra. Se edita únicamente `MENU` y `MENU_TABS` en `config.ts`.
+
+Decisiones, con la razón (investigación previa a rediseñarlo):
+
+- **Pestañas, no una lista larga.** Son 50 platillos en cuatro mundos distintos;
+  Nielsen Norman Group recomienda pestañas cuando el contenido se divide en
+  categorías excluyentes y las etiquetas son cortas. Cinco caben en una fila en
+  un teléfono de 360 px sin desplazarse. La pestaña activa se rellena y va en
+  negrita, así no depende solo del color.
+- **Barra pegajosa** con `position: sticky` (no con JS), debajo de la barra del
+  sitio: la altura se mide y se guarda en `--menu-top`.
+- **Buscador** (50 platillos lo justifican). Busca en todas las pestañas a la
+  vez; las pestañas sin coincidencias se marcan con un 0 y se atenúan. El nombre
+  del grupo "Sin café" no cuenta como coincidencia al buscar "café".
+- **Enlaces directos**: `#cafe`, `#matcha`, `#sin-cafe`, `#bar`, `#cocina`. Se
+  actualiza con `history.replaceState` para no llenar el historial. Sin JS, las
+  pestañas son enlaces `<a href="#id">` y se ven todas las secciones seguidas.
+- **Deslizar** a los lados cambia de pestaña; flechas, Inicio y Fin también.
+- **Mismo estilo que el PDF oficial**: líneas centradas, nombre en mayúsculas con
+  el precio al lado (solo el número, sin `$` ni puntos guía; Cornell encontró que
+  el símbolo de moneda hace gastar menos), variantes y descripciones en cursiva,
+  Bar y Mocktails en fondo oscuro y el slogan al cierre.
+- **Página del QR ligera**: sin intro ni imágenes pesadas. El 53 % de las visitas
+  móviles se va si tarda más de 3 s (Google/SOASTA), y quien escanea está de pie
+  frente a la barra con prisa. Trae el estado Abierto/Cerrado en vivo, cómo
+  llegar y el botón de compartir (hoja nativa del teléfono o copiar enlace).
+
+### Regenerar el QR
+
+```bash
+pip install segno pymupdf zxing-cpp numpy
+python scripts/ryo-qr.py
+```
+
+Lee `MENU_URL` de `config.ts`, genera `public/ryo/qr/` y **comprueba que se lea**
+(PNG, SVG y la tarjeta, incluso reducida a 90 dpi) antes de terminar. Criterios:
+QR estático versión 3, corrección M, zona de silencio de 4 módulos, café sobre
+champagne (oscuro sobre claro). Imprimirlo a 6 cm o más para leerlo desde la
+barra (regla de 10:1 entre distancia y tamaño), probar siempre la pieza ya
+impresa con un teléfono viejo, y dejar el enlace escrito al pie por si la cámara
+no lo lee. Al ser estático, depende de que `antemano.com.mx/ryocafe/menu` siga
+vivo: si cambia el dominio, hay que dejar una redirección o reimprimir.
 
 ## Diseño
 

@@ -1,0 +1,494 @@
+---
+/**
+ * Menú interactivo de Ryo Café.
+ *
+ * Es el mismo componente en la landing (sección 03) y en su propia página
+ * (/ryocafe/menu), que es la que abre el QR de la barra. Los datos salen de
+ * config.ts (MENU y MENU_TABS): aquí no hay contenido.
+ *
+ * Decisiones, con su porqué (la investigación está en README.md):
+ * - Cinco pestañas, de una o dos palabras, en una sola fila, arriba del panel
+ *   y siempre a la vista (NN/g: pocas pestañas, sin carrusel, sin apilar).
+ *   La seleccionada va rellena y en negritas: dos señales, no una.
+ * - Se puede buscar en todo el menú ("avena", "matcha", "mezcal"): con 50
+ *   platillos es más rápido que recorrer pestañas cuando se busca algo.
+ * - La presentación copia el menú oficial en PDF: líneas centradas, nombre en
+ *   mayúsculas con el precio al lado (solo el número, sin $ ni puntos guía),
+ *   variantes y descripciones en cursiva, títulos en negritas, el bar y los
+ *   mocktails en fondo oscuro y el slogan al cierre.
+ * - Sin JS (o con JS lento) se ve todo el menú seguido: las pestañas son
+ *   enlaces a cada sección.
+ */
+import {
+  NEGOCIO, MENU, MENU_TABS, MENU_ES_DEMO, MENU_MOSTRAR_PRECIOS, MENU_URL,
+} from './config';
+import isotipoSvg from './assets/isotipo.svg?raw';
+
+/** El isotipo se define una sola vez y cada página del menú lo llama con <use>. */
+const isoInner = isotipoSvg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+const isoViewBox = '38 40 479 361';
+/** "SOFT LIVING, DEEP SIPING." en dos renglones, como cierra cada página del PDF. */
+const [slogan1, slogan2] = NEGOCIO.slogan.split(/(?<=,)\s+/);
+
+const norm = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+/** El nombre del grupo también se busca ("mocktails", "toasts"), salvo "Sin café": buscar café no debe traer lo que no lo lleva. */
+const buscableDe = (nombre: string) => (norm(nombre).includes('cafe') ? '' : nombre);
+
+const paneles = MENU_TABS.map((t) => {
+  const grupos = MENU.filter((g) => g.tab === t.id);
+  const items = grupos.reduce((n, g) => n + g.items.length, 0);
+  return { ...t, grupos, items };
+});
+---
+
+<div class="menu" data-menu data-url={MENU_URL}>
+  {MENU_ES_DEMO && (
+    <p class="menu-aviso">Menú de muestra. Los nombres y precios definitivos están por confirmar.</p>
+  )}
+
+  <div class="menu-buscar">
+    <label class="menu-buscar-campo">
+      <span class="menu-etq">Buscar en el menú</span>
+      <input
+        type="search"
+        data-menu-q
+        placeholder="Ej. avena, matcha, mezcal"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        enterkeyhint="search"
+      />
+    </label>
+    <button type="button" class="menu-borrar" data-menu-borrar hidden>Borrar</button>
+  </div>
+
+  <nav class="menu-tabs" role="tablist" aria-label="Secciones del menú" data-menu-tabs style={`--cols:${paneles.length}`}>
+    {paneles.map((p, i) => (
+      <a
+        class="menu-tab"
+        role="tab"
+        id={`tab-${p.id}`}
+        href={`#${p.id}`}
+        aria-controls={p.id}
+        aria-selected={i === 0 ? 'true' : 'false'}
+        tabindex={i === 0 ? 0 : -1}
+        data-tab={p.id}
+      >
+        <span class="menu-tab-nombre">{p.nombre}</span>
+        <span class="menu-tab-n" data-n aria-hidden="true"></span>
+      </a>
+    ))}
+  </nav>
+
+  <p class="menu-estado" role="status" aria-live="polite" data-menu-estado></p>
+
+  <div class="menu-paneles" data-menu-paneles>
+    <svg class="menu-sprite" aria-hidden="true" focusable="false">
+      <symbol id="menu-iso" viewBox={isoViewBox} set:html={isoInner} />
+    </svg>
+
+    {paneles.map((p, i) => (
+      <section
+        class:list={['menu-panel', { inv: p.oscuro }]}
+        role="tabpanel"
+        id={p.id}
+        aria-labelledby={`tab-${p.id}`}
+        data-panel={p.id}
+        data-activa={i === 0 ? '' : undefined}
+        data-oscuro={p.oscuro ? '' : undefined}
+        tabindex="0"
+      >
+        <header class="menu-panel-cab">
+          <span class="menu-iso" aria-hidden="true"><svg viewBox={isoViewBox}><use href="#menu-iso" /></svg></span>
+          <p class="menu-parte">{p.parte}</p>
+        </header>
+
+        {p.grupos.map((g) => (
+          <div class:list={['menu-grupo', { inv: g.oscuro }]} data-grupo data-oscuro={g.oscuro ? '' : undefined}>
+            <h4 class="menu-grupo-nombre">{g.nombre}</h4>
+            <ul class="menu-items">
+              {g.items.map((item) => {
+                const precio = MENU_MOSTRAR_PRECIOS ? item.precio : undefined;
+                const variantes = (item.variantes ?? []).filter((v) => MENU_MOSTRAR_PRECIOS || !v.precio);
+                return (
+                  <li
+                    class="menu-item"
+                    data-buscar={norm(`${item.nombre} ${item.desc ?? ''} ${buscableDe(g.nombre)} ${variantes.map((v) => v.etiqueta).join(' ')}`)}
+                  >
+                    <p class="menu-item-linea">
+                      <span class="menu-item-nombre">{item.nombre}</span>
+                      {precio && <span class="menu-item-cifra">{precio}</span>}
+                      {variantes.map((v) => (
+                        <em class="menu-item-var">{v.etiqueta}{v.precio && ` ${v.precio}`}</em>
+                      ))}
+                    </p>
+                    {item.desc && <p class="menu-item-desc">{item.desc}</p>}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </section>
+    ))}
+  </div>
+
+  <div class="menu-vacio" data-menu-vacio hidden>
+    <p class="menu-vacio-texto">No encontramos “<span data-menu-vacio-q></span>”.</p>
+    <p class="menu-vacio-ayuda">Prueba con otra palabra, como un ingrediente (avena, miel, mezcal) o el tipo de bebida.</p>
+    <button type="button" class="menu-boton" data-menu-borrar>Ver todo el menú</button>
+  </div>
+
+  <div class="menu-pie">
+    <p class="menu-slogan">{slogan1}<br />{slogan2}</p>
+    <button type="button" class="menu-boton" data-menu-compartir>
+      <span data-menu-compartir-texto>Compartir el menú</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .menu { --menu-top: 64px; }
+
+  .menu-aviso {
+    font-size: var(--fs-sm);
+    font-style: italic;
+    border: 1px solid var(--line);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  /* ─── Buscar ─── */
+  .menu-buscar { display: flex; align-items: flex-end; gap: var(--space-3); margin-bottom: var(--space-4); }
+  .menu-buscar-campo { flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .menu-etq { font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.14em; }
+  .menu-buscar input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    padding: 10px 0;
+    /* 16 px como mínimo: así el iPhone no hace zoom al enfocar. */
+    font: inherit;
+    font-size: max(16px, var(--fs-body));
+    letter-spacing: inherit;
+    color: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .menu-buscar input::placeholder { color: var(--ink); opacity: 0.55; }
+  .menu-buscar input:focus { outline: none; box-shadow: 0 1px 0 var(--ink); }
+  .menu-buscar input::-webkit-search-cancel-button { display: none; }
+  .menu-borrar {
+    flex: none; min-height: 44px; padding: 0 var(--space-2);
+    font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.14em;
+    text-decoration: underline; text-underline-offset: 4px;
+  }
+
+  /* ─── Pestañas: una fila, fijas arriba, con indicador que se desliza ─── */
+  .menu-tabs {
+    position: sticky;
+    top: var(--menu-top);
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 5), minmax(0, 1fr));
+    background: var(--surface);
+    border: 1px solid var(--line);
+    isolation: isolate;
+    transition: background-color 600ms var(--ease);
+  }
+  /* El bloque relleno que marca la pestaña activa y se desliza a la siguiente. */
+  .menu-tabs::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(100% / var(--cols, 5));
+    background: var(--ink);
+    transform: translateX(calc(var(--idx, 0) * 100%));
+    transition: transform 420ms var(--ease), opacity 200ms var(--ease);
+    z-index: -1;
+  }
+  .menu[data-buscando='si'] .menu-tabs::before { opacity: 0; }
+  .menu-tab {
+    min-height: 52px;
+    padding: 6px 2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    text-decoration: none;
+    text-align: center;
+    line-height: 1.15;
+    font-size: min(0.84rem, 3.3vw);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: color 260ms var(--ease);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .menu-tab + .menu-tab { border-left: 1px solid var(--line); }
+  .menu-tab[aria-selected='true'] { color: var(--surface); font-weight: 700; }
+  .menu[data-buscando='si'] .menu-tab[aria-selected='true'] { color: var(--ink); font-weight: 400; }
+  .menu-tab:active { transform: translateY(1px); }
+  .menu-tab-n { font-size: 11px; line-height: 1; min-height: 11px; letter-spacing: 0; font-weight: 700; }
+  /* Sin resultados en esa sección mientras se busca: la trama de la marca. */
+  .menu-tab[data-vacia='si'] {
+    background: repeating-linear-gradient(135deg, var(--ink) 0 1px, transparent 1px 6px);
+  }
+  .menu-tab:focus-visible { outline: 2px solid var(--ink); outline-offset: -4px; }
+  .menu-tab[aria-selected='true']:focus-visible { outline-color: var(--surface); }
+
+  .menu-estado { min-height: 1.4em; margin: var(--space-3) 0 0; font-size: var(--fs-sm); font-style: italic; }
+  .menu-estado:empty { display: none; }
+
+  /* ─── Paneles: cada uno es una página del menú impreso ─── */
+  :global(html:not(.no-js)) .menu-panel { display: none; }
+  :global(html:not(.no-js)) .menu-panel[data-activa] { display: block; }
+  /* Buscando: se ven todas las secciones, solo con lo que coincide. */
+  :global(html:not(.no-js)) .menu[data-buscando='si'] .menu-panel { display: block; }
+  :global(html:not(.no-js)) .menu[data-buscando='si'] .menu-panel[data-sin='si'] { display: none; }
+  .menu-panel {
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-4);
+    text-align: center;
+    scroll-margin-top: calc(var(--menu-top) + 64px);
+    outline: none;
+  }
+  .menu-panel + .menu-panel { margin-top: var(--space-4); }
+  :global(html.no-js) .menu-panel + .menu-panel { margin-top: var(--space-5); border-top: 1px solid var(--line); }
+
+  /* La página de fondo oscuro (el bar) y las bandas oscuras (los mocktails)
+   * llegan hasta el borde de la pantalla, como en el PDF. */
+  .menu-panel[data-oscuro],
+  .menu-grupo[data-oscuro] {
+    background: var(--surface);
+    color: var(--ink);
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+  }
+  .menu-panel[data-oscuro] { padding-bottom: var(--space-5); }
+  .menu-grupo[data-oscuro] { padding-block: var(--space-5); margin-top: var(--space-5); }
+
+  /* Arriba de cada página: el isotipo, el rótulo y un filete corto. */
+  .menu-panel-cab { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); margin-bottom: var(--space-5); }
+  .menu-iso { display: block; width: 72px; color: var(--ink); }
+  .menu-iso svg { display: block; width: 100%; height: auto; }
+  .menu-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .menu-parte {
+    font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.3em;
+    padding-bottom: var(--space-2); position: relative;
+  }
+  .menu-parte::after { content: ''; position: absolute; left: 50%; bottom: 0; width: 36px; border-top: 1px solid var(--line); transform: translateX(-50%); }
+
+  /* Título del grupo: grande y en negritas, como CLÁSICOS en el PDF. */
+  .menu-grupo + .menu-grupo { margin-top: var(--space-6); }
+  .menu-grupo[data-sin='si'] { display: none; }
+  .menu-grupo-nombre {
+    font-size: clamp(1.4rem, 6.4vw, 1.9rem); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em; line-height: 1.15;
+    margin-bottom: var(--space-4);
+  }
+
+  /* ─── Platillo, como en el PDF: NOMBRE 45 · frío 50, y debajo la descripción en cursiva ─── */
+  .menu-items { display: flex; flex-direction: column; gap: 18px; }
+  .menu-item[hidden] { display: none; }
+  .menu-item-linea { font-size: var(--fs-body); text-transform: uppercase; letter-spacing: 0.08em; line-height: 1.45; }
+  .menu-item-cifra { margin-left: 0.55em; font-variant-numeric: tabular-nums; }
+  .menu-item-var { margin-left: 0.8em; font-size: 0.86em; letter-spacing: 0.04em; text-transform: none; }
+  .menu-item-desc {
+    margin: 2px auto 0; max-width: 44ch;
+    font-size: var(--fs-sm); font-style: italic; line-height: 1.5; letter-spacing: 0.02em;
+  }
+
+  /* Al cambiar de sección, los platillos suben uno tras otro. */
+  @keyframes menu-sube { from { opacity: 0; transform: translateY(10px); } }
+  .menu-panel[data-entra] .menu-item { animation: menu-sube 520ms var(--ease) backwards; animation-delay: calc(min(var(--n, 0), 10) * 45ms); }
+  .menu-panel[data-entra] .menu-panel-cab, .menu-panel[data-entra] .menu-grupo-nombre { animation: menu-sube 420ms var(--ease) backwards; }
+
+  /* ─── Sin resultados ─── */
+  .menu-vacio { padding: var(--space-5) 0; display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start; }
+  .menu-vacio[hidden] { display: none; }
+  .menu-vacio-texto { font-size: var(--fs-heading); }
+  .menu-vacio-ayuda { font-size: var(--fs-sm); font-style: italic; max-width: 40ch; }
+
+  /* ─── Pie ─── */
+  .menu-pie { margin-top: var(--space-5); display: flex; flex-direction: column; align-items: center; gap: var(--space-4); text-align: center; }
+  .menu-slogan { font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.3em; line-height: 1.8; }
+  .menu-boton {
+    min-height: 52px; padding: 12px var(--space-4);
+    border: 1px solid var(--line);
+    font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.14em;
+    transition: background-color 200ms var(--ease), color 200ms var(--ease), transform 140ms var(--ease);
+  }
+  .menu-boton:hover { background: var(--ink); color: var(--surface); }
+  .menu-boton:active { transform: scale(0.98); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu-tabs::before, .menu-tab, .menu-boton { transition: none; }
+    .menu-panel[data-entra] .menu-item, .menu-panel[data-entra] .menu-panel-cab, .menu-panel[data-entra] .menu-grupo-nombre { animation: none; }
+  }
+
+  /* Al imprimir se ve todo el menú seguido, sin controles. */
+  @media print {
+    .menu-buscar, .menu-tabs, .menu-estado, .menu-pie, .menu-vacio { display: none !important; }
+    .menu-panel { display: block !important; break-inside: avoid-page; }
+  }
+</style>
+
+<script>
+  /** Menú interactivo: pestañas, búsqueda, deslizar, compartir. Todo opcional: sin esto el menú se lee completo. */
+  const norm = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+  document.querySelectorAll<HTMLElement>('[data-menu]').forEach((menu) => {
+    const tabs = [...menu.querySelectorAll<HTMLAnchorElement>('[data-tab]')];
+    const barra = menu.querySelector<HTMLElement>('[data-menu-tabs]')!;
+    const paneles = [...menu.querySelectorAll<HTMLElement>('[data-panel]')];
+    const campo = menu.querySelector<HTMLInputElement>('[data-menu-q]')!;
+    const estado = menu.querySelector<HTMLElement>('[data-menu-estado]')!;
+    const vacio = menu.querySelector<HTMLElement>('[data-menu-vacio]')!;
+    const borrar = menu.querySelectorAll<HTMLElement>('[data-menu-borrar]');
+    const lento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const idDe = (i: number) => tabs[i].dataset.tab!;
+    let actual = 0;
+    let buscando = false;
+
+    /* La barra superior de la página (si existe) fija dónde se pegan las pestañas. */
+    const encabezado = document.querySelector<HTMLElement>('.barra');
+    const medirTope = () => menu.style.setProperty('--menu-top', `${encabezado?.offsetHeight ?? 0}px`);
+    medirTope();
+    window.addEventListener('resize', medirTope, { passive: true });
+    if (encabezado && 'ResizeObserver' in window) new ResizeObserver(medirTope).observe(encabezado);
+
+    const tope = () => (encabezado?.offsetHeight ?? 0) + barra.offsetHeight + 8;
+
+    /** Si las pestañas ya van pegadas, al cambiar de sección se vuelve al inicio del panel. */
+    const volverAlPanel = () => {
+      const top = menu.querySelector<HTMLElement>('[data-menu-paneles]')!.getBoundingClientRect().top;
+      if (top < tope()) window.scrollTo({ top: window.scrollY + top - tope(), behavior: lento ? 'auto' : 'smooth' });
+    };
+
+    const elegir = (i: number, { foco = false, scroll = true, hash = true } = {}) => {
+      if (i < 0 || i >= tabs.length) return;
+      const cambio = i !== actual;
+      actual = i;
+      tabs.forEach((t, n) => {
+        t.setAttribute('aria-selected', String(n === i));
+        t.tabIndex = n === i ? 0 : -1;
+      });
+      barra.style.setProperty('--idx', String(i));
+      paneles.forEach((p, n) => {
+        if (n === i) {
+          p.setAttribute('data-activa', '');
+          if (cambio && !lento) {
+            p.setAttribute('data-entra', '');
+            p.querySelectorAll<HTMLElement>('.menu-item').forEach((it, k) => it.style.setProperty('--n', String(k)));
+            window.setTimeout(() => p.removeAttribute('data-entra'), 1100);
+          }
+        } else {
+          p.removeAttribute('data-activa');
+          p.removeAttribute('data-entra');
+        }
+      });
+      if (foco) tabs[i].focus();
+      if (hash) history.replaceState(null, '', `#${idDe(i)}`);
+      if (cambio) {
+        if ('vibrate' in navigator) { try { navigator.vibrate(6); } catch {} }
+        if (scroll) volverAlPanel();
+      }
+    };
+
+    /* ── Pestañas: clic, teclado y deslizar ── */
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        if (buscando) {
+          // Buscando, las pestañas llevan a la sección donde hay resultados.
+          const p = paneles[i];
+          if (p.getAttribute('data-sin') === 'si') return;
+          p.scrollIntoView({ behavior: lento ? 'auto' : 'smooth', block: 'start' });
+          return;
+        }
+        elegir(i);
+      });
+      t.addEventListener('keydown', (ev) => {
+        const sig = ev.key === 'ArrowRight' ? i + 1 : ev.key === 'ArrowLeft' ? i - 1 : ev.key === 'Home' ? 0 : ev.key === 'End' ? tabs.length - 1 : -1;
+        if (sig < 0) return;
+        ev.preventDefault();
+        elegir((sig + tabs.length) % tabs.length, { foco: true, scroll: false });
+      });
+    });
+
+    let x0 = 0, y0 = 0, t0 = 0, sigue = false;
+    menu.addEventListener('touchstart', (ev) => {
+      const t = ev.touches[0];
+      const borde = t.clientX < 24 || t.clientX > window.innerWidth - 24;
+      sigue = ev.touches.length === 1 && !buscando && !borde && !(ev.target as HTMLElement).closest('input, button, a.menu-tab');
+      x0 = t.clientX; y0 = t.clientY; t0 = Date.now();
+    }, { passive: true });
+    menu.addEventListener('touchend', (ev) => {
+      if (!sigue) return;
+      sigue = false;
+      const t = ev.changedTouches[0];
+      const dx = t.clientX - x0, dy = t.clientY - y0;
+      if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.8 || Date.now() - t0 > 700) return;
+      elegir(actual + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+
+    /* ── Buscar ── */
+    const buscar = () => {
+      const q = norm(campo.value);
+      buscando = q.length > 0;
+      if (buscando) menu.setAttribute('data-buscando', 'si'); else menu.removeAttribute('data-buscando');
+      borrar.forEach((b) => { if (b.matches('.menu-borrar')) b.hidden = !buscando; });
+      let total = 0;
+      paneles.forEach((p, i) => {
+        let n = 0;
+        p.querySelectorAll<HTMLElement>('.menu-grupo').forEach((g) => {
+          let enGrupo = 0;
+          g.querySelectorAll<HTMLElement>('.menu-item').forEach((it) => {
+            const coincide = !buscando || (it.dataset.buscar ?? '').includes(q);
+            it.hidden = !coincide;
+            if (coincide) enGrupo++;
+          });
+          if (enGrupo === 0) g.setAttribute('data-sin', 'si'); else g.removeAttribute('data-sin');
+          n += enGrupo;
+        });
+        total += n;
+        if (n === 0 && buscando) p.setAttribute('data-sin', 'si'); else p.removeAttribute('data-sin');
+        const marca = tabs[i].querySelector<HTMLElement>('[data-n]')!;
+        marca.textContent = buscando ? String(n) : '';
+        if (buscando && n === 0) tabs[i].setAttribute('data-vacia', 'si'); else tabs[i].removeAttribute('data-vacia');
+      });
+      vacio.hidden = !(buscando && total === 0);
+      const texto = campo.value.trim();
+      (menu.querySelector('[data-menu-vacio-q]') as HTMLElement).textContent = texto;
+      estado.textContent = !buscando ? '' : total === 0 ? '' : `${total} resultado${total === 1 ? '' : 's'} para “${texto}”`;
+    };
+    campo.addEventListener('input', buscar);
+    campo.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && campo.value) { campo.value = ''; buscar(); } });
+    borrar.forEach((b) => b.addEventListener('click', () => { campo.value = ''; buscar(); campo.focus({ preventScroll: true }); }));
+
+    /* ── Compartir (el enlace directo al menú, no a la landing) ── */
+    const compartir = menu.querySelector<HTMLButtonElement>('[data-menu-compartir]');
+    const etiqueta = menu.querySelector<HTMLElement>('[data-menu-compartir-texto]');
+    compartir?.addEventListener('click', async () => {
+      const url = menu.dataset.url || location.href.split('#')[0];
+      const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> };
+      try {
+        if (nav.share) { await nav.share({ title: 'Menú · Ryo Café', url }); return; }
+        await navigator.clipboard.writeText(url);
+        if (etiqueta) { etiqueta.textContent = 'Enlace copiado'; window.setTimeout(() => { etiqueta.textContent = 'Compartir el menú'; }, 2200); }
+      } catch { /* cancelado */ }
+    });
+
+    /* ── Entrar directo a una sección: #matcha, #bar… ── */
+    const deHash = () => {
+      const i = tabs.findIndex((t) => t.dataset.tab === location.hash.slice(1));
+      if (i >= 0) {
+        elegir(i, { scroll: false, hash: false });
+        // Dentro de la landing, el enlace directo también lleva al menú.
+        if (document.getElementById('menu') && !document.querySelector('[data-solo-menu]')) menu.scrollIntoView({ block: 'start' });
+      }
+    };
+    deHash();
+    window.addEventListener('hashchange', deHash);
+  });
+</script>

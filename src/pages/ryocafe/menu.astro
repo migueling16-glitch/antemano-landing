@@ -1,0 +1,228 @@
+---
+/**
+ * Ryo Café — el menú, solo el menú. Ruta: /ryocafe/menu.
+ *
+ * Es la página que abre el QR de la barra y la que se comparte con los
+ * clientes. Va ligera a propósito: quien escanea está de pie, con datos
+ * móviles y poca paciencia (Google/SOASTA: más de la mitad se va si tarda más
+ * de 3 s). Sin intro, sin imágenes pesadas y con el menú ya escrito en el
+ * HTML: no hay que esperar a ningún script para leerlo.
+ * El contenido vive en src/ryo/config.ts; el menú, en src/ryo/Menu.astro.
+ */
+import Menu from '../../ryo/Menu.astro';
+import { NEGOCIO, HORARIO, MENU_URL, ASSET_BASE, estadoDe, ahoraEnDurango, horaBonita } from '../../ryo/config';
+import logotipoSvg from '../../ryo/assets/logotipo.svg?raw';
+
+const titulo = `Menú · ${NEGOCIO.nombre}`;
+const descripcion = 'Café, matcha, sin café, bar y cocina de Ryo Café en Durango, con precios.';
+const estadoInicial = estadoDe(ahoraEnDurango());
+// El logotipo recortado a su caja: la marca no baja de 50 px de alto.
+const logo = logotipoSvg.replace(/viewBox="[^"]*"/, 'viewBox="38 35 469 369"');
+const direccionCompleta = `${NEGOCIO.direccion}, ${NEGOCIO.cp} ${NEGOCIO.ciudad}`;
+const hoy = HORARIO.find((d) => d.dia === ahoraEnDurango().getDay())!;
+---
+
+<!doctype html>
+<html lang="es" class="no-js" data-tema="champagne">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={MENU_URL} />
+    <link rel="icon" href={`${ASSET_BASE}/favicon.svg`} type="image/svg+xml" />
+    <meta name="theme-color" content="#F8F3D1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#302413" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={MENU_URL} />
+    <meta property="og:image" content={`${MENU_URL.replace(/\/ryocafe\/menu$/, '')}${ASSET_BASE}/og.png`} />
+    <meta property="og:locale" content="es_MX" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap" />
+
+    <!-- Antes del primer pintado: con JS se ve una sección a la vez, sin saltos. Tema como en la landing. -->
+    <script is:inline>
+      (function () {
+        var r = document.documentElement;
+        r.classList.remove('no-js');
+        try {
+          var g = localStorage.getItem('ryo-tema');
+          if (g === 'champagne' || g === 'cafe') { r.dataset.tema = g; return; }
+          var d = new Date();
+          var h = new Date(d.getTime() + d.getTimezoneOffset() * 6e4 - 6 * 36e5).getHours();
+          r.dataset.tema = h >= 7 && h < 19 ? 'champagne' : 'cafe';
+        } catch (e) {}
+      })();
+    </script>
+
+    <style is:global>
+      /* Mismos tokens que la landing: dos tintas que se invierten por tema. */
+      :root {
+        --c-champagne: #f8f3d1;
+        --c-cafe: #302413;
+        --surface: var(--c-champagne);
+        --ink: var(--c-cafe);
+        --line: var(--c-cafe);
+        --space-1: 4px; --space-2: 8px; --space-3: 16px; --space-4: 24px; --space-5: 40px; --space-6: 64px;
+        --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+        --track: 0.04em;
+        --fs-display: clamp(2.1rem, 8.5vw, 3.4rem);
+        --fs-title: clamp(1.5rem, 5.2vw, 2.1rem);
+        --fs-heading: clamp(1.05rem, 3.4vw, 1.25rem);
+        --fs-body: clamp(0.95rem, 2.9vw, 1rem);
+        --fs-sm: 0.875rem;
+        --fs-label: 0.75rem;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --ancho: 40rem;
+        --gutter: clamp(1.25rem, 6vw, 2.5rem);
+      }
+      html[data-tema='cafe'] { --surface: var(--c-cafe); --ink: var(--c-champagne); --line: var(--c-champagne); }
+      .inv { --surface: var(--c-cafe); --ink: var(--c-champagne); --line: var(--c-champagne); }
+      html[data-tema='cafe'] .inv { --surface: var(--c-champagne); --ink: var(--c-cafe); --line: var(--c-cafe); }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; background: var(--surface); }
+      body {
+        margin: 0; background: var(--surface); color: var(--ink);
+        font-family: var(--mono); font-size: var(--fs-body); line-height: 1.6; letter-spacing: var(--track);
+        transition: background-color 500ms var(--ease), color 500ms var(--ease);
+      }
+      h1, h2, h3, h4, p, ul { margin: 0; }
+      ul { list-style: none; padding: 0; }
+      a { color: inherit; }
+      button { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+      :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+      ::selection { background: var(--ink); color: var(--surface); }
+
+      .saltar { position: absolute; left: -9999px; top: 0; z-index: 100; background: var(--ink); color: var(--surface); padding: var(--space-3); }
+      .saltar:focus { left: 0; }
+
+      /* Barra superior: el logotipo y el tema. */
+      .barra {
+        position: sticky; top: 0; z-index: 50;
+        display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+        padding: var(--space-2) var(--gutter);
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+        transition: background-color 500ms var(--ease);
+      }
+      .barra-marca { display: block; height: 50px; }
+      .marca { display: block; height: 100%; color: var(--ink); }
+      .marca svg { display: block; height: 100%; width: auto; }
+      .tema { display: flex; border: 1px solid var(--line); }
+      .tema button { padding: 8px 12px; min-height: 40px; font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.12em; transition: background-color 250ms var(--ease), color 250ms var(--ease); }
+      .tema button + button { border-left: 1px solid var(--line); }
+      .tema button[aria-pressed='true'] { background: var(--ink); color: var(--surface); }
+
+      main, .pie { max-width: var(--ancho); margin: 0 auto; padding-inline: var(--gutter); }
+      main { padding-top: var(--space-4); padding-bottom: var(--space-5); }
+
+      .cab { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
+      .cab-titulo { font-size: var(--fs-display); font-weight: 400; letter-spacing: 0.02em; line-height: 1.05; }
+      /* Estado en vivo: cuadrado lleno si está abierto, de filete si no. */
+      .estado { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; font-size: var(--fs-sm); }
+      .estado-punto { width: 8px; height: 8px; border: 1px solid var(--ink); background: var(--ink); flex: none; }
+      .estado-punto[data-estado-punto='no'] { background: transparent; }
+      .estado-titulo { text-transform: uppercase; letter-spacing: 0.12em; font-size: var(--fs-label); }
+
+      .pie { padding-top: var(--space-5); padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: var(--space-4); border-top: 1px solid var(--line); }
+      .pie-fila { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-sm); }
+      .pie-etq { font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.14em; }
+      .pie-enlaces { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+      .enlace { min-height: 44px; display: inline-flex; align-items: center; font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.14em; text-decoration: underline; text-underline-offset: 5px; }
+      .pie-slogan { font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.3em; line-height: 1.8; }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        body, .barra, .tema button { transition: none; }
+      }
+      @media print {
+        .barra, .pie, .saltar { display: none !important; }
+      }
+    </style>
+  </head>
+
+  <body data-solo-menu>
+    <a class="saltar" href="#menu">Saltar al menú</a>
+
+    <header class="barra">
+      <a class="barra-marca" href="/ryocafe" aria-label={`${NEGOCIO.nombre} — inicio`}>
+        <span class="marca" set:html={logo} role="img" aria-label={NEGOCIO.nombre} />
+      </a>
+      <div class="tema" role="group" aria-label="Tema de la página">
+        <button type="button" data-tema-btn="champagne" aria-pressed="true">Champagne</button>
+        <button type="button" data-tema-btn="cafe" aria-pressed="false">Café</button>
+      </div>
+    </header>
+
+    <main id="menu">
+      <div class="cab">
+        <h1 class="cab-titulo">Menú</h1>
+        <p class="estado" role="status">
+          <span class="estado-punto" data-estado-punto={estadoInicial.abierto ? 'si' : 'no'} aria-hidden="true"></span>
+          <span class="estado-titulo" data-estado-titulo>{estadoInicial.titulo}</span>
+          <span aria-hidden="true">·</span>
+          <span data-estado-detalle>{estadoInicial.detalle}</span>
+        </p>
+      </div>
+
+      <Menu />
+    </main>
+
+    <footer class="pie">
+      <div class="pie-fila">
+        <span class="pie-etq">Dónde estamos</span>
+        <span>{NEGOCIO.direccion}</span>
+        <span>{NEGOCIO.cp} · {NEGOCIO.ciudad}</span>
+      </div>
+      <div class="pie-fila">
+        <span class="pie-etq">Hoy</span>
+        <span>{hoy.cierra ? `${horaBonita(hoy.abre)} a ${horaBonita(hoy.cierra)}` : 'Cerrado'}</span>
+      </div>
+      <div class="pie-enlaces">
+        <a class="enlace" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener">Cómo llegar ↗</a>
+        <a class="enlace" href={`https://instagram.com/${NEGOCIO.instagram}`} target="_blank" rel="noopener">Instagram ↗</a>
+        <a class="enlace" href="/ryocafe">Ryo Café</a>
+      </div>
+      <p class="pie-slogan">{NEGOCIO.slogan}</p>
+    </footer>
+
+    <script>
+      import { ahoraEnDurango, estadoDe } from '../../ryo/config';
+
+      const raiz = document.documentElement;
+      const lento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* Tema: Champagne ⇄ Café (lo mismo que la landing; se recuerda). */
+      const botones = document.querySelectorAll<HTMLButtonElement>('[data-tema-btn]');
+      const pintar = (tema: string) => botones.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.temaBtn === tema)));
+      pintar(raiz.dataset.tema || 'champagne');
+      botones.forEach((b) => b.addEventListener('click', () => {
+        const tema = b.dataset.temaBtn!;
+        if (tema === raiz.dataset.tema) return;
+        const aplicar = () => { raiz.dataset.tema = tema; pintar(tema); try { localStorage.setItem('ryo-tema', tema); } catch {} };
+        const vt = (document as any).startViewTransition;
+        if (vt && !lento) vt.call(document, aplicar); else aplicar();
+      }));
+
+      /* Abierto / cerrado, al minuto. Solo toca el DOM si cambia el texto. */
+      const titulo = document.querySelector('[data-estado-titulo]');
+      const detalle = document.querySelector('[data-estado-detalle]');
+      const punto = document.querySelector<HTMLElement>('[data-estado-punto]');
+      const poner = (el: Element | null, v: string) => { if (el && el.textContent !== v) el.textContent = v; };
+      const refrescar = () => {
+        const e = estadoDe(ahoraEnDurango());
+        poner(titulo, e.titulo);
+        poner(detalle, e.detalle);
+        if (punto) punto.dataset.estadoPunto = e.abierto ? 'si' : 'no';
+      };
+      refrescar();
+      setInterval(refrescar, 60_000);
+    </script>
+  </body>
+</html>

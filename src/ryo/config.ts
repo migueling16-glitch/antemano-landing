@@ -171,18 +171,45 @@ export type Variante = { etiqueta: string; precio?: string };
 
 export type Item = { nombre: string; desc?: string; precio?: string; variantes?: Variante[] };
 
+export type TabId = 'cafe' | 'matcha' | 'sin-cafe' | 'bar' | 'cocina';
+
 export type Grupo = {
-  /** Las tres partes del menú: Bebidas, Bar y Cocina. */
-  seccion: 'Bebidas' | 'Bar' | 'Cocina';
+  /** En qué pestaña del menú va. */
+  tab: TabId;
   nombre: string;
+  /** Va en una banda de fondo oscuro, como los mocktails en el PDF. */
+  oscuro?: boolean;
   items: Item[];
 };
+
+/**
+ * Las pestañas del menú: cinco, de una o dos palabras, en el orden de uso
+ * (lo que más se pide primero). Cada una junta los grupos del PDF que se
+ * parecen; el grupo se llama como en el PDF.
+ */
+export const MENU_TABS: {
+  id: TabId;
+  nombre: string;
+  /** El rótulo de esa página en el PDF: Bebidas, Bar o Cocina. */
+  parte: string;
+  /** Toda la página va en fondo oscuro, como la del bar en el PDF. */
+  oscuro?: boolean;
+}[] = [
+  { id: 'cafe', nombre: 'Café', parte: 'Bebidas' },
+  { id: 'matcha', nombre: 'Matcha', parte: 'Bebidas' },
+  { id: 'sin-cafe', nombre: 'Sin café', parte: 'Bebidas' },
+  { id: 'bar', nombre: 'Bar', parte: 'Bar', oscuro: true },
+  { id: 'cocina', nombre: 'Cocina', parte: 'Cocina' },
+];
+
+/** El menú tiene su propia página: es la que abre el QR de la barra. */
+export const MENU_URL = 'https://antemano.com.mx/ryocafe/menu';
 
 const frio = (precio: string): Variante[] => [{ etiqueta: 'frío', precio }];
 
 export const MENU: Grupo[] = [
   {
-    seccion: 'Bebidas',
+    tab: 'cafe',
     nombre: 'Clásicos',
     items: [
       { nombre: 'Espresso', precio: '45' },
@@ -200,7 +227,7 @@ export const MENU: Grupo[] = [
     ],
   },
   {
-    seccion: 'Bebidas',
+    tab: 'cafe',
     nombre: 'Especiales',
     items: [
       { nombre: 'Ryo latte', precio: '115', desc: 'Leche de avena, espresso y foam de sésamo.' },
@@ -211,7 +238,7 @@ export const MENU: Grupo[] = [
     ],
   },
   {
-    seccion: 'Bebidas',
+    tab: 'matcha',
     nombre: 'Matcha',
     items: [
       { nombre: 'Matcha latte', precio: '110', variantes: [{ etiqueta: 'frío o caliente' }] },
@@ -222,7 +249,7 @@ export const MENU: Grupo[] = [
     ],
   },
   {
-    seccion: 'Bebidas',
+    tab: 'sin-cafe',
     nombre: 'Sin café',
     items: [
       { nombre: 'Chai latte', precio: '70', variantes: frio('75'), desc: 'Hecho en casa con especias naturales y leche de tu elección.' },
@@ -231,8 +258,9 @@ export const MENU: Grupo[] = [
     ],
   },
   {
-    seccion: 'Bebidas',
+    tab: 'sin-cafe',
     nombre: 'Mocktails',
+    oscuro: true,
     items: [
       { nombre: 'Mandarina cardamomo', desc: 'Mandarina, cardamomo, limón y agua mineral.' },
       { nombre: 'Ginger honey', desc: 'Jengibre, miel, limón y agua mineral.' },
@@ -241,7 +269,7 @@ export const MENU: Grupo[] = [
     ],
   },
   {
-    seccion: 'Bar',
+    tab: 'bar',
     nombre: 'Cócteles',
     items: [
       { nombre: 'Matcha martini', desc: 'Vodka infusionado con matcha, agua de coco y jarabe natural.' },
@@ -254,7 +282,7 @@ export const MENU: Grupo[] = [
     ],
   },
   {
-    seccion: 'Cocina',
+    tab: 'cocina',
     nombre: 'Desayunos',
     items: [
       { nombre: 'Matcha pancake', precio: '149', desc: 'Con crema batida, maple y mantequilla.' },
@@ -268,7 +296,7 @@ export const MENU: Grupo[] = [
     ],
   },
   {
-    seccion: 'Cocina',
+    tab: 'cocina',
     nombre: 'Toasts',
     items: [
       { nombre: 'Toast de salmón', precio: '179', desc: 'Salmón curado en casa sobre pan de masa madre, queso crema con jocoque, pepinillos, alcaparras y eneldo.' },
@@ -276,7 +304,7 @@ export const MENU: Grupo[] = [
     ],
   },
   {
-    seccion: 'Cocina',
+    tab: 'cocina',
     nombre: 'Sándwiches',
     items: [
       { nombre: 'Breakfast sandwich', precio: '159', desc: 'Huevo revuelto con tocino, aguacate, queso cheddar y mayonesa de ajo confitado.' },

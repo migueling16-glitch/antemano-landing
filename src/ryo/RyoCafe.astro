@@ -8,9 +8,10 @@
  */
 import {
   NEGOCIO, HORARIO, ACCESOS, ACCESO_PRINCIPAL, MANIFIESTO, MANIFIESTO_CIERRE,
-  MENU, MENU_ES_DEMO, MENU_MOSTRAR_PRECIOS, SITIO, ASSET_BASE,
+  MENU_URL, SITIO, ASSET_BASE,
   horaBonita, ahoraEnDurango, estadoDe,
 } from './config';
+import Menu from './Menu.astro';
 
 import logotipoSvg from './assets/logotipo.svg?raw';
 import isotipoSvg from './assets/isotipo.svg?raw';
@@ -70,6 +71,7 @@ const jsonLd = {
     addressCountry: 'MX',
   },
   hasMap: NEGOCIO.mapsUrl,
+  hasMenu: MENU_URL,
   sameAs: [`https://instagram.com/${NEGOCIO.instagram}`],
   openingHoursSpecification: HORARIO.filter((d) => d.cierra).map((d) => ({
     '@type': 'OpeningHoursSpecification',
@@ -104,7 +106,7 @@ const jsonLd = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap"
     />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
@@ -299,49 +301,8 @@ const jsonLd = {
           <h2 class="sec-titulo">Menú</h2>
         </header>
 
-        {MENU_ES_DEMO && (
-          <p class="aviso rv">
-            Menú de muestra. Los nombres y precios definitivos están por confirmar.
-          </p>
-        )}
-
-        {MENU.map((grupo, g) => (
-          <>
-            {(g === 0 || MENU[g - 1].seccion !== grupo.seccion) && (
-              <h3 class="menu-parte rv">{grupo.seccion}</h3>
-            )}
-            <div class="grupo">
-              <div class="grupo-head rv">
-                <h4 class="grupo-nombre">{grupo.nombre}</h4>
-              </div>
-              <ul class="items">
-                {grupo.items.map((item, n) => {
-                  const precio = MENU_MOSTRAR_PRECIOS ? item.precio : undefined;
-                  const variantes = (item.variantes ?? []).filter((v) => MENU_MOSTRAR_PRECIOS || !v.precio);
-                  return (
-                    <li class="item rv" style={`--i:${n}`}>
-                      <div class="item-linea">
-                        <span class="item-nombre">{item.nombre}</span>
-                        {(precio || variantes.length > 0) && (
-                          <>
-                            <span class="item-guia" aria-hidden="true"></span>
-                            <span class="item-precio">
-                              {precio && <span class="item-cifra">${precio}</span>}
-                              {variantes.map((v) => (
-                                <em class="item-var">{v.etiqueta}{v.precio && ` $${v.precio}`}</em>
-                              ))}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                      {item.desc && <p class="item-desc">{item.desc}</p>}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </>
-        ))}
+        <!-- Es el mismo menú de /ryocafe/menu (la página del QR): ver Menu.astro. -->
+        <Menu />
       </section>
 
       <!--
@@ -925,52 +886,6 @@ const jsonLd = {
         padding-top: var(--space-4);
         border-top: 1px solid var(--line);
         max-width: 20ch;
-      }
-
-      /* ─── 03 Menú ─── */
-      .aviso {
-        font-size: var(--fs-sm);
-        font-style: italic;
-        border: 1px solid var(--line);
-        padding: var(--space-3);
-        margin-bottom: var(--space-5);
-      }
-      /* Las tres partes del menú: Bebidas, Bar y Cocina. */
-      .menu-parte {
-        font-size: var(--fs-label);
-        font-weight: 400;
-        text-transform: uppercase;
-        letter-spacing: 0.3em;
-        padding-bottom: var(--space-2);
-        border-bottom: 1px solid var(--line);
-        margin: var(--space-6) 0 var(--space-5);
-      }
-      .menu-parte:first-of-type { margin-top: 0; }
-      .grupo + .grupo { margin-top: var(--space-6); }
-      .grupo-head { margin-bottom: var(--space-4); }
-      .grupo-nombre {
-        font-size: var(--fs-heading);
-        font-weight: 400;
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
-      }
-
-      .item { padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
-      .item-linea { display: flex; align-items: baseline; gap: var(--space-2); }
-      .item-nombre { font-size: var(--fs-body); flex: 0 1 auto; min-width: 0; }
-      .item-guia {
-        flex: 1 1 auto;
-        border-bottom: 1px dotted var(--line);
-        transform: translateY(-4px);
-        min-width: var(--space-4);
-      }
-      .item-precio { font-size: var(--fs-label); letter-spacing: 0.14em; white-space: nowrap; display: inline-flex; align-items: baseline; gap: var(--space-2); flex: none; }
-      .item-var { font-size: var(--fs-sm); letter-spacing: 0.06em; }
-      .item-desc {
-        font-size: var(--fs-sm);
-        font-style: italic;
-        margin-top: 2px;
-        max-width: 46ch;
       }
 
       /* ─── Descanso visual ─── */
