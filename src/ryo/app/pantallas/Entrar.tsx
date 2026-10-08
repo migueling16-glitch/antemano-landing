@@ -217,7 +217,7 @@ export function NuevaClave({ tipo }: { tipo: 'invitacion' | 'recuperacion' }) {
 
   const guardar = async (ev: FormEvent) => {
     ev.preventDefault();
-    if (clave.length < 8) return setError('Usa al menos 8 caracteres.');
+    if (clave.length < 6) return setError('Usa al menos 6 caracteres.');
     if (clave !== otra) return setError('Las dos contraseñas no coinciden.');
     setError(null);
     setGuardando(true);
@@ -244,7 +244,7 @@ export function NuevaClave({ tipo }: { tipo: 'invitacion' | 'recuperacion' }) {
         <label className="campo">
           <span className="etq">Contraseña</span>
           <span className="campo-clave">
-            <input type={ver ? 'text' : 'password'} autoComplete="new-password" value={clave} placeholder="Mínimo 8 caracteres"
+            <input type={ver ? 'text' : 'password'} autoComplete="new-password" value={clave} placeholder="Mínimo 6 caracteres"
               onChange={(ev) => { setClave(ev.target.value); setError(null); }} />
             <button type="button" className="enlace" onClick={() => setVer(!ver)} aria-pressed={ver}>{ver ? 'Ocultar' : 'Mostrar'}</button>
           </span>

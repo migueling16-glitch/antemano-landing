@@ -31,9 +31,15 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return responder({ error: 'Solo POST.' }, 405);
 
+  // Supabase pone las llaves solo. Las nuevas vienen como JSON {"default": "sb_…"};
+  // las de antes (anon, service_role) siguen como respaldo.
+  const deJson = (nombre: string): string | undefined => {
+    try { const o = JSON.parse(Deno.env.get(nombre) ?? ''); return o.default ?? Object.values(o)[0]; } catch { return undefined; }
+  };
   const url = Deno.env.get('SUPABASE_URL')!;
-  const publica = Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')!;
-  const secreta = Deno.env.get('SUPABASE_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const publica = Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? deJson('SUPABASE_PUBLISHABLE_KEYS') ?? Deno.env.get('SUPABASE_ANON_KEY');
+  const secreta = Deno.env.get('SUPABASE_SECRET_KEY') ?? deJson('SUPABASE_SECRET_KEYS') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!publica || !secreta) return responder({ error: 'La función no encuentra las llaves del proyecto.' }, 500);
   const sesion = req.headers.get('Authorization');
   if (!sesion) return responder({ error: 'Falta la sesión.' }, 401);
 

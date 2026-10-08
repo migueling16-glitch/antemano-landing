@@ -8,10 +8,12 @@
  *
  * Se pueden sobreescribir con PUBLIC_RYO_SUPABASE_URL y
  * PUBLIC_RYO_SUPABASE_KEY (por ejemplo, para apuntar a otro proyecto).
- * Vacías = la app es solo la demo, como antes.
+ * Si las dos quedan vacías, la app es solo la demo, como antes.
  */
-export const SUPABASE_URL: string = import.meta.env.PUBLIC_RYO_SUPABASE_URL ?? '';
-export const SUPABASE_LLAVE: string = import.meta.env.PUBLIC_RYO_SUPABASE_KEY ?? '';
+/** Proyecto ryo-cafe (organización Antemano, plan gratis, East US). */
+export const SUPABASE_URL: string = import.meta.env.PUBLIC_RYO_SUPABASE_URL ?? 'https://xvltmaahedzzabicthqf.supabase.co';
+/** Llave publicable: Supabase la marca como "segura para compartir públicamente" con RLS activo. */
+export const SUPABASE_LLAVE: string = import.meta.env.PUBLIC_RYO_SUPABASE_KEY ?? 'sb_publishable_POgPQkUZ4TGUac8sNWTVTQ_n7xYDEpr';
 
 /** Hay equipo real conectado: la app ofrece "Iniciar sesión" de verdad y la demo aparte. */
 export const hayNube = Boolean(SUPABASE_URL && SUPABASE_LLAVE);
