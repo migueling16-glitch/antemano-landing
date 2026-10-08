@@ -89,7 +89,7 @@ export const ACCESOS: Acceso[] = [
   {
     id: 'menu',
     etiqueta: 'Menú',
-    detalle: 'Clásicos, especiales y matcha',
+    detalle: 'Bebidas, bar y cocina',
     href: '#menu',
     activo: true,
   },
@@ -155,53 +155,134 @@ export const MANIFIESTO_CIERRE = 'Lo simple también puede ser extraordinario.';
 
 /* ─────────────────────────────────────────────────────────────
    MENÚ
-   El menú real de Ryo (nota de la barra, 29-sep-2026): los tres grupos y
-   qué va también en frío. TODO: faltan los precios; mientras
-   `MENU_MOSTRAR_PRECIOS` sea false no se muestran. Si algún día se vuelve
-   a publicar una muestra, `MENU_ES_DEMO` enciende la nota de "muestra".
+   El menú oficial de Ryo (Ryo-Menu-Oficial-A5.pdf, tal cual: nombres,
+   descripciones, precios y variantes). Los cócteles y los mocktails traen
+   la línea de precio vacía en el PDF: por eso salen sin precio.
+   TODO: poner el precio de esos once cuando se definan.
+   `MENU_MOSTRAR_PRECIOS` en false oculta todos los precios sin tocar los
+   datos; `MENU_ES_DEMO` enciende la nota de "muestra".
    ───────────────────────────────────────────────────────────── */
 
 export const MENU_ES_DEMO = false;
-export const MENU_MOSTRAR_PRECIOS = false;
+export const MENU_MOSTRAR_PRECIOS = true;
+
+/** Una variante del mismo platillo: "frío 65", "con salmón 219" o solo "frío o caliente". */
+export type Variante = { etiqueta: string; precio?: string };
+
+export type Item = { nombre: string; desc?: string; precio?: string; variantes?: Variante[] };
 
 export type Grupo = {
+  /** Las tres partes del menú: Bebidas, Bar y Cocina. */
+  seccion: 'Bebidas' | 'Bar' | 'Cocina';
   nombre: string;
-  nota?: string;
-  items: { nombre: string; desc: string; precio?: string; frio?: boolean }[];
+  items: Item[];
 };
+
+const frio = (precio: string): Variante[] => [{ etiqueta: 'frío', precio }];
 
 export const MENU: Grupo[] = [
   {
+    seccion: 'Bebidas',
     nombre: 'Clásicos',
-    nota: 'Espresso de la casa',
     items: [
-      { nombre: 'Espresso',    desc: 'Doble, de la casa. Cuerpo denso, final dulce.' },
-      { nombre: 'Cortado',     desc: 'Mitad espresso, mitad leche.' },
-      { nombre: 'Flat white',  desc: 'Espresso y microespuma, en taza chica.', frio: true },
-      { nombre: 'Cappuccino',  desc: 'Espuma firme y sedosa.' },
-      { nombre: 'Latte',       desc: 'Leche sedosa, trazo en la superficie.', frio: true },
-      { nombre: 'Americano',   desc: 'Espresso y agua. Nada más.', frio: true },
-      { nombre: 'Long black',  desc: 'El agua primero, el espresso encima: la crema intacta.' },
-      { nombre: 'Moka',        desc: 'Espresso, chocolate y leche.', frio: true },
+      { nombre: 'Espresso', precio: '45' },
+      { nombre: 'Cortado', precio: '55' },
+      { nombre: 'Flat white', precio: '60', variantes: frio('65') },
+      { nombre: 'Cappuccino', precio: '65' },
+      { nombre: 'Latte', precio: '75', variantes: frio('80') },
+      { nombre: 'Americano', precio: '50', variantes: [{ etiqueta: 'frío o caliente' }] },
+      { nombre: 'Long black', precio: '45' },
+      { nombre: 'Moka', precio: '80', variantes: frio('85') },
+      { nombre: 'Cold brew', precio: '75' },
+      { nombre: 'Cold brew latte', precio: '85' },
+      { nombre: 'Cold brew tonic', precio: '85' },
+      { nombre: 'Espresso tonic', precio: '85' },
     ],
   },
   {
+    seccion: 'Bebidas',
     nombre: 'Especiales',
-    nota: 'De la casa',
     items: [
-      { nombre: 'Miso caramel latte', desc: 'Caramelo de miso, espresso y leche, con foam.' },
-      { nombre: 'Maple salt latte',   desc: 'Maple y un toque de sal, con espresso y leche.' },
-      { nombre: 'Cortadito',          desc: 'Espresso con espumita de azúcar y leche.' },
-      { nombre: 'Ryo latte',          desc: 'El latte de la casa.' },
+      { nombre: 'Ryo latte', precio: '115', desc: 'Leche de avena, espresso y foam de sésamo.' },
+      { nombre: 'Miso caramel latte', precio: '90', desc: 'Espresso, caramelo de miso y leche de tu elección.' },
+      { nombre: 'Shaken espresso', precio: '60', desc: 'Espresso agitado con mascabado y un toque de foam.' },
+      { nombre: 'Maple sea salt latte', precio: '90', desc: 'Jarabe de maple, sal Maldon y leche de tu elección.' },
+      { nombre: 'Coffee cloud', precio: '130', desc: 'Foam de café sobre agua de coco.' },
     ],
   },
   {
-    nombre: 'Matchas',
-    nota: 'Batidas al momento',
+    seccion: 'Bebidas',
+    nombre: 'Matcha',
     items: [
-      { nombre: 'Matcha latte', desc: 'Matcha y leche. Dulzor natural.' },
-      { nombre: 'Ryo matcha',   desc: 'La matcha de la casa.' },
-      { nombre: 'Hojicha',      desc: 'Té verde tostado con leche. Notas de caramelo.' },
+      { nombre: 'Matcha latte', precio: '110', variantes: [{ etiqueta: 'frío o caliente' }] },
+      { nombre: 'Ryo matcha', precio: '140', desc: 'Matcha latte con foam de sésamo.' },
+      { nombre: 'Hojicha', precio: '90', desc: 'Té verde tostado, frío.' },
+      { nombre: 'Hojichai', precio: '110', desc: 'Chai latte frío con hojicha.' },
+      { nombre: 'Coconut matcha', precio: '170', desc: 'Matcha con base de agua de coco.' },
+    ],
+  },
+  {
+    seccion: 'Bebidas',
+    nombre: 'Sin café',
+    items: [
+      { nombre: 'Chai latte', precio: '70', variantes: frio('75'), desc: 'Hecho en casa con especias naturales y leche de tu elección.' },
+      { nombre: 'Golden milk', precio: '70', variantes: frio('75'), desc: 'Cúrcuma y especias orgánicas, con leche de tu elección.' },
+      { nombre: 'Sesame latte', precio: '75', desc: 'Leche de avena con pasta de sésamo tostado.' },
+    ],
+  },
+  {
+    seccion: 'Bebidas',
+    nombre: 'Mocktails',
+    items: [
+      { nombre: 'Mandarina cardamomo', desc: 'Mandarina, cardamomo, limón y agua mineral.' },
+      { nombre: 'Ginger honey', desc: 'Jengibre, miel, limón y agua mineral.' },
+      { nombre: 'Iced tea', desc: 'Extracción en frío de té negro con limón.' },
+      { nombre: 'Manzanilla limón', desc: 'Extracción en frío de manzanilla con limón.' },
+    ],
+  },
+  {
+    seccion: 'Bar',
+    nombre: 'Cócteles',
+    items: [
+      { nombre: 'Matcha martini', desc: 'Vodka infusionado con matcha, agua de coco y jarabe natural.' },
+      { nombre: 'Negroni manzanilla', desc: 'Gin infusionado con manzanilla, vermut rosso y Campari.' },
+      { nombre: 'Martini de mezcal', desc: 'Mezcal Cuero Viejo, jarabe de sandía, jarabe de kiwi y limón.' },
+      { nombre: 'Martini lichi', desc: 'Té de jazmín, almíbar de lichi y St-Germain.' },
+      { nombre: 'Limoncello spritz', desc: 'Limoncello, espumoso, agua mineral y jarabe natural.' },
+      { nombre: 'Espresso de olla martini', desc: 'Tequila 1800 Añejo, espresso y jarabe de café de olla.' },
+      { nombre: 'Dirty martini', desc: 'Gin o vodka, vermut seco, salmuera y aceitunas.' },
+    ],
+  },
+  {
+    seccion: 'Cocina',
+    nombre: 'Desayunos',
+    items: [
+      { nombre: 'Matcha pancake', precio: '149', desc: 'Con crema batida, maple y mantequilla.' },
+      { nombre: 'Bowl de yogurt', precio: '149', desc: 'Yogurt griego artesanal, granola hecha en casa y fruta fresca de temporada.' },
+      { nombre: 'Ensalada Green Goddess', precio: '109', desc: 'Arúgula, espinaca, col verde, pistache y parmesano con aderezo green goddess.' },
+      { nombre: 'Papitas', precio: '90', desc: 'Papa cambray con aioli de salsa macha.' },
+      { nombre: 'Huevos turcos', precio: '175', desc: 'Huevos pochados con jocoque, yogurt y eneldo, y un toque de mantequilla con paprika y chili flakes. Con nuestro pan de masa madre.' },
+      { nombre: 'Huevos tomate (shakshuka)', precio: '189', desc: 'Huevos sobre nuestra salsa de tomate, pimientos y especias, terminados con hierbas frescas, queso feta con ricotta y aceite de oliva con perejil y eneldo. Con nuestro pan de masa madre.' },
+      { nombre: 'Omelette Ryo', precio: '130', desc: 'Nuestro omelette, perfectamente cocinado, con whipped butter y nuestro pan de masa madre.' },
+      { nombre: 'Breakfast plate', precio: '189', variantes: [{ etiqueta: 'con salmón', precio: '219' }], desc: 'Huevo revuelto, pechuga de pavo o salmón curado, aguacate, cebolla encurtida, pepinillos, tomate asado y crema de ricotta con feta.' },
+    ],
+  },
+  {
+    seccion: 'Cocina',
+    nombre: 'Toasts',
+    items: [
+      { nombre: 'Toast de salmón', precio: '179', desc: 'Salmón curado en casa sobre pan de masa madre, queso crema con jocoque, pepinillos, alcaparras y eneldo.' },
+      { nombre: 'Toast de miso shiitake', precio: '139', desc: 'Shiitake fresco salteado con miso y cebolla, sobre pan de masa madre con queso feta y ricotta.' },
+    ],
+  },
+  {
+    seccion: 'Cocina',
+    nombre: 'Sándwiches',
+    items: [
+      { nombre: 'Breakfast sandwich', precio: '159', desc: 'Huevo revuelto con tocino, aguacate, queso cheddar y mayonesa de ajo confitado.' },
+      { nombre: 'Sándwich de pastrami', precio: '239', desc: 'Pastrami con ensalada de col, queso cheddar y mayonesa de ajo confitado.' },
+      { nombre: 'Sándwich de pavo', precio: '189', desc: 'Pechuga de pavo hecha en casa, tocino, aguacate, queso, lechuga, tomate, mayonesa y Dijon.' },
+      { nombre: 'Tuna melt', precio: '189', desc: 'Atún con salsa tártara hecha en casa y queso cheddar.' },
     ],
   },
 ];
@@ -218,7 +299,7 @@ export const SITIO = {
   url: 'https://antemano.com.mx/ryocafe',
   titulo: `${NEGOCIO.nombre} — ${NEGOCIO.slogan}`,
   // La ciudad ya termina en punto ("Dgo."): no se le agrega otro.
-  descripcion: `${NEGOCIO.descriptor} en ${NEGOCIO.ciudad} Cómo llegar, horarios y menú: clásicos, especiales y matcha.`,
+  descripcion: `${NEGOCIO.descriptor} en ${NEGOCIO.ciudad} Cómo llegar, horarios y menú: café, matcha, cócteles y cocina.`,
 } as const;
 
 /**

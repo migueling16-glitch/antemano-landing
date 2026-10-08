@@ -58,9 +58,9 @@ Todo vive en `config.ts`:
 | `HORARIO`              | Un renglón por día. `cierra: null` = cerrado. Alimenta el estado en vivo y la tabla. |
 | `ACCESOS`              | Los destinos. `activo: false` los deja escritos pero apagados.         |
 | `MANIFIESTO`           | Líneas del manifiesto; cada una se revela por separado.                |
-| `MENU`                 | Grupos y platillos. **Hoy es una muestra.**                            |
+| `MENU`                 | El menú oficial (PDF Ryo-Menu-Oficial-A5): Bebidas, Bar y Cocina, con precios y variantes. Cócteles y mocktails aún sin precio. |
 | `MENU_ES_DEMO`         | `true` muestra el aviso de "menú de muestra". Poner en `false` al publicar el real. |
-| `MENU_MOSTRAR_PRECIOS` | `false` oculta todos los precios sin tocar los datos.                  |
+| `MENU_MOSTRAR_PRECIOS` | `true` (precios del menú oficial). `false` oculta todos los precios sin tocar los datos. |
 | `TEMA_AUTO`            | Horas entre las que la página abre en tema claro.                      |
 
 Los tiempos del intro viven en `RyoCafe.astro` (`DIBUJO`, 1.43 s de trazo) y

@@ -10,8 +10,10 @@
 export type Receta = {
   id: string;
   nombre: string;
-  /** Los tres grupos del menú de Ryo. */
-  categoria: 'Clásicos' | 'Especiales' | 'Matchas';
+  /** Los grupos del menú de bebidas de Ryo (el PDF oficial, sin cocina). */
+  categoria: 'Clásicos' | 'Especiales' | 'Matcha' | 'Sin café' | 'Mocktails' | 'Cócteles';
+  /** Cómo lo dice el menú: es lo que lee el cliente. */
+  menu?: string;
   vaso: string;
   temperatura: string;
   tiempo: string;
@@ -31,6 +33,8 @@ export type PasoGuia = { titulo: string; que: string; porque: string; senal: str
 
 export type Tutorial = {
   intro: string;
+  /** La versión fría cambia el final: desde el paso `desde` se reemplazan por estos. */
+  frio?: { desde: number; pasos: PasoGuia[] };
   utensilios: [string, string][];
   pasos: PasoGuia[];
   /** Cómo se ve, huele y sabe cuando está bien hecho. */
@@ -93,6 +97,38 @@ const PASOS_MATCHA: PasoGuia[] = [
   },
 ];
 
+/** Después de batir: la leche (en caliente). */
+const PASOS_LECHE_MATCHA: PasoGuia[] = [
+  {
+    titulo: 'Texturiza 120 ml de leche',
+    que: 'Purga el vaporizador. Texturiza 120 ml de leche con poca espuma, sedosa, y detén entre 55 y 60 °C. Limpia y purga el vaporizador.',
+    porque: 'La leche muy caliente tapa el sabor del matcha y lo amarga. Poca espuma y fina deja que el verde se vea y se sienta.',
+    senal: 'Leche brillante, como pintura, sin burbujas. La jarra se puede sostener sin quemarse.',
+  },
+  {
+    titulo: 'Sirve la leche y el matcha encima',
+    que: 'Vierte la leche en el vaso de 12 oz y enseguida el matcha batido encima, despacio y por el centro.',
+    porque: 'El matcha se sirve recién batido: si espera, el polvo se asienta y la espuma se cae. Encima de la leche se ve el verde y se integra solo.',
+    senal: 'Vaso con un verde parejo y cremoso, sin puntos oscuros. Sale a la barra de inmediato.',
+  },
+];
+
+/** La versión fría: hielo y leche fría, sin vaporizador. */
+const PASOS_FRIO_MATCHA: PasoGuia[] = [
+  {
+    titulo: 'Arma el vaso con hielo y leche fría',
+    que: 'Llena el vaso de 12 oz de hielo y sirve 120 ml de leche fría.',
+    porque: 'La leche va primero para que el matcha, que es más ligero, se vea encima y se mezcle al tomarlo. El hielo frío no diluye de golpe un matcha ya batido.',
+    senal: 'Vaso lleno de hielo hasta el borde, con la leche limpia, sin espuma.',
+  },
+  {
+    titulo: 'Vierte el matcha batido encima',
+    que: 'Vierte el matcha recién batido sobre el hielo, despacio y por el centro. Sirve de inmediato.',
+    porque: 'Recién batido tiene espuma y color; si espera, el polvo se asienta. Verterlo despacio deja la capa verde arriba.',
+    senal: 'Capa verde jade sobre la leche, sin grumos ni puntos oscuros.',
+  },
+];
+
 const BIEN_MATCHA = [
   'Color verde jade intenso y brillante. Si se ve verde olivo o amarillento, el matcha está oxidado.',
   'Espuma fina y pareja, sin burbujas grandes.',
@@ -129,10 +165,12 @@ const UTENSILIOS_MATCHA: [string, string][] = [
 
 
 /*
- * El menú de Ryo (nota de la barra, 29-sep-2026). De la nota salen: los tres
- * grupos, qué va también en frío, 150 ml de leche en el latte, 120 ml en el
- * matcha latte y el foam del miso caramel latte. Lo demás es una base de
- * barra para ajustar; los especiales de la casa quedan por confirmar.
+ * El menú de bebidas de Ryo: el PDF oficial (Ryo-Menu-Oficial-A5), con todas
+ * sus bebidas y sin la cocina. Del menú salen los nombres, los ingredientes
+ * (campo `menu`) y qué se sirve frío. De la nota de la barra (29-sep-2026):
+ * 150 ml de leche en el latte y 120 ml en el matcha latte. Los clásicos de
+ * café llevan una base de barra para ajustar. Todo lo que el PDF no dice
+ * (cantidades, técnica, vaso, tiempo) queda "por confirmar": no se inventa.
  */
 const DOBLE = ['Espresso', '18 g → 36 g · Doble casa'] as [string, string];
 
@@ -210,85 +248,289 @@ export const RECETAS: Receta[] = [
     },
   },
 
-  /* ── Especiales ── */
   {
-    id: 'miso-caramel-latte', nombre: 'Miso caramel latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '3 min',
-    gramos: [DOBLE, ['Caramelo de miso', 'por confirmar'], ['Leche', '150 ml'], ['Foam', 'por confirmar']],
-    pasos: ['Pon el caramelo de miso en el vaso.', 'Extrae el espresso encima e integra.', 'Vierte la leche.', 'Corona con el foam.'],
-    estandar: 'El foam va al final y se sirve de inmediato, antes de que baje.',
+    id: 'cold-brew', nombre: 'Cold brew', categoria: 'Clásicos', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    gramos: [['Cold brew', 'por confirmar'], ['Hielo', 'al borde']],
+    pasos: ['Llena el vaso de hielo.', 'Sirve el cold brew de la jarra.', 'Sirve de inmediato.'],
+    estandar: 'Limpio y dulce, sin amargor ni sedimento. Proporción y tiempo de extracción del cold brew: por definir con la barra.',
     porConfirmar: true,
   },
   {
-    id: 'maple-salt-latte', nombre: 'Maple salt latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
-    gramos: [DOBLE, ['Maple', 'por confirmar'], ['Sal', 'por confirmar'], ['Leche', '150 ml']],
-    pasos: ['Integra el maple con el espresso en el vaso.', 'Vierte la leche texturizada.', 'Termina con la sal.'],
+    id: 'cold-brew-latte', nombre: 'Cold brew latte', categoria: 'Clásicos', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    gramos: [['Cold brew', 'por confirmar'], ['Leche fría', 'por confirmar'], ['Hielo', 'al borde']],
+    pasos: ['Llena el vaso de hielo.', 'Sirve la leche fría.', 'Vierte el cold brew encima, despacio.'],
+    estandar: 'Dos capas marcadas al servir. Cantidades por definir con la barra.',
+    porConfirmar: true,
+  },
+  {
+    id: 'cold-brew-tonic', nombre: 'Cold brew tonic', categoria: 'Clásicos', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    gramos: [['Agua tónica', 'por confirmar'], ['Cold brew', 'por confirmar'], ['Hielo', 'al borde']],
+    pasos: ['Llena el vaso de hielo.', 'Sirve la tónica, inclinando el vaso para conservar el gas.', 'Vierte el cold brew encima, despacio, para que quede en capas.'],
+    estandar: 'Burbujeante y con capas. No se revuelve: se mezcla al tomarlo. Cantidades por definir con la barra.',
+    porConfirmar: true,
+  },
+  {
+    id: 'espresso-tonic', nombre: 'Espresso tonic', categoria: 'Clásicos', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    gramos: [DOBLE, ['Agua tónica', 'por confirmar'], ['Hielo', 'al borde']],
+    pasos: ['Llena el vaso de hielo y sirve la tónica.', 'Extrae el espresso y viértelo encima, despacio.', 'Sirve de inmediato, antes de que se mezcle.'],
+    estandar: 'El espresso queda arriba, en capa, sobre la tónica. Cantidad de tónica por definir con la barra.',
+    porConfirmar: true,
+  },
+
+  /* ── Especiales ── */
+  {
+    id: 'ryo-latte', nombre: 'Ryo latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '3 min',
+    menu: 'Leche de avena, espresso y foam de sésamo.',
+    gramos: [DOBLE, ['Leche de avena', '150 ml'], ['Foam de sésamo', 'por confirmar']],
+    pasos: ['Extrae el espresso en el vaso.', 'Texturiza la leche de avena y vierte.', 'Corona con el foam de sésamo.'],
+    estandar: 'El foam va al final y se sirve de inmediato, antes de que baje. La bebida firma de Ryo: la receta del foam se define en barra.',
+    porConfirmar: true,
+  },
+  {
+    id: 'miso-caramel-latte', nombre: 'Miso caramel latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '3 min',
+    menu: 'Espresso, caramelo de miso y leche de tu elección.',
+    gramos: [DOBLE, ['Caramelo de miso', 'por confirmar'], ['Leche de tu elección', '150 ml']],
+    pasos: ['Pon el caramelo de miso en el vaso.', 'Extrae el espresso encima e integra.', 'Texturiza la leche elegida y vierte.'],
+    estandar: 'El caramelo se integra con el espresso antes de la leche: sin miso asentado en el fondo.',
+    porConfirmar: true,
+  },
+  {
+    id: 'shaken-espresso', nombre: 'Shaken espresso', categoria: 'Especiales', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: '2 min',
+    menu: 'Espresso agitado con mascabado y un toque de foam.',
+    gramos: [DOBLE, ['Mascabado', 'por confirmar'], ['Hielo', 'por confirmar'], ['Foam', 'por confirmar']],
+    pasos: ['Extrae el espresso sobre el mascabado, en el shaker, y disuélvelo.', 'Agrega hielo y agita fuerte hasta que el shaker se sienta helado.', 'Cuela al vaso.', 'Termina con un toque de foam.'],
+    estandar: 'Espumoso y frío, con el mascabado integrado. Cantidades por definir con la barra.',
+    porConfirmar: true,
+  },
+  {
+    id: 'maple-sea-salt-latte', nombre: 'Maple sea salt latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
+    menu: 'Jarabe de maple, sal Maldon y leche de tu elección.',
+    gramos: [DOBLE, ['Jarabe de maple', 'por confirmar'], ['Sal Maldon', 'por confirmar'], ['Leche de tu elección', '150 ml']],
+    pasos: ['Integra el jarabe de maple con el espresso en el vaso.', 'Vierte la leche elegida, texturizada.', 'Termina con la sal Maldon.'],
     estandar: 'Dulce con un final salado: la sal se nota, no domina.',
     porConfirmar: true,
   },
   {
-    id: 'cortadito', nombre: 'Cortadito', categoria: 'Especiales', vaso: 'Vaso 4.5 oz', temperatura: 'Leche a 55–60 °C', tiempo: '2 min',
-    gramos: [DOBLE, ['Azúcar', 'por confirmar'], ['Leche', '60 ml']],
-    pasos: ['Bate el azúcar con las primeras gotas del espresso hasta hacer una espumita.', 'Termina de extraer encima.', 'Vierte la leche despacio.'],
-    estandar: 'Espumita de azúcar visible arriba. Dulce desde el primer sorbo.',
-    porConfirmar: true,
-  },
-  {
-    id: 'ryo-latte', nombre: 'Ryo latte', categoria: 'Especiales', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '2 min',
-    gramos: [DOBLE, ['Leche', '150 ml'], ['Toque de la casa', 'por definir']],
-    pasos: ['Receta de la casa por definir con la barra.'],
-    estandar: 'La bebida firma de Ryo: se define en barra y se registra aquí.',
+    id: 'coffee-cloud', nombre: 'Coffee cloud', categoria: 'Especiales', vaso: 'por confirmar', temperatura: 'por confirmar', tiempo: '3 min',
+    menu: 'Foam de café sobre agua de coco.',
+    gramos: [['Agua de coco', 'por confirmar'], ['Foam de café', 'por confirmar']],
+    pasos: ['Sirve el agua de coco en el vaso.', 'Prepara el foam de café.', 'Corona el agua de coco con el foam, despacio.'],
+    estandar: 'El foam flota entero sobre el agua de coco, como una nube. Receta del foam por definir con la barra.',
     porConfirmar: true,
   },
 
-  /* ── Matchas ── */
+  /* ── Matcha ── */
   {
-    id: 'matcha-latte', nombre: 'Matcha latte', categoria: 'Matchas', vaso: 'Vaso 12 oz', temperatura: 'Agua a 75 °C', tiempo: '2 min',
+    id: 'matcha-latte', nombre: 'Matcha latte', categoria: 'Matcha', vaso: 'Vaso 12 oz', temperatura: 'Agua a 75 °C', tiempo: '2 min',
+    menu: 'Frío o caliente.',
     gramos: [['Matcha ceremonial', '3 g'], ['Agua', '60 ml'], ['Leche', '120 ml']],
     pasos: ['Tamiza el matcha en el tazón.', 'Agrega el agua a 75 °C.', 'Bate en zigzag hasta que no queden grumos.', 'Texturiza 120 ml de leche y vierte el matcha encima.'],
     estandar: 'Sin grumos. El agua hirviendo amarga el matcha: nunca más de 80 °C.',
+    frio: {
+      vaso: 'Vaso 12 oz con hielo',
+      gramos: [['Matcha ceremonial', '3 g'], ['Agua', '60 ml'], ['Leche fría', '120 ml'], ['Hielo', 'al borde']],
+      pasos: ['Tamiza el matcha en el tazón.', 'Agrega el agua a 75 °C y bate en zigzag hasta que no queden grumos.', 'Llena el vaso de hielo y sirve la leche fría.', 'Vierte el matcha batido encima.'],
+    },
     tutorial: {
       intro: 'Usamos matcha ceremonial de la más alta calidad: es dulce y umami por sí solo. Bien preparado no necesita nada para saber bien; mal preparado, se desperdicia. Sigue los pasos en orden.',
-      utensilios: [...UTENSILIOS_MATCHA, ['Jarra y vaporizador', 'Para la leche']],
-      pasos: [
-        ...PASOS_MATCHA,
-        {
-          titulo: 'Texturiza 120 ml de leche',
-          que: 'Purga el vaporizador. Texturiza 120 ml de leche con poca espuma, sedosa, y detén entre 55 y 60 °C. Limpia y purga el vaporizador.',
-          porque: 'La leche muy caliente tapa el sabor del matcha y lo amarga. Poca espuma y fina deja que el verde se vea y se sienta.',
-          senal: 'Leche brillante, como pintura, sin burbujas. La jarra se puede sostener sin quemarse.',
-        },
-        {
-          titulo: 'Sirve la leche y el matcha encima',
-          que: 'Vierte la leche en el vaso de 12 oz y enseguida el matcha batido encima, despacio y por el centro.',
-          porque: 'El matcha se sirve recién batido: si espera, el polvo se asienta y la espuma se cae. Encima de la leche se ve el verde y se integra solo.',
-          senal: 'Vaso con un verde parejo y cremoso, sin puntos oscuros. Sale a la barra de inmediato.',
-        },
-      ],
+      utensilios: [...UTENSILIOS_MATCHA, ['Jarra y vaporizador', 'Para la leche (solo en caliente)']],
+      pasos: [...PASOS_MATCHA, ...PASOS_LECHE_MATCHA],
+      frio: { desde: PASOS_MATCHA.length, pasos: PASOS_FRIO_MATCHA },
       bien: BIEN_MATCHA,
       fallas: [...FALLAS_MATCHA, ['La leche tapa el matcha', 'La leche salió muy caliente o con demasiada espuma. Detén entre 55 y 60 °C y mete poco aire.']],
       cuidado: CUIDADO_MATCHA,
     },
   },
   {
-    id: 'ryo-matcha', nombre: 'Ryo matcha', categoria: 'Matchas', vaso: 'Vaso 12 oz', temperatura: 'Agua a 75 °C', tiempo: '2 min',
-    gramos: [['Matcha ceremonial', '3 g'], ['Agua', '60 ml'], ['Toque de la casa', 'por definir']],
-    pasos: ['Receta de la casa por definir con la barra.'],
-    estandar: 'La matcha firma de Ryo: se define en barra y se registra aquí.',
+    id: 'ryo-matcha', nombre: 'Ryo matcha', categoria: 'Matcha', vaso: 'Vaso 12 oz', temperatura: 'Agua a 75 °C', tiempo: '3 min',
+    menu: 'Matcha latte con foam de sésamo.',
+    gramos: [['Matcha ceremonial', '3 g'], ['Agua', '60 ml'], ['Leche', '120 ml'], ['Foam de sésamo', 'por confirmar']],
+    pasos: ['Tamiza el matcha en el tazón.', 'Agrega el agua a 75 °C y bate en zigzag hasta que no queden grumos.', 'Texturiza 120 ml de leche y vierte el matcha encima.', 'Corona con el foam de sésamo.'],
+    estandar: 'Es el matcha latte de la casa con foam de sésamo: el foam va al final y se sirve de inmediato. Receta del foam por definir con la barra.',
     porConfirmar: true,
     tutorial: {
-      intro: 'La base es la misma de todo nuestro matcha ceremonial: estos pasos no cambian. El toque de la casa se agrega al final y está por definirse con la barra.',
-      utensilios: UTENSILIOS_MATCHA,
-      pasos: PASOS_MATCHA,
+      intro: 'Se prepara igual que el matcha latte y se corona con foam de sésamo. Los pasos del matcha no cambian; el foam está por definirse con la barra.',
+      utensilios: [...UTENSILIOS_MATCHA, ['Jarra y vaporizador', 'Para la leche']],
+      pasos: [
+        ...PASOS_MATCHA, ...PASOS_LECHE_MATCHA,
+        {
+          titulo: 'Corona con el foam de sésamo',
+          que: 'Sirve el foam de sésamo encima, con cuchara, sin mezclarlo. Por definir con la barra: receta y cantidad del foam.',
+          porque: 'El foam de sésamo es lo que la hace la matcha de la casa. Si se mezcla, se pierde la capa y el aroma tostado.',
+          senal: 'Capa de foam entera sobre el verde, sin hundirse.',
+        },
+      ],
       bien: BIEN_MATCHA,
       fallas: FALLAS_MATCHA,
       cuidado: CUIDADO_MATCHA,
     },
   },
   {
-    id: 'hojicha', nombre: 'Hojicha', categoria: 'Matchas', vaso: 'Vaso 12 oz', temperatura: 'Agua a 85 °C', tiempo: '2 min',
-    gramos: [['Hojicha', 'por confirmar'], ['Agua', '60 ml'], ['Leche', '120 ml']],
-    pasos: ['Tamiza la hojicha en el tazón.', 'Agrega el agua a 85 °C y bate hasta integrar.', 'Texturiza la leche y vierte la hojicha encima.'],
-    estandar: 'Tostado y suave, sin amargor. Aguanta agua más caliente que el matcha.',
+    id: 'hojicha', nombre: 'Hojicha', categoria: 'Matcha', vaso: 'Vaso 12 oz con hielo', temperatura: 'Frío, con hielo', tiempo: '2 min',
+    menu: 'Té verde tostado, frío.',
+    gramos: [['Hojicha', 'por confirmar'], ['Agua', 'por confirmar'], ['Hielo', 'al borde']],
+    pasos: ['Tamiza la hojicha en el tazón.', 'Agrega el agua a 85 °C y bate hasta integrar.', 'Llena el vaso de hielo y vierte la hojicha encima.'],
+    estandar: 'Tostado y suave, sin amargor. Aguanta agua más caliente que el matcha. El menú la describe solo como té, sin leche.',
+    porConfirmar: true,
+  },
+  {
+    id: 'hojichai', nombre: 'Hojichai', categoria: 'Matcha', vaso: 'Vaso 12 oz con hielo', temperatura: 'Frío, con hielo', tiempo: '3 min',
+    menu: 'Chai latte frío con hojicha.',
+    gramos: [['Chai de la casa', 'por confirmar'], ['Leche fría', 'por confirmar'], ['Hojicha', 'por confirmar'], ['Hielo', 'al borde']],
+    pasos: ['Prepara la hojicha: agua a 85 °C, bate hasta integrar.', 'Llena el vaso de hielo y sirve el chai latte frío.', 'Vierte la hojicha encima, despacio.'],
+    estandar: 'Dos capas: el chai abajo y la hojicha arriba. Cantidades por definir con la barra.',
+    porConfirmar: true,
+  },
+  {
+    id: 'coconut-matcha', nombre: 'Coconut matcha', categoria: 'Matcha', vaso: 'por confirmar', temperatura: 'Agua a 75 °C', tiempo: '2 min',
+    menu: 'Matcha con base de agua de coco.',
+    gramos: [['Matcha ceremonial', '3 g'], ['Agua', '60 ml'], ['Agua de coco', 'por confirmar'], ['Hielo', 'por confirmar']],
+    pasos: ['Tamiza el matcha en el tazón.', 'Agrega el agua a 75 °C y bate en zigzag hasta que no queden grumos.', 'Sirve el agua de coco en el vaso.', 'Vierte el matcha batido encima, despacio.'],
+    estandar: 'Verde jade sobre el agua de coco, sin grumos. Servicio (con o sin hielo) y cantidad de agua de coco por definir con la barra.',
+    porConfirmar: true,
+    tutorial: {
+      intro: 'El matcha se prepara igual que en todas las bebidas; lo que cambia es la base: agua de coco en lugar de leche. Los pasos del matcha no cambian.',
+      utensilios: UTENSILIOS_MATCHA,
+      pasos: [
+        ...PASOS_MATCHA,
+        {
+          titulo: 'Sirve sobre el agua de coco',
+          que: 'Sirve el agua de coco en el vaso y vierte el matcha batido encima, despacio y por el centro. Por definir con la barra: cantidad y si lleva hielo.',
+          porque: 'El matcha recién batido flota sobre el agua de coco y deja ver el verde; si espera, el polvo se asienta.',
+          senal: 'Verde parejo sobre el agua de coco, sin grumos ni puntos oscuros.',
+        },
+      ],
+      bien: BIEN_MATCHA,
+      fallas: FALLAS_MATCHA,
+      cuidado: CUIDADO_MATCHA,
+    },
+  },
+
+  /* ── Sin café ── */
+  {
+    id: 'chai-latte', nombre: 'Chai latte', categoria: 'Sin café', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '3 min',
+    menu: 'Hecho en casa con especias naturales y leche de tu elección.',
+    gramos: [['Chai de la casa', 'por confirmar'], ['Leche de tu elección', '150 ml']],
+    pasos: ['Pon el chai de la casa en el vaso.', 'Texturiza la leche elegida.', 'Vierte la leche sobre el chai y mezcla suave.'],
+    estandar: 'Especiado y dulce, sin que las especias queden asentadas en el fondo. Receta del chai de la casa por definir en barra.',
+    porConfirmar: true,
+    frio: {
+      vaso: 'Vaso 12 oz con hielo',
+      gramos: [['Chai de la casa', 'por confirmar'], ['Leche fría', '150 ml'], ['Hielo', 'al borde']],
+      pasos: ['Llena el vaso de hielo.', 'Sirve el chai de la casa y la leche fría.', 'Mezcla suave antes de servir.'],
+    },
+  },
+  {
+    id: 'golden-milk', nombre: 'Golden milk', categoria: 'Sin café', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '3 min',
+    menu: 'Cúrcuma y especias orgánicas, con leche de tu elección.',
+    gramos: [['Mezcla de cúrcuma y especias', 'por confirmar'], ['Leche de tu elección', '150 ml']],
+    pasos: ['Pon la mezcla de cúrcuma y especias en el vaso.', 'Texturiza la leche elegida.', 'Vierte la leche sobre la mezcla y mezcla suave.'],
+    estandar: 'Color dorado parejo, sin grumos de especia. La cúrcuma mancha: limpia de inmediato lo que caiga.',
+    porConfirmar: true,
+    frio: {
+      vaso: 'Vaso 12 oz con hielo',
+      gramos: [['Mezcla de cúrcuma y especias', 'por confirmar'], ['Leche fría', '150 ml'], ['Hielo', 'al borde']],
+      pasos: ['Integra la mezcla con un poco de la leche hasta que no queden grumos.', 'Llena el vaso de hielo y sirve el resto de la leche fría.', 'Vierte la mezcla encima y revuelve suave.'],
+    },
+  },
+  {
+    id: 'sesame-latte', nombre: 'Sesame latte', categoria: 'Sin café', vaso: 'Vaso 12 oz', temperatura: 'Leche a 60–65 °C', tiempo: '3 min',
+    menu: 'Leche de avena con pasta de sésamo tostado.',
+    gramos: [['Pasta de sésamo tostado', 'por confirmar'], ['Leche de avena', '150 ml']],
+    pasos: ['Integra la pasta de sésamo con un poco de leche tibia hasta que no queden grumos.', 'Texturiza la leche de avena.', 'Vierte sobre la pasta de sésamo.'],
+    estandar: 'Cremoso y tostado, sin pasta asentada en el fondo. Cantidad de pasta por definir con la barra.',
+    porConfirmar: true,
+  },
+
+  /* ── Mocktails ── */
+  {
+    id: 'mandarina-cardamomo', nombre: 'Mandarina cardamomo', categoria: 'Mocktails', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    menu: 'Mandarina, cardamomo, limón y agua mineral.',
+    gramos: [['Mandarina', 'por confirmar'], ['Cardamomo', 'por confirmar'], ['Limón', 'por confirmar'], ['Agua mineral', 'por confirmar']],
+    pasos: ['Preparación por definir con la barra: los ingredientes son los del menú.'],
+    estandar: 'Cítrico y fresco, con el cardamomo de fondo. Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'ginger-honey', nombre: 'Ginger honey', categoria: 'Mocktails', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    menu: 'Jengibre, miel, limón y agua mineral.',
+    gramos: [['Jengibre', 'por confirmar'], ['Miel', 'por confirmar'], ['Limón', 'por confirmar'], ['Agua mineral', 'por confirmar']],
+    pasos: ['Preparación por definir con la barra: los ingredientes son los del menú.'],
+    estandar: 'Picante suave del jengibre, dulzor de la miel y acidez del limón en equilibrio. Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'iced-tea', nombre: 'Iced tea', categoria: 'Mocktails', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    menu: 'Extracción en frío de té negro con limón.',
+    gramos: [['Té negro (extracción en frío)', 'por confirmar'], ['Limón', 'por confirmar'], ['Hielo', 'al borde']],
+    pasos: ['Prepara la extracción en frío del té negro (proporción y tiempo por definir con la barra).', 'Sirve sobre hielo.', 'Termina con el limón.'],
+    estandar: 'Limpio y sin astringencia: por eso se extrae en frío. Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'manzanilla-limon', nombre: 'Manzanilla limón', categoria: 'Mocktails', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    menu: 'Extracción en frío de manzanilla con limón.',
+    gramos: [['Manzanilla (extracción en frío)', 'por confirmar'], ['Limón', 'por confirmar'], ['Hielo', 'al borde']],
+    pasos: ['Prepara la extracción en frío de la manzanilla (proporción y tiempo por definir con la barra).', 'Sirve sobre hielo.', 'Termina con el limón.'],
+    estandar: 'Floral y suave, sin amargor. Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+
+  /* ── Cócteles (Bar) ── */
+  {
+    id: 'matcha-martini', nombre: 'Matcha martini', categoria: 'Cócteles', vaso: 'por confirmar', temperatura: 'Frío', tiempo: 'por confirmar',
+    menu: 'Vodka infusionado con matcha, agua de coco y jarabe natural.',
+    gramos: [['Vodka infusionado con matcha', 'por confirmar'], ['Agua de coco', 'por confirmar'], ['Jarabe natural', 'por confirmar']],
+    pasos: ['Receta y técnica por definir con la barra: los ingredientes son los del menú.'],
+    estandar: 'Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'negroni-manzanilla', nombre: 'Negroni manzanilla', categoria: 'Cócteles', vaso: 'por confirmar', temperatura: 'Frío', tiempo: 'por confirmar',
+    menu: 'Gin infusionado con manzanilla, vermut rosso y Campari.',
+    gramos: [['Gin infusionado con manzanilla', 'por confirmar'], ['Vermut rosso', 'por confirmar'], ['Campari', 'por confirmar']],
+    pasos: ['Receta y técnica por definir con la barra: los ingredientes son los del menú.'],
+    estandar: 'Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'martini-de-mezcal', nombre: 'Martini de mezcal', categoria: 'Cócteles', vaso: 'por confirmar', temperatura: 'Frío', tiempo: 'por confirmar',
+    menu: 'Mezcal Cuero Viejo, jarabe de sandía, jarabe de kiwi y limón.',
+    gramos: [['Mezcal Cuero Viejo', 'por confirmar'], ['Jarabe de sandía', 'por confirmar'], ['Jarabe de kiwi', 'por confirmar'], ['Limón', 'por confirmar']],
+    pasos: ['Receta y técnica por definir con la barra: los ingredientes son los del menú.'],
+    estandar: 'Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'martini-lichi', nombre: 'Martini lichi', categoria: 'Cócteles', vaso: 'por confirmar', temperatura: 'Frío', tiempo: 'por confirmar',
+    menu: 'Té de jazmín, almíbar de lichi y St-Germain.',
+    gramos: [['Té de jazmín', 'por confirmar'], ['Almíbar de lichi', 'por confirmar'], ['St-Germain', 'por confirmar']],
+    pasos: ['Receta y técnica por definir con la barra: los ingredientes son los del menú.'],
+    estandar: 'Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'limoncello-spritz', nombre: 'Limoncello spritz', categoria: 'Cócteles', vaso: 'por confirmar', temperatura: 'Frío, con hielo', tiempo: 'por confirmar',
+    menu: 'Limoncello, espumoso, agua mineral y jarabe natural.',
+    gramos: [['Limoncello', 'por confirmar'], ['Espumoso', 'por confirmar'], ['Agua mineral', 'por confirmar'], ['Jarabe natural', 'por confirmar']],
+    pasos: ['Receta y técnica por definir con la barra: los ingredientes son los del menú.'],
+    estandar: 'Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'espresso-de-olla-martini', nombre: 'Espresso de olla martini', categoria: 'Cócteles', vaso: 'por confirmar', temperatura: 'Frío', tiempo: 'por confirmar',
+    menu: 'Tequila 1800 Añejo, espresso y jarabe de café de olla.',
+    gramos: [['Tequila 1800 Añejo', 'por confirmar'], ['Espresso', 'por confirmar'], ['Jarabe de café de olla', 'por confirmar']],
+    pasos: ['Receta y técnica por definir con la barra: los ingredientes son los del menú. El espresso es el de la receta del día.'],
+    estandar: 'Se registra aquí cuando se defina.',
+    porConfirmar: true,
+  },
+  {
+    id: 'dirty-martini', nombre: 'Dirty martini', categoria: 'Cócteles', vaso: 'por confirmar', temperatura: 'Frío', tiempo: 'por confirmar',
+    menu: 'Gin o vodka, vermut seco, salmuera y aceitunas.',
+    gramos: [['Gin o vodka', 'por confirmar'], ['Vermut seco', 'por confirmar'], ['Salmuera', 'por confirmar'], ['Aceitunas', 'por confirmar']],
+    pasos: ['Receta y técnica por definir con la barra: los ingredientes son los del menú.'],
+    estandar: 'Se registra aquí cuando se defina.',
     porConfirmar: true,
   },
 ];

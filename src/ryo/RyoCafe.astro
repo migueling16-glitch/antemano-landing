@@ -305,34 +305,42 @@ const jsonLd = {
           </p>
         )}
 
-        {MENU.map((grupo) => (
-          <div class="grupo">
-            <div class="grupo-head rv">
-              <h3 class="grupo-nombre">{grupo.nombre}</h3>
-              {grupo.nota && <p class="grupo-nota">{grupo.nota}</p>}
+        {MENU.map((grupo, g) => (
+          <>
+            {(g === 0 || MENU[g - 1].seccion !== grupo.seccion) && (
+              <h3 class="menu-parte rv">{grupo.seccion}</h3>
+            )}
+            <div class="grupo">
+              <div class="grupo-head rv">
+                <h4 class="grupo-nombre">{grupo.nombre}</h4>
+              </div>
+              <ul class="items">
+                {grupo.items.map((item, n) => {
+                  const precio = MENU_MOSTRAR_PRECIOS ? item.precio : undefined;
+                  const variantes = (item.variantes ?? []).filter((v) => MENU_MOSTRAR_PRECIOS || !v.precio);
+                  return (
+                    <li class="item rv" style={`--i:${n}`}>
+                      <div class="item-linea">
+                        <span class="item-nombre">{item.nombre}</span>
+                        {(precio || variantes.length > 0) && (
+                          <>
+                            <span class="item-guia" aria-hidden="true"></span>
+                            <span class="item-precio">
+                              {precio && <span class="item-cifra">${precio}</span>}
+                              {variantes.map((v) => (
+                                <em class="item-var">{v.etiqueta}{v.precio && ` $${v.precio}`}</em>
+                              ))}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      {item.desc && <p class="item-desc">{item.desc}</p>}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            <ul class="items">
-              {grupo.items.map((item, n) => (
-                <li class="item rv" style={`--i:${n}`}>
-                  <div class="item-linea">
-                    <span class="item-nombre">{item.nombre}</span>
-                    {MENU_MOSTRAR_PRECIOS && item.precio ? (
-                      <>
-                        <span class="item-guia" aria-hidden="true"></span>
-                        <span class="item-precio">${item.precio}</span>
-                      </>
-                    ) : item.frio && (
-                      <>
-                        <span class="item-guia" aria-hidden="true"></span>
-                        <span class="item-precio">También frío</span>
-                      </>
-                    )}
-                  </div>
-                  <p class="item-desc">{item.desc}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+          </>
         ))}
       </section>
 
@@ -927,6 +935,17 @@ const jsonLd = {
         padding: var(--space-3);
         margin-bottom: var(--space-5);
       }
+      /* Las tres partes del menú: Bebidas, Bar y Cocina. */
+      .menu-parte {
+        font-size: var(--fs-label);
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.3em;
+        padding-bottom: var(--space-2);
+        border-bottom: 1px solid var(--line);
+        margin: var(--space-6) 0 var(--space-5);
+      }
+      .menu-parte:first-of-type { margin-top: 0; }
       .grupo + .grupo { margin-top: var(--space-6); }
       .grupo-head { margin-bottom: var(--space-4); }
       .grupo-nombre {
@@ -935,18 +954,18 @@ const jsonLd = {
         text-transform: uppercase;
         letter-spacing: 0.18em;
       }
-      .grupo-nota { font-size: var(--fs-sm); font-style: italic; }
 
       .item { padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
       .item-linea { display: flex; align-items: baseline; gap: var(--space-2); }
-      .item-nombre { font-size: var(--fs-body); white-space: nowrap; }
+      .item-nombre { font-size: var(--fs-body); flex: 0 1 auto; min-width: 0; }
       .item-guia {
         flex: 1 1 auto;
         border-bottom: 1px dotted var(--line);
         transform: translateY(-4px);
         min-width: var(--space-4);
       }
-      .item-precio { font-size: var(--fs-label); letter-spacing: 0.14em; white-space: nowrap; }
+      .item-precio { font-size: var(--fs-label); letter-spacing: 0.14em; white-space: nowrap; display: inline-flex; align-items: baseline; gap: var(--space-2); flex: none; }
+      .item-var { font-size: var(--fs-sm); letter-spacing: 0.06em; }
       .item-desc {
         font-size: var(--fs-sm);
         font-style: italic;

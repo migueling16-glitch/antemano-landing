@@ -68,7 +68,7 @@ function Ficha({ r }: { r: Receta }) {
   const e = useEstado();
   const rd = recetaCasa(e, jornadaDe());
   const [frio, setFrio] = useState(false);
-  const usaEspresso = r.categoria !== 'Matchas';
+  const usaEspresso = r.id === 'espresso' || r.gramos.some(([k]) => k === 'Espresso');
   const version = frio && r.frio
     ? { vaso: r.frio.vaso, temperatura: 'Frío, con hielo', gramos: r.frio.gramos ?? r.gramos, pasos: r.frio.pasos }
     : { vaso: r.vaso, temperatura: r.temperatura, gramos: r.gramos, pasos: r.pasos };
@@ -82,6 +82,12 @@ function Ficha({ r }: { r: Receta }) {
             <button type="button" className="chip" aria-pressed={!frio} onClick={() => setFrio(false)}>Caliente</button>
             <button type="button" className="chip" aria-pressed={frio} onClick={() => setFrio(true)}>Frío</button>
           </div>
+        )}
+
+        {r.menu && (
+          <Seccion consulta titulo="En el menú">
+            <p className="cuerpo">{r.menu}</p>
+          </Seccion>
         )}
 
         {r.porConfirmar && (
@@ -104,7 +110,7 @@ function Ficha({ r }: { r: Receta }) {
           </section>
         )}
 
-        {r.tutorial && !frio && <Guia t={r.tutorial} nombre={r.nombre} />}
+        {r.tutorial && <Guia key={frio ? 'frio' : 'caliente'} t={r.tutorial} nombre={r.nombre} frio={frio} />}
 
         <Seccion consulta titulo="Cantidades">
           <div className="lista cambia" key={frio ? 'frio' : 'caliente'}>
@@ -138,17 +144,19 @@ function Ficha({ r }: { r: Receta }) {
  * quedó. Pensado para seguirlo en barra con las manos ocupadas: un botón
  * grande para avanzar y la lista completa a un toque.
  */
-function Guia({ t, nombre }: { t: Tutorial; nombre: string }) {
+function Guia({ t, nombre, frio = false }: { t: Tutorial; nombre: string; frio?: boolean }) {
   const [i, setI] = useState<number | null>(null);
   const [todos, setTodos] = useState(false);
-  const total = t.pasos.length;
+  // En frío cambia el final (hielo y leche fría en lugar de vaporizador).
+  const pasos = frio && t.frio ? [...t.pasos.slice(0, t.frio.desde), ...t.frio.pasos] : t.pasos;
+  const total = pasos.length;
   const ir = (n: number | null) => { setI(n); vibrar(8); document.getElementById('guia')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   if (i === null) {
     return (
       <section id="guia" className="bloque inv" aria-label="Tutorial">
         <span className="etq">Tutorial · {total} pasos</span>
-        <span className="subtitulo">Cómo preparar {nombre.toLowerCase()}</span>
+        <span className="subtitulo">Cómo preparar {nombre.toLowerCase()}{frio ? ' frío' : ''}</span>
         <p className="cuerpo">{t.intro}</p>
         <div className="lista">
           {t.utensilios.map(([k, v]) => (
@@ -161,7 +169,7 @@ function Guia({ t, nombre }: { t: Tutorial; nombre: string }) {
   }
 
   const fin = i >= total;
-  const p = t.pasos[Math.min(i, total - 1)];
+  const p = pasos[Math.min(i, total - 1)];
   return (
     <Seccion titulo={fin ? 'Listo' : `Paso ${i + 1} de ${total}`} extra={<button type="button" className="enlace" onClick={() => ir(null)}>Salir</button>}>
       <span id="guia" className="guia-ancla" />
@@ -194,7 +202,7 @@ function Guia({ t, nombre }: { t: Tutorial; nombre: string }) {
           <button type="button" className="enlace" onClick={() => setTodos(!todos)}>{todos ? 'Ocultar todos los pasos' : 'Ver todos los pasos'}</button>
           {todos && (
             <div className="lista">
-              {t.pasos.map((x, n) => (
+              {pasos.map((x, n) => (
                 <button key={x.titulo} type="button" className="fila" aria-pressed={n === i} onClick={() => ir(n)}>
                   <span className={`avatar${n < i ? ' lleno' : ''}`} style={{ borderRadius: 0 }}>{n + 1}</span>
                   <span className="fila-texto"><span className={n === i ? 'negrita' : ''}>{x.titulo}</span></span>
