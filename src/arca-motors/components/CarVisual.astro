@@ -1,0 +1,102 @@
+---
+/**
+ * Foto del auto o, mientras no haya fotos reales, un "estudio" con la silueta
+ * del tipo de carrocería pintada del color de la unidad.
+ */
+import { foto as rutaFoto, type Vehiculo } from '../inventario';
+
+interface Props {
+  v: Vehiculo;
+  /** índice de foto (si hay fotos) */
+  i?: number;
+  /** etiqueta de la toma en el placeholder, p. ej. "3/4 frontal" */
+  toma?: string;
+  eager?: boolean;
+  big?: boolean;
+  /** atributo sizes del <img> */
+  sizes?: string;
+}
+const { v, i = 0, toma, eager = false, big = false, sizes = '(max-width: 640px) 100vw, 400px' } = Astro.props;
+const hayFoto = i < v.nFotos;
+const foto = hayFoto ? rutaFoto(v, i, 800) : '';
+const srcset = hayFoto ? `${rutaFoto(v, i, 800)} 800w, ${rutaFoto(v, i, 1280)} 1280w` : '';
+const alt = `${v.marca} ${v.modelo} ${v.anio}${toma ? ', ' + toma : ''}`;
+
+const PINTURA: Record<string, string> = {
+  Blanco: '#d8d9db', Negro: '#1a1b1e', Plata: '#a4a9b0', Gris: '#5d626a', Rojo: '#a3161c',
+  Azul: '#22427a', Naranja: '#c2561d', Verde: '#2e5a3e', Café: '#5a3e2b',
+};
+const pintura = PINTURA[v.color ?? ''] ?? '#4a4d53';
+const claro = ['Blanco', 'Plata'].includes(v.color ?? '');
+
+// Siluetas laterales (viewBox 0 0 400 186). Proporciones reales: largo ≈ 2.7× alto,
+// rueda ≈ 16% del largo. Los arcos y las ruedas comparten centro (y = 148).
+const ARCOS = (r = 38, a = 312) => `L${a + r} 148A${r} ${r} 0 0 0 ${a - r} 148L${88 + r} 148A${r} ${r} 0 0 0 ${88 - r} 148`;
+const FORMAS = {
+  suv: {
+    body: `M22 148L20 106C20 99 24 95 32 94L124 86L156 52C160 48 164 46 170 46L334 44C344 44 350 47 354 53L374 84C378 90 380 98 380 108L380 148${ARCOS(38, 310)}Z`,
+    glass: 'M134 84L162 54C165 51 168 50 172 50L330 49C338 49 343 52 346 57L364 84Z',
+    pillars: [226, 290],
+    belt: 'M40 100C150 95 260 95 376 99',
+    ruedas: [88, 310],
+  },
+  pickup: {
+    body: `M18 148L16 104C16 97 20 93 28 92L112 84L144 50C148 46 152 44 158 44L250 44C258 44 262 48 263 54L266 86L384 86L384 148${ARCOS(38, 312)}Z`,
+    glass: 'M124 82L150 52C153 49 156 48 160 48L248 48C254 48 257 51 258 56L260 82Z',
+    pillars: [202],
+    belt: 'M266 89L384 89M36 99C120 95 200 94 264 95',
+    ruedas: [88, 312],
+  },
+  sedan: {
+    body: `M14 148L14 116C14 108 20 104 30 102L116 94L160 64C166 60 172 58 180 58L264 58C278 58 288 62 298 72L322 96L370 100C380 101 386 108 386 118L386 148${ARCOS(36, 312)}Z`,
+    glass: 'M132 92L164 68C169 64 174 62 180 62L262 62C273 62 281 66 289 74L306 92Z',
+    pillars: [218],
+    belt: 'M36 108C150 103 270 103 380 108',
+    ruedas: [88, 312],
+  },
+  clasico: {
+    body: `M16 148L16 100L24 94L110 90L120 56C121 52 124 50 128 50L204 50C208 50 210 52 211 56L216 88L384 88L384 148${ARCOS(38, 312)}Z`,
+    glass: 'M126 86L134 56L202 56L206 86Z',
+    pillars: [],
+    belt: 'M216 91L384 91M24 100L214 98',
+    ruedas: [88, 312],
+  },
+};
+const forma =
+  v.carroceria === 'pickup' ? FORMAS.pickup : v.carroceria === 'clasico' ? FORMAS.clasico : v.carroceria === 'suv' ? FORMAS.suv : FORMAS.sedan;
+const fondo = v.modelo.toUpperCase();
+---
+{foto ? (
+  big ? (
+    <div class="am-visual am-visual--big am-visual--frame">
+      <img class="am-visual__blur" src={foto} alt="" aria-hidden="true" loading={eager ? 'eager' : 'lazy'} decoding="async" />
+      <img class="am-visual__img" src={foto} srcset={srcset} sizes={sizes} alt={alt} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+    </div>
+  ) : (
+    <img class="am-visual am-visual--foto" src={foto} srcset={srcset} sizes={sizes} alt={alt} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+  )
+) : (
+  <div class:list={['am-visual', 'am-visual--studio', { 'am-visual--big': big }]} role="img" aria-label={`${v.marca} ${v.modelo} ${v.anio} (foto de ejemplo)`}>
+    <span class="am-visual__bg" aria-hidden="true" style={`--len:${Math.max(fondo.length, 4)}`}>{fondo}</span>
+    <svg class="am-visual__car" viewBox="0 0 400 186" aria-hidden="true">
+      <ellipse cx="200" cy="179" rx="196" ry="7" fill="url(#am-floor)" />
+      <ellipse cx="200" cy="178" rx="170" ry="4" fill="#000" opacity=".6" />
+      <path d={forma.body} style={`fill:${pintura}`} />
+      <path d={forma.body} fill="url(#am-shade)" />
+      <path d={forma.body} fill="none" stroke={claro ? 'rgba(255,255,255,.75)' : 'rgba(255,255,255,.22)'} stroke-width="1" />
+      <path d={forma.glass} fill="url(#am-glass)" />
+      {forma.pillars.map((x) => <rect x={x} y="44" width="6" height="42" style={`fill:${pintura}`} />)}
+      <path d={forma.belt} fill="none" stroke={claro ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.12)'} stroke-width="1.2" />
+      <rect x="17" y="98" width="18" height="5" rx="2.5" fill="#fff" opacity=".92" />
+      <rect x="375" y="92" width="8" height="12" rx="2" fill="#ff2a1f" />
+      {forma.ruedas.map((cx) => (
+        <g>
+          <circle cx={cx} cy="148" r="31" fill="#0a0a0b" />
+          <circle cx={cx} cy="148" r="20" fill="#16171a" stroke="url(#am-rim)" stroke-width="5" />
+          <circle cx={cx} cy="148" r="5" fill="#3a3d42" />
+        </g>
+      ))}
+    </svg>
+    {toma && <span class="am-visual__toma">{toma}</span>}
+  </div>
+)}

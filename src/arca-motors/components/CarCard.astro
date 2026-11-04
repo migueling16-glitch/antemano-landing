@@ -1,0 +1,75 @@
+---
+import type { Vehiculo } from '../inventario';
+import { urlAuto, dinero, kms, recienLlegado, mensajeWa, ETIQUETA_CARROCERIA } from '../inventario';
+import { wa } from '../config';
+import CarVisual from './CarVisual.astro';
+import Icon from './Icon.astro';
+
+interface Props { v: Vehiculo; eager?: boolean; hLevel?: 'h2' | 'h3' }
+const { v, eager = false, hLevel = 'h3' } = Astro.props;
+const H = hLevel;
+const nuevo = recienLlegado(v);
+const vendido = v.estatus === 'vendido';
+const texto = [
+  v.marca, v.modelo, v.version, v.anio, v.color, v.folio, v.combustible, v.transmision, v.traccion, v.motor,
+  ETIQUETA_CARROCERIA[v.carroceria], ...v.destacados,
+].filter(Boolean).join(' ').toLowerCase();
+---
+<article
+  class:list={['am-card', { 'is-sold': vendido, 'is-held': v.estatus === 'apartado' }]}
+  data-car
+  data-folio={v.folio}
+  data-marca={v.marca}
+  data-tipo={v.carroceria}
+  data-eng={v.enganche}
+  data-mes={v.mensualidad}
+  data-anio={v.anio}
+  data-km={v.km ?? ''}
+  data-estatus={v.estatus}
+  data-ingreso={v.ingreso}
+  data-texto={texto}
+>
+  <div class="am-card__media">
+    <CarVisual v={v} eager={eager} sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 400px" />
+    <div class="am-card__badges">
+      {v.estatus === 'apartado' && <span class="am-badge am-badge--held">Apartado</span>}
+      {vendido && <span class="am-badge am-badge--sold">Vendido</span>}
+      {!vendido && nuevo && v.estatus !== 'apartado' && <span class="am-badge am-badge--new">Recién llegado</span>}
+      {!vendido && v.duenos === 1 && <span class="am-badge">Único dueño</span>}
+    </div>
+    {!vendido && (
+      <button class="am-fav" type="button" data-fav={v.folio} aria-pressed="false" aria-label={`Guardar ${v.marca} ${v.modelo} en favoritos`}>
+        <Icon name="heart" size={18} />
+      </button>
+    )}
+    <span class="am-card__nfotos" aria-hidden="true"><Icon name="camera" size={13} /> {v.nFotos}</span>
+  </div>
+  <div class="am-card__body">
+    <p class="am-card__kicker">{ETIQUETA_CARROCERIA[v.carroceria]} · {v.folio}</p>
+    <H class="am-card__title">
+      <a href={urlAuto(v)} class="am-card__link">{v.marca} {v.modelo} <span>{v.version}</span></a>
+    </H>
+    <ul class="am-card__specs" aria-label="Datos clave">
+      <li>{v.anio}</li>
+      {v.km != null && <li>{kms(v.km)}</li>}
+      {v.transmision && <li>{v.transmision}</li>}
+      {v.traccion === '4x4' && <li>4x4</li>}
+      {v.combustible === 'Diésel' && <li>Diésel</li>}
+    </ul>
+    <div class="am-card__price">
+      {vendido ? (
+        <p class="am-price">Vendido</p>
+      ) : (
+        <dl class="am-plan">
+          <div><dt>Enganche</dt><dd class="am-price">{dinero(v.enganche)}</dd></div>
+          <div><dt>Mensualidad</dt><dd class="am-plan__mes">{dinero(v.mensualidad)}*</dd></div>
+        </dl>
+      )}
+    </div>
+  </div>
+  {!vendido && (
+    <a class="am-card__wa" href={wa(mensajeWa(v))} target="_blank" rel="noopener" aria-label={`Preguntar por ${v.marca} ${v.modelo} por WhatsApp`}>
+      <Icon name="whatsapp" size={18} />
+    </a>
+  )}
+</article>

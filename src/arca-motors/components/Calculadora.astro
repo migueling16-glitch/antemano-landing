@@ -1,0 +1,158 @@
+---
+/**
+ * Calculadora de mensualidad con los planes que publica Arca:
+ *  - Crédito directo (40% de enganche, hasta 48 meses; la tasa es supuesto de la demo).
+ *  - Financiera: CreditoGo / Caja Hipódromo (desde 15%, hasta 60 meses, tasa desde 15.90%).
+ *  - 60% de enganche y 6 meses sin intereses.
+ * Arca no publica precios de contado, así que el precio se escribe a mano.
+ */
+import { FINANCIAMIENTO, DEMO, wa } from '../config';
+import Icon from './Icon.astro';
+
+interface Props { precio?: number; auto?: string; id?: string }
+const { precio = 500000, auto = '', id = 'calc' } = Astro.props;
+const planes = FINANCIAMIENTO.calculadora;
+const msi = FINANCIAMIENTO.planes.find((p) => p.msi);
+const cfg = { auto, planes, msi: msi?.msi ?? 6, msiEng: msi?.enganche ?? 0.6 };
+const fmt = (n: number) => new Intl.NumberFormat('es-MX').format(n);
+const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
+---
+<div class="am-calc" data-calc={JSON.stringify(cfg)} id={id}>
+  <div class="am-calc__tabs" role="group" aria-label="Plan de pago">
+    {planes.map((p, i) => <button type="button" aria-pressed={i === 0 ? 'true' : 'false'} data-plan={p.id}>{p.nombre}</button>)}
+    <button type="button" aria-pressed="false" data-plan="msi">{cfg.msi} MSI</button>
+  </div>
+
+  <div class="am-field">
+    <label for={`${id}-precio`}>Precio del auto</label>
+    <input class="am-input" id={`${id}-precio`} inputmode="numeric" autocomplete="off" data-calc-precio value={fmt(precio)} />
+  </div>
+
+  {planes.map((p, i) => (
+    <div class="am-calc__row" data-only={p.id} hidden={i > 0 ? true : undefined}>
+      <div class="am-field">
+        <label for={`${id}-eng-${p.id}`}>Enganche <output data-engpct>{pct(p.engancheDefault)}</output></label>
+        <input type="range" id={`${id}-eng-${p.id}`} min={p.engancheMin * 100} max="90" step="5" value={p.engancheDefault * 100} data-eng />
+        <p class="am-calc__hint"><output data-engmxn></output> de enganche · mínimo {pct(p.engancheMin)}</p>
+      </div>
+      <div class="am-field">
+        <span class="am-label" id={`${id}-plazo-${p.id}`}>Plazo (meses)</span>
+        <div class="am-calc__plazos" role="group" aria-labelledby={`${id}-plazo-${p.id}`}>
+          {p.plazos.map((m) => (
+            <button type="button" aria-pressed={m === p.plazoDefault ? 'true' : 'false'} data-plazo={m} aria-label={`${m} meses`}>{m}</button>
+          ))}
+        </div>
+        <p class="am-calc__hint">Tasa {p.tasaDemo ? 'de referencia' : 'desde'} {pct(p.tasaAnual)} anual{p.tasaDemo && DEMO ? ' (de ejemplo)' : ''}</p>
+      </div>
+    </div>
+  ))}
+
+  <p class="am-calc__msi" data-only="msi" hidden>
+    Enganche de <strong data-calc-msieng></strong> ({Math.round(cfg.msiEng * 100)}%) y el resto en {cfg.msi} pagos iguales, sin intereses.
+  </p>
+
+  <div class="am-calc__out" aria-live="polite">
+    <p class="am-label">Pagarías aprox.</p>
+    <p class="am-calc__big"><span data-calc-mes>—</span><small>/mes</small></p>
+    <p class="am-calc__note" data-calc-note></p>
+  </div>
+
+  <a class="am-btn am-btn--wa am-btn--block am-btn--lg" data-calc-wa href={wa('Hola, quiero cotizar un crédito.')} target="_blank" rel="noopener">
+    <Icon name="whatsapp" size={20} /> Pedir esta cotización
+  </a>
+  <p class="am-calc__legal">Estimación. Sujeta a aprobación de crédito; pide la cotización exacta por WhatsApp.</p>
+</div>
+
+<script>
+  import { NEGOCIO } from '../config';
+  const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
+  const num = new Intl.NumberFormat('es-MX');
+  document.querySelectorAll<HTMLElement>('[data-calc]').forEach((root) => {
+    const cfg = JSON.parse(root.dataset.calc || '{}');
+    const planes: any[] = cfg.planes;
+    const plazos: Record<string, number> = Object.fromEntries(planes.map((p) => [p.id, p.plazoDefault]));
+    let plan: string = planes[0].id;
+    const $ = <T extends Element>(s: string, el: ParentNode = root) => el.querySelector<T>(s);
+    const precioIn = $<HTMLInputElement>('[data-calc-precio]')!;
+    const wa = $<HTMLAnchorElement>('[data-calc-wa]')!;
+    const auto = cfg.auto ? ' para el ' + cfg.auto : '';
+    const precio = () => Number(String(precioIn.value).replace(/[^\d]/g, '')) || 0;
+
+    function render() {
+      const p = precio();
+      let mes = 0, note = '', msg = '';
+      if (plan === 'msi') {
+        const e = p * cfg.msiEng;
+        mes = Math.round((p - e) / cfg.msi);
+        $('[data-calc-msieng]')!.textContent = fmt.format(Math.round(e));
+        note = `${cfg.msi} pagos sin intereses · enganche ${fmt.format(Math.round(e))}`;
+        msg = `Hola Arca Motors, me interesa el plan de ${Math.round(cfg.msiEng * 100)}% de enganche y ${cfg.msi} MSI${auto}: precio ${fmt.format(p)}.`;
+      } else {
+        const cp = planes.find((x) => x.id === plan);
+        const block = $<HTMLElement>(`[data-only="${plan}"]`)!;
+        const e = Number($<HTMLInputElement>('[data-eng]', block)!.value) / 100;
+        const plazo = plazos[plan];
+        const r = cp.tasaAnual / 12;
+        mes = Math.round((p * (1 - e) * r) / (1 - Math.pow(1 + r, -plazo)));
+        $('[data-engpct]', block)!.textContent = `${Math.round(e * 100)}%`;
+        $('[data-engmxn]', block)!.textContent = fmt.format(Math.round(p * e));
+        note = `${cp.nombre} · ${plazo} pagos · enganche ${fmt.format(Math.round(p * e))}`;
+        msg = `Hola Arca Motors, quiero cotizar ${cp.nombre.toLowerCase()}${auto}: precio ${fmt.format(p)}, enganche ${Math.round(e * 100)}% (${fmt.format(Math.round(p * e))}) a ${plazo} meses. La calculadora me dio ${fmt.format(mes)} al mes.`;
+      }
+      $('[data-calc-mes]')!.textContent = p ? fmt.format(mes) : '—';
+      $('[data-calc-note]')!.textContent = p ? note : 'Escribe un precio';
+      wa.href = `https://wa.me/52${NEGOCIO.telefonos[0]}?text=${encodeURIComponent(msg)}`;
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('[data-plan]').forEach((b) =>
+      b.addEventListener('click', () => {
+        plan = b.dataset.plan!;
+        root.querySelectorAll('[data-plan]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        root.querySelectorAll<HTMLElement>('[data-only]').forEach((el) => (el.hidden = el.dataset.only !== plan));
+        render();
+      }),
+    );
+    root.querySelectorAll<HTMLElement>('[data-only]').forEach((block) => {
+      block.querySelectorAll<HTMLButtonElement>('[data-plazo]').forEach((b) =>
+        b.addEventListener('click', () => {
+          plazos[block.dataset.only!] = Number(b.dataset.plazo);
+          block.querySelectorAll('[data-plazo]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          render();
+        }),
+      );
+      block.querySelector('[data-eng]')?.addEventListener('input', render);
+    });
+    // Mientras se escribe: solo dígitos (el cursor no brinca). Al salir: con comas.
+    precioIn.addEventListener('focus', () => { precioIn.value = precioIn.value.replace(/[^\d]/g, ''); });
+    precioIn.addEventListener('blur', () => { const n = precio(); precioIn.value = n ? num.format(n) : ''; });
+    precioIn.addEventListener('input', () => {
+      const clean = precioIn.value.replace(/[^\d]/g, '');
+      if (clean !== precioIn.value) precioIn.value = clean;
+      render();
+    });
+    render();
+  });
+</script>
+
+<style>
+  .am-calc { display: grid; gap: 18px; background: linear-gradient(180deg, var(--am-surface2), var(--am-surface)); border: 1px solid var(--am-line2); border-radius: 18px; padding: clamp(18px, 3vw, 28px); }
+  .am-calc__tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--am-bg2); border: 1px solid var(--am-line); border-radius: 12px; }
+  .am-calc__tabs button { min-height: 44px; padding: 0 6px; border-radius: 9px; border: 0; background: transparent; color: var(--am-muted); font: 600 14px var(--am-body); cursor: pointer; }
+  .am-calc__tabs button[aria-pressed='true'] { background: var(--am-surface2); color: var(--am-text); box-shadow: 0 0 0 1px var(--am-line2), 0 6px 16px -8px rgba(0,0,0,.8); }
+  .am-calc__row { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
+  @media (max-width: 520px) { .am-calc__row { grid-template-columns: 1fr; } }
+  .am-calc label output { color: var(--am-text); margin-left: 6px; letter-spacing: 0; }
+  .am-calc input[type='range'] { width: 100%; accent-color: var(--am-red); height: 32px; }
+  .am-calc__hint { margin: 0; font-size: 13px; color: var(--am-muted); }
+  .am-calc__plazos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .am-calc__plazos button { min-height: 44px; border-radius: 10px; border: 1px solid var(--am-line2); background: var(--am-bg2); color: var(--am-muted); font: 600 15px var(--am-body); cursor: pointer; font-variant-numeric: tabular-nums; }
+  .am-calc__plazos button[aria-pressed='true'] { border-color: var(--am-red); color: #fff; background: rgba(227,20,31,.14); }
+  .am-calc__msi { margin: 0; color: var(--am-muted); font-size: 15px; }
+  .am-calc__msi strong { color: var(--am-text); }
+  .am-calc__out { padding: 16px 0 4px; border-top: 1px solid var(--am-line); }
+  .am-calc__out .am-label { margin: 0; }
+  .am-calc__big { margin: 4px 0 0; font-family: var(--am-display); font-stretch: 112%; font-weight: 700; font-size: clamp(34px, 5vw, 44px); line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .am-calc__big small { font-size: .42em; color: var(--am-muted); font-weight: 500; margin-left: 4px; }
+  .am-calc__note { margin: 4px 0 0; color: var(--am-muted); font-size: 14px; }
+  .am-calc__legal { margin: -6px 0 0; font-size: 12px; color: var(--am-dim); }
+</style>

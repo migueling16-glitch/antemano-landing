@@ -1,0 +1,370 @@
+---
+import ArcaLayout from '../../arca-motors/ArcaLayout.astro';
+import CarCard from '../../arca-motors/components/CarCard.astro';
+import Calculadora from '../../arca-motors/components/Calculadora.astro';
+import Icon from '../../arca-motors/components/Icon.astro';
+import { BASE, ASSETS, NEGOCIO, FINANCIAMIENTO, PROMESAS, PASOS, ACEPTA_A_CUENTA, wa, tel, telBonito } from '../../arca-motors/config';
+import { enVenta, vendidos, marcas, ETIQUETA_CARROCERIA, type Carroceria } from '../../arca-motors/inventario';
+
+const disponibles = enVenta();
+const nDisponibles = disponibles.filter((v) => v.estatus === 'disponible').length;
+const recientes = [...disponibles].sort((a, b) => b.ingreso.localeCompare(a.ingreso)).slice(0, 6);
+const listaMarcas = marcas();
+const tipos = (['suv', 'pickup', 'sedan', 'clasico'] as Carroceria[])
+  .map((t) => ({ t, n: disponibles.filter((v) => v.carroceria === t).length }))
+  .filter((x) => x.n);
+const PROMESA_ICON = ['file', 'key', 'card', 'swap'];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AutoDealer',
+  name: NEGOCIO.nombre,
+  slogan: NEGOCIO.tagline,
+  telephone: `+52${NEGOCIO.telefonos[0]}`,
+  address: { '@type': 'PostalAddress', addressLocality: 'Durango', addressRegion: 'Dgo.', addressCountry: 'MX' },
+  sameAs: [`https://www.instagram.com/${NEGOCIO.instagram}/`, NEGOCIO.facebook],
+  makesOffer: { '@type': 'Offer', name: 'Financiamiento directo hasta 48 meses' },
+};
+---
+<ArcaLayout
+  title="Arca Motors — Seminuevos en Durango con crédito directo"
+  description="Camionetas y autos seminuevos seleccionados en Durango: único dueño, factura de agencia y financiamiento directo hasta 48 meses."
+  active="inicio"
+  jsonLd={jsonLd}
+>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="am-wrap hero__in">
+      <div class="hero__copy">
+        <p class="am-kicker">{NEGOCIO.ciudad} · {nDisponibles} unidades disponibles</p>
+        <h1 class="am-display hero__title">
+          <span class="am-silver-text">Excelencia</span><br />
+          <span class="am-silver-text">en </span><span class="am-red-text">seminuevos.</span>
+        </h1>
+        <p class="am-lead">Camionetas y autos seleccionados uno por uno, la mayoría de único dueño y con factura de agencia. Estrena con enganche accesible y mensualidades cómodas.</p>
+        <div class="hero__ctas">
+          <a class="am-btn am-btn--red am-btn--lg" href={`${BASE}/catalogo/`}>Ver catálogo <Icon name="arrow" size={18} /></a>
+          <a class="am-btn am-btn--ghost am-btn--lg" href={wa('Hola Arca Motors, busco un auto y quiero que me asesoren.')} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> Escríbenos</a>
+        </div>
+      </div>
+      <div class="hero__art" aria-hidden="true">
+        <img src={`${ASSETS}/brand/arca-car-dark.svg`} alt="" width="594" height="216" fetchpriority="high" />
+        <span class="hero__line"></span>
+      </div>
+    </div>
+
+    <form class="am-wrap hero__search" action={`${BASE}/catalogo/`} method="get" role="search" aria-label="Buscar en el catálogo">
+      <div class="hero__search-in">
+        <div class="am-field">
+          <label for="h-tipo">Tipo</label>
+          <select class="am-select" id="h-tipo" name="tipo">
+            <option value="">Todos</option>
+            {tipos.map(({ t, n }) => <option value={t}>{ETIQUETA_CARROCERIA[t]} ({n})</option>)}
+          </select>
+        </div>
+        <div class="am-field">
+          <label for="h-marca">Marca</label>
+          <select class="am-select" id="h-marca" name="marca">
+            <option value="">Todas</option>
+            {listaMarcas.map((m) => <option value={m}>{m}</option>)}
+          </select>
+        </div>
+        <div class="am-field">
+          <label for="h-eng">Enganche</label>
+          <select class="am-select" id="h-eng" name="eng">
+            <option value="">Cualquiera</option>
+            <option value="100000">Hasta $100 mil</option>
+            <option value="200000">Hasta $200 mil</option>
+            <option value="350000">Hasta $350 mil</option>
+            <option value="500000">Hasta $500 mil</option>
+          </select>
+        </div>
+        <button class="am-btn am-btn--red am-btn--lg" type="submit"><Icon name="search" size={18} /> Buscar</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- PROMESAS -->
+  <section class="am-section--tight promesas" aria-label="Por qué Arca Motors">
+    <ul class="am-wrap promesas__grid">
+      {PROMESAS.map((p, i) => (
+        <li class="promesa am-reveal">
+          <span class="promesa__icon"><Icon name={PROMESA_ICON[i]} size={22} /></span>
+          <div>
+            <h2 class="promesa__t">{p.titulo}</h2>
+            <p>{p.texto}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- RECIÉN LLEGADOS -->
+  <section class="am-section" aria-labelledby="t-recientes">
+    <div class="am-wrap">
+      <div class="am-section__head">
+        <div>
+          <p class="am-kicker">Inventario</p>
+          <h2 class="am-h2" id="t-recientes">Recién llegados</h2>
+        </div>
+        <a class="am-link" href={`${BASE}/catalogo/`}>Ver las {disponibles.length} unidades en venta <Icon name="arrow" size={16} /></a>
+      </div>
+      <div class="am-grid">
+        {recientes.map((v, i) => <CarCard v={v} eager={i < 3} />)}
+      </div>
+      <nav class="tipos" aria-label="Explorar por tipo y marca">
+        {tipos.map(({ t, n }) => (
+          <a class="chip" href={`${BASE}/catalogo/?tipo=${t}`}>{ETIQUETA_CARROCERIA[t]} <span>{n}</span></a>
+        ))}
+        <span class="tipos__sep" aria-hidden="true"></span>
+        {listaMarcas.map((m) => <a class="chip chip--quiet" href={`${BASE}/catalogo/?marca=${encodeURIComponent(m)}`}>{m}</a>)}
+      </nav>
+    </div>
+  </section>
+
+  <!-- FINANCIAMIENTO -->
+  <section class="am-section fin" id="financiamiento" aria-labelledby="t-fin">
+    <div class="am-wrap fin__in">
+      <div class="fin__copy">
+        <p class="am-kicker">Financiamiento directo</p>
+        <h2 class="am-h2" id="t-fin">Estrena hoy.<br />Paga a tu ritmo.</h2>
+        <p class="am-lead">Directo con Arca Motors o con financiera desde 15% de enganche: sin complicaciones y con aprobación rápida. Elige el plan que te acomode.</p>
+        <div class="fin__planes">
+          {FINANCIAMIENTO.planes.map((p) => (
+            <article class="plan">
+              <p class="plan__n">{p.nombre}</p>
+              <p class="plan__t">{p.titulo}</p>
+              <p class="plan__d">{p.detalle}</p>
+            </article>
+          ))}
+        </div>
+        {FINANCIAMIENTO.requisitos.length > 0 && (
+          <ul class="fin__req">
+            {FINANCIAMIENTO.requisitos.map((r) => <li><Icon name="check" size={18} /> {r}</li>)}
+          </ul>
+        )}
+      </div>
+      <Calculadora id="calc-home" />
+    </div>
+  </section>
+
+  <!-- CÓMO COMPRAR -->
+  <section class="am-section pasos" aria-labelledby="t-pasos">
+    <div class="am-wrap">
+      <p class="am-kicker">Así de fácil</p>
+      <h2 class="am-h2" id="t-pasos">De la foto a tu cochera</h2>
+      <ol class="pasos__grid">
+        {PASOS.map((p, i) => <li class="am-reveal"><span>{String(i + 1).padStart(2, '0')}</span><h3>{p.t}</h3><p>{p.d}</p></li>)}
+      </ol>
+    </div>
+  </section>
+
+  <!-- VENDE / CAMBIA / CONSIGNA -->
+  <section class="am-section vende" id="vende" aria-labelledby="t-vende">
+    <div class="am-wrap vende__in">
+      <div>
+        <p class="am-kicker">{ACEPTA_A_CUENTA ? 'Compra · Cambio · Consignación' : 'Compra · Consignación'}</p>
+        <h2 class="am-h2" id="t-vende">¿Tienes un auto?<br /><span class="am-red-text">Lo convertimos en dinero.</span></h2>
+        <p class="am-lead">Te lo compramos{ACEPTA_A_CUENTA ? ', lo tomamos a cuenta de otro' : ''} o lo vendemos por ti a consignación. Mándanos los datos y te respondemos por WhatsApp.</p>
+        <p class="vende__nota">La oferta es preliminar y se confirma al revisar el auto en el lote.</p>
+      </div>
+      <form class="vende__form" data-vende method="dialog">
+        <fieldset class:list={['vende__tabs', { 'vende__tabs--2': !ACEPTA_A_CUENTA }]}>
+          <legend class="sr-only">¿Qué quieres hacer?</legend>
+          <label><input type="radio" name="modo" value="vender" checked /> <span>Vender</span></label>
+          {ACEPTA_A_CUENTA && <label><input type="radio" name="modo" value="cambiar" /> <span>Cambiar</span></label>}
+          <label><input type="radio" name="modo" value="consignar" /> <span>Consignar</span></label>
+        </fieldset>
+        <div class="vende__grid">
+          <div class="am-field"><label for="v-auto">Marca y modelo</label><input class="am-input" id="v-auto" name="auto" placeholder="Ej. Nissan Frontier" autocomplete="off" aria-describedby="v-hint" /></div>
+          <div class="am-field"><label for="v-anio">Año</label><input class="am-input" id="v-anio" name="anio" inputmode="numeric" placeholder="2020" maxlength="4" /></div>
+          <div class="am-field"><label for="v-km">Kilometraje</label><input class="am-input" id="v-km" name="km" inputmode="numeric" placeholder="80,000" /></div>
+          <div class="am-field"><label for="v-nombre">Tu nombre</label><input class="am-input" id="v-nombre" name="nombre" autocomplete="given-name" placeholder="Nombre" /></div>
+        </div>
+        <button class="am-btn am-btn--wa am-btn--lg am-btn--block" type="submit"><Icon name="whatsapp" size={20} /> Enviar por WhatsApp</button>
+        <p class="vende__hint" id="v-hint" data-vende-hint role="status">Abre WhatsApp con tus datos listos. Ahí mismo puedes mandar fotos.</p>
+        <noscript><a class="am-btn am-btn--ghost am-btn--block" href={wa('Hola Arca Motors, quiero vender mi auto.')}>Escríbenos directo por WhatsApp</a></noscript>
+      </form>
+    </div>
+  </section>
+
+  <!-- RECIÉN VENDIDOS -->
+  <section class="am-section" aria-labelledby="t-vendidos">
+    <div class="am-wrap">
+      <div class="am-section__head">
+        <div>
+          <p class="am-kicker">Ya estrenaron</p>
+          <h2 class="am-h2" id="t-vendidos">Recién vendidos</h2>
+        </div>
+        <p class="am-lead vendidos__lead">Cada auto vendido se queda aquí: así ves qué tan rápido se mueve el inventario.</p>
+      </div>
+      <div class="am-grid">
+        {vendidos().slice(0, 6).map((v) => <CarCard v={v} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTAGRAM + VISITA -->
+  <section class="am-section--tight visita" aria-labelledby="t-visita">
+    <div class="am-wrap visita__in">
+      <a class="ig" href={`https://instagram.com/${NEGOCIO.instagram}`} target="_blank" rel="noopener">
+        <img src={`${ASSETS}/brand/arca-icon-512.png`} alt="" width="72" height="72" loading="lazy" />
+        <div>
+          <p class="ig__h">@{NEGOCIO.instagram}</p>
+          <p class="ig__s">{NEGOCIO.seguidores} seguidores · fotos y recorridos en video de las unidades</p>
+        </div>
+        <Icon name="instagram" size={26} />
+      </a>
+      <div class="visita__card">
+        <h2 class="am-h2 visita__t" id="t-visita">Ven al lote</h2>
+        <ul>
+          <li><Icon name="map" size={18} /> {NEGOCIO.direccion || NEGOCIO.ciudad}</li>
+          {NEGOCIO.horario.map((h) => <li><Icon name="clock" size={18} /> {h.dias}: {h.horas}</li>)}
+          {NEGOCIO.telefonos.map((t) => <li><Icon name="phone" size={18} /> <a href={tel(t)}>{telBonito(t)}</a></li>)}
+        </ul>
+        <a class="am-btn am-btn--ghost" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener">Cómo llegar <Icon name="arrow" size={16} /></a>
+      </div>
+    </div>
+  </section>
+</ArcaLayout>
+
+<script>
+  import { NEGOCIO } from '../../arca-motors/config';
+  const form = document.querySelector<HTMLFormElement>('[data-vende]');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const d = new FormData(form);
+    const modo = String(d.get('modo'));
+    const auto = String(d.get('auto') || '').trim();
+    const hint = form.querySelector<HTMLElement>('[data-vende-hint]')!;
+    const f = form.querySelector<HTMLInputElement>('#v-auto')!;
+    if (!auto) {
+      f.focus();
+      f.setAttribute('aria-invalid', 'true');
+      hint.textContent = 'Escribe al menos la marca y el modelo de tu auto.';
+      hint.classList.add('is-error');
+      return;
+    }
+    f.removeAttribute('aria-invalid');
+    hint.classList.remove('is-error');
+    hint.textContent = 'Listo: se abrió WhatsApp con tus datos. Ahí mismo puedes mandar fotos.';
+    const verbo = { vender: 'vender', cambiar: 'dejar a cuenta', consignar: 'dejar a consignación' }[modo] ?? 'vender';
+    const partes = [
+      `Hola Arca Motors${d.get('nombre') ? ', soy ' + d.get('nombre') : ''}. Quiero ${verbo} mi auto:`,
+      `• ${auto}${d.get('anio') ? ' ' + d.get('anio') : ''}`,
+      d.get('km') ? `• ${d.get('km')} km` : '',
+      'Les mando fotos por aquí.',
+    ].filter(Boolean);
+    window.open(`https://wa.me/52${NEGOCIO.telefonos[0]}?text=${encodeURIComponent(partes.join('\n'))}`, '_blank', 'noopener');
+  });
+</script>
+
+<style>
+  /* HERO */
+  .hero { position: relative; overflow: hidden; padding: clamp(48px, 8vw, 96px) 0 0; isolation: isolate; }
+  .hero__glow { position: absolute; inset: -20% -10% auto; height: 120%; z-index: -1; background:
+    radial-gradient(40% 40% at 72% 42%, rgba(227,20,31,.16), transparent 70%),
+    radial-gradient(50% 50% at 70% 30%, rgba(255,255,255,.06), transparent 70%); }
+  .hero__in { display: grid; grid-template-columns: 1fr 1.05fr; align-items: center; gap: 32px; }
+  .hero__title { font-size: clamp(46px, 7.4vw, 96px); margin: 0; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .hero__art { position: relative; padding-bottom: 24px; }
+  .hero__art img { width: 100%; height: auto; filter: drop-shadow(0 30px 40px rgba(0,0,0,.7)); }
+  .hero__line { position: absolute; left: 4%; right: 4%; bottom: 6px; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, #ff2a1f 28%, #ffe3dc 50%, #ff2a1f 72%, transparent);
+    box-shadow: 0 0 24px 4px rgba(255,42,31,.45); }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__art img { animation: hero-in 1.4s cubic-bezier(.2,.7,.2,1) both; }
+    .hero__line { animation: line-in 1.6s .3s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes hero-in { from { opacity: 0; transform: translateY(18px) scale(.97); filter: blur(6px) drop-shadow(0 30px 40px rgba(0,0,0,.7)); } }
+    @keyframes line-in { from { opacity: 0; transform: scaleX(.2); } }
+  }
+  .hero__search { margin-top: clamp(36px, 6vw, 64px); position: relative; }
+  .hero__search-in { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 14px; align-items: end; padding: 18px; border-radius: 18px; background: rgba(18,19,22,.8); border: 1px solid var(--am-line2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); }
+  @media (max-width: 900px) {
+    .hero__in { grid-template-columns: 1fr; }
+    .hero__art { order: -1; max-width: 560px; margin-inline: auto; width: 100%; }
+    .hero__search-in { grid-template-columns: 1fr 1fr; }
+    .hero__search-in .am-field:first-child { grid-column: 1 / -1; }
+    .hero__search-in button { grid-column: 1 / -1; }
+  }
+  @media (max-width: 520px) { .hero__ctas .am-btn { flex: 1 1 100%; } }
+
+  /* PROMESAS */
+  .promesas { border-block: 1px solid var(--am-line); background: linear-gradient(180deg, rgba(255,255,255,.015), transparent); margin-top: clamp(48px, 7vw, 80px); }
+  .promesas__grid { list-style: none; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+  .promesa { display: flex; gap: 14px; align-items: flex-start; }
+  .promesa__icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex: none; color: var(--am-red-hi); background: rgba(227,20,31,.1); border: 1px solid rgba(227,20,31,.25); }
+  .promesa__t { margin: 0; font-family: var(--am-display); font-stretch: 110%; font-size: 17px; font-weight: 650; }
+  .promesa p { margin: 4px 0 0; color: var(--am-muted); font-size: 14px; line-height: 1.5; }
+  @media (max-width: 1000px) { .promesas__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .promesas__grid { grid-template-columns: 1fr; gap: 20px; } }
+
+  /* CHIPS */
+  .tipos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; align-items: center; }
+  .tipos__sep { width: 1px; height: 24px; background: var(--am-line2); margin-inline: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--am-line2); background: var(--am-surface); font-size: 14px; font-weight: 600; transition: border-color .2s, background .2s; }
+  .chip span { color: var(--am-dim); font-weight: 500; }
+  .chip:hover { border-color: rgba(255,74,61,.5); background: rgba(227,20,31,.08); }
+  .chip--quiet { font-weight: 500; color: var(--am-muted); }
+
+  /* FINANCIAMIENTO */
+  .fin { background: radial-gradient(60% 60% at 10% 30%, rgba(227,20,31,.08), transparent 70%), var(--am-bg2); border-block: 1px solid var(--am-line); }
+  .fin__in { display: grid; grid-template-columns: 1fr minmax(0, 520px); gap: clamp(32px, 5vw, 72px); align-items: start; }
+  .fin__planes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 30px; }
+  .plan { padding: 20px; border-radius: 14px; border: 1px solid var(--am-line2); background: var(--am-surface); }
+  .plan__n { margin: 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--am-dim); font-weight: 600; }
+  .plan__t { margin: 8px 0 6px; font-family: var(--am-display); font-stretch: 112%; font-weight: 700; font-size: 24px; }
+  .plan__d { margin: 0; color: var(--am-muted); font-size: 14px; }
+  .fin__req { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 10px; color: #cfd2d6; font-size: 15px; }
+  .fin__req li { display: flex; gap: 10px; align-items: center; }
+  .fin__req :global(svg) { color: var(--am-red-hi); }
+  @media (max-width: 900px) { .fin__in { grid-template-columns: 1fr; } }
+  @media (max-width: 480px) { .fin__planes { grid-template-columns: 1fr; } }
+
+  /* PASOS */
+  .pasos__grid { list-style: none; padding: 0; margin: 40px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; border-radius: 18px; overflow: hidden; border: 1px solid var(--am-line); }
+  .pasos__grid li { padding: 28px 24px 32px; background: var(--am-surface); }
+  .pasos__grid span { font-family: var(--am-display); font-stretch: 120%; font-weight: 800; font-size: 40px; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(255,74,61,.7); }
+  .pasos__grid h3 { margin: 18px 0 6px; font-family: var(--am-display); font-stretch: 112%; font-size: 21px; font-weight: 650; }
+  .pasos__grid p { margin: 0; color: var(--am-muted); font-size: 14.5px; }
+  @media (max-width: 900px) { .pasos__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .pasos__grid { grid-template-columns: 1fr; } }
+
+  /* VENDE */
+  .vende { background: linear-gradient(180deg, transparent, rgba(227,20,31,.05) 50%, transparent); }
+  .vende__in { display: grid; grid-template-columns: 1fr minmax(0, 540px); gap: clamp(32px, 5vw, 72px); align-items: center; }
+  .vende__nota { color: var(--am-dim); font-size: 13px; margin-top: 18px; }
+  .vende__form { display: grid; gap: 18px; padding: clamp(18px, 3vw, 28px); border-radius: 18px; background: var(--am-surface); border: 1px solid var(--am-line2); }
+  .vende__tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; margin: 0; min-inline-size: 0; border-radius: 12px; background: var(--am-bg2); border: 1px solid var(--am-line); }
+  .vende__tabs--2 { grid-template-columns: 1fr 1fr; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .vende__tabs label { position: relative; }
+  .vende__tabs input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .vende__tabs span { display: grid; place-items: center; min-height: 42px; border-radius: 9px; font-weight: 600; font-size: 14px; color: var(--am-muted); }
+  .vende__tabs input:checked + span { background: var(--am-surface2); color: var(--am-text); box-shadow: 0 0 0 1px var(--am-line2); }
+  .vende__tabs input:focus-visible + span { outline: 2px solid var(--am-red-hi); outline-offset: 2px; }
+  .vende__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .vende__grid .am-field:first-child { grid-column: 1 / -1; }
+  .vende__hint { margin: -4px 0 0; font-size: 13px; color: var(--am-dim); }
+  .vende__hint.is-error { color: #ff8a80; }
+  @media (max-width: 900px) { .vende__in { grid-template-columns: 1fr; } }
+
+  .vendidos__lead { margin: 0; max-width: 42ch; font-size: 15px; }
+
+  /* VISITA */
+  .visita__in { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .ig { display: flex; align-items: center; gap: 18px; padding: 24px; border-radius: 18px; border: 1px solid var(--am-line2); background: radial-gradient(80% 120% at 0% 0%, rgba(227,20,31,.14), transparent 60%), var(--am-surface); transition: border-color .2s; }
+  .ig:hover { border-color: rgba(255,74,61,.5); }
+  .ig img { width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--am-line2); }
+  .ig > div { flex: 1; }
+  .ig__h { margin: 0; font-family: var(--am-display); font-stretch: 112%; font-weight: 700; font-size: 22px; }
+  .ig__s { margin: 4px 0 0; color: var(--am-muted); font-size: 14px; }
+  .visita__card { padding: 24px; border-radius: 18px; border: 1px solid var(--am-line2); background: var(--am-surface); display: grid; gap: 16px; justify-items: start; }
+  .visita__t { font-size: 26px; }
+  .visita__card ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; color: #cfd2d6; font-size: 15px; }
+  .visita__card li { display: flex; align-items: center; gap: 10px; }
+  .visita__card :global(svg) { color: var(--am-muted); }
+  @media (max-width: 900px) { .visita__in { grid-template-columns: 1fr; } }
+</style>

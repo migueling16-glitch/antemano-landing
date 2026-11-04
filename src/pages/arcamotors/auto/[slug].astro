@@ -1,0 +1,421 @@
+---
+import ArcaLayout from '../../../arca-motors/ArcaLayout.astro';
+import CarVisual from '../../../arca-motors/components/CarVisual.astro';
+import CarCard from '../../../arca-motors/components/CarCard.astro';
+import Calculadora from '../../../arca-motors/components/Calculadora.astro';
+import Icon from '../../../arca-motors/components/Icon.astro';
+import { BASE, NEGOCIO, FINANCIAMIENTO, ACEPTA_A_CUENTA, wa, tel, telBonito } from '../../../arca-motors/config';
+import {
+  INVENTARIO, slug, nombre, nombreCompleto, dinero, kms, mensajeWa,
+  recienLlegado, foto, ETIQUETA_CARROCERIA, type Vehiculo,
+} from '../../../arca-motors/inventario';
+
+export function getStaticPaths() {
+  return INVENTARIO.map((v) => ({ params: { slug: slug(v) }, props: { v } }));
+}
+interface Props { v: Vehiculo }
+const { v } = Astro.props;
+
+const vendido = v.estatus === 'vendido';
+const apartado = v.estatus === 'apartado';
+// Fotos del carrusel de su post (sin el flyer). Sin fotos: placeholder con la lista de tomas ideal.
+const TOMAS = ['3/4 frontal', 'Lateral', '3/4 trasera', 'Interior', 'Tablero y km', 'Asientos traseros', 'Cajuela', 'Motor', 'Llantas'];
+const slides = v.nFotos ? Array.from({ length: v.nFotos }, (_, i) => `Foto ${i + 1}`) : TOMAS;
+const nFotos = slides.length;
+// "Papeles y servicio": solo lo que la unidad trae según su post.
+const tiene = (t: string) => v.destacados.some((d) => d.toLowerCase().includes(t));
+const papeles = [
+  v.facturaAgencia && { i: 'file', t: 'Factura de agencia', d: 'Pídela a la vista cuando vengas al lote' },
+  { i: 'user', t: v.duenos === 1 ? 'Único dueño' : `${v.duenos} dueños`, d: 'Según la factura de la unidad' },
+  tiene('llave') && { i: 'key', t: 'Duplicado de llaves', d: 'Se entrega con sus dos llaves' },
+  tiene('servicio') && { i: 'wrench', t: 'Servicios de agencia', d: 'Pregunta por su historial de servicio' },
+].filter(Boolean) as { i: string; t: string; d: string }[];
+const specs = [
+  { k: 'Año', v: String(v.anio), i: 'calendar' },
+  { k: 'Kilometraje', v: v.km != null ? kms(v.km) : 'Pregúntanos', i: 'gauge' },
+  v.transmision && { k: 'Transmisión', v: v.transmision, i: 'gear' },
+  v.combustible && { k: 'Combustible', v: v.combustible, i: 'fuel' },
+  v.motor && { k: 'Motor', v: v.motor, i: 'wrench' },
+  v.traccion && { k: 'Tracción', v: v.traccion, i: 'road' },
+  v.color && { k: 'Color', v: v.color, i: 'tag' },
+  { k: 'Dueños', v: v.duenos === 1 ? 'Único dueño' : `${v.duenos} dueños`, i: 'user' },
+  { k: 'Factura', v: v.facturaAgencia ? 'De agencia' : 'Por confirmar', i: 'file' },
+].filter(Boolean) as { k: string; v: string; i: string }[];
+
+const similares = INVENTARIO.filter((x) => x.folio !== v.folio && x.estatus !== 'vendido')
+  .sort((a, b) => (a.carroceria === v.carroceria ? 0 : 1) - (b.carroceria === v.carroceria ? 0 : 1) || Math.abs(a.enganche - v.enganche) - Math.abs(b.enganche - v.enganche))
+  .slice(0, 3);
+
+const msgPrueba = `Hola Arca Motors, quiero agendar una prueba de manejo del ${nombreCompleto(v)} (${v.folio}). ¿Qué día tienen disponible?`;
+const msgApartar = `Hola Arca Motors, quiero apartar el ${nombreCompleto(v)} (${v.folio}). ¿Cómo le hago?`;
+const msgContado = `Hola Arca Motors, ¿cuál es el precio de contado del ${nombreCompleto(v)} (${v.folio})?`;
+const msgSimilar = `Hola Arca Motors, vi que ya vendieron el ${nombreCompleto(v)} (${v.folio}). Busco uno similar, ¿me avisan si les llega?`;
+const msgPrincipal = vendido ? msgSimilar : mensajeWa(v);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Car',
+  name: nombreCompleto(v),
+  brand: { '@type': 'Brand', name: v.marca },
+  model: v.modelo,
+  vehicleModelDate: String(v.anio),
+  mileageFromOdometer: v.km != null ? { '@type': 'QuantitativeValue', value: v.km, unitCode: 'KMT' } : undefined,
+  image: v.nFotos ? [new URL(foto(v, 0, 1280), 'https://antemano.com.mx').href] : undefined,
+  url: new URL(`${BASE}/auto/${slug(v)}/`, 'https://antemano.com.mx').href,
+  vehicleTransmission: v.transmision,
+  fuelType: v.combustible,
+  color: v.color,
+  numberOfPreviousOwners: v.duenos,
+  sku: v.folio,
+  itemCondition: 'https://schema.org/UsedCondition',
+  offers: {
+    '@type': 'Offer',
+    ...(v.precio ? { price: v.precio, priceCurrency: 'MXN' } : {}),
+    availability: vendido ? 'https://schema.org/SoldOut' : apartado ? 'https://schema.org/LimitedAvailability' : 'https://schema.org/InStock',
+    seller: { '@type': 'AutoDealer', name: NEGOCIO.nombre, telephone: `+52${NEGOCIO.telefonos[0]}` },
+  },
+};
+---
+<ArcaLayout
+  title={`${nombreCompleto(v)} ${vendido ? '(vendido)' : '· enganche ' + dinero(v.enganche)} — Arca Motors`}
+  description={`${nombreCompleto(v)}${v.km != null ? ', ' + kms(v.km) : ''}. ${v.destacados.join(', ')}. Enganche ${dinero(v.enganche)} y mensualidad ${dinero(v.mensualidad)}. Seminuevo en ${NEGOCIO.ciudad}.`}
+  active="catalogo"
+  jsonLd={jsonLd}
+  waMensaje={msgPrincipal}
+  ownBar
+>
+  <div class="am-wrap vdp">
+    <nav class="crumbs" aria-label="Migas de pan">
+      <a href={`${BASE}/catalogo/`}><Icon name="arrowLeft" size={16} /> Catálogo</a>
+      <span aria-hidden="true">/</span>
+      <span>{ETIQUETA_CARROCERIA[v.carroceria]}</span>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{nombre(v)}</span>
+    </nav>
+
+    <!-- Orden del DOM = orden en el celular. En escritorio .buy se coloca en la columna derecha. -->
+    <div class="vdp__grid">
+        <!-- GALERÍA -->
+        <section class="gal" aria-label="Fotos" data-gal>
+          <div class="gal__stage">
+            <div class="gal__main" data-gal-main>
+              <CarVisual v={v} toma={v.nFotos ? undefined : TOMAS[0]} eager big sizes="(max-width: 900px) 100vw, 760px" />
+            </div>
+            <div class="gal__badges">
+              {apartado && <span class="am-badge am-badge--held">Apartado</span>}
+              {vendido && <span class="am-badge am-badge--sold">Vendido</span>}
+              {!vendido && !apartado && recienLlegado(v) && <span class="am-badge am-badge--new">Recién llegado</span>}
+            </div>
+            <span class="gal__count"><Icon name="camera" size={15} /> <span data-gal-n>1</span>/{nFotos}</span>
+            {!vendido && (
+              <button class="am-fav gal__fav" type="button" data-fav={v.folio} aria-pressed="false" aria-label="Guardar en favoritos"><Icon name="heart" size={18} /></button>
+            )}
+          </div>
+          <ul class="gal__thumbs" aria-label="Miniaturas">
+            {slides.map((t, i) => (
+              <li>
+                <button type="button" class="gal__thumb" data-gal-i={i} data-toma={t} aria-label={v.nFotos ? `Ver foto ${i + 1} de ${nFotos}` : `Ver toma: ${t}`} aria-pressed={i === 0 ? 'true' : 'false'}>
+                  <CarVisual v={v} i={i} sizes="120px" />
+                  <span>{t}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <a class="gal__ig" href={v.instagram} target="_blank" rel="noopener"><Icon name="instagram" size={15} /> Fotos del post de Instagram</a>
+        </section>
+
+        <!-- TÍTULO -->
+        <header class="vdp__title">
+          <p class="am-kicker">{ETIQUETA_CARROCERIA[v.carroceria]} · Folio {v.folio}</p>
+          <h1 class="am-display">{v.marca} {v.modelo}<span>{v.version} {v.anio}</span></h1>
+          <ul class="vdp__chips">
+            {v.km != null && <li>{kms(v.km)}</li>}{v.transmision && <li>{v.transmision}</li>}{v.traccion && <li>{v.traccion}</li>}{v.combustible && <li>{v.combustible}</li>}{v.color && <li>{v.color}</li>}
+          </ul>
+        </header>
+
+        <!-- PRECIO (columna fija en escritorio) -->
+        <aside class="buy" aria-label="Precio y contacto">
+          <div class="buy__card">
+            <p class="buy__estado" data-estado={v.estatus}>
+              <span></span>{vendido ? 'Vendido' : apartado ? 'Apartado · pregunta si se libera' : 'Disponible'}
+            </p>
+            {vendido ? (
+              <p class="buy__sold">Esta unidad ya encontró dueño. Dinos qué buscas y te escribimos si entra una parecida.</p>
+            ) : (
+              <>
+                <p class="am-label">Enganche</p>
+                <p class="buy__price">{dinero(v.enganche)}</p>
+                <p class="buy__mes">Mensualidad <strong>{dinero(v.mensualidad)}</strong>* <a href="#t-fin">Otras opciones</a></p>
+                <p class="buy__fin">{v.precio ? <>Precio de contado: <strong>{dinero(v.precio)}</strong></> : <a href={wa(msgContado)} target="_blank" rel="noopener">Pregunta el precio de contado</a>}</p>
+              </>
+            )}
+            <div class="buy__ctas">
+              <a class="am-btn am-btn--wa am-btn--lg am-btn--block" href={wa(msgPrincipal)} target="_blank" rel="noopener">
+                <Icon name="whatsapp" size={20} /> {vendido ? 'Busco uno similar' : apartado ? 'Avísame si se libera' : 'Me interesa'}
+              </a>
+              {!vendido && (
+                <div class="buy__row">
+                  <a class="am-btn am-btn--ghost" href={wa(msgPrueba)} target="_blank" rel="noopener"><Icon name="calendar" size={17} /> Prueba de manejo</a>
+                  {!apartado && <a class="am-btn am-btn--ghost" href={wa(msgApartar)} target="_blank" rel="noopener"><Icon name="key" size={17} /> Apartar</a>}
+                </div>
+              )}
+              <a class="buy__tel" href={tel()}><Icon name="phone" size={16} /> o llámanos al {telBonito(NEGOCIO.telefonos[0])}</a>
+            </div>
+            <ul class="buy__trust">
+              {v.facturaAgencia && <li><Icon name="file" size={16} /> Factura de agencia</li>}
+              {v.duenos === 1 && <li><Icon name="user" size={16} /> Único dueño</li>}
+              <li><Icon name="card" size={16} /> Crédito directo o con financiera</li>
+              {ACEPTA_A_CUENTA && <li><Icon name="swap" size={16} /> Recibimos tu auto a cuenta</li>}
+            </ul>
+          </div>
+          <p class="buy__folio">Folio {v.folio} · menciónalo al escribirnos</p>
+        </aside>
+
+      <div class="vdp__rest">
+        <!-- DESTACADOS -->
+        <section class="block" aria-labelledby="t-dest">
+          <h2 class="block__t" id="t-dest">Lo que lo hace especial</h2>
+          <ul class="dest">
+            {v.destacados.map((d) => <li><Icon name="check" size={18} /> {d}</li>)}
+          </ul>
+        </section>
+
+        <!-- FICHA -->
+        <section class="block" aria-labelledby="t-ficha">
+          <h2 class="block__t" id="t-ficha">Ficha técnica</h2>
+          <dl class="ficha">
+            {specs.map((s) => (
+              <div><dt><Icon name={s.i} size={16} /> {s.k}</dt><dd>{s.v}</dd></div>
+            ))}
+          </dl>
+        </section>
+
+        {v.equipamiento && v.equipamiento.length > 0 && (
+          <section class="block" aria-labelledby="t-eq">
+            <h2 class="block__t" id="t-eq">Equipamiento</h2>
+            <ul class="eq">{v.equipamiento.map((e) => <li>{e}</li>)}</ul>
+          </section>
+        )}
+
+        <!-- CONFIANZA -->
+        <section class="block" aria-labelledby="t-docs">
+          <h2 class="block__t" id="t-docs">Papeles y servicio</h2>
+          <ul class="docs">
+            {papeles.map((x) => <li><Icon name={x.i} size={20} /><div><strong>{x.t}</strong><span>{x.d}</span></div></li>)}
+          </ul>
+        </section>
+
+        <a class="igv" href={v.instagram} target="_blank" rel="noopener">
+          <span class="igv__play"><Icon name="instagram" size={22} /></span>
+          <div><strong>Velo en Instagram</strong><span>El post original de esta unidad, con todas sus fotos</span></div>
+          <Icon name="arrow" size={20} />
+        </a>
+
+        {!vendido && (
+          <section class="block" aria-labelledby="t-fin">
+            <h2 class="block__t" id="t-fin">Formas de pago</h2>
+            <ul class="planes">
+              <li class="planes__pub">
+                <p class="planes__n">Plan publicado</p>
+                <p class="planes__t">{dinero(v.enganche)} <small>de enganche</small></p>
+                <p class="planes__d">y {dinero(v.mensualidad)} al mes*</p>
+              </li>
+              {FINANCIAMIENTO.planes.map((p) => (
+                <li>
+                  <p class="planes__n">{p.nombre}</p>
+                  <p class="planes__t">{p.titulo}</p>
+                  <p class="planes__d">{p.detalle}</p>
+                </li>
+              ))}
+            </ul>
+            <a class="am-btn am-btn--ghost planes__cta" href={wa(`Hola Arca Motors, quiero cotizar el ${nombreCompleto(v)} (${v.folio}) con otro enganche o plazo.`)} target="_blank" rel="noopener">
+              <Icon name="whatsapp" size={18} /> Cotizar con otro enganche o plazo
+            </a>
+            {v.precio && <div class="planes__calc"><Calculadora precio={v.precio} auto={`${nombreCompleto(v)} (${v.folio})`} id="calc-vdp" /></div>}
+          </section>
+        )}
+      </div>
+    </div>
+
+    {similares.length > 0 && (
+      <section class="am-section--tight" aria-labelledby="t-sim">
+        <div class="am-section__head">
+          <h2 class="am-h2" id="t-sim">También te puede gustar</h2>
+          <a class="am-link" href={`${BASE}/catalogo/?tipo=${v.carroceria}`}>Ver más {ETIQUETA_CARROCERIA[v.carroceria]} <Icon name="arrow" size={16} /></a>
+        </div>
+        <div class="am-grid">{similares.map((s) => <CarCard v={s} />)}</div>
+      </section>
+    )}
+  </div>
+
+  <div class="vbar" slot="bar">
+    <div class="vbar__p">
+      {vendido ? <strong>Vendido</strong> : <><span>Enganche</span><strong>{dinero(v.enganche)}</strong><span>{dinero(v.mensualidad)}/mes*</span></>}
+    </div>
+    <a class="am-btn am-btn--ghost vbar__tel" href={tel()} aria-label="Llamar"><Icon name="phone" size={18} /></a>
+    <a class="am-btn am-btn--wa" href={wa(msgPrincipal)} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> {vendido ? 'Similar' : 'Me interesa'}</a>
+  </div>
+</ArcaLayout>
+
+<script>
+  // Galería: miniaturas cambian la toma principal (con fotos reales cambiaría la imagen).
+  const gal = document.querySelector<HTMLElement>('[data-gal]');
+  if (gal) {
+    const main = gal.querySelector<HTMLElement>('[data-gal-main]')!;
+    const n = gal.querySelector<HTMLElement>('[data-gal-n]')!;
+    const thumbs = [...gal.querySelectorAll<HTMLButtonElement>('[data-gal-i]')];
+    const show = (i: number) => {
+      const t = thumbs[i];
+      thumbs.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+      t.setAttribute('aria-pressed', 'true');
+      const src = t.querySelector<HTMLImageElement>('img');
+      const mainImg = main.querySelector<HTMLImageElement>('.am-visual__img');
+      const blur = main.querySelector<HTMLImageElement>('.am-visual__blur');
+      if (src && mainImg) {
+        mainImg.srcset = src.srcset;
+        mainImg.src = src.src;
+        mainImg.alt = src.alt;
+        if (blur) blur.src = src.src;
+        // precarga la siguiente
+        const nxt = thumbs[(i + 1) % thumbs.length]?.querySelector('img');
+        if (nxt) { const im = new Image(); im.sizes = mainImg.sizes; im.srcset = nxt.srcset; }
+      }
+      const label = main.querySelector('.am-visual__toma');
+      if (label) label.textContent = t.dataset.toma!;
+      main.animate?.([{ opacity: 0.4 }, { opacity: 1 }], { duration: 250 });
+      n.textContent = String(i + 1);
+      t.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+    };
+    thumbs.forEach((t, i) => t.addEventListener('click', () => show(i)));
+    let cur = 0;
+    gal.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { cur = (cur + 1) % thumbs.length; show(cur); thumbs[cur].focus(); }
+      if (e.key === 'ArrowLeft') { cur = (cur - 1 + thumbs.length) % thumbs.length; show(cur); thumbs[cur].focus(); }
+    });
+    // Deslizar en el celular
+    let x0 = 0;
+    main.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    main.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) { cur = (cur + (dx < 0 ? 1 : -1) + thumbs.length) % thumbs.length; show(cur); }
+    });
+    thumbs.forEach((t, i) => t.addEventListener('click', () => { cur = i; }));
+  }
+</script>
+
+<style>
+  .vdp { padding-top: 22px; }
+  .crumbs { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--am-dim); flex-wrap: wrap; }
+  .crumbs a { display: inline-flex; align-items: center; gap: 6px; color: var(--am-muted); min-height: 40px; }
+  .crumbs a:hover { color: var(--am-text); }
+  .crumbs [aria-current] { color: var(--am-text); }
+  .vdp__grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; column-gap: 36px; row-gap: 32px; margin-top: 20px; align-items: start; }
+  .vdp__grid > * { min-width: 0; grid-column: 1; }
+  .vdp__grid > .buy { grid-column: 2; grid-row: 1 / span 3; }
+  .vdp__rest { display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; }
+
+  .gal__stage { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--am-line); }
+  .gal__main :global(.am-visual) { aspect-ratio: 4 / 3; }
+  .gal__ig { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; font-size: 13px; color: var(--am-muted); }
+  .gal__ig:hover { color: var(--am-text); }
+  .planes { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+  .planes li { padding: 18px; border-radius: 14px; border: 1px solid var(--am-line); background: var(--am-surface); }
+  .planes li.planes__pub { border-color: rgba(255,74,61,.45); background: radial-gradient(120% 120% at 0% 0%, rgba(227,20,31,.14), transparent 60%), var(--am-surface); }
+  .planes__n { margin: 0; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--am-dim); font-weight: 600; }
+  .planes__t { margin: 8px 0 4px; font-family: var(--am-display); font-stretch: 110%; font-weight: 700; font-size: 21px; }
+  .planes__t small { font-size: 13px; font-weight: 500; color: var(--am-muted); }
+  .planes__d { margin: 0; color: var(--am-muted); font-size: 14px; }
+  .planes__cta { margin-top: 14px; }
+  .planes__calc { margin-top: 18px; }
+  .buy__fin a { color: var(--am-red-hi); font-weight: 600; display: inline-flex; min-height: 40px; align-items: center; }
+  .gal__badges { position: absolute; left: 16px; top: 16px; display: flex; gap: 6px; }
+  .gal__count { position: absolute; right: 16px; bottom: 14px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 6px 10px; border-radius: 999px; background: rgba(10,10,11,.7); border: 1px solid var(--am-line2); font-variant-numeric: tabular-nums; }
+  .gal__fav { top: 14px; right: 14px; }
+  .gal__thumbs { list-style: none; margin: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 118px; gap: 10px; overflow-x: auto; padding: 12px 2px 6px; scroll-snap-type: x mandatory; scrollbar-width: thin; }
+  .gal__thumbs li { scroll-snap-align: start; }
+  .gal__thumb { display: block; width: 100%; padding: 0; border: 1px solid var(--am-line); border-radius: 10px; overflow: hidden; background: none; cursor: pointer; color: var(--am-muted); text-align: left; transition: border-color .2s; }
+  .gal__thumb :global(.am-visual) { opacity: .6; transition: opacity .2s; }
+  .gal__thumb:hover :global(.am-visual), .gal__thumb[aria-pressed='true'] :global(.am-visual) { opacity: 1; }
+  .gal__thumb[aria-pressed='true'] { border-color: var(--am-red); color: var(--am-text); }
+  .gal__thumb span { display: block; font-size: 11px; padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gal__thumb :global(.am-visual__bg) { -webkit-text-stroke-width: 0; }
+  .gal__demo { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 13px; color: var(--am-dim); }
+
+  .vdp__title h1 { font-size: clamp(34px, 5vw, 56px); margin: 0; }
+  .vdp__title h1 span { display: block; font-size: .5em; color: var(--am-muted); font-weight: 500; margin-top: 6px; letter-spacing: 0; }
+  .vdp__chips { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .vdp__chips li { font-size: 14px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--am-line2); background: var(--am-surface); }
+
+  .block__t { margin: 0 0 16px; font-family: var(--am-display); font-stretch: 112%; font-size: 22px; font-weight: 650; }
+  .dest { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .dest li { display: flex; gap: 10px; align-items: center; padding: 14px 16px; border-radius: 12px; background: var(--am-surface); border: 1px solid var(--am-line); font-weight: 500; }
+  .dest :global(svg) { color: var(--am-red-hi); }
+  .ficha { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); border: 1px solid var(--am-line); border-radius: 14px; overflow: hidden; gap: 1px; background: var(--am-line); }
+  .ficha div { background: var(--am-surface); padding: 14px 16px; }
+  .ficha dt { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--am-dim); font-weight: 600; }
+  .ficha dd { margin: 6px 0 0; font-weight: 600; font-size: 16px; }
+  .eq { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 28px; }
+  .eq li { break-inside: avoid; padding: 10px 0; border-bottom: 1px solid var(--am-line); color: #d6d9dd; }
+  .eq li::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--am-red); margin-right: 12px; vertical-align: middle; }
+  @media (max-width: 560px) { .eq { columns: 1; } }
+  .docs { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .docs li { display: flex; gap: 14px; align-items: flex-start; padding: 16px; border-radius: 12px; border: 1px solid var(--am-line); background: var(--am-surface); }
+  .docs :global(svg) { color: var(--am-red-hi); margin-top: 2px; }
+  .docs strong { display: block; font-weight: 600; }
+  .docs span { display: block; color: var(--am-muted); font-size: 14px; margin-top: 2px; }
+  @media (max-width: 560px) { .docs { grid-template-columns: 1fr; } }
+  .igv { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 14px; border: 1px solid var(--am-line2); background: radial-gradient(80% 140% at 0% 50%, rgba(227,20,31,.14), transparent 60%), var(--am-surface); }
+  .igv:hover { border-color: rgba(255,74,61,.5); }
+  .igv > div { flex: 1; }
+  .igv strong { display: block; font-family: var(--am-display); font-stretch: 110%; font-size: 18px; }
+  .igv span:not(.igv__play) { color: var(--am-muted); font-size: 14px; }
+  .igv__play { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--am-red); color: #fff; flex: none; }
+
+  .buy { position: sticky; top: 92px; }
+  .buy__card { padding: 24px; border-radius: 18px; border: 1px solid var(--am-line2); background: linear-gradient(180deg, var(--am-surface2), var(--am-surface)); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); display: grid; gap: 6px; }
+  .buy__estado { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 13.5px; font-weight: 600; color: #7ee2a8; }
+  .buy__estado span { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 20%, transparent); }
+  .buy__estado[data-estado='apartado'] { color: var(--am-amber); }
+  .buy__estado[data-estado='vendido'] { color: var(--am-muted); }
+  .buy .am-label { margin: 0; }
+  .buy__price { margin: 0; font-family: var(--am-display); font-stretch: 112%; font-weight: 700; font-size: 40px; line-height: 1.1; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .buy__sold { margin: 0; color: var(--am-muted); font-size: 15px; }
+  .buy__fin { margin: 0; color: var(--am-muted); font-size: 14px; }
+  .buy__fin strong { color: var(--am-text); }
+  .buy__mes { margin: 4px 0 0; color: var(--am-muted); font-size: 15px; }
+  .buy__mes strong { color: var(--am-text); }
+  .buy__mes a { display: inline-flex; align-items: center; min-height: 40px; padding-inline: 4px; color: var(--am-red-hi); font-weight: 600; font-size: 14px; }
+  .buy__ctas { display: grid; gap: 10px; margin-top: 18px; }
+  .buy__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .buy__row .am-btn { padding: 0 12px; font-size: 14px; }
+  .buy__row .am-btn:only-child { grid-column: 1 / -1; }
+  .buy__tel { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; color: var(--am-muted); min-height: 44px; }
+  .buy__tel:hover { color: var(--am-text); }
+  .buy__trust { list-style: none; padding: 16px 0 0; margin: 12px 0 0; border-top: 1px solid var(--am-line); display: grid; gap: 10px; font-size: 14px; color: #cfd2d6; }
+  .buy__trust li { display: flex; align-items: center; gap: 10px; }
+  .buy__trust :global(svg) { color: var(--am-muted); }
+  .buy__folio { text-align: center; font-size: 12.5px; color: var(--am-dim); margin: 12px 0 0; }
+
+  .vbar { display: none; }
+  @media (max-width: 900px) {
+    .vdp__grid { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }
+    .vdp__grid > .buy { grid-column: 1; grid-row: auto; position: static; }
+    .gal__stage { border-radius: 14px; margin-inline: calc(var(--am-gutter) * -1); border-inline: 0; border-radius: 0; }
+    .gal__thumbs { grid-auto-columns: 96px; }
+    .vbar {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(10,10,11,.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--am-line);
+    }
+    .vbar__p { display: grid; line-height: 1.2; min-width: 0; }
+    .vbar__p strong { font-family: var(--am-display); font-stretch: 110%; font-size: 19px; font-variant-numeric: tabular-nums; }
+    .vbar__p span { font-size: 12px; color: var(--am-muted); white-space: nowrap; }
+    .vbar__p span:first-child { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; }
+    .gal__main :global(.am-visual) { aspect-ratio: 4 / 5; }
+    .vbar .am-btn { min-height: 48px; }
+    .vbar__tel { width: 48px; padding: 0; }
+    :global(body.am) { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  }
+</style>
