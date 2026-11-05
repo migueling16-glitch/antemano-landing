@@ -100,7 +100,7 @@ const lineas = TITULO.map((ws) => ws.map((w) => ({ c: w.c, chars: [...w.t].map((
   <div class="hx__bgcam" aria-hidden="true">
     <div class="hx__bg">
       {slides.map((s, i) => (
-        <img class:list={['hx__bgimg', { 'is-active': i === 0 }]} src={foto(s.v, 0, 800)} alt="" width="800" height="1066" loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? undefined : 'low'} decoding="async" />
+        <img class:list={['hx__bgimg', { 'is-active': i === 0 }]} src={foto(s.v, 0, 800).replace(/01-800\.webp$/, 'bg.webp')} alt="" width="96" height="128" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
       ))}
     </div>
     <div class="hx__lit">
@@ -247,11 +247,12 @@ const lineas = TITULO.map((ws) => ws.map((w) => ({ c: w.c, chars: [...w.t].map((
   function initHero(hero: HTMLElement) {
     const reduceMQ = matchMedia(document.documentElement.classList.contains('am-anim') ? 'not all' : 'all');
     const motion = () => !reduceMQ.matches;
+    const lite = document.documentElement.classList.contains('is-touch');
     const $ = <T extends Element = HTMLElement>(s: string) => hero.querySelector<T>(s);
     const $$ = <T extends Element = HTMLElement>(s: string) => [...hero.querySelectorAll<T>(s)];
 
     /* ---- cámara: fallback JS para navegadores sin animation-timeline ---- */
-    if (motion() && !CSS.supports('animation-timeline', 'scroll()')) {
+    if (motion() && !document.documentElement.classList.contains('is-touch') && !CSS.supports('animation-timeline', 'scroll()')) {
       let raf = 0;
       let last = -1;
       const upd = () => {
@@ -307,6 +308,13 @@ const lineas = TITULO.map((ws) => ws.map((w) => ({ c: w.c, chars: [...w.t].map((
       const old = el.querySelector('.hx-roll__set');
       const set = document.createElement('span');
       set.className = 'hx-roll__set';
+      // En táctil rueda el texto completo (un elemento), no letra por letra (~70 animaciones por cambio).
+      if (lite) {
+        set.textContent = text;
+        if (old) { old.classList.add('is-out'); window.setTimeout(() => old.remove(), 500); }
+        el.append(set);
+        return;
+      }
       [...text].forEach((ch, i) => {
         const s = document.createElement('span');
         s.className = 'hx-roll__ch';
@@ -506,7 +514,7 @@ const lineas = TITULO.map((ws) => ws.map((w) => ({ c: w.c, chars: [...w.t].map((
   .hx__bgimg {
     position: absolute; left: -6%; top: -6%; width: 112%; height: 112%; max-width: none;
     object-fit: cover; object-position: center 60%;
-    filter: blur(26px) brightness(.36) saturate(.85);
+    /* bg.webp ya viene desenfocado y oscurecido (brand-src/hero-bg.mjs): sin filter en vivo. */
     opacity: 0; visibility: hidden; transform: scale(1.06);
     transition: opacity 1.2s ease, visibility 0s linear 1.2s;
   }
@@ -833,11 +841,24 @@ const lineas = TITULO.map((ws) => ws.map((w) => ({ c: w.c, chars: [...w.t].map((
      el Ken Burns del fondo desenfocado, la cámara del fondo al hacer scroll, el halo cónico girando y
      los vidrios esmerilados (backdrop-filter) sobre contenido que se mueve. Se quedan el barrido entre
      autos, el Ken Burns del escenario, la entrada y la tarjeta. */
-  :global(html.is-touch) .hx__bg .hx__bgimg { filter: blur(16px) brightness(.36) saturate(.85); transform: scale(1.06); }
+  :global(html.is-touch) .hx__bg .hx__bgimg { transform: scale(1.06); }
   :global(html.is-touch) .hx__lit, :global(html.is-touch) .hx__spot { display: none; }
   :global(html.am-anim.is-touch) .hx__bgimg.is-active { animation: none; }
   :global(html.am-anim.is-touch) .hx__bgcam, :global(html.am-anim.is-touch) .hx__ghost { animation: none !important; transform: none !important; }
   :global(html.am-anim.js.hx-go.is-touch) .hx__halo, :global(html.am-anim.is-touch) .hx__halo { animation: hx-fade 1.6s ease calc(var(--hero-d) + .4s) backwards; --hx-ang: 40deg; filter: none; }
   :global(html.is-touch) .hx__card { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(16, 16, 19, .94); }
   :global(html.is-touch) .hx__tag { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(7, 7, 8, .78); }
+
+  /* =========================================================== CELULAR: más recortes (auditoría 5-nov)
+     Cambio de auto con fundido + zoom (solo opacity/transform) en vez de clip-path + filter; textos
+     que ruedan completos; fantasma y título sin animaciones de repintado. */
+  :global(html.am-anim.is-touch) .hx__slide.is-entering { animation: hx-fade .7s ease both; }
+  :global(html.am-anim.is-touch) .hx__slide.is-leaving .hx__img { animation: none; }
+  :global(html.is-touch) .hx__wipe { display: none; }
+  :global(html.am-anim.js.hx-go.is-touch) .hx__bg, :global(html.am-anim.is-touch) .hx__bg { animation: hx-fade 1.2s ease calc(var(--hero-d) - .2s) backwards; }
+  :global(html.am-anim.js.hx-go.is-touch) .hx__ghost-track, :global(html.am-anim.is-touch) .hx__ghost-track { animation: hx-fade 2.4s ease calc(var(--hero-d) + .3s) backwards; }
+  :global(html.is-touch) .hx__title { filter: none; }
+  :global(html.am-anim.is-touch) .hx__cam, :global(html.am-anim.is-touch) .hx__cardcam, :global(html.am-anim.is-touch) .hx__copycam, :global(html.am-anim.is-touch) .hx__footcam { animation: none !important; }
+  :global(html.am-anim.is-touch) .hx-roll :global(.hx-roll__set:not(.is-out)) { animation: hx-roll-in .55s var(--am-ease-out) .08s backwards; }
+  :global(html.am-anim.is-touch) .hx-roll :global(.hx-roll__set.is-out) { animation: hx-roll-out .35s var(--am-ease-io) forwards; }
 </style>

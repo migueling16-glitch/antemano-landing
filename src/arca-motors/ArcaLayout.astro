@@ -926,6 +926,22 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   html.is-touch .am-header.is-scrolled .am-header__in { background-color: rgba(11, 11, 13, .95); }
   html.is-touch .am-bar { background: rgba(10, 10, 11, .97); }
 
+  /* ---------- celular: versión ligera del movimiento ----------
+     Se quitan las cosas que repintan en cada cuadro o mezclan capas enormes; se conservan las
+     entradas (opacidad/transform), marquesinas y cambios de foto. */
+  html.is-touch .am-progress { display: none; }
+  html.is-touch .am-spotlight { mix-blend-mode: normal; will-change: auto; opacity: .45; }
+  html.am-anim.is-touch .am-visual__blur { animation: none !important; transform: scale(1.08); filter: blur(16px) brightness(.45) saturate(1.2); }
+  html.am-anim.is-touch .am-header__in { transition: background-color .3s ease, border-color .3s ease; }
+  html.is-touch .am-header__logo img { transition: none; }
+  html.is-touch .am-grid .am-card > .am-glare { display: none; }
+  html.am-anim.is-touch .am-pulse-dot::after, html.am-anim.is-touch .am-badge--new::after { animation-iteration-count: 3; }
+  html.am-anim.is-touch .am-btn--red::after { animation-iteration-count: 2; }
+  html.am-anim.is-touch .am-giant__sheen { animation: none; }
+  html.is-touch .am-marquee--fade { -webkit-mask-image: none; mask-image: none; }
+  html.is-touch .am-carmark { filter: none !important; }
+  html.is-touch .am-mtoggle__eq i { animation: none !important; }
+
   /* ---------- interruptor de animaciones ---------- */
   .am-mtoggle {
     position: fixed; left: 16px; bottom: 16px; z-index: 45;

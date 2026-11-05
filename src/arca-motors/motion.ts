@@ -125,27 +125,37 @@ const scrubOn = new Set<El>();
 const parallaxShift = new WeakMap<El, number>();
 let ticking = false;
 
+// En táctil el scroll no escribe estilos por cuadro: va en el compositor y cualquier escritura desde
+// rAF llega un cuadro tarde (se ve "nadar"). Ahí solo se marca el header; parallax/scrub/progreso se
+// quedan en su valor fijo del CSS.
+const touch = root.classList.contains('is-touch');
 function onScrollFrame() {
   ticking = false;
   const y = window.scrollY;
-  const vh = window.innerHeight;
-  const max = root.scrollHeight - vh;
-  if (progress) progress.style.transform = `scaleX(${max > 0 ? clamp(y / max, 0, 1).toFixed(4) : 0})`;
   if (header) header.classList.toggle('is-scrolled', y > 24);
-  if (!motionOK()) return;
-  parallaxOn.forEach((el) => {
-    const f = parseFloat(el.dataset.parallax || '') || 0.15;
-    const r = el.getBoundingClientRect();
-    const prev = parallaxShift.get(el) ?? 0;
-    const center = r.top - prev + r.height / 2;
-    const shift = (center - vh / 2) * -f;
-    parallaxShift.set(el, shift);
-    el.style.translate = `0 ${shift.toFixed(1)}px`;
-  });
-  scrubOn.forEach((el) => {
-    const r = el.getBoundingClientRect();
-    const p = clamp((vh - r.top) / (vh + r.height), 0, 1);
-    el.style.setProperty('--p', p.toFixed(4));
+  if (touch) return;
+  const vh = window.innerHeight;
+  // Primero se lee todo y luego se escribe (leer después de escribir fuerza un layout por elemento).
+  const max = root.scrollHeight - vh;
+  const reads: [El, DOMRect][] = [];
+  if (motionOK()) {
+    parallaxOn.forEach((el) => reads.push([el, el.getBoundingClientRect()]));
+    scrubOn.forEach((el) => reads.push([el, el.getBoundingClientRect()]));
+  }
+  if (progress) progress.style.transform = `scaleX(${max > 0 ? clamp(y / max, 0, 1).toFixed(4) : 0})`;
+  reads.forEach(([el, r]) => {
+    if (parallaxOn.has(el) && el.dataset.parallax !== undefined) {
+      const f = parseFloat(el.dataset.parallax || '') || 0.15;
+      const prev = parallaxShift.get(el) ?? 0;
+      const center = r.top - prev + r.height / 2;
+      const shift = (center - vh / 2) * -f;
+      parallaxShift.set(el, shift);
+      el.style.translate = `0 ${shift.toFixed(1)}px`;
+    }
+    if (scrubOn.has(el)) {
+      const p = clamp((vh - r.top) / (vh + r.height), 0, 1);
+      el.style.setProperty('--p', p.toFixed(4));
+    }
   });
 }
 const requestScrollFrame = () => {
@@ -244,7 +254,8 @@ function countUp(el: El) {
   const fmt = new Intl.NumberFormat('es-MX', { minimumFractionDigits: decimals, maximumFractionDigits: decimals, useGrouping: grouping });
   const pre = final.slice(0, m.index);
   const post = final.slice((m.index || 0) + raw.length);
-  const dur = clamp(parseFloat(el.dataset.countDur || '') || 1600, 300, 4000);
+  // En táctil, conteo corto: reescribir texto en cada cuadro durante 2 s compite con la entrada.
+  const dur = touch ? 650 : clamp(parseFloat(el.dataset.countDur || '') || 1600, 300, 4000);
   const t0 = performance.now();
   let last = '';
   const step = (t: number) => {

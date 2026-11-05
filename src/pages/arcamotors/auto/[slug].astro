@@ -430,7 +430,8 @@ const jsonLd = {
       const src = t.querySelector<HTMLImageElement>('img');
       const my = ++gen;
       // Sin foto (estudio) o sin movimiento: cambio directo.
-      if (!src || !mainImg || !frame || !motionOK() || typeof mainImg.animate !== 'function') {
+      // En táctil: cambio directo con fundido corto (el barrido crea otra capa desenfocada y anima clip-path).
+      if (!src || !mainImg || !frame || !motionOK() || document.documentElement.classList.contains('is-touch') || typeof mainImg.animate !== 'function') {
         commitTo(t);
         if (motionOK()) main.animate?.([{ opacity: 0.4 }, { opacity: 1 }], { duration: 300 });
         return;
@@ -1017,4 +1018,12 @@ const jsonLd = {
     .bento__it--big { min-height: 132px; }
     .block__head { gap: 10px; }
   }
+
+  /* ---------- celular: versión ligera (auditoría 5-nov) ---------- */
+  :global(html.am-anim.is-touch) .gal__main :global(.am-visual--frame) { animation: none; }
+  :global(html.is-touch) :is(.gal__count, .gal__nav, .gal__hint) { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(10, 10, 11, .85); }
+  :global(html.is-touch) .vbar { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(10, 10, 11, .97); }
+  :global(html.am-anim.is-touch) .buy__ring { animation: none; transform: rotate(40deg); }
+  :global(html.is-touch) .vdp__amb :global(.am-spotlight--white) { display: none; }
+  :global(html.am-anim.is-touch) :is(.buy__dot, .igv__play)::after { animation-iteration-count: 3; }
 </style>

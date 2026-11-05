@@ -460,6 +460,8 @@ const marcasBg = marcas();
     return { box: results.getBoundingClientRect(), cards: m, extras: x };
   }
 
+  // En táctil: sin filter: blur en las animaciones del filtrado y menos fantasmas a la vez.
+  const lite = document.documentElement.classList.contains('is-touch');
   function ghost(el: El, r: DOMRect, box: DOMRect) {
     const g = el.cloneNode(true) as El;
     g.hidden = false;
@@ -481,7 +483,7 @@ const marcasBg = marcas();
     g.style.height = `${r.height}px`;
     ghostLayer.append(g);
     const a = g.animate(
-      [{ opacity: 1, scale: '1', filter: 'blur(0px)' }, { opacity: 0, scale: '.9', filter: 'blur(10px)' }],
+      lite ? [{ opacity: 1, scale: '1' }, { opacity: 0, scale: '.9' }] : [{ opacity: 1, scale: '1', filter: 'blur(0px)' }, { opacity: 0, scale: '.9', filter: 'blur(10px)' }],
       { duration: 440, easing: EASE_IO, fill: 'forwards' }
     );
     const done = () => g.remove();
@@ -519,16 +521,18 @@ const marcasBg = marcas();
       }
       c.classList.add('cat-done');
       c.animate(
-        [
-          { opacity: 0, translate: '0px 56px', scale: '.92', filter: 'blur(10px)' },
-          { opacity: 1, translate: '0px 0px', scale: '1', filter: 'blur(0px)' },
-        ],
+        lite
+          ? [{ opacity: 0, translate: '0px 40px', scale: '.94' }, { opacity: 1, translate: '0px 0px', scale: '1' }]
+          : [
+              { opacity: 0, translate: '0px 56px', scale: '.92', filter: 'blur(10px)' },
+              { opacity: 1, translate: '0px 0px', scale: '1', filter: 'blur(0px)' },
+            ],
         { duration: 820, delay: 60 + delay, easing: EASE, fill: 'backwards' }
       );
     });
     let g = 0;
     s.cards.forEach((r, c) => {
-      if ((c.hidden || grid.hidden) && seen(r) && g++ < 12) ghost(c, r, s.box);
+      if ((c.hidden || grid.hidden) && seen(r) && g++ < (lite ? 4 : 12)) ghost(c, r, s.box);
     });
     s.extras.forEach((r, e) => {
       if (e.hidden && seen(r)) ghost(e, r, s.box);
@@ -944,4 +948,10 @@ const marcasBg = marcas();
   
     html:not(.am-anim) .cat__pill, html:not(.am-anim) .odo__strip, html:not(.am-anim) .cat__bar-in, html:not(.am-anim) .cat__bar-in::after, html:not(.am-anim) .cat__mini, html:not(.am-anim) .cat__chip-t > span, html:not(.am-anim) .cat__filters { transition: none !important; }
   
+
+  /* ---------- celular: versión ligera (auditoría 5-nov) ---------- */
+  html.is-touch .cat__bar.is-stuck .cat__bar-in { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background-color: rgba(16, 16, 19, .96); }
+  html.is-touch .cat__bar-in { transition-property: background-color, border-color, box-shadow !important; }
+  html.is-touch .cat__bg--lit { display: none; }
+  html.is-touch .cat__scrim { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(0, 0, 0, .72); }
 </style>

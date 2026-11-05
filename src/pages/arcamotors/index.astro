@@ -330,7 +330,7 @@ const jsonLd = {
 
   /* ---------------- Marquesinas: se inclinan con la velocidad del scroll ---------------- */
   const ticker = document.querySelector<HTMLElement>('.ticker');
-  if (ticker && motionOK()) {
+  if (ticker && motionOK() && !document.documentElement.classList.contains('is-touch')) {
     let lastY = window.scrollY;
     let skew = 0;
     let raf = 0;
@@ -835,4 +835,23 @@ const jsonLd = {
   .visita__card li { display: flex; align-items: center; gap: 10px; }
   .visita__card :global(svg) { color: var(--am-muted); }
   @media (max-width: 900px) { .visita__in { grid-template-columns: 1fr; } }
+
+  /* ---------- celular: versión ligera (auditoría 5-nov) ---------- */
+  :global(html.is-touch) .rng { animation: none !important; --rng-a: 300deg; }
+  :global(html.is-touch) .srch__in::before, :global(html.is-touch) .fin__calc::before { filter: none; }
+  :global(html.is-touch) .srch__in { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(14, 14, 17, .96); }
+  :global(html.is-touch) .vende__form { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(18, 19, 22, .97); }
+  :global(html.am-anim.js.is-touch) .fin__title { font-variation-settings: normal; }
+  :global(html.is-touch) .ticker__row { transform: none; }
+  :global(html.is-touch) .vende__car { transform: none; }
+  :global(html.am-anim.is-touch) .bento__n { animation: none; }
+  :global(html.is-touch) .fin__spot { display: none; }
+  :global(html.is-touch) .ticker__mark { filter: none; }
+  :global(html.is-touch) .paso__n::after { filter: none; }
+  :global(html.am-anim.is-touch) .vend__item.is-in .vend__ink { animation-name: vend-stamp-lite; }
+  @keyframes vend-stamp-lite {
+    0% { opacity: 0; transform: rotate(-26deg) scale(2.6); }
+    55% { opacity: 1; transform: rotate(-10deg) scale(.9); }
+    100% { opacity: 1; transform: rotate(-12deg) scale(1); }
+  }
 </style>
