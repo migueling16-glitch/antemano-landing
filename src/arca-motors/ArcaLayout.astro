@@ -400,6 +400,8 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   }
   
     html.am-anim .am-grain { animation: am-grain 1s steps(6) infinite; }
+    /* En celular el grano es una capa a pantalla completa encima de todo: se quita. */
+    html.is-touch .am-grain { display: none; }
   
   @keyframes am-grain {
     0%, 100% { transform: translate3d(0, 0, 0); }
@@ -423,8 +425,9 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   .am-h2 { font-family: var(--am-display); font-stretch: 115%; font-weight: 700; font-size: clamp(28px, 4.2vw, 46px); line-height: 1.05; margin: 0; letter-spacing: -0.01em; }
   /* .am-h2 se ensancha (wdth 100% → 115%) al entrar en pantalla. */
   
-    html.am-anim.js .am-h2 { font-stretch: 100%; transition: font-stretch 1.4s var(--am-ease-out) .1s; }
-    html.am-anim.js .am-h2.is-in { font-stretch: 115%; }
+    /* Solo con mouse: en celular ensanchar la letra reacomoda las líneas del título ("brinca"). */
+    html.am-anim.js:not(.is-touch) .am-h2 { font-stretch: 100%; transition: font-stretch 1.4s var(--am-ease-out) .1s; }
+    html.am-anim.js:not(.is-touch) .am-h2.is-in { font-stretch: 115%; }
   
   .am-lead { color: var(--am-muted); font-size: clamp(16px, 1.6vw, 18px); max-width: 58ch; margin: 14px 0 0; }
   .am-silver-text { background: var(--am-silver); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -512,7 +515,8 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   @property --am-k { syntax: '<number>'; inherits: false; initial-value: 100; }
   .am-ch { display: inline-block; font-variation-settings: 'wdth' var(--am-k); }
   
-    html.am-anim.is-touch [data-kinetic] .am-ch, html.am-anim [data-kinetic='wave'] .am-ch { animation: am-kwave 3.4s var(--am-ease-io) infinite; animation-delay: calc(var(--ci, 0) * 110ms); }
+    /* La ola ya no se pone sola en táctil: cambiar el ancho de las letras reacomoda las líneas. */
+    html.am-anim [data-kinetic='wave'] .am-ch { animation: am-kwave 3.4s var(--am-ease-io) infinite; animation-delay: calc(var(--ci, 0) * 110ms); }
   
   @keyframes am-kwave { 0%, 100% { --am-k: var(--am-k-base, 100); } 50% { --am-k: var(--am-k-max, 125); } }
 
@@ -913,6 +917,14 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   .am-footer__legal p { margin: 0; max-width: 70ch; }
   @media (max-width: 900px) { .am-footer__grid { grid-template-columns: 1fr 1fr; } .am-footer__brand { grid-column: 1 / -1; } }
   @media (max-width: 520px) { .am-footer__grid { grid-template-columns: 1fr; } .am-giant { margin-top: 40px; } }
+
+  /* ---------- celular: sin vidrio esmerilado ----------
+     backdrop-filter sobre contenido que se desplaza o se anima obliga a recalcular el desenfoque en
+     cada cuadro; en celular es de lo más caro. Se cambia por fondos casi opacos. */
+  html.is-touch .am-header__in, html.is-touch .am-bar, html.is-touch .am-badge, html.is-touch .am-fav,
+  html.is-touch .am-glass, html.is-touch .am-mtoggle { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  html.is-touch .am-header.is-scrolled .am-header__in { background-color: rgba(11, 11, 13, .95); }
+  html.is-touch .am-bar { background: rgba(10, 10, 11, .97); }
 
   /* ---------- interruptor de animaciones ---------- */
   .am-mtoggle {

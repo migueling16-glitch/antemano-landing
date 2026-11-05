@@ -202,13 +202,15 @@ const kinetic = new Set<El>();
 function splitLetters(el: El) {
   if (el.dataset.kineticDone) return;
   el.dataset.kineticDone = '1';
-  // Primero palabras (para que la línea pueda partir entre palabras), luego letras.
-  if (!el.dataset.splitDone) splitWords(el);
   const cs = getComputedStyle(el);
   const base = parseFloat(cs.fontStretch) || 100;
   const max = parseFloat(el.dataset.kineticMax || '') || 125;
   el.style.setProperty('--am-k-base', String(base));
   el.style.setProperty('--am-k-max', String(max));
+  // Ya viene partido desde el servidor (titular del hero): solo se registra.
+  if (el.querySelector('.am-ch')) { kinetic.add(el); return; }
+  // Primero palabras (para que la línea pueda partir entre palabras), luego letras.
+  if (!el.dataset.splitDone) splitWords(el);
   let ci = 0;
   $$('.am-w__i', el).forEach((w) => {
     const text = w.textContent || '';
@@ -452,7 +454,8 @@ function paintSpot(s: Spot) {
   });
 }
 function startSpot() {
-  if (!spotRaf && motionOK()) spotRaf = requestAnimationFrame(tickSpot);
+  // En táctil el foco se queda quieto: derivar solo repinta la sección en cada cuadro (pesado en celular).
+  if (!spotRaf && motionOK() && fine()) spotRaf = requestAnimationFrame(tickSpot);
 }
 function tickSpot(t: number) {
   spotRaf = 0;
