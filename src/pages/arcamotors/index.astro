@@ -3,17 +3,19 @@ import ArcaLayout from '../../arca-motors/ArcaLayout.astro';
 import CarCard from '../../arca-motors/components/CarCard.astro';
 import Calculadora from '../../arca-motors/components/Calculadora.astro';
 import Icon from '../../arca-motors/components/Icon.astro';
+import HeroShowroom from '../../arca-motors/components/HeroShowroom.astro';
 import { BASE, ASSETS, NEGOCIO, FINANCIAMIENTO, PROMESAS, PASOS, ACEPTA_A_CUENTA, wa, tel, telBonito } from '../../arca-motors/config';
-import { enVenta, vendidos, marcas, ETIQUETA_CARROCERIA, type Carroceria } from '../../arca-motors/inventario';
+import { enVenta, vendidos, marcas, urlAuto, dinero, ETIQUETA_CARROCERIA, type Carroceria } from '../../arca-motors/inventario';
 
 const disponibles = enVenta();
-const nDisponibles = disponibles.filter((v) => v.estatus === 'disponible').length;
 const recientes = [...disponibles].sort((a, b) => b.ingreso.localeCompare(a.ingreso)).slice(0, 6);
 const listaMarcas = marcas();
 const tipos = (['suv', 'pickup', 'sedan', 'clasico'] as Carroceria[])
   .map((t) => ({ t, n: disponibles.filter((v) => v.carroceria === t).length }))
   .filter((x) => x.n);
 const PROMESA_ICON = ['file', 'key', 'card', 'swap'];
+const pad = (n: number) => String(n).padStart(2, '0');
+const nTabs = ACEPTA_A_CUENTA ? 3 : 2;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -32,120 +34,164 @@ const jsonLd = {
   active="inicio"
   jsonLd={jsonLd}
 >
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero__glow" aria-hidden="true"></div>
-    <div class="am-wrap hero__in">
-      <div class="hero__copy">
-        <p class="am-kicker">{NEGOCIO.ciudad} · {nDisponibles} unidades disponibles</p>
-        <h1 class="am-display hero__title">
-          <span class="am-silver-text">Excelencia</span><br />
-          <span class="am-silver-text">en </span><span class="am-red-text">seminuevos.</span>
-        </h1>
-        <p class="am-lead">Camionetas y autos seleccionados uno por uno, la mayoría de único dueño y con factura de agencia. Estrena con enganche accesible y mensualidades cómodas.</p>
-        <div class="hero__ctas">
-          <a class="am-btn am-btn--red am-btn--lg" href={`${BASE}/catalogo/`}>Ver catálogo <Icon name="arrow" size={18} /></a>
-          <a class="am-btn am-btn--ghost am-btn--lg" href={wa('Hola Arca Motors, busco un auto y quiero que me asesoren.')} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> Escríbenos</a>
-        </div>
+  <!-- HERO (componente propio: intro, escenario, tarjeta sincronizada, cámara) -->
+  <HeroShowroom />
+
+  <!-- BUSCADOR: barra de vidrio montada sobre el borde inferior del hero -->
+  <form class="am-wrap srch" id="buscar" action={`${BASE}/catalogo/`} method="get" role="search" aria-label="Buscar en el catálogo">
+    <div class="srch__in am-loop">
+      <span class="rng" aria-hidden="true"></span>
+      <p class="srch__t" aria-hidden="true"><Icon name="search" size={16} /> <span>Encuentra <br />el tuyo</span></p>
+      <div class="am-field srch__f">
+        <label for="h-tipo">Tipo</label>
+        <select class="am-select" id="h-tipo" name="tipo">
+          <option value="">Todos</option>
+          {tipos.map(({ t, n }) => <option value={t}>{ETIQUETA_CARROCERIA[t]} ({n})</option>)}
+        </select>
       </div>
-      <div class="hero__art" aria-hidden="true">
-        <img src={`${ASSETS}/brand/arca-car-dark.svg`} alt="" width="594" height="216" fetchpriority="high" />
-        <span class="hero__line"></span>
+      <div class="am-field srch__f">
+        <label for="h-marca">Marca</label>
+        <select class="am-select" id="h-marca" name="marca">
+          <option value="">Todas</option>
+          {listaMarcas.map((m) => <option value={m}>{m}</option>)}
+        </select>
+      </div>
+      <div class="am-field srch__f">
+        <label for="h-eng">Enganche</label>
+        <select class="am-select" id="h-eng" name="eng">
+          <option value="">Cualquiera</option>
+          <option value="100000">Hasta $100 mil</option>
+          <option value="200000">Hasta $200 mil</option>
+          <option value="350000">Hasta $350 mil</option>
+          <option value="500000">Hasta $500 mil</option>
+        </select>
+      </div>
+      <button class="am-btn am-btn--red am-btn--lg srch__go" type="submit" data-magnetic="0.25"><Icon name="search" size={18} /> Buscar</button>
+    </div>
+  </form>
+
+  <!-- MARQUESINAS: autos en venta + marcas en contorno (se inclinan con la velocidad del scroll) -->
+  <section class="ticker" aria-label="Unidades en venta">
+    <div class="ticker__row">
+      <div class="am-marquee am-marquee--fade ticker__cars" data-marquee="70">
+        <ul class="am-marquee__track">
+          {disponibles.map((v) => (
+            <li class="ticker__item">
+              <a class="ticker__link" href={urlAuto(v)} data-cursor="Ver">
+                <span class="ticker__name">{v.marca} {v.modelo} <span class="ticker__y">{v.anio}</span></span>
+                <span class="ticker__eng">Enganche {dinero(v.enganche)}</span>
+              </a>
+              <span class="ticker__mark" aria-hidden="true"></span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
-
-    <form class="am-wrap hero__search" action={`${BASE}/catalogo/`} method="get" role="search" aria-label="Buscar en el catálogo">
-      <div class="hero__search-in">
-        <div class="am-field">
-          <label for="h-tipo">Tipo</label>
-          <select class="am-select" id="h-tipo" name="tipo">
-            <option value="">Todos</option>
-            {tipos.map(({ t, n }) => <option value={t}>{ETIQUETA_CARROCERIA[t]} ({n})</option>)}
-          </select>
+    <div class="ticker__row ticker__row--brands" aria-hidden="true">
+      <div class="am-marquee am-marquee--reverse ticker__brands" data-marquee="38">
+        <div class="am-marquee__track">
+          {listaMarcas.map((m) => <span class="ticker__brand">{m}<span class="ticker__dot"></span></span>)}
         </div>
-        <div class="am-field">
-          <label for="h-marca">Marca</label>
-          <select class="am-select" id="h-marca" name="marca">
-            <option value="">Todas</option>
-            {listaMarcas.map((m) => <option value={m}>{m}</option>)}
-          </select>
-        </div>
-        <div class="am-field">
-          <label for="h-eng">Enganche</label>
-          <select class="am-select" id="h-eng" name="eng">
-            <option value="">Cualquiera</option>
-            <option value="100000">Hasta $100 mil</option>
-            <option value="200000">Hasta $200 mil</option>
-            <option value="350000">Hasta $350 mil</option>
-            <option value="500000">Hasta $500 mil</option>
-          </select>
-        </div>
-        <button class="am-btn am-btn--red am-btn--lg" type="submit"><Icon name="search" size={18} /> Buscar</button>
       </div>
-    </form>
+    </div>
   </section>
 
-  <!-- PROMESAS -->
-  <section class="am-section--tight promesas" aria-label="Por qué Arca Motors">
-    <ul class="am-wrap promesas__grid">
-      {PROMESAS.map((p, i) => (
-        <li class="promesa am-reveal">
-          <span class="promesa__icon"><Icon name={PROMESA_ICON[i]} size={22} /></span>
-          <div>
-            <h2 class="promesa__t">{p.titulo}</h2>
-            <p>{p.texto}</p>
-          </div>
-        </li>
-      ))}
-    </ul>
-  </section>
-
-  <!-- RECIÉN LLEGADOS -->
-  <section class="am-section" aria-labelledby="t-recientes">
+  <!-- PROMESAS: bento asimétrico -->
+  <section class="am-section prom" aria-labelledby="t-prom">
     <div class="am-wrap">
-      <div class="am-section__head">
+      <div class="prom__head">
+        <p class="am-kicker">Por qué Arca Motors</p>
+        <h2 class="am-h2 prom__h" id="t-prom" data-split>Seminuevos,<br /><span class="am-silver-text">sin complicaciones.</span></h2>
+      </div>
+      <ul class="bento">
+        {PROMESAS.map((p, i) => (
+          <li class={`bento__c bento__c--${i + 1} am-reveal am-loop`} data-tilt="4">
+            <span class="bento__n" aria-hidden="true">{pad(i + 1)}</span>
+            <span class={`bento__icon bento__icon--${PROMESA_ICON[i]}`}><Icon name={PROMESA_ICON[i]} size={24} /></span>
+            <div class="bento__body">
+              <h3 class="bento__t">{p.titulo}</h3>
+              <p class="bento__p">{p.texto}</p>
+            </div>
+            <span class="am-glare" aria-hidden="true"></span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- RECIÉN LLEGADOS: en escritorio la sección se fija y avanza en horizontal; en móvil, carrusel -->
+  <section class="rec" id="recientes" aria-labelledby="t-recientes" data-pin>
+    <div class="rec__sticky">
+      <span class="rec__ghost" aria-hidden="true" data-rec-ghost>Recién llegados</span>
+      <div class="am-wrap rec__head">
         <div>
           <p class="am-kicker">Inventario</p>
-          <h2 class="am-h2" id="t-recientes">Recién llegados</h2>
+          <h2 class="am-h2" id="t-recientes" data-split>Recién llegados</h2>
         </div>
         <a class="am-link" href={`${BASE}/catalogo/`}>Ver las {disponibles.length} unidades en venta <Icon name="arrow" size={16} /></a>
       </div>
-      <div class="am-grid">
-        {recientes.map((v, i) => <CarCard v={v} eager={i < 3} />)}
+      <div class="rec__vp" data-rec-vp>
+        <ul class="rec__track" data-rec-track>
+          {recientes.map((v) => <li class="rec__item"><CarCard v={v} /></li>)}
+          <li class="rec__item rec__item--end">
+            <a class="rec__end am-loop" href={`${BASE}/catalogo/`} data-cursor="Ver" data-tilt="5">
+              <span class="rng" aria-hidden="true"></span>
+              <span class="rec__end-mark" aria-hidden="true"></span>
+              <span class="rec__end-n" data-count>{disponibles.length}</span>
+              <span class="rec__end-t">unidades en venta</span>
+              <span class="rec__end-go">Ver el catálogo <Icon name="arrowUpRight" size={18} /></span>
+              <span class="am-glare" aria-hidden="true"></span>
+            </a>
+          </li>
+        </ul>
       </div>
-      <nav class="tipos" aria-label="Explorar por tipo y marca">
-        {tipos.map(({ t, n }) => (
-          <a class="chip" href={`${BASE}/catalogo/?tipo=${t}`}>{ETIQUETA_CARROCERIA[t]} <span>{n}</span></a>
-        ))}
-        <span class="tipos__sep" aria-hidden="true"></span>
-        {listaMarcas.map((m) => <a class="chip chip--quiet" href={`${BASE}/catalogo/?marca=${encodeURIComponent(m)}`}>{m}</a>)}
-      </nav>
+      <div class="am-wrap rec__foot" aria-hidden="true">
+        <span class="rec__bar"><span class="rec__fill" data-rec-fill></span></span>
+        <span class="rec__hint"><span class="rec__hint-pin">Sigue bajando</span><span class="rec__hint-swipe">Desliza</span> <Icon name="arrow" size={14} /></span>
+      </div>
     </div>
   </section>
+  <div class="am-wrap">
+    <nav class="tipos" aria-label="Explorar por tipo y marca">
+      {tipos.map(({ t, n }) => (
+        <a class="chip" href={`${BASE}/catalogo/?tipo=${t}`} data-magnetic="0.2">{ETIQUETA_CARROCERIA[t]} <span>{n}</span></a>
+      ))}
+      <span class="tipos__sep" aria-hidden="true"></span>
+      {listaMarcas.map((m) => <a class="chip chip--quiet" href={`${BASE}/catalogo/?marca=${encodeURIComponent(m)}`} data-magnetic="0.2">{m}</a>)}
+    </nav>
+  </div>
 
   <!-- FINANCIAMIENTO -->
-  <section class="am-section fin" id="financiamiento" aria-labelledby="t-fin">
-    <div class="am-wrap fin__in">
-      <div class="fin__copy">
-        <p class="am-kicker">Financiamiento directo</p>
-        <h2 class="am-h2" id="t-fin">Estrena hoy.<br />Paga a tu ritmo.</h2>
-        <p class="am-lead">Directo con Arca Motors o con financiera desde 15% de enganche: sin complicaciones y con aprobación rápida. Elige el plan que te acomode.</p>
-        <div class="fin__planes">
-          {FINANCIAMIENTO.planes.map((p) => (
-            <article class="plan">
-              <p class="plan__n">{p.nombre}</p>
-              <p class="plan__t">{p.titulo}</p>
-              <p class="plan__d">{p.detalle}</p>
-            </article>
-          ))}
+  <section class="am-section fin" id="financiamiento" aria-labelledby="t-fin" data-spotlight>
+    <span class="am-spotlight fin__spot" aria-hidden="true"></span>
+    <div class="am-wrap fin__wrap">
+      <p class="am-kicker">Financiamiento directo</p>
+      <h2 class="fin__title" id="t-fin" data-split data-scrub>Estrena hoy.<br /><span class="am-red-text">Paga a tu ritmo.</span></h2>
+      <div class="fin__in">
+        <div class="fin__copy">
+          <p class="am-lead">Directo con Arca Motors o con financiera desde 15% de enganche: sin complicaciones y con aprobación rápida. Elige el plan que te acomode.</p>
+          <div class="fin__planes">
+            {FINANCIAMIENTO.planes.map((p, i) => (
+              <article class="plan am-reveal am-loop" data-tilt="5" style={`--rng-d:${i * -2.3}s`}>
+                <span class="rng" aria-hidden="true"></span>
+                <p class="plan__n">{p.nombre}</p>
+                <p class="plan__t">{p.titulo}</p>
+                <p class="plan__d">{p.detalle}</p>
+                <span class="am-glare" aria-hidden="true"></span>
+              </article>
+            ))}
+          </div>
+          {FINANCIAMIENTO.requisitos.length > 0 && (
+            <ul class="fin__req">
+              {FINANCIAMIENTO.requisitos.map((r) => <li><Icon name="check" size={18} /> {r}</li>)}
+            </ul>
+          )}
         </div>
-        {FINANCIAMIENTO.requisitos.length > 0 && (
-          <ul class="fin__req">
-            {FINANCIAMIENTO.requisitos.map((r) => <li><Icon name="check" size={18} /> {r}</li>)}
-          </ul>
-        )}
+        <div class="fin__calc am-reveal am-loop">
+          <span class="rng" aria-hidden="true" style="--rng-dur: 9s"></span>
+          <Calculadora id="calc-home" />
+        </div>
       </div>
-      <Calculadora id="calc-home" />
     </div>
   </section>
 
@@ -153,25 +199,34 @@ const jsonLd = {
   <section class="am-section pasos" aria-labelledby="t-pasos">
     <div class="am-wrap">
       <p class="am-kicker">Así de fácil</p>
-      <h2 class="am-h2" id="t-pasos">De la foto a tu cochera</h2>
-      <ol class="pasos__grid">
-        {PASOS.map((p, i) => <li class="am-reveal"><span>{String(i + 1).padStart(2, '0')}</span><h3>{p.t}</h3><p>{p.d}</p></li>)}
+      <h2 class="am-h2" id="t-pasos" data-split>De la foto a tu cochera</h2>
+      <ol class="pasos__grid" data-scrub>
+        {PASOS.map((p, i) => (
+          <li class="paso am-reveal" style={`--t:${(0.22 + (i * 0.25) / 2.6).toFixed(3)}`}>
+            <span class="paso__dot" aria-hidden="true"></span>
+            <span class="paso__n" data-n={pad(i + 1)} aria-hidden="true">{pad(i + 1)}</span>
+            <h3>{p.t}</h3>
+            <p>{p.d}</p>
+          </li>
+        ))}
       </ol>
     </div>
   </section>
 
   <!-- VENDE / CAMBIA / CONSIGNA -->
-  <section class="am-section vende" id="vende" aria-labelledby="t-vende">
+  <section class="am-section vende" id="vende" aria-labelledby="t-vende" data-scrub>
+    <span class="vende__car" aria-hidden="true"></span>
     <div class="am-wrap vende__in">
       <div>
         <p class="am-kicker">{ACEPTA_A_CUENTA ? 'Compra · Cambio · Consignación' : 'Compra · Consignación'}</p>
-        <h2 class="am-h2" id="t-vende">¿Tienes un auto?<br /><span class="am-red-text">Lo convertimos en dinero.</span></h2>
+        <h2 class="am-h2" id="t-vende" data-split>¿Tienes un auto?<br /><span class="am-red-text">Lo convertimos en dinero.</span></h2>
         <p class="am-lead">Te lo compramos{ACEPTA_A_CUENTA ? ', lo tomamos a cuenta de otro' : ''} o lo vendemos por ti a consignación. Mándanos los datos y te respondemos por WhatsApp.</p>
         <p class="vende__nota">La oferta es preliminar y se confirma al revisar el auto en el lote.</p>
       </div>
-      <form class="vende__form" data-vende method="dialog">
-        <fieldset class:list={['vende__tabs', { 'vende__tabs--2': !ACEPTA_A_CUENTA }]}>
+      <form class="vende__form am-reveal" data-vende method="dialog">
+        <fieldset class:list={['vende__tabs', { 'vende__tabs--2': !ACEPTA_A_CUENTA }]} style={`--n:${nTabs}`}>
           <legend class="sr-only">¿Qué quieres hacer?</legend>
+          <span class="vende__ind" aria-hidden="true"></span>
           <label><input type="radio" name="modo" value="vender" checked /> <span>Vender</span></label>
           {ACEPTA_A_CUENTA && <label><input type="radio" name="modo" value="cambiar" /> <span>Cambiar</span></label>}
           <label><input type="radio" name="modo" value="consignar" /> <span>Consignar</span></label>
@@ -189,18 +244,23 @@ const jsonLd = {
     </div>
   </section>
 
-  <!-- RECIÉN VENDIDOS -->
+  <!-- RECIÉN VENDIDOS: el sello se estampa al entrar -->
   <section class="am-section" aria-labelledby="t-vendidos">
     <div class="am-wrap">
       <div class="am-section__head">
         <div>
           <p class="am-kicker">Ya estrenaron</p>
-          <h2 class="am-h2" id="t-vendidos">Recién vendidos</h2>
+          <h2 class="am-h2" id="t-vendidos" data-split>Recién vendidos</h2>
         </div>
         <p class="am-lead vendidos__lead">Cada auto vendido se queda aquí: así ves qué tan rápido se mueve el inventario.</p>
       </div>
-      <div class="am-grid">
-        {vendidos().slice(0, 6).map((v) => <CarCard v={v} />)}
+      <div class="am-grid vend">
+        {vendidos().slice(0, 6).map((v, i) => (
+          <div class="vend__item" data-inview style={`--vd:${(i % 3) * 120}ms`}>
+            <CarCard v={v} />
+            <span class="vend__stamp" aria-hidden="true"><span class="vend__ink">Vendido</span></span>
+          </div>
+        ))}
       </div>
     </div>
   </section>
@@ -208,22 +268,26 @@ const jsonLd = {
   <!-- INSTAGRAM + VISITA -->
   <section class="am-section--tight visita" aria-labelledby="t-visita">
     <div class="am-wrap visita__in">
-      <a class="ig" href={`https://instagram.com/${NEGOCIO.instagram}`} target="_blank" rel="noopener">
-        <img src={`${ASSETS}/brand/arca-icon-512.png`} alt="" width="72" height="72" loading="lazy" />
+      <a class="ig am-reveal am-loop" href={`https://instagram.com/${NEGOCIO.instagram}`} target="_blank" rel="noopener" data-tilt="4" data-cursor="Abrir">
+        <span class="rng" aria-hidden="true" style="--rng-dur: 6s"></span>
+        <span class="ig__avatar">
+          <img src={`${ASSETS}/brand/arca-icon-512.png`} alt="" width="72" height="72" loading="lazy" />
+        </span>
         <div>
           <p class="ig__h">@{NEGOCIO.instagram}</p>
           <p class="ig__s">{NEGOCIO.seguidores} seguidores · fotos y recorridos en video de las unidades</p>
         </div>
         <Icon name="instagram" size={26} />
+        <span class="am-glare" aria-hidden="true"></span>
       </a>
-      <div class="visita__card">
+      <div class="visita__card am-reveal">
         <h2 class="am-h2 visita__t" id="t-visita">Ven al lote</h2>
         <ul>
           <li><Icon name="map" size={18} /> {NEGOCIO.direccion || NEGOCIO.ciudad}</li>
           {NEGOCIO.horario.map((h) => <li><Icon name="clock" size={18} /> {h.dias}: {h.horas}</li>)}
           {NEGOCIO.telefonos.map((t) => <li><Icon name="phone" size={18} /> <a href={tel(t)}>{telBonito(t)}</a></li>)}
         </ul>
-        <a class="am-btn am-btn--ghost" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener">Cómo llegar <Icon name="arrow" size={16} /></a>
+        <a class="am-btn am-btn--ghost" href={NEGOCIO.mapsUrl} target="_blank" rel="noopener" data-magnetic="0.25">Cómo llegar <Icon name="arrow" size={16} /></a>
       </div>
     </div>
   </section>
@@ -231,6 +295,11 @@ const jsonLd = {
 
 <script>
   import { NEGOCIO } from '../../arca-motors/config';
+
+  const motionOK = () => !matchMedia(document.documentElement.classList.contains('am-anim') ? 'not all' : 'all').matches;
+  const clamp = (n: number, a: number, b: number) => Math.min(b, Math.max(a, n));
+
+  /* ---------------- Vende: arma el mensaje y abre WhatsApp ---------------- */
   const form = document.querySelector<HTMLFormElement>('[data-vende]');
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -258,109 +327,508 @@ const jsonLd = {
     ].filter(Boolean);
     window.open(`https://wa.me/52${NEGOCIO.telefonos[0]}?text=${encodeURIComponent(partes.join('\n'))}`, '_blank', 'noopener');
   });
+
+  /* ---------------- Marquesinas: se inclinan con la velocidad del scroll ---------------- */
+  const ticker = document.querySelector<HTMLElement>('.ticker');
+  if (ticker && motionOK()) {
+    let lastY = window.scrollY;
+    let skew = 0;
+    let raf = 0;
+    let visible = false;
+    const tick = () => {
+      const y = window.scrollY;
+      const v = y - lastY;
+      lastY = y;
+      const target = clamp(v * -0.22, -7, 7);
+      skew += (target - skew) * 0.12;
+      if (Math.abs(skew) < 0.02 && v === 0) {
+        skew = 0;
+        raf = 0;
+        ticker.style.setProperty('--skew', '0deg');
+        return;
+      }
+      ticker.style.setProperty('--skew', `${skew.toFixed(2)}deg`);
+      raf = requestAnimationFrame(tick);
+    };
+    addEventListener('scroll', () => {
+      if (!visible) { lastY = window.scrollY; return; }
+      if (!raf) raf = requestAnimationFrame(tick);
+    }, { passive: true });
+    new IntersectionObserver((en) => { visible = en[0].isIntersecting; }).observe(ticker);
+  }
+
+  /* ---------------- Recién llegados: sección fija con avance horizontal ---------------- */
+  const sec = document.querySelector<HTMLElement>('[data-pin]');
+  if (sec) {
+    const vp = sec.querySelector<HTMLElement>('[data-rec-vp]')!;
+    const track = sec.querySelector<HTMLElement>('[data-rec-track]')!;
+    const fill = sec.querySelector<HTMLElement>('[data-rec-fill]');
+    const ghost = sec.querySelector<HTMLElement>('[data-rec-ghost]');
+    const mq = matchMedia(document.documentElement.classList.contains('am-anim') ? '(min-width: 1000px) and (min-height: 740px)' : 'not all');
+    let on = false;
+    let dist = 0;
+    let raf = 0;
+
+    const frame = () => {
+      raf = 0;
+      if (!on) return;
+      const r = sec.getBoundingClientRect();
+      const total = r.height - window.innerHeight;
+      const p = total > 0 ? clamp(-r.top / total, 0, 1) : 0;
+      track.style.transform = `translate3d(${(-p * dist).toFixed(1)}px, 0, 0)`;
+      if (fill) fill.style.transform = `scaleX(${p.toFixed(4)})`;
+      if (ghost) ghost.style.transform = `translate3d(${(-p * dist * 0.35).toFixed(1)}px, 0, 0)`;
+    };
+    const measure = () => {
+      on = mq.matches;
+      sec.classList.toggle('is-pinned', on);
+      if (!on) {
+        sec.style.height = '';
+        track.style.transform = '';
+        if (ghost) ghost.style.transform = '';
+        if (fill) fill.style.transform = '';
+        return;
+      }
+      dist = Math.max(0, track.scrollWidth - vp.clientWidth);
+      sec.style.height = `${Math.round(dist + window.innerHeight)}px`;
+      frame();
+    };
+    addEventListener('scroll', () => { if (on && !raf) raf = requestAnimationFrame(frame); }, { passive: true });
+    let rt = 0;
+    addEventListener('resize', () => { clearTimeout(rt); rt = window.setTimeout(measure, 150); });
+    mq.addEventListener?.('change', measure);
+    document.fonts?.ready.then(measure);
+    addEventListener('load', measure);
+    measure();
+
+    // Teclado: si el foco cae en una tarjeta que está fuera de cuadro, se baja hasta ella.
+    track.addEventListener('focusin', (e) => {
+      if (!on || dist <= 0) return;
+      const item = (e.target as Element).closest<HTMLElement>('.rec__item');
+      if (!item) return;
+      const padL = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+      const p = clamp((item.offsetLeft - padL) / dist, 0, 1);
+      const top = sec.getBoundingClientRect().top + window.scrollY + p * (sec.offsetHeight - window.innerHeight);
+      const lenis = (window as any).arcaMotion?.lenis;
+      if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
+      else window.scrollTo({ top, behavior: 'auto' });
+      frame();
+    });
+
+    // Carrusel nativo (móvil / reduce): la barra sigue el desplazamiento horizontal.
+    vp.addEventListener('scroll', () => {
+      if (on || !fill) return;
+      const max = vp.scrollWidth - vp.clientWidth;
+      fill.style.transform = `scaleX(${max > 0 ? (vp.scrollLeft / max).toFixed(4) : 0})`;
+    }, { passive: true });
+  }
 </script>
 
 <style>
-  /* HERO */
-  .hero { position: relative; overflow: hidden; padding: clamp(48px, 8vw, 96px) 0 0; isolation: isolate; }
-  .hero__glow { position: absolute; inset: -20% -10% auto; height: 120%; z-index: -1; background:
-    radial-gradient(40% 40% at 72% 42%, rgba(227,20,31,.16), transparent 70%),
-    radial-gradient(50% 50% at 70% 30%, rgba(255,255,255,.06), transparent 70%); }
-  .hero__in { display: grid; grid-template-columns: 1fr 1.05fr; align-items: center; gap: 32px; }
-  .hero__title { font-size: clamp(46px, 7.4vw, 96px); margin: 0; }
-  .hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-  .hero__art { position: relative; padding-bottom: 24px; }
-  .hero__art img { width: 100%; height: auto; filter: drop-shadow(0 30px 40px rgba(0,0,0,.7)); }
-  .hero__line { position: absolute; left: 4%; right: 4%; bottom: 6px; height: 2px; border-radius: 2px;
-    background: linear-gradient(90deg, transparent, #ff2a1f 28%, #ffe3dc 50%, #ff2a1f 72%, transparent);
-    box-shadow: 0 0 24px 4px rgba(255,42,31,.45); }
-  @media (prefers-reduced-motion: no-preference) {
-    .hero__art img { animation: hero-in 1.4s cubic-bezier(.2,.7,.2,1) both; }
-    .hero__line { animation: line-in 1.6s .3s cubic-bezier(.2,.7,.2,1) both; }
-    @keyframes hero-in { from { opacity: 0; transform: translateY(18px) scale(.97); filter: blur(6px) drop-shadow(0 30px 40px rgba(0,0,0,.7)); } }
-    @keyframes line-in { from { opacity: 0; transform: scaleX(.2); } }
-  }
-  .hero__search { margin-top: clamp(36px, 6vw, 64px); position: relative; }
-  .hero__search-in { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 14px; align-items: end; padding: 18px; border-radius: 18px; background: rgba(18,19,22,.8); border: 1px solid var(--am-line2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); }
-  @media (max-width: 900px) {
-    .hero__in { grid-template-columns: 1fr; }
-    .hero__art { order: -1; max-width: 560px; margin-inline: auto; width: 100%; }
-    .hero__search-in { grid-template-columns: 1fr 1fr; }
-    .hero__search-in .am-field:first-child { grid-column: 1 / -1; }
-    .hero__search-in button { grid-column: 1 / -1; }
-  }
-  @media (max-width: 520px) { .hero__ctas .am-btn { flex: 1 1 100%; } }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  /* PROMESAS */
-  .promesas { border-block: 1px solid var(--am-line); background: linear-gradient(180deg, rgba(255,255,255,.015), transparent); margin-top: clamp(48px, 7vw, 80px); }
-  .promesas__grid { list-style: none; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
-  .promesa { display: flex; gap: 14px; align-items: flex-start; }
-  .promesa__icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex: none; color: var(--am-red-hi); background: rgba(227,20,31,.1); border: 1px solid rgba(227,20,31,.25); }
-  .promesa__t { margin: 0; font-family: var(--am-display); font-stretch: 110%; font-size: 17px; font-weight: 650; }
-  .promesa p { margin: 4px 0 0; color: var(--am-muted); font-size: 14px; line-height: 1.5; }
-  @media (max-width: 1000px) { .promesas__grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 560px) { .promesas__grid { grid-template-columns: 1fr; gap: 20px; } }
+  /* ---------- borde animado (conic que gira) para tarjetas: .rng dentro de un padre con radio ---------- */
+  @property --rng-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+  .rng {
+    position: absolute; inset: 0; z-index: 2; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: conic-gradient(from var(--rng-a), rgba(255, 255, 255, .1) 0deg, rgba(255, 255, 255, .1) 225deg, rgba(255, 74, 61, .9) 290deg, rgba(255, 236, 232, .95) 306deg, rgba(255, 74, 61, .35) 322deg, rgba(255, 255, 255, .1) 350deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  
+    html.am-anim .rng { animation: rng-spin var(--rng-dur, 7s) linear infinite; animation-delay: var(--rng-d, 0s); }
+  
+  @keyframes rng-spin { to { --rng-a: 360deg; } }
+
+  /* ---------- BUSCADOR ---------- */
+  .srch { position: relative; z-index: 5; margin-top: -76px; }
+  .srch__in {
+    position: relative; border-radius: 22px; padding: 14px;
+    display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)) auto; gap: 6px; align-items: stretch;
+    background: rgba(14, 14, 17, .66);
+    -webkit-backdrop-filter: saturate(1.6) blur(20px); backdrop-filter: saturate(1.6) blur(20px);
+    box-shadow: 0 40px 80px -36px rgba(0, 0, 0, .95), inset 0 1px 0 rgba(255, 255, 255, .07);
+  }
+  .srch__in::before {
+    content: ''; position: absolute; inset: -30px 10% auto; height: 60px; z-index: -1; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255, 42, 31, .28), transparent); filter: blur(10px); pointer-events: none;
+  }
+  .srch__in .rng { opacity: .55; transition: opacity .4s ease; }
+  .srch__in:focus-within .rng { opacity: 1; }
+  .srch__t {
+    margin: 0; display: flex; align-items: center; gap: 10px; padding: 0 14px 0 8px;
+    font-family: var(--am-display); font-stretch: 112%; font-weight: 700; font-size: 13px; line-height: 1.15; letter-spacing: .12em; text-transform: uppercase; color: var(--am-text);
+  }
+  .srch__t :global(svg) { color: var(--am-red-hi); filter: drop-shadow(0 0 6px var(--am-neon)); }
+  .srch__f { position: relative; padding: 10px 12px 12px; border-radius: 14px; transition: background-color .35s ease; }
+  .srch__f::after {
+    content: ''; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--am-red), var(--am-red-hi)); box-shadow: 0 0 10px var(--am-neon);
+    transform: scaleX(0); transform-origin: 0 50%; transition: transform .6s var(--am-ease-out);
+  }
+  .srch__f:hover { background: rgba(255, 255, 255, .03); }
+  .srch__f:focus-within { background: rgba(227, 20, 31, .08); }
+  .srch__f:focus-within::after { transform: scaleX(1); }
+  .srch__f label { transition: color .3s ease, letter-spacing .5s var(--am-ease-out); }
+  .srch__f:focus-within label { color: var(--am-red-hi); letter-spacing: .16em; }
+  .srch__f .am-select { background-color: rgba(7, 7, 8, .55); }
+  .srch__go { align-self: center; margin-left: 6px; }
+  @media (max-width: 1000px) {
+    .srch { margin-top: -56px; }
+    .srch__in { grid-template-columns: 1fr 1fr; }
+    .srch__t { grid-column: 1 / -1; padding: 6px 8px 2px; }
+    .srch__t br { display: none; }
+    .srch__f:nth-of-type(1) { grid-column: 1 / -1; }
+    .srch__go { grid-column: 1 / -1; margin: 6px 0 0; }
+  }
+
+  /* ---------- MARQUESINAS ---------- */
+  .ticker { position: relative; margin-top: clamp(48px, 7vw, 88px); overflow: hidden; }
+  .ticker__row { transform: skewX(var(--skew, 0deg)); }
+  .ticker__cars { --am-marquee-gap: 26px; padding: 18px 0; border-block: 1px solid var(--am-line); background: linear-gradient(180deg, rgba(255, 255, 255, .02), transparent); }
+  .ticker__cars .am-marquee__track { list-style: none; margin: 0; padding-left: 0; }
+  .ticker__item { display: inline-flex; align-items: center; gap: 26px; }
+  .ticker__link {
+    display: inline-flex; align-items: center; gap: 14px; min-height: 44px;
+    font-family: var(--am-display); font-stretch: 112%; transition: color .3s ease;
+  }
+  .ticker__name { font-weight: 700; font-size: clamp(18px, 2vw, 24px); text-transform: uppercase; letter-spacing: .02em; }
+  .ticker__y { color: var(--am-dim); font-weight: 500; }
+  .ticker__eng { font-size: 14px; font-weight: 600; color: var(--am-muted); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+  .ticker__link:hover .ticker__name { color: var(--am-red-hi); }
+  .ticker__link:hover .ticker__eng { color: var(--am-text); }
+  .ticker__mark {
+    display: inline-block; width: 46px; aspect-ratio: 594 / 216; background: var(--am-red); filter: drop-shadow(0 0 8px var(--am-neon-soft));
+    -webkit-mask: url('/arca-motors/brand/arca-car-mono.svg') center / contain no-repeat;
+    mask: url('/arca-motors/brand/arca-car-mono.svg') center / contain no-repeat;
+  }
+  .ticker__brands { --am-marquee-gap: 0px; padding: 14px 0 6px; }
+  .ticker__brand {
+    display: inline-flex; align-items: center; gap: clamp(24px, 3vw, 48px); padding-right: clamp(24px, 3vw, 48px);
+    font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-size: clamp(52px, 9vw, 140px); line-height: 1; text-transform: uppercase; letter-spacing: -.01em;
+    color: transparent; -webkit-text-stroke: 1px rgba(232, 234, 237, .3); transition: color .4s ease, -webkit-text-stroke-color .4s ease;
+  }
+  .ticker__brand:hover { color: var(--am-red); -webkit-text-stroke-color: transparent; }
+  .ticker__dot { width: .12em; height: .12em; border-radius: 50%; background: var(--am-red-hi); box-shadow: 0 0 14px var(--am-neon); }
+  .am-marquee:focus-within :global(.am-marquee__track) { animation-play-state: paused !important; }
+   html:not(.am-anim) .ticker__row { transform: none; } 
+
+  /* ---------- PROMESAS (bento) ---------- */
+  .prom__head { margin-bottom: clamp(28px, 4vw, 48px); }
+  .prom__h { font-size: clamp(32px, 5vw, 64px); }
+  .bento { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .bento__c--1 { grid-column: 1 / 8; }
+  .bento__c--2 { grid-column: 8 / 13; }
+  .bento__c--3 { grid-column: 1 / 6; }
+  .bento__c--4 { grid-column: 6 / 13; }
+  .bento__c {
+    position: relative; overflow: hidden; isolation: isolate; min-height: clamp(220px, 22vw, 280px);
+    display: flex; flex-direction: column; justify-content: space-between; gap: 28px;
+    padding: clamp(20px, 2.4vw, 30px); border-radius: 22px;
+    background: radial-gradient(120% 90% at 100% 0%, rgba(227, 20, 31, .09), transparent 55%), linear-gradient(180deg, var(--am-surface2), var(--am-surface));
+    border: 1px solid var(--am-line);
+    transition: border-color .4s ease, box-shadow .5s ease;
+  }
+  .bento__c::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .5s ease;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 42, 31, .16), transparent 60%);
+  }
+  .bento__c:hover { --am-lift: -4px; border-color: rgba(255, 74, 61, .3); box-shadow: 0 30px 60px -34px rgba(0, 0, 0, .95), 0 0 50px -26px var(--am-neon); }
+  .bento__c:hover::before { opacity: 1; }
+  .bento__n {
+    position: absolute; right: clamp(14px, 2vw, 26px); top: clamp(6px, 1vw, 14px); z-index: -1;
+    font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-size: clamp(84px, 10vw, 150px); line-height: 1; letter-spacing: -.03em;
+    color: transparent; -webkit-text-stroke: 1px rgba(232, 234, 237, .16);
+    background: linear-gradient(100deg, transparent 42%, rgba(255, 74, 61, .45) 50%, transparent 58%) 160% 0 / 260% 100% no-repeat;
+    -webkit-background-clip: text; background-clip: text;
+    transition: -webkit-text-stroke-color .4s ease;
+  }
+  .bento__c:hover .bento__n { -webkit-text-stroke-color: rgba(255, 74, 61, .55); }
+  .bento__icon {
+    width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; color: var(--am-red-hi);
+    background: rgba(227, 20, 31, .1); border: 1px solid rgba(227, 20, 31, .28); box-shadow: 0 0 30px -10px var(--am-neon);
+    transition: background-color .4s ease, color .4s ease, transform .6s var(--am-ease-out);
+  }
+  .bento__c:hover .bento__icon { background: var(--am-red); color: #fff; transform: translateY(-2px); }
+  .bento__body { max-width: 46ch; }
+  .bento__t { margin: 0; font-family: var(--am-display); font-stretch: 112%; font-size: clamp(20px, 2vw, 26px); font-weight: 700; line-height: 1.1; }
+  .bento__p { margin: 8px 0 0; color: var(--am-muted); font-size: 15px; line-height: 1.55; }
+  
+    html.am-anim .bento__n { animation: bento-sheen 7s var(--am-ease-io) infinite; }
+    html.am-anim .bento__c--2 .bento__n { animation-delay: -1.7s; }
+    html.am-anim .bento__c--3 .bento__n { animation-delay: -3.4s; }
+    html.am-anim .bento__c--4 .bento__n { animation-delay: -5.1s; }
+    html.am-anim .bento__c--1:hover .bento__icon :global(svg) { animation: ic-file .7s var(--am-ease-out); }
+    html.am-anim .bento__c--2:hover .bento__icon :global(svg) { animation: ic-key .8s var(--am-ease-out); }
+    html.am-anim .bento__c--3:hover .bento__icon :global(svg) { animation: ic-card .8s var(--am-ease-out); }
+    html.am-anim .bento__c--4:hover .bento__icon :global(svg) { animation: ic-swap .8s var(--am-ease-out); }
+  
+  @keyframes bento-sheen { 0%, 55% { background-position: 160% 0; } 100% { background-position: -60% 0; } }
+  @keyframes ic-file { 0% { transform: none; } 35% { transform: translateY(-5px) rotate(-8deg); } 70% { transform: translateY(1px) rotate(3deg); } 100% { transform: none; } }
+  @keyframes ic-key { 0% { transform: none; } 30% { transform: rotate(-28deg); } 60% { transform: rotate(14deg); } 100% { transform: none; } }
+  @keyframes ic-card { from { transform: perspective(200px) rotateY(0); } to { transform: perspective(200px) rotateY(360deg); } }
+  @keyframes ic-swap { 0% { transform: none; } 30% { transform: translateX(4px); } 60% { transform: translateX(-4px) scaleX(-1); } 100% { transform: none; } }
+  @media (max-width: 900px) {
+    .bento { grid-template-columns: 1fr 1fr; }
+    .bento__c--1, .bento__c--2, .bento__c--3, .bento__c--4 { grid-column: auto; }
+    .bento__c--1, .bento__c--4 { grid-column: 1 / -1; }
+  }
+  @media (max-width: 560px) {
+    .bento { grid-template-columns: 1fr; }
+    .bento__c { min-height: 0; }
+  }
+
+  /* ---------- RECIÉN LLEGADOS ---------- */
+  .rec {
+    --rec-pad: max(var(--am-gutter), calc((100vw - 1240px) / 2 + var(--am-gutter)));
+    position: relative; overflow-x: clip; padding: clamp(64px, 9vw, 120px) 0 24px;
+  }
+  .rec__sticky { position: relative; }
+  .rec__ghost {
+    position: absolute; left: 0; top: 50%; translate: var(--rec-pad) -50%; z-index: 0; pointer-events: none; white-space: nowrap;
+    font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-size: clamp(110px, 17vw, 290px); line-height: .8; letter-spacing: -.02em; text-transform: uppercase;
+    color: transparent; -webkit-text-stroke: 1px rgba(232, 234, 237, .07); user-select: none;
+  }
+  .rec__head { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: 18px 24px; flex-wrap: wrap; margin-bottom: 26px; }
+  .rec__vp {
+    position: relative; z-index: 1; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-padding-inline: var(--rec-pad);
+    scrollbar-width: thin; scrollbar-color: rgba(255, 74, 61, .5) transparent;
+  }
+  .rec__track { list-style: none; margin: 0; display: flex; gap: clamp(14px, 2vw, 24px); width: max-content; padding: 10px var(--rec-pad) 26px; }
+  .rec__item { flex: none; display: flex; width: var(--cw, min(80vw, 340px)); scroll-snap-align: start; }
+  .rec__item > :global(.am-card) { width: 100%; }
+  .rec__end {
+    position: relative; overflow: hidden; isolation: isolate; width: 100%; min-height: 100%;
+    display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding: 28px; border-radius: 18px; box-sizing: border-box;
+    background: radial-gradient(90% 70% at 50% 0%, rgba(227, 20, 31, .22), transparent 70%), linear-gradient(180deg, #16080a, var(--am-surface));
+    transition: box-shadow .5s ease;
+  }
+  .rec__end:hover { --am-lift: -4px; box-shadow: 0 0 60px -20px var(--am-neon); }
+  .rec__end-mark {
+    position: absolute; left: 50%; top: 30%; width: 80%; aspect-ratio: 594 / 216; translate: -50% -50%; z-index: -1;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .02));
+    -webkit-mask: url('/arca-motors/brand/arca-car-mono.svg') center / contain no-repeat;
+    mask: url('/arca-motors/brand/arca-car-mono.svg') center / contain no-repeat;
+    transition: transform .9s var(--am-ease-out);
+  }
+  .rec__end:hover .rec__end-mark { transform: translateX(6%); }
+  .rec__end-n { font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-size: clamp(72px, 7vw, 110px); line-height: .9; background: var(--am-silver); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rec__end-t { font-family: var(--am-display); font-stretch: 112%; font-weight: 600; font-size: 18px; color: var(--am-muted); }
+  .rec__end-go { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font-weight: 700; font-size: 16px; color: var(--am-red-hi); }
+  .rec__foot { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; color: var(--am-dim); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-family: var(--am-display); font-weight: 600; }
+  .rec__bar { position: relative; flex: 1; max-width: 360px; height: 2px; border-radius: 2px; background: var(--am-line2); overflow: hidden; }
+  .rec__fill { position: absolute; inset: 0; background: linear-gradient(90deg, var(--am-red), var(--am-red-hi)); box-shadow: 0 0 10px var(--am-neon); transform: scaleX(0); transform-origin: 0 50%; }
+  .rec__hint { display: inline-flex; align-items: center; gap: 8px; }
+  .rec__hint-pin { display: none; }
+  .rec.is-pinned .rec__hint-pin { display: inline; }
+  .rec.is-pinned .rec__hint-swipe { display: none; }
+  
+    html.am-anim .rec__hint :global(svg) { animation: rec-nudge 1.8s var(--am-ease-io) infinite; }
+  
+  @keyframes rec-nudge { 0%, 100% { transform: none; } 50% { transform: translateX(5px); } }
+
+  /* Modo fijado (lo activa el script en ≥1000px y sin reduce) */
+  .rec.is-pinned { --cw: clamp(250px, calc((100vh - 470px) * .8), 400px); padding: 0; }
+  .rec.is-pinned .rec__sticky {
+    position: sticky; top: 0; height: 100vh; box-sizing: border-box; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: center; padding-top: var(--am-header-h);
+  }
+  .rec.is-pinned .rec__vp { overflow: visible; scroll-snap-type: none; }
+  .rec.is-pinned .rec__track { will-change: transform; }
+  .rec.is-pinned .rec__ghost { translate: 0 -50%; left: var(--rec-pad); }
 
   /* CHIPS */
-  .tipos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; align-items: center; }
+  .tipos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; align-items: center; }
   .tipos__sep { width: 1px; height: 24px; background: var(--am-line2); margin-inline: 6px; }
-  .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--am-line2); background: var(--am-surface); font-size: 14px; font-weight: 600; transition: border-color .2s, background .2s; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--am-line2); background: var(--am-surface); font-size: 14px; font-weight: 600; transition: border-color .25s, background-color .25s, color .25s; }
   .chip span { color: var(--am-dim); font-weight: 500; }
-  .chip:hover { border-color: rgba(255,74,61,.5); background: rgba(227,20,31,.08); }
+  .chip:hover { border-color: rgba(255, 74, 61, .55); background: rgba(227, 20, 31, .1); color: #fff; }
   .chip--quiet { font-weight: 500; color: var(--am-muted); }
 
-  /* FINANCIAMIENTO */
-  .fin { background: radial-gradient(60% 60% at 10% 30%, rgba(227,20,31,.08), transparent 70%), var(--am-bg2); border-block: 1px solid var(--am-line); }
+  /* ---------- FINANCIAMIENTO ---------- */
+  .fin { overflow: hidden; isolation: isolate; background: radial-gradient(60% 60% at 10% 30%, rgba(227, 20, 31, .08), transparent 70%), var(--am-bg2); border-block: 1px solid var(--am-line); margin-top: clamp(64px, 9vw, 120px); }
+  .fin__spot { --am-spot-size: min(80vmax, 900px); opacity: .7; }
+  .fin__wrap { position: relative; z-index: 1; }
+  .fin__title {
+    margin: 0 0 clamp(28px, 4vw, 52px); font-family: var(--am-display); font-weight: 800; font-stretch: 118%;
+    font-size: clamp(40px, 7.4vw, 104px); line-height: .95; letter-spacing: -.02em;
+  }
+  
+    /* El ancho (wdth) crece mientras el titular sube por la pantalla: --p lo pone data-scrub. */
+    :global(html.am-anim.js) .fin__title { font-variation-settings: 'wdth' calc(78 + min(var(--p, .6) * 1.8, 1) * 47); }
+  
   .fin__in { display: grid; grid-template-columns: 1fr minmax(0, 520px); gap: clamp(32px, 5vw, 72px); align-items: start; }
+  .fin__copy .am-lead { margin-top: 0; }
   .fin__planes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 30px; }
-  .plan { padding: 20px; border-radius: 14px; border: 1px solid var(--am-line2); background: var(--am-surface); }
+  .plan {
+    position: relative; overflow: hidden; isolation: isolate; padding: 22px 20px; border-radius: 16px;
+    background: radial-gradient(100% 80% at 0% 0%, rgba(227, 20, 31, .1), transparent 60%), linear-gradient(180deg, var(--am-surface2), var(--am-surface));
+    transition: box-shadow .5s ease;
+  }
+  .plan:hover { --am-lift: -4px; box-shadow: 0 24px 50px -28px rgba(0, 0, 0, .95), 0 0 40px -18px var(--am-neon); }
   .plan__n { margin: 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--am-dim); font-weight: 600; }
-  .plan__t { margin: 8px 0 6px; font-family: var(--am-display); font-stretch: 112%; font-weight: 700; font-size: 24px; }
+  .plan__t { margin: 10px 0 6px; font-family: var(--am-display); font-stretch: 115%; font-weight: 800; font-size: 26px; line-height: 1.05; }
   .plan__d { margin: 0; color: var(--am-muted); font-size: 14px; }
   .fin__req { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 10px; color: #cfd2d6; font-size: 15px; }
   .fin__req li { display: flex; gap: 10px; align-items: center; }
   .fin__req :global(svg) { color: var(--am-red-hi); }
+  .fin__calc { position: relative; border-radius: 19px; }
+  .fin__calc::before {
+    content: ''; position: absolute; inset: 10% -6% -8%; z-index: -1; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, rgba(255, 42, 31, .2), transparent); filter: blur(30px);
+  }
+  .fin__calc .rng { inset: -1px; }
   @media (max-width: 900px) { .fin__in { grid-template-columns: 1fr; } }
   @media (max-width: 480px) { .fin__planes { grid-template-columns: 1fr; } }
 
-  /* PASOS */
-  .pasos__grid { list-style: none; padding: 0; margin: 40px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; border-radius: 18px; overflow: hidden; border: 1px solid var(--am-line); }
-  .pasos__grid li { padding: 28px 24px 32px; background: var(--am-surface); }
-  .pasos__grid span { font-family: var(--am-display); font-stretch: 120%; font-weight: 800; font-size: 40px; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(255,74,61,.7); }
-  .pasos__grid h3 { margin: 18px 0 6px; font-family: var(--am-display); font-stretch: 112%; font-size: 21px; font-weight: 650; }
-  .pasos__grid p { margin: 0; color: var(--am-muted); font-size: 14.5px; }
-  @media (max-width: 900px) { .pasos__grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 520px) { .pasos__grid { grid-template-columns: 1fr; } }
+  /* ---------- PASOS ---------- */
+  .pasos__grid { list-style: none; padding: 0; margin: clamp(40px, 5vw, 64px) 0 0; position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 3vw, 44px); }
+  .pasos__grid::before, .pasos__grid::after { content: ''; position: absolute; left: 0; right: 0; top: 7px; height: 2px; border-radius: 2px; }
+  .pasos__grid::before { background: var(--am-line2); }
+  .pasos__grid::after {
+    background: linear-gradient(90deg, var(--am-red-lo), var(--am-red) 40%, var(--am-red-hi)); box-shadow: 0 0 14px var(--am-neon);
+    transform-origin: 0 50%; transform: scaleX(clamp(0, calc((var(--p, 1) - .22) * 2.6), 1));
+  }
+  .paso { position: relative; padding-top: 40px; }
+  .paso__dot { position: absolute; left: 0; top: 0; z-index: 1; width: 16px; height: 16px; border-radius: 50%; box-sizing: border-box; background: var(--am-bg); border: 2px solid var(--am-line2); }
+  .paso__dot::after {
+    content: ''; position: absolute; inset: -2px; border-radius: 50%; background: var(--am-red); border: 2px solid var(--am-red-hi);
+    box-shadow: 0 0 0 5px rgba(227, 20, 31, .18), 0 0 18px var(--am-neon);
+    opacity: clamp(0, calc((var(--p, 1) - var(--t, 0)) * 30), 1);
+  }
+  .paso__n {
+    position: relative; display: inline-block; font-family: var(--am-display); font-weight: 800; font-stretch: 125%;
+    font-size: clamp(72px, 8vw, 128px); line-height: .9; letter-spacing: -.03em;
+    color: transparent; -webkit-text-stroke: 1px rgba(255, 74, 61, .7);
+  }
+  .paso__n::after {
+    content: attr(data-n); position: absolute; inset: 0; -webkit-text-stroke: 0;
+    background: linear-gradient(180deg, var(--am-red-hi), var(--am-red) 50%, var(--am-red-lo)); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 18px rgba(255, 42, 31, .35));
+  }
+  
+    :global(html.am-anim.js) .paso__n::after { clip-path: inset(100% 0 0 0); transition: clip-path 1.3s var(--am-ease-out) calc(var(--am-delay, 0ms) + .35s); }
+    :global(html.am-anim.js) .paso.is-in .paso__n::after { clip-path: inset(0 0 0 0); }
+  
+  .paso h3 { margin: 16px 0 6px; font-family: var(--am-display); font-stretch: 112%; font-size: 22px; font-weight: 700; }
+  .paso p { margin: 0; color: var(--am-muted); font-size: 15px; max-width: 32ch; }
+  @media (max-width: 999px) {
+    .pasos__grid { grid-template-columns: 1fr; gap: 34px; }
+    .pasos__grid::before, .pasos__grid::after { left: 7px; right: auto; top: 0; bottom: 0; width: 2px; height: auto; }
+    .pasos__grid::after { transform-origin: 50% 0; transform: scaleY(clamp(0, calc((var(--p, 1) - .22) * 2.6), 1)); }
+    .paso { padding: 0 0 0 44px; }
+    .paso__dot { top: 6px; }
+    .paso__n { font-size: clamp(64px, 18vw, 96px); }
+  }
 
-  /* VENDE */
-  .vende { background: linear-gradient(180deg, transparent, rgba(227,20,31,.05) 50%, transparent); }
+  /* ---------- VENDE ---------- */
+  .vende { overflow: hidden; isolation: isolate; background: linear-gradient(180deg, transparent, rgba(227, 20, 31, .05) 50%, transparent); }
+  .vende__car {
+    position: absolute; left: 50%; top: 52%; z-index: -1; width: max(1100px, 125vw); aspect-ratio: 594 / 216; translate: -50% -50%; pointer-events: none;
+    background: linear-gradient(90deg, rgba(255, 255, 255, .015), rgba(227, 20, 31, .11) 55%, rgba(255, 255, 255, .035));
+    -webkit-mask: url('/arca-motors/brand/arca-car-mono.svg') center / contain no-repeat;
+    mask: url('/arca-motors/brand/arca-car-mono.svg') center / contain no-repeat;
+    transform: translateX(calc((var(--p, .5) - .5) * -36%));
+  }
   .vende__in { display: grid; grid-template-columns: 1fr minmax(0, 540px); gap: clamp(32px, 5vw, 72px); align-items: center; }
   .vende__nota { color: var(--am-dim); font-size: 13px; margin-top: 18px; }
-  .vende__form { display: grid; gap: 18px; padding: clamp(18px, 3vw, 28px); border-radius: 18px; background: var(--am-surface); border: 1px solid var(--am-line2); }
-  .vende__tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; margin: 0; min-inline-size: 0; border-radius: 12px; background: var(--am-bg2); border: 1px solid var(--am-line); }
+  .vende__form {
+    display: grid; gap: 18px; padding: clamp(18px, 3vw, 28px); border-radius: 18px;
+    background: rgba(18, 19, 22, .82); border: 1px solid var(--am-line2);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .95);
+  }
+  .vende__tabs { --idx: 0; position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; margin: 0; min-inline-size: 0; border-radius: 12px; background: var(--am-bg2); border: 1px solid var(--am-line); }
   .vende__tabs--2 { grid-template-columns: 1fr 1fr; }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .vende__tabs label { position: relative; }
-  .vende__tabs input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
-  .vende__tabs span { display: grid; place-items: center; min-height: 42px; border-radius: 9px; font-weight: 600; font-size: 14px; color: var(--am-muted); }
-  .vende__tabs input:checked + span { background: var(--am-surface2); color: var(--am-text); box-shadow: 0 0 0 1px var(--am-line2); }
+  .vende__tabs:has(label:nth-of-type(2) input:checked) { --idx: 1; }
+  .vende__tabs:has(label:nth-of-type(3) input:checked) { --idx: 2; }
+  .vende__ind {
+    position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 9px; pointer-events: none;
+    width: calc((100% - 8px - (var(--n, 2) - 1) * 4px) / var(--n, 2));
+    translate: calc(var(--idx) * (100% + 4px)) 0;
+    background: linear-gradient(180deg, #e8212b, #b50e17);
+    box-shadow: 0 8px 22px -8px rgba(227, 20, 31, .85), inset 0 1px 0 rgba(255, 255, 255, .22);
+  }
+  
+    html.am-anim .vende__ind { transition: translate .6s var(--am-ease-out); }
+  
+  .vende__tabs label { position: relative; z-index: 1; }
+  .vende__tabs input { position: absolute; opacity: 0; inset: 0; cursor: pointer; margin: 0; }
+  .vende__tabs span { display: grid; place-items: center; min-height: 44px; border-radius: 9px; font-weight: 600; font-size: 14px; color: var(--am-muted); transition: color .35s ease; }
+  .vende__tabs label:hover span { color: var(--am-text); }
+  .vende__tabs input:checked + span { color: #fff; }
   .vende__tabs input:focus-visible + span { outline: 2px solid var(--am-red-hi); outline-offset: 2px; }
+  @supports not selector(:has(*)) {
+    .vende__ind { display: none; }
+    .vende__tabs input:checked + span { background: var(--am-surface2); color: var(--am-text); box-shadow: 0 0 0 1px var(--am-line2); }
+  }
   .vende__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .vende__grid .am-field:first-child { grid-column: 1 / -1; }
   .vende__hint { margin: -4px 0 0; font-size: 13px; color: var(--am-dim); }
   .vende__hint.is-error { color: #ff8a80; }
   @media (max-width: 900px) { .vende__in { grid-template-columns: 1fr; } }
 
+  /* ---------- RECIÉN VENDIDOS: sello ---------- */
   .vendidos__lead { margin: 0; max-width: 42ch; font-size: 15px; }
+  .vend__item { position: relative; display: flex; }
+  .vend__item > :global(.am-card) { width: 100%; transform: none !important; }
+  .vend__stamp { position: absolute; left: 0; right: 0; top: 0; aspect-ratio: 4 / 5; z-index: 4; display: grid; place-items: center; pointer-events: none; }
+  .vend__stamp::after {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 56%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+    border: 2px solid rgba(255, 74, 61, .7); opacity: 0;
+  }
+  .vend__ink {
+    display: inline-block; padding: .34em .5em .3em .64em; border-radius: 10px;
+    font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-size: clamp(28px, 3vw, 40px); line-height: 1; letter-spacing: .14em; text-transform: uppercase;
+    color: #ff5a4c; border: 3px solid currentColor; background: rgba(12, 4, 5, .42);
+    box-shadow: inset 0 0 0 2px rgba(255, 90, 76, .22), 0 0 34px -8px rgba(255, 42, 31, .75);
+    transform: rotate(-12deg);
+    /* tinta irregular de sello */
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4 3.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 140px 140px;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4 3.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 140px 140px;
+  }
+  
+    :global(html.am-anim.js) .vend__item:not(.is-in) .vend__ink { opacity: 0; }
+    html.am-anim .vend__item.is-in .vend__ink { animation: vend-stamp .62s cubic-bezier(.2, 1.4, .35, 1) calc(var(--vd, 0ms) + .55s) backwards; }
+    html.am-anim .vend__item.is-in .vend__stamp::after { animation: vend-shock .8s var(--am-ease-out) calc(var(--vd, 0ms) + .82s) both; }
+    html.am-anim .vend__item.is-in { animation: vend-thud .45s ease-out calc(var(--vd, 0ms) + .84s); }
+  
+  @keyframes vend-stamp {
+    0% { opacity: 0; transform: rotate(-26deg) scale(2.6); filter: blur(4px); }
+    55% { opacity: 1; transform: rotate(-10deg) scale(.9); filter: blur(0); }
+    100% { opacity: 1; transform: rotate(-12deg) scale(1); }
+  }
+  @keyframes vend-shock { from { opacity: .9; transform: scale(.6); } to { opacity: 0; transform: scale(1.7); } }
+  @keyframes vend-thud { 0%, 100% { translate: 0 0; } 30% { translate: 0 4px; } 60% { translate: 0 -1px; } }
 
-  /* VISITA */
+  /* ---------- VISITA ---------- */
   .visita__in { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .ig { display: flex; align-items: center; gap: 18px; padding: 24px; border-radius: 18px; border: 1px solid var(--am-line2); background: radial-gradient(80% 120% at 0% 0%, rgba(227,20,31,.14), transparent 60%), var(--am-surface); transition: border-color .2s; }
-  .ig:hover { border-color: rgba(255,74,61,.5); }
+  .ig {
+    position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center; gap: 18px; padding: 24px; border-radius: 18px;
+    background: radial-gradient(80% 120% at 0% 0%, rgba(227, 20, 31, .16), transparent 60%), var(--am-surface);
+    transition: box-shadow .5s ease;
+  }
+  .ig:hover { --am-lift: -3px; box-shadow: 0 0 50px -20px var(--am-neon); }
+  .ig__avatar { position: relative; flex: none; width: 72px; height: 72px; border-radius: 50%; }
+  .ig__avatar::before {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%; padding: 2px;
+    background: conic-gradient(from 0deg, var(--am-red-hi), #ffb0a8, var(--am-red), var(--am-red-lo), var(--am-red-hi));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  }
+  
+    html.am-anim .ig__avatar::before { animation: ig-spin 6s linear infinite; }
+  
+  @keyframes ig-spin { to { transform: rotate(360deg); } }
   .ig img { width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--am-line2); }
   .ig > div { flex: 1; }
   .ig__h { margin: 0; font-family: var(--am-display); font-stretch: 112%; font-weight: 700; font-size: 22px; }
   .ig__s { margin: 4px 0 0; color: var(--am-muted); font-size: 14px; }
+  .ig > :global(svg) { transition: transform .6s var(--am-ease-out), color .3s ease; }
+  .ig:hover > :global(svg) { color: var(--am-red-hi); transform: rotate(-8deg) scale(1.12); }
   .visita__card { padding: 24px; border-radius: 18px; border: 1px solid var(--am-line2); background: var(--am-surface); display: grid; gap: 16px; justify-items: start; }
   .visita__t { font-size: 26px; }
   .visita__card ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; color: #cfd2d6; font-size: 15px; }

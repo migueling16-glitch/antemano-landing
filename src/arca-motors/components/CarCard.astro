@@ -1,12 +1,21 @@
 ---
 import type { Vehiculo } from '../inventario';
-import { urlAuto, dinero, kms, recienLlegado, mensajeWa, ETIQUETA_CARROCERIA } from '../inventario';
+import { urlAuto, dinero, kms, recienLlegado, mensajeWa, nombreCompleto, ETIQUETA_CARROCERIA } from '../inventario';
 import { wa } from '../config';
 import CarVisual from './CarVisual.astro';
 import Icon from './Icon.astro';
 
-interface Props { v: Vehiculo; eager?: boolean; hLevel?: 'h2' | 'h3' }
-const { v, eager = false, hLevel = 'h3' } = Astro.props;
+interface Props {
+  v: Vehiculo;
+  eager?: boolean;
+  hLevel?: 'h2' | 'h3';
+  /**
+   * Habilita que la foto vuele a la ficha (view-transition-name `car-<folio>`, puesto por
+   * motion.ts al hacer clic). Pásalo en false si la misma unidad aparece dos veces en la página.
+   */
+  vt?: boolean;
+}
+const { v, eager = false, hLevel = 'h3', vt = true } = Astro.props;
 const H = hLevel;
 const nuevo = recienLlegado(v);
 const vendido = v.estatus === 'vendido';
@@ -16,7 +25,7 @@ const texto = [
 ].filter(Boolean).join(' ').toLowerCase();
 ---
 <article
-  class:list={['am-card', { 'is-sold': vendido, 'is-held': v.estatus === 'apartado' }]}
+  class:list={['am-card', 'am-reveal', { 'is-sold': vendido, 'is-held': v.estatus === 'apartado' }]}
   data-car
   data-folio={v.folio}
   data-marca={v.marca}
@@ -28,9 +37,14 @@ const texto = [
   data-estatus={v.estatus}
   data-ingreso={v.ingreso}
   data-texto={texto}
+  data-tilt
+  data-cursor="Ver"
 >
-  <div class="am-card__media">
+  {/* data-vt: motion.ts le pone el view-transition-name a la foto solo al tocar la tarjeta (y la
+      página de llegada, al volver de la ficha). Fijo en todas las tarjetas haría volar varias fotos a la vez. */}
+  <div class="am-card__media" data-vt={vt ? `car-${v.folio.toLowerCase()}` : undefined}>
     <CarVisual v={v} eager={eager} sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 400px" />
+    <span class="am-card__shade" aria-hidden="true"></span>
     <div class="am-card__badges">
       {v.estatus === 'apartado' && <span class="am-badge am-badge--held">Apartado</span>}
       {vendido && <span class="am-badge am-badge--sold">Vendido</span>}
@@ -38,14 +52,14 @@ const texto = [
       {!vendido && v.duenos === 1 && <span class="am-badge">Único dueño</span>}
     </div>
     {!vendido && (
-      <button class="am-fav" type="button" data-fav={v.folio} aria-pressed="false" aria-label={`Guardar ${v.marca} ${v.modelo} en favoritos`}>
+      <button class="am-fav" type="button" data-cursor="" data-fav={v.folio} aria-pressed="false" aria-label={`Guardar ${nombreCompleto(v)} (${v.folio}) en favoritos`}>
         <Icon name="heart" size={18} />
       </button>
     )}
     <span class="am-card__nfotos" aria-hidden="true"><Icon name="camera" size={13} /> {v.nFotos}</span>
   </div>
   <div class="am-card__body">
-    <p class="am-card__kicker">{ETIQUETA_CARROCERIA[v.carroceria]} · {v.folio}</p>
+    <p class="am-card__kicker"><span>{ETIQUETA_CARROCERIA[v.carroceria]}</span> <span class="am-card__folio">{v.folio}</span></p>
     <H class="am-card__title">
       <a href={urlAuto(v)} class="am-card__link">{v.marca} {v.modelo} <span>{v.version}</span></a>
     </H>
@@ -68,8 +82,9 @@ const texto = [
     </div>
   </div>
   {!vendido && (
-    <a class="am-card__wa" href={wa(mensajeWa(v))} target="_blank" rel="noopener" aria-label={`Preguntar por ${v.marca} ${v.modelo} por WhatsApp`}>
+    <a class="am-card__wa" data-cursor="" href={wa(mensajeWa(v))} target="_blank" rel="noopener" aria-label={`Preguntar por ${nombreCompleto(v)} (${v.folio}) por WhatsApp`}>
       <Icon name="whatsapp" size={18} />
     </a>
   )}
+  <span class="am-glare" aria-hidden="true"></span>
 </article>

@@ -2,12 +2,19 @@
 import ArcaLayout from '../../arca-motors/ArcaLayout.astro';
 import CarCard from '../../arca-motors/components/CarCard.astro';
 import Icon from '../../arca-motors/components/Icon.astro';
-import { wa } from '../../arca-motors/config';
+import { wa, NEGOCIO } from '../../arca-motors/config';
 import { enVenta, marcas, ETIQUETA_CARROCERIA, type Carroceria } from '../../arca-motors/inventario';
 
 const autos = [...enVenta()].sort((a, b) => b.ingreso.localeCompare(a.ingreso));
 const tipos = (['suv', 'pickup', 'sedan', 'clasico'] as Carroceria[]).filter((t) => autos.some((v) => v.carroceria === t));
 const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
+const nTipo = (t: Carroceria) => autos.filter((v) => v.carroceria === t).length;
+const total = autos.length;
+// Contador tipo odómetro: una columna 0–9 por dígito; --d es el dígito visible (sirve sin JS).
+const DIG = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const digitos = String(total).split('');
+// Tipografía gigante de fondo: las marcas que hay hoy en el lote.
+const marcasBg = marcas();
 ---
 <ArcaLayout
   title="Catálogo de seminuevos — Arca Motors Durango"
@@ -15,25 +22,97 @@ const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
   active="catalogo"
 >
   <section class="cat">
-    <div class="am-wrap">
-      <header class="cat__head">
-        <div>
-          <p class="am-kicker">Catálogo</p>
-          <h1 class="am-h2">Autos y camionetas disponibles</h1>
+    <!-- ============ Encabezado editorial ============ -->
+    <header class="cat__hero" data-spotlight>
+      <span class="am-spotlight" aria-hidden="true"></span>
+      {['', 'cat__bg--lit'].map((mod) => (
+        <div class:list={['cat__bg', mod]} aria-hidden="true">
+          <div class="am-marquee cat__bgline" data-marquee="24">
+            <div class="am-marquee__track">
+              {marcasBg.map((m) => <span class="cat__bgw">{m}<span class="am-carmark cat__bgcar"></span></span>)}
+            </div>
+          </div>
         </div>
-        <p class="cat__count" aria-live="polite"><strong data-count>{autos.length}</strong> <span data-count-label>unidades</span></p>
-      </header>
+      ))}
 
-      <div class="cat__chips" role="group" aria-label="Tipo de vehículo">
-        <button type="button" class="chip" data-tipo="" aria-pressed="true">Todos</button>
-        {tipos.map((t) => <button type="button" class="chip" data-tipo={t} aria-pressed="false">{ETIQUETA_CARROCERIA[t]}</button>)}
-        <button type="button" class="chip chip--fav" data-only-favs aria-pressed="false"><Icon name="heart" size={16} /> Favoritos <span data-fav-count></span></button>
+      <div class="am-wrap cat__hero-in">
+        <p class="am-kicker am-reveal">Inventario · {NEGOCIO.ciudad}</p>
+        <div class="cat__titlerow">
+          <h1 class="cat__title" data-split data-kinetic data-kinetic-max="118" data-kinetic-radius="320"><span class="am-silver-text">Catálogo</span></h1>
+          <p class="cat__count am-reveal" style="--am-delay: 320ms">
+            <span class="cat__odo" data-odo aria-hidden="true">
+              {digitos.map((d, i) => (
+                <span class="odo__col" style={`--d: ${d}; --c: ${digitos.length - 1 - i}`}>
+                  <span class="odo__strip">{DIG.map((n) => <span>{n}</span>)}</span>
+                </span>
+              ))}
+            </span>
+            <span class="cat__of" aria-hidden="true">
+              <span data-count-label>unidades</span>
+              <span data-count-of>en venta</span>
+            </span>
+            <span class="cat__sr" data-count-sr aria-live="polite">{total} unidades</span>
+          </p>
+        </div>
+        <div class="cat__leadrow">
+          <p class="cat__lead am-reveal" style="--am-delay: 200ms">Autos y camionetas con enganche, mensualidad, fotos y kilometraje. Filtra, compara y guarda tus favoritos.</p>
+          <a class="cat__cue am-reveal" href="#resultados" style="--am-delay: 420ms">
+            <span class="cat__cue-ico" aria-hidden="true"><Icon name="arrowDown" size={18} /></span>
+            Ver unidades
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="am-wrap cat__main" id="resultados">
+      <span class="am-rule cat__rule" data-inview aria-hidden="true"></span>
+
+      <!-- ============ Barra de vidrio sticky: tipo + orden ============ -->
+      <div class="cat__sentinel" aria-hidden="true"></div>
+      <div class="cat__bar" data-bar>
+        <div class="cat__bar-in">
+          <button class="am-btn am-btn--ghost cat__open" type="button" data-open-filters aria-expanded="false" aria-controls="filtros">
+            <Icon name="sliders" size={18} /> <span class="cat__open-t">Filtros</span> <span class="cat__badge" data-active-n hidden></span>
+          </button>
+
+          <div class="cat__chips" role="group" aria-label="Tipo de vehículo" data-chips>
+            <span class="cat__pill" aria-hidden="true"></span>
+            <button type="button" class="cat__chip" data-tipo="" data-label="Todos" aria-pressed="true">
+              <span class="cat__chip-t" data-text="Todos"><span>Todos</span></span><span class="cat__chip-n">{total}</span>
+            </button>
+            {tipos.map((t) => (
+              <button type="button" class="cat__chip" data-tipo={t} data-label={ETIQUETA_CARROCERIA[t]} aria-pressed="false">
+                <span class="cat__chip-t" data-text={ETIQUETA_CARROCERIA[t]}><span>{ETIQUETA_CARROCERIA[t]}</span></span><span class="cat__chip-n">{nTipo(t)}</span>
+              </button>
+            ))}
+            <button type="button" class="cat__chip cat__chip--fav" data-only-favs aria-pressed="false">
+              <Icon name="heart" size={15} />
+              <span class="cat__chip-t" data-text="Favoritos"><span>Favoritos</span></span><span class="cat__chip-n" data-fav-count></span>
+            </button>
+          </div>
+
+          <span class="cat__mini" aria-hidden="true"><b data-mini>{total}</b> <span data-mini-label>unidades</span></span>
+
+          <label class="cat__sort">
+            <span class="am-label">Ordenar</span>
+            <span class="cat__sort-box">
+              <select class="am-select" data-sort aria-label="Ordenar resultados">
+                <option value="recientes">Recién llegados</option>
+                <option value="eng-asc">Enganche: menor a mayor</option>
+                <option value="eng-desc">Enganche: mayor a menor</option>
+                <option value="mes-asc">Mensualidad más baja</option>
+                <option value="anio-desc">Más nuevos</option>
+              </select>
+              <span class="cat__sort-ico" aria-hidden="true"><Icon name="swap" size={18} /></span>
+            </span>
+          </label>
+        </div>
       </div>
 
       <div class="cat__layout">
         <aside class="cat__filters" id="filtros" aria-label="Filtros">
           <div class="cat__filters-head">
-            <h2>Filtros</h2>
+            <h2><Icon name="sliders" size={17} /> Filtros</h2>
             <button type="button" class="cat__x" data-close-filters aria-label="Cerrar filtros"><Icon name="close" size={22} /></button>
           </div>
           <form class="cat__form" data-filters>
@@ -80,38 +159,41 @@ const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
             <input type="hidden" name="tipo" />
             <div class="cat__form-actions">
               <button type="reset" class="am-btn am-btn--ghost">Limpiar</button>
-              <button type="button" class="am-btn am-btn--red cat__apply" data-close-filters>Ver <span data-count-btn>{autos.length}</span></button>
+              <button type="button" class="am-btn am-btn--red cat__apply" data-close-filters>Ver <span data-count-btn>{total}</span></button>
             </div>
           </form>
         </aside>
 
-        <div class="cat__results">
-          <div class="cat__bar">
-            <button class="am-btn am-btn--ghost cat__open" type="button" data-open-filters aria-expanded="false" aria-controls="filtros">
-              <Icon name="sliders" size={18} /> Filtros <span class="cat__badge" data-active-n hidden></span>
-            </button>
-            <label class="cat__sort">
-              <span class="am-label">Ordenar</span>
-              <select class="am-select" data-sort aria-label="Ordenar resultados">
-                <option value="recientes">Recién llegados</option>
-                <option value="eng-asc">Enganche: menor a mayor</option>
-                <option value="eng-desc">Enganche: mayor a menor</option>
-                <option value="mes-asc">Mensualidad más baja</option>
-                <option value="anio-desc">Más nuevos</option>
-              </select>
-            </label>
+        <div class="cat__results" data-results-wrap>
+          <!-- Vista de favoritos: aparece al activar el chip -->
+          <div class="cat__favhead am-loop" data-favhead hidden>
+            <span class="cat__favhead-ico" aria-hidden="true"><Icon name="heart" size={20} /></span>
+            <p><strong>Tus favoritos</strong> <span data-favhead-n>0 guardados</span> · se guardan en este navegador, sin cuenta.</p>
+            <button type="button" class="am-btn am-btn--ghost" data-exit-favs>Ver todo</button>
           </div>
+
           <div class="am-grid" data-results>
             {autos.map((v, i) => <CarCard v={v} eager={i < 3} hLevel="h2" />)}
           </div>
+
           <div class="cat__empty" data-empty hidden>
-            <h2>No tenemos esa unidad hoy</h2>
-            <p>Nos llegan unidades seguido. Dinos qué buscas y te escribimos si entra una.</p>
+            <!-- Silueta del auto que se acerca por una carretera en perspectiva (decorativa) -->
+            <div class="cat__scene am-loop" aria-hidden="true">
+              <span class="cat__horizon"></span>
+              <span class="cat__road"><span class="cat__lane"></span></span>
+              <span class="cat__flare"></span>
+              <span class="am-carmark cat__car"></span>
+            </div>
+            <h2 data-empty-t>No tenemos esa unidad hoy</h2>
+            <p data-empty-p>Nos llegan unidades seguido. Dinos qué buscas y te escribimos si entra una.</p>
             <div class="cat__empty-ctas">
               <a class="am-btn am-btn--wa" data-empty-wa href={wa('Hola, busco un auto que no vi en su catálogo.')} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} /> Avísame cuando llegue</a>
-              <button type="button" class="am-btn am-btn--ghost" data-reset>Quitar filtros</button>
+              <button type="button" class="am-btn am-btn--ghost" data-reset><span data-reset-t>Quitar filtros</span></button>
             </div>
           </div>
+
+          <!-- Capa para las tarjetas que salen al filtrar (clones decorativos) -->
+          <div class="cat__ghosts" data-ghosts aria-hidden="true"></div>
         </div>
       </div>
     </div>
@@ -121,30 +203,162 @@ const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
 
 <script>
   import { NEGOCIO } from '../../arca-motors/config';
-  const form = document.querySelector<HTMLFormElement>('[data-filters]')!;
-  const grid = document.querySelector<HTMLElement>('[data-results]')!;
-  const cards = [...grid.querySelectorAll<HTMLElement>('[data-car]')];
-  const sortSel = document.querySelector<HTMLSelectElement>('[data-sort]')!;
+
+  type El = HTMLElement;
+  const $ = <T extends Element = El>(sel: string, ctx: ParentNode = document) => ctx.querySelector<T>(sel)!;
+  const reduceMQ = matchMedia(document.documentElement.classList.contains('am-anim') ? 'not all' : 'all');
+  const motionOK = () => !reduceMQ.matches;
+  const canAnimate = typeof Element.prototype.animate === 'function';
+  const EASE = 'cubic-bezier(.16,1,.3,1)';
+  const EASE_IO = 'cubic-bezier(.65,0,.35,1)';
+  const motion = () => (window as any).arcaMotion as undefined | { refresh?: () => void; lenis?: { stop(): void; start(): void } | null };
+
+  const cat = $('.cat');
+  const form = $<HTMLFormElement>('[data-filters]');
+  const grid = $('[data-results]');
+  const results = $('[data-results-wrap]');
+  const ghostLayer = $('[data-ghosts]');
+  const cards = [...grid.querySelectorAll<El>('[data-car]')];
+  const sortSel = $<HTMLSelectElement>('[data-sort]');
+  const sortBox = $('.cat__sort-box');
   // Ojo: las tarjetas también llevan data-tipo; los chips se buscan solo en su grupo.
-  const chips = [...document.querySelectorAll<HTMLButtonElement>('.cat__chips [data-tipo]')];
-  const favBtn = document.querySelector<HTMLButtonElement>('[data-only-favs]')!;
+  const chipsBox = $('[data-chips]');
+  const pill = $('.cat__pill', chipsBox);
+  const chips = [...chipsBox.querySelectorAll<HTMLButtonElement>('[data-tipo]')];
+  const favBtn = $<HTMLButtonElement>('[data-only-favs]');
   const tipoIn = form.querySelector<HTMLInputElement>('input[name="tipo"]')!;
-  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const empty = $('[data-empty]');
+  const emptyT = $('[data-empty-t]');
+  const emptyP = $('[data-empty-p]');
+  const emptyWa = $<HTMLAnchorElement>('[data-empty-wa]');
+  const resetBtn = $<HTMLButtonElement>('[data-reset]');
+  const resetT = $('[data-reset-t]');
+  const favHead = $('[data-favhead]');
+  const favHeadN = $('[data-favhead-n]');
+  const odo = $('[data-odo]');
+  const countSr = $('[data-count-sr]');
+  const countLabel = $('[data-count-label]');
+  const countOf = $('[data-count-of]');
+  const countBtn = $('[data-count-btn]');
+  const mini = $('[data-mini]');
+  const miniLabel = $('[data-mini-label]');
+  const badge = $('[data-active-n]');
+  const bar = $('[data-bar]');
+  const sentinel = $('.cat__sentinel');
   const panel = document.getElementById('filtros')!;
-  const openBtn = document.querySelector<HTMLButtonElement>('[data-open-filters]')!;
-  const scrim = document.querySelector<HTMLElement>('.cat__scrim')!;
+  const openBtn = $<HTMLButtonElement>('[data-open-filters]');
+  const scrim = $('.cat__scrim');
+  const TOTAL = cards.length;
   const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const favsNow = (): string[] => (window as any).arcaFavs?.() ?? [];
   let soloFavs = false;
+  let first = true;
+  let lastKey = '';
+  let lastActivos = 0;
+
+  chipsBox.classList.add('has-pill');
 
   // Prellenar desde la URL (?tipo=pickup&marca=Jeep&eng=500000)
   const params = new URLSearchParams(location.search);
   for (const [k, val] of params) {
+    if (k === 'apartados') { (form.elements.namedItem('apartados') as HTMLInputElement).checked = val !== '0'; continue; }
     const el = form.elements.namedItem(k) as HTMLInputElement | HTMLSelectElement | null;
     if (el && 'value' in el) el.value = val;
   }
   const orden = params.get('orden');
   if (orden && [...sortSel.options].some((o) => o.value === orden)) sortSel.value = orden;
 
+  // Estado completo: si no cambió, no se re-renderiza (input + change disparan dos veces).
+  const stateKey = () => `${new URLSearchParams(new FormData(form) as any)}|${soloFavs}|${sortSel.value}|${favsNow().join(',')}`;
+
+  /* ------------------------------------------------------------ odómetro */
+  const DIG = '0123456789';
+  let odoN = TOTAL;
+  function makeCol() {
+    const col = document.createElement('span');
+    col.className = 'odo__col';
+    col.style.setProperty('--d', '0');
+    const strip = document.createElement('span');
+    strip.className = 'odo__strip';
+    for (const d of DIG) {
+      const s = document.createElement('span');
+      s.textContent = d;
+      strip.append(s);
+    }
+    col.append(strip);
+    return col;
+  }
+  function setOdo(n: number, animate: boolean) {
+    odoN = n;
+    const ds = String(n).split('');
+    const cols = [...odo.querySelectorAll<El>('.odo__col')];
+    while (cols.length < ds.length) {
+      const c = makeCol();
+      odo.prepend(c);
+      cols.unshift(c);
+    }
+    while (cols.length > ds.length) cols.shift()!.remove();
+    if (!animate) odo.classList.add('no-anim');
+    void odo.offsetWidth; // las columnas nuevas parten de 0
+    cols.forEach((c, i) => {
+      c.style.setProperty('--d', ds[i]);
+      c.style.setProperty('--c', String(ds.length - 1 - i));
+    });
+    if (!animate) {
+      void odo.offsetWidth;
+      odo.classList.remove('no-anim');
+    } else {
+      odo.classList.remove('is-roll');
+      void odo.offsetWidth;
+      odo.classList.add('is-roll');
+    }
+  }
+  function odoIntro() {
+    odo.classList.add('no-anim');
+    odo.querySelectorAll<El>('.odo__col').forEach((c) => c.style.setProperty('--d', '0'));
+    void odo.offsetWidth;
+    odo.classList.remove('no-anim');
+    setTimeout(() => setOdo(odoN, true), 380);
+  }
+
+  /* ------------------------------------------------------ píldora de chips */
+  let pillGeo = '';
+  function placePill(animate: boolean) {
+    const on = [...chips, favBtn].find((b) => b.getAttribute('aria-pressed') === 'true');
+    if (!on) {
+      pill.style.opacity = '0';
+      pillGeo = '';
+      return;
+    }
+    const geo = `${on.offsetLeft},${on.offsetTop},${on.offsetWidth},${on.offsetHeight}`;
+    if (geo === pillGeo) return;
+    const moved = pillGeo !== '';
+    pillGeo = geo;
+    const go = animate && motionOK();
+    pill.classList.toggle('no-anim', !go);
+    pill.style.opacity = '1';
+    pill.style.width = `${on.offsetWidth}px`;
+    pill.style.height = `${on.offsetHeight}px`;
+    pill.style.translate = `${on.offsetLeft}px ${on.offsetTop}px`;
+    if (!go) {
+      void pill.offsetWidth;
+      pill.classList.remove('no-anim');
+    } else if (moved && canAnimate) {
+      // se estira y se aplasta mientras viaja
+      pill.animate([{ scale: '1 1' }, { scale: '1.07 .8', offset: 0.35 }, { scale: '1 1' }], { duration: 560, easing: EASE_IO });
+    }
+    // que el chip activo quede a la vista en la fila desplazable (móvil)
+    const l = on.offsetLeft;
+    const w = on.offsetWidth;
+    if (l < chipsBox.scrollLeft || l + w > chipsBox.scrollLeft + chipsBox.clientWidth) {
+      chipsBox.scrollTo({ left: l - (chipsBox.clientWidth - w) / 2, behavior: go ? 'smooth' : 'auto' });
+    }
+  }
+  const pillRO = new ResizeObserver(() => placePill(false));
+  pillRO.observe(chipsBox);
+  [...chips, favBtn].forEach((c) => pillRO.observe(c));
+
+  /* ------------------------------------------------------------ filtrado */
   function apply() {
     const d = new FormData(form);
     const q = norm(String(d.get('q') || '').trim());
@@ -154,7 +368,7 @@ const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
     const anio = Number(d.get('anio') || 0);
     const tipo = String(d.get('tipo') || '');
     const apartados = d.get('apartados') === 'on';
-    const favs: string[] = (window as any).arcaFavs?.() ?? [];
+    const favs = favsNow();
     let n = 0;
     for (const c of cards) {
       const s = c.dataset;
@@ -172,24 +386,52 @@ const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
     }
     chips.forEach((b) => b.setAttribute('aria-pressed', String(!soloFavs && b.dataset.tipo === tipo)));
     favBtn.setAttribute('aria-pressed', String(soloFavs));
-    document.querySelector('[data-count]')!.textContent = String(n);
-    document.querySelector('[data-count-label]')!.textContent = n === 1 ? 'unidad' : 'unidades';
-    document.querySelector('[data-count-btn]')!.textContent = `${n} ${n === 1 ? 'auto' : 'autos'}`;
+
+    const lab = n === 1 ? 'unidad' : 'unidades';
+    countLabel.textContent = lab;
+    countOf.textContent = n < TOTAL ? `de ${TOTAL}` : 'en venta';
+    countSr.textContent = `${n} ${lab}`;
+    miniLabel.textContent = lab;
+    mini.textContent = String(n);
+    countBtn.textContent = `${n} ${n === 1 ? 'auto' : 'autos'}`;
+    setOdo(n, !first && motionOK());
     empty.hidden = n > 0;
     grid.hidden = n === 0;
+
+    // Vista de favoritos
+    const favVacio = soloFavs && !favs.length;
+    cat.classList.toggle('is-favs', soloFavs);
+    favHead.hidden = !soloFavs;
+    favHeadN.textContent = `${favs.length} ${favs.length === 1 ? 'guardado' : 'guardados'}`;
+    emptyT.textContent = favVacio ? 'Aún no guardas ningún auto' : soloFavs ? 'Ninguno de tus favoritos coincide' : 'No tenemos esa unidad hoy';
+    emptyP.textContent = favVacio
+      ? 'Toca el corazón de cualquier auto y aparecerá aquí. Se guardan en este navegador.'
+      : soloFavs
+        ? 'Prueba quitando algún filtro o vuelve al catálogo completo.'
+        : 'Nos llegan unidades seguido. Dinos qué buscas y te escribimos si entra una.';
+    emptyWa.hidden = soloFavs;
+    resetT.textContent = soloFavs ? 'Ver todo el catálogo' : 'Quitar filtros';
+
     // WhatsApp del estado vacío con lo que se buscó
-    const busca = [tipo && (chips.find((b) => b.dataset.tipo === tipo)?.textContent ?? ''), marca, q && `"${q}"`, eng && `con enganche hasta $${eng.toLocaleString('es-MX')}`].filter(Boolean).join(', ');
-    document.querySelector<HTMLAnchorElement>('[data-empty-wa]')!.href =
-      `https://wa.me/52${NEGOCIO.telefonos[0]}?text=${encodeURIComponent(`Hola Arca Motors, busco ${busca || 'un auto'} y no lo vi en el catálogo. ¿Me avisan si les llega uno?`)}`;
+    const busca = [tipo && (chips.find((b) => b.dataset.tipo === tipo)?.dataset.label ?? ''), marca, q && `"${q}"`, eng && `con enganche hasta $${eng.toLocaleString('es-MX')}`].filter(Boolean).join(', ');
+    emptyWa.href = `https://wa.me/52${NEGOCIO.telefonos[0]}?text=${encodeURIComponent(`Hola Arca Motors, busco ${busca || 'un auto'} y no lo vi en el catálogo. ¿Me avisan si les llega uno?`)}`;
+
     const activos = ['q', 'marca', 'eng', 'mes', 'anio'].filter((k) => d.get(k)).length + (apartados ? 0 : 1);
-    const badge = document.querySelector<HTMLElement>('[data-active-n]')!;
     badge.hidden = !activos;
     badge.textContent = String(activos);
+    if (activos && activos !== lastActivos && !first && motionOK() && canAnimate) {
+      badge.animate([{ scale: '.3' }, { scale: '1.3', offset: 0.55 }, { scale: '1' }], { duration: 480, easing: EASE });
+    }
+    lastActivos = activos;
+    sortBox.classList.toggle('is-custom', sortSel.value !== 'recientes');
+
     // Reflejar en la URL para poder compartir la búsqueda
     const u = new URLSearchParams();
     for (const k of ['q', 'tipo', 'marca', 'eng', 'mes', 'anio']) if (d.get(k)) u.set(k, String(d.get(k)));
+    if (!apartados) u.set('apartados', '0');
     if (sortSel.value !== 'recientes') u.set('orden', sortSel.value);
     history.replaceState(null, '', u.toString() ? `?${u}` : location.pathname);
+    lastKey = stateKey();
   }
 
   function sort() {
@@ -201,20 +443,157 @@ const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
       const c = num ? Number(x) - Number(y) : x.localeCompare(y);
       return k === 'recientes' || dir === 'desc' ? -c : c;
     });
+    // Mover un nodo reinicia sus animaciones CSS: las tarjetas ya reveladas no deben repetir la entrada.
+    cards.forEach((c) => { if (c.classList.contains('is-in')) c.classList.add('cat-done'); });
     sorted.forEach((c) => grid.appendChild(c));
   }
 
-  form.addEventListener('input', apply);
-  form.addEventListener('change', apply);
-  form.addEventListener('submit', (e) => e.preventDefault());
-  form.addEventListener('reset', () => setTimeout(() => { tipoIn.value = ''; soloFavs = false; apply(); }));
-  document.querySelector('[data-reset]')!.addEventListener('click', () => form.reset());
-  sortSel.addEventListener('change', () => { sort(); apply(); });
-  chips.forEach((b) => b.addEventListener('click', () => { tipoIn.value = b.dataset.tipo!; soloFavs = false; apply(); }));
-  favBtn.addEventListener('click', () => { soloFavs = !soloFavs; if (soloFavs) tipoIn.value = ''; apply(); });
-  document.addEventListener('arca:favs', () => { if (soloFavs) apply(); });
+  /* ---------------------------------------- FLIP: reacomodo, entradas y salidas */
+  type Snap = { box: DOMRect; cards: Map<El, DOMRect>; extras: Map<El, DOMRect> };
+  const flips = new Set<Animation>();
 
-  // Panel de filtros como hoja (diálogo modal) en móvil
+  function snapshot(): Snap {
+    const m = new Map<El, DOMRect>();
+    if (!grid.hidden) for (const c of cards) if (!c.hidden) m.set(c, c.getBoundingClientRect());
+    const x = new Map<El, DOMRect>();
+    for (const e of [favHead, empty]) if (!e.hidden) x.set(e, e.getBoundingClientRect());
+    return { box: results.getBoundingClientRect(), cards: m, extras: x };
+  }
+
+  function ghost(el: El, r: DOMRect, box: DOMRect) {
+    const g = el.cloneNode(true) as El;
+    g.hidden = false;
+    for (const a of ['data-car', 'data-tilt', 'data-cursor', 'data-folio', 'data-tipo', 'data-empty', 'data-favhead']) g.removeAttribute(a);
+    g.classList.remove('am-reveal', 'is-in', 'is-tilting', 'cat-done');
+    g.classList.add('cat__ghost');
+    g.setAttribute('aria-hidden', 'true');
+    g.setAttribute('inert', '');
+    g.querySelectorAll<El>('[style*="view-transition-name"]').forEach((n) => n.style.setProperty('view-transition-name', 'none'));
+    g.querySelectorAll('[data-vt], [data-vt-on]').forEach((n) => { n.removeAttribute('data-vt'); n.removeAttribute('data-vt-on'); });
+    g.querySelectorAll('[data-fav], [data-magnetic], [data-cursor]').forEach((n) => {
+      n.removeAttribute('data-fav');
+      n.removeAttribute('data-magnetic');
+      n.removeAttribute('data-cursor');
+    });
+    g.style.left = `${r.left - box.left}px`;
+    g.style.top = `${r.top - box.top}px`;
+    g.style.width = `${r.width}px`;
+    g.style.height = `${r.height}px`;
+    ghostLayer.append(g);
+    const a = g.animate(
+      [{ opacity: 1, scale: '1', filter: 'blur(0px)' }, { opacity: 0, scale: '.9', filter: 'blur(10px)' }],
+      { duration: 440, easing: EASE_IO, fill: 'forwards' }
+    );
+    const done = () => g.remove();
+    a.finished.then(done, done);
+  }
+
+  function play(s: Snap) {
+    const vh = innerHeight;
+    const seen = (r: DOMRect) => r.width > 0 && r.bottom > -60 && r.top < vh + 60;
+    const entering: [El, DOMRect][] = [];
+    if (!grid.hidden) {
+      for (const c of cards) {
+        if (c.hidden) continue;
+        const now = c.getBoundingClientRect();
+        const old = s.cards.get(c);
+        if (old && seen(old)) {
+          const dx = old.left - now.left;
+          const dy = old.top - now.top;
+          if (Math.abs(dx) + Math.abs(dy) < 1 || (!seen(now) && Math.abs(dy) > vh)) continue;
+          const a = c.animate([{ translate: `${dx}px ${dy}px` }, { translate: '0px 0px' }], { duration: 760, easing: EASE });
+          flips.add(a);
+          a.onfinish = () => flips.delete(a);
+        } else if (seen(now)) {
+          entering.push([c, now]);
+        }
+      }
+    }
+    entering.sort((a, b) => a[1].top - b[1].top || a[1].left - b[1].left);
+    entering.forEach(([c], k) => {
+      const delay = Math.min(k, 8) * 60;
+      // Nunca revelada: la entrada la hace .am-reveal (IntersectionObserver), solo escalonamos.
+      if (!c.classList.contains('is-in')) {
+        c.style.setProperty('--am-delay', `${delay}ms`);
+        return;
+      }
+      c.classList.add('cat-done');
+      c.animate(
+        [
+          { opacity: 0, translate: '0px 56px', scale: '.92', filter: 'blur(10px)' },
+          { opacity: 1, translate: '0px 0px', scale: '1', filter: 'blur(0px)' },
+        ],
+        { duration: 820, delay: 60 + delay, easing: EASE, fill: 'backwards' }
+      );
+    });
+    let g = 0;
+    s.cards.forEach((r, c) => {
+      if ((c.hidden || grid.hidden) && seen(r) && g++ < 12) ghost(c, r, s.box);
+    });
+    s.extras.forEach((r, e) => {
+      if (e.hidden && seen(r)) ghost(e, r, s.box);
+    });
+  }
+
+  function render(mutate: () => void) {
+    if (!first && stateKey() === lastKey) return;
+    const anim = !first && motionOK() && canAnimate;
+    const snap = anim ? snapshot() : null;
+    flips.forEach((a) => a.cancel());
+    flips.clear();
+    mutate();
+    motion()?.refresh?.();
+    if (snap) play(snap);
+    placePill(!first);
+  }
+  const update = () => render(apply);
+
+  // Las tarjetas que ya terminaron su entrada no la repiten al reaparecer (la hace el FLIP).
+  grid.addEventListener('animationend', (e) => {
+    const t = e.target as El;
+    if (e.animationName === 'am-rise' && t.hasAttribute('data-car')) t.classList.add('cat-done');
+  });
+
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  form.addEventListener('submit', (e) => e.preventDefault());
+  form.addEventListener('reset', () => setTimeout(() => { tipoIn.value = ''; soloFavs = false; update(); }));
+  resetBtn.addEventListener('click', () => {
+    form.reset();
+    // el botón desaparece con el estado vacío: el foco pasa al primer chip
+    setTimeout(() => chips[0]?.focus({ preventScroll: true }), 30);
+  });
+  sortSel.addEventListener('change', () => render(() => { sort(); apply(); }));
+  chips.forEach((b) => b.addEventListener('click', () => { tipoIn.value = b.dataset.tipo!; soloFavs = false; update(); }));
+  favBtn.addEventListener('click', () => { soloFavs = !soloFavs; if (soloFavs) tipoIn.value = ''; update(); });
+  $('[data-exit-favs]').addEventListener('click', () => { soloFavs = false; update(); favBtn.focus({ preventScroll: true }); });
+  document.addEventListener('arca:favs', () => {
+    if (!soloFavs) return;
+    // Quitar un favorito en la vista de favoritos oculta su tarjeta: el foco no debe caer al <body>.
+    const a = document.activeElement as El | null;
+    update();
+    if (a && a.closest<El>('[data-car]')?.hidden) favBtn.focus({ preventScroll: true });
+  });
+
+  /* ------------------------------------------- barra sticky: estado "pegada" */
+  let barTop = 0;
+  let stuckRaf = 0;
+  const measureBar = () => {
+    barTop = parseFloat(getComputedStyle(bar).top) || 0;
+    cat.style.setProperty('--cat-bar-h', `${bar.offsetHeight}px`);
+  };
+  const checkStuck = () => {
+    stuckRaf = 0;
+    bar.classList.toggle('is-stuck', sentinel.getBoundingClientRect().top < barTop - 0.5);
+  };
+  const queueStuck = () => { if (!stuckRaf) stuckRaf = requestAnimationFrame(checkStuck); };
+  addEventListener('scroll', queueStuck, { passive: true });
+  addEventListener('resize', () => { measureBar(); queueStuck(); }, { passive: true });
+  new ResizeObserver(measureBar).observe(bar);
+  measureBar();
+  checkStuck();
+
+  /* -------------------------- panel de filtros como hoja (diálogo modal) en móvil */
   const mq = matchMedia('(max-width: 900px)');
   const closeBtn = panel.querySelector<HTMLButtonElement>('.cat__x')!;
   let isOpen = false;
@@ -224,7 +603,10 @@ const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
     panel.classList.toggle('is-open', open);
     scrim.hidden = !open;
     openBtn.setAttribute('aria-expanded', String(open));
-    document.body.style.overflow = open ? 'hidden' : '';
+    // En <html>, no en <body>: con overflow-x:clip en html, el overflow del body ya no bloquea la página.
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    const lenis = motion()?.lenis;
+    if (lenis) open ? lenis.stop() : lenis.start();
     if (open) { panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); closeBtn.focus(); }
     else { panel.removeAttribute('role'); panel.removeAttribute('aria-modal'); openBtn.focus(); }
   };
@@ -237,66 +619,329 @@ const anios = [...new Set(autos.map((v) => v.anio))].sort((a, b) => b - a);
     // Mantener el foco dentro de la hoja
     const f = [...panel.querySelectorAll<HTMLElement>('button, input, select, a[href]')].filter((el) => el.offsetParent !== null);
     if (!f.length) return;
-    const first = f[0], last = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    const firstEl = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === firstEl) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); firstEl.focus(); }
   });
   mq.addEventListener('change', () => { if (!mq.matches) setOpen(false); });
 
-  sort();
-  apply();
+  render(() => { sort(); apply(); });
+  first = false;
+  if (motionOK()) odoIntro();
 </script>
 
-<style>
-  .cat { padding: clamp(32px, 5vw, 56px) 0 40px; }
-  .cat__head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; }
-  .cat__count { margin: 0; color: var(--am-muted); font-size: 15px; }
-  .cat__count strong { font-family: var(--am-display); font-stretch: 112%; font-size: 30px; color: var(--am-text); margin-right: 4px; }
-  .cat__chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 26px 0 26px; }
-  .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--am-line2); background: var(--am-surface); color: var(--am-text); font: 600 14px var(--am-body); cursor: pointer; transition: border-color .2s, background .2s; }
-  .chip:hover { border-color: rgba(255,74,61,.5); }
-  .chip[aria-pressed='true'] { background: var(--am-red); border-color: var(--am-red); color: #fff; }
-  .chip--fav[aria-pressed='true'] :global(svg) { fill: currentColor; }
-  .chip [data-fav-count]:not(:empty)::before { content: '· '; }
+<style is:global>
+  /* Catálogo — todo va bajo .cat / .cat__* (global para alcanzar nodos creados por JS y de CarCard). */
 
+  /* ================= encabezado editorial ================= */
+  .cat__hero {
+    position: relative; overflow: hidden; isolation: isolate;
+    margin-top: calc(-1 * var(--am-header-h));
+    padding: calc(var(--am-header-h) + clamp(36px, 7vw, 92px)) 0 clamp(34px, 5vw, 60px);
+    --am-spot-size: min(90vmax, 980px);
+    background:
+      radial-gradient(60% 70% at 88% 0%, rgba(227, 20, 31, .14), transparent 70%),
+      radial-gradient(50% 60% at 0% 100%, rgba(255, 255, 255, .045), transparent 70%);
+  }
+  /* rejilla técnica tenue */
+  .cat__hero::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+    background-size: 72px 72px;
+    -webkit-mask-image: radial-gradient(80% 70% at 50% 35%, #000, transparent 75%);
+    mask-image: radial-gradient(80% 70% at 50% 35%, #000, transparent 75%);
+  }
+  .cat__hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; z-index: 0; pointer-events: none; background: linear-gradient(180deg, transparent, var(--am-bg)); }
+
+  /* tipografía gigante de fondo: contorno tenue + copia roja que solo se ve bajo el foco (blob) */
+  .cat__bg { position: absolute; inset: 0; z-index: 0; display: flex; align-items: center; padding-top: var(--am-header-h); box-sizing: border-box; pointer-events: none; }
+  .cat__bg .cat__bgline { width: 100%; --am-marquee-gap: clamp(28px, 4vw, 64px); }
+  .cat__bgw {
+    display: inline-flex; align-items: center; gap: var(--am-marquee-gap);
+    font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-size: clamp(88px, 17vw, 250px);
+    line-height: .9; letter-spacing: -.02em; text-transform: uppercase; white-space: nowrap;
+    color: transparent; -webkit-text-stroke: 1px rgba(232, 234, 237, .09);
+  }
+  .cat__bg .cat__bgcar { width: .9em; color: rgba(232, 234, 237, .06); }
+  .cat__bg--lit {
+    -webkit-mask-image: radial-gradient(circle clamp(150px, 20vw, 300px) at var(--sx, 70%) var(--sy, 60%), #000, rgba(0, 0, 0, .5) 45%, transparent 72%);
+    mask-image: radial-gradient(circle clamp(150px, 20vw, 300px) at var(--sx, 70%) var(--sy, 60%), #000, rgba(0, 0, 0, .5) 45%, transparent 72%);
+  }
+  .cat__bg--lit .cat__bgw { color: rgba(255, 42, 31, .16); -webkit-text-stroke: 1px rgba(255, 90, 76, .85); }
+  .cat__bg--lit .cat__bgcar { color: var(--am-red); }
+
+  .cat__hero-in { position: relative; z-index: 1; }
+  .cat__titlerow { display: flex; align-items: flex-start; column-gap: clamp(14px, 2.2vw, 30px); row-gap: 10px; }
+  .cat__title {
+    margin: 0; font-family: var(--am-display); font-weight: 800; font-stretch: 100%;
+    font-size: clamp(60px, 12.5vw, 184px); line-height: .92; letter-spacing: -.035em; white-space: nowrap;
+  }
+  /* aire arriba para el acento de la "á" dentro de la máscara del revelado */
+  .cat__title .am-w { padding-top: .14em; margin-top: -.14em; }
+  
+    /* revelado por letra (además del de palabra): cada letra sube girando un poco */
+    html.am-anim.js .cat__title .am-ch { transition: transform 1.2s var(--am-ease-out) calc(var(--ci, 0) * 45ms + 120ms); }
+    html.am-anim.js .cat__title:not(.is-in) .am-ch { transform: translateY(100%) rotate(6deg); }
+  
+
+  /* contador odómetro */
+  .cat__count { margin: 0; display: flex; align-items: flex-start; gap: 12px; padding-top: clamp(6px, 1.2vw, 18px); flex: none; }
+  .cat__odo {
+    display: inline-flex; font-family: var(--am-display); font-weight: 800; font-stretch: 112%;
+    font-size: clamp(44px, 5.4vw, 78px); line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+  }
+  .odo__col { display: inline-block; height: 1em; overflow: hidden; }
+  .odo__strip {
+    display: flex; flex-direction: column;
+    transform: translate3d(0, calc(var(--d, 0) * -10%), 0);
+    transition: transform 1s var(--am-ease-out) calc(var(--c, 0) * 90ms);
+  }
+  .odo__strip > span {
+    display: block; height: 1em; line-height: 1; text-align: center;
+    background: var(--am-silver); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .cat__odo.no-anim .odo__strip { transition: none; }
+  
+    html.am-anim .cat__odo.is-roll { animation: cat-odo-glow 1.1s var(--am-ease-out); }
+  
+  @keyframes cat-odo-glow {
+    0% { filter: drop-shadow(0 0 0 rgba(255, 42, 31, 0)); }
+    30% { filter: drop-shadow(0 0 18px rgba(255, 42, 31, .7)); }
+    100% { filter: drop-shadow(0 0 0 rgba(255, 42, 31, 0)); }
+  }
+  .cat__of { display: flex; flex-direction: column; gap: 3px; padding-top: .45em; font: 600 12px/1.25 var(--am-display); font-stretch: 112%; letter-spacing: .18em; text-transform: uppercase; color: var(--am-muted); }
+  .cat__of > :first-child { color: var(--am-red-hi); }
+  .cat__sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  .cat__leadrow { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px 28px; flex-wrap: wrap; margin-top: clamp(18px, 2.6vw, 30px); }
+  .cat__lead { margin: 0; max-width: 50ch; color: var(--am-muted); font-size: clamp(15px, 1.5vw, 18px); }
+  .cat__cue { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font: 600 12px/1 var(--am-display); font-stretch: 112%; letter-spacing: .2em; text-transform: uppercase; color: var(--am-muted); transition: color .3s ease; }
+  .cat__cue:hover { color: var(--am-text); }
+  .cat__cue-ico { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--am-line2); color: var(--am-red-hi); transition: border-color .3s ease, box-shadow .4s ease; }
+  .cat__cue:hover .cat__cue-ico { border-color: rgba(255, 74, 61, .6); box-shadow: 0 0 22px -6px var(--am-neon); }
+  
+    html.am-anim .cat__cue-ico svg { animation: cat-cue 2.6s var(--am-ease-io) infinite; }
+  
+  @keyframes cat-cue { 0%, 25% { transform: none; opacity: 1; } 48% { transform: translateY(150%); opacity: 0; } 49% { transform: translateY(-150%); opacity: 0; } 72%, 100% { transform: none; opacity: 1; } }
+
+  /* ================= barra sticky ================= */
+  .cat { padding-bottom: 40px; }
+  .cat__main { padding-top: 6px; }
+  .cat__main .cat__rule { margin-bottom: 18px; }
+  .cat__sentinel { height: 1px; margin-bottom: -1px; }
+  .cat__bar { position: sticky; top: calc(var(--am-header-h) + 8px); z-index: 30; margin: 0 -6px 22px; }
+  .cat__bar-in {
+    position: relative; display: flex; align-items: center; gap: 12px; padding: 6px;
+    border-radius: 999px; border: 1px solid transparent; background-color: rgba(16, 16, 19, 0);
+    transition: background-color .45s ease, border-color .45s ease, box-shadow .6s ease, -webkit-backdrop-filter .45s ease, backdrop-filter .45s ease;
+  }
+  .cat__bar-in::after {
+    content: ''; position: absolute; left: 28px; right: 28px; bottom: -1px; height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--am-red-hi), transparent); box-shadow: 0 0 10px var(--am-neon);
+    transform: scaleX(0); transition: transform .9s var(--am-ease-out);
+  }
+  .cat__bar.is-stuck .cat__bar-in {
+    background-color: var(--am-glass); border-color: rgba(255, 255, 255, .1);
+    -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px);
+    box-shadow: 0 18px 50px -18px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .07);
+  }
+  .cat__bar.is-stuck .cat__bar-in::after { transform: scaleX(1); }
+
+  /* chips como control segmentado con píldora roja que viaja */
+  .cat__chips {
+    position: relative; display: flex; gap: 2px; padding: 4px; min-width: 0; flex: 0 1 auto;
+    border-radius: 999px; background: rgba(255, 255, 255, .03); border: 1px solid var(--am-line);
+    overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+    transition: border-color .4s ease, box-shadow .5s ease;
+  }
+  .cat__chips::-webkit-scrollbar { display: none; }
+  .cat.is-favs .cat__chips { border-color: rgba(255, 74, 61, .4); box-shadow: 0 0 30px -12px var(--am-neon); }
+  .cat__pill {
+    position: absolute; left: 0; top: 0; z-index: 0; width: 0; height: 0; border-radius: 999px; pointer-events: none; opacity: 0;
+    background: linear-gradient(180deg, #f2232d, #c40f19);
+    box-shadow: 0 8px 24px -8px rgba(227, 20, 31, .85), 0 0 18px -6px var(--am-neon), inset 0 1px 0 rgba(255, 255, 255, .25);
+    transition: translate .6s var(--am-ease-out), width .6s var(--am-ease-out), height .6s var(--am-ease-out), opacity .3s ease;
+  }
+  .cat__pill.no-anim { transition: none; }
+  .cat__chip {
+    position: relative; z-index: 1; flex: none; display: inline-flex; align-items: center; gap: 7px;
+    min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent;
+    color: var(--am-muted); font: 600 12.5px/1 var(--am-display); letter-spacing: .14em; text-transform: uppercase;
+    white-space: nowrap; cursor: pointer; transition: color .3s ease, background-color .3s ease;
+  }
+  .cat__chip:hover { color: var(--am-text); background-color: rgba(255, 255, 255, .05); }
+  .cat__chips .cat__chip:focus-visible { outline: 2px solid #fff; outline-offset: -4px; border-radius: 999px; }
+  /* sin JS (sin píldora) el chip activo se pinta solo */
+  .cat__chip[aria-pressed='true'] { color: #fff; background-color: var(--am-red); }
+  .cat__chips.has-pill .cat__chip[aria-pressed='true'] { background-color: transparent; }
+  /* la letra se ensancha al hover; se reserva el ancho máximo para no mover la píldora */
+  .cat__chip-t { display: inline-grid; }
+  .cat__chip-t::before { content: attr(data-text); content: attr(data-text) / ''; grid-area: 1 / 1; font-stretch: 125%; height: 0; overflow: hidden; visibility: hidden; }
+  .cat__chip-t > span { grid-area: 1 / 1; font-stretch: 100%; transition: font-stretch .5s var(--am-ease-out); }
+  .cat__chip:hover .cat__chip-t > span, .cat__chip:focus-visible .cat__chip-t > span { font-stretch: 125%; }
+  .cat__chip[aria-pressed='true'] .cat__chip-t > span { font-stretch: 118%; }
+  .cat__chip-n { align-self: flex-start; margin-top: 9px; font-size: 10px; letter-spacing: .06em; opacity: .7; font-variant-numeric: tabular-nums; }
+  .cat__chip-n:empty { display: none; }
+  .cat__chip--fav[aria-pressed='true'] svg { fill: currentColor; }
+  
+    html.am-anim .cat__chip--fav[aria-pressed='true'] svg { animation: cat-beat 1.6s var(--am-ease-io) infinite; }
+  
+
+  .cat__mini { margin-left: auto; flex: none; font: 600 12px/1 var(--am-display); font-stretch: 112%; letter-spacing: .16em; text-transform: uppercase; color: var(--am-muted); opacity: 0; transform: translateY(6px); transition: opacity .4s ease, transform .6s var(--am-ease-out); }
+  .cat__mini b { color: var(--am-text); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .cat__bar.is-stuck .cat__mini { opacity: 1; transform: none; }
+
+  .cat__sort { display: flex; align-items: center; gap: 10px; flex: none; }
+  .cat__sort-box { position: relative; display: block; }
+  .cat__sort .am-select { min-height: 42px; width: auto; border-radius: 999px; padding-left: 16px; background-color: rgba(255, 255, 255, .04); }
+  .cat__sort-box option { color: var(--am-text); background-color: var(--am-bg2); }
+  .cat__sort-ico { display: none; }
+
+  .cat__bar .cat__open { display: none; }
+  .cat__badge { min-width: 20px; height: 20px; border-radius: 999px; background: var(--am-red); color: #fff; font-size: 12px; display: inline-grid; place-items: center; padding: 0 6px; box-sizing: border-box; box-shadow: 0 0 12px -2px var(--am-neon); }
+
+  /* ================= filtros + resultados ================= */
   .cat__layout { display: grid; grid-template-columns: 270px 1fr; gap: 28px; align-items: start; }
-  .cat__open { display: none; }
-  .cat__filters { position: sticky; top: 92px; padding: 20px; border-radius: 16px; border: 1px solid var(--am-line); background: var(--am-surface); }
+  .cat__filters {
+    position: sticky; top: calc(var(--am-header-h) + 8px + var(--cat-bar-h, 58px) + 16px);
+    max-height: calc(100vh - var(--am-header-h) - var(--cat-bar-h, 58px) - 40px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+    box-sizing: border-box; padding: 20px; border-radius: 18px; border: 1px solid var(--am-line);
+    background: radial-gradient(120% 50% at 0% 0%, rgba(227, 20, 31, .08), transparent 60%), linear-gradient(180deg, var(--am-surface), #0f1013);
+  }
   .cat__filters-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .cat__filters-head h2 { margin: 0; font-family: var(--am-display); font-stretch: 112%; font-size: 18px; font-weight: 650; }
+  .cat__filters-head h2 { display: inline-flex; align-items: center; gap: 10px; margin: 0; font-family: var(--am-display); font-stretch: 112%; font-size: 18px; font-weight: 650; }
+  .cat__filters-head h2 svg { color: var(--am-red-hi); }
   .cat__x { display: none; }
   .cat__form { display: grid; gap: 16px; }
-  .cat__check { display: flex; gap: 10px; align-items: center; font-size: 14.5px; color: #cfd2d6; cursor: pointer; min-height: 40px; }
+  .cat__check { display: flex; gap: 10px; align-items: center; font-size: 14.5px; color: #cfd2d6; cursor: pointer; min-height: 44px; }
   .cat__check input { width: 20px; height: 20px; accent-color: var(--am-red); }
   .cat__form-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
-  .cat__apply { display: none; }
-  .cat__bar { display: flex; justify-content: flex-end; margin-bottom: 16px; }
-  .cat__sort { display: flex; align-items: center; gap: 12px; }
-  .cat__sort .am-select { min-height: 42px; width: auto; }
-  .cat__results .am-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
-  .cat__empty { text-align: center; padding: 64px 20px; border: 1px dashed var(--am-line2); border-radius: 18px; }
-  .cat__empty h2 { margin: 0; font-family: var(--am-display); font-stretch: 112%; font-size: 26px; }
+  .cat__form .cat__apply { display: none; }
+
+  .cat__results { position: relative; min-width: 0; }
+  .cat__results .am-grid { position: relative; z-index: 1; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+  .cat__ghosts { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .am .cat__ghost { position: absolute; margin: 0; pointer-events: none; animation: none !important; }
+  /* una tarjeta ya revelada no repite .am-reveal al reaparecer o reordenarse */
+  .am .am-card.cat-done { animation: none !important; }
+
+  /* vista de favoritos */
+  .cat__favhead {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 18px; padding: 12px 12px 12px 14px; box-sizing: border-box;
+    border-radius: 18px; border: 1px solid rgba(255, 74, 61, .35);
+    background: linear-gradient(90deg, rgba(227, 20, 31, .18), rgba(227, 20, 31, .02) 60%), var(--am-surface);
+    box-shadow: 0 0 40px -18px var(--am-neon);
+  }
+  .cat__favhead-ico { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--am-red); color: #fff; box-shadow: 0 0 22px -4px var(--am-neon); }
+  .cat__favhead-ico svg { fill: currentColor; }
+  .cat__favhead p { flex: 1; min-width: 0; margin: 0; font-size: 14px; color: var(--am-muted); }
+  .cat__favhead strong { display: block; color: var(--am-text); font: 700 18px/1.2 var(--am-display); font-stretch: 112%; }
+  .cat__favhead [data-favhead-n] { color: #e7e9ec; font-weight: 600; }
+  .cat__favhead .am-btn { flex: none; min-height: 44px; }
+  
+    html.am-anim.js .cat__favhead:not([hidden]) { animation: cat-fav-in .75s var(--am-ease-out) both; }
+    html.am-anim .cat__favhead-ico svg { animation: cat-beat 1.6s var(--am-ease-io) infinite; }
+  
+  @keyframes cat-fav-in {
+    from { opacity: 0; transform: translateY(-14px); clip-path: inset(0 0 100% 0 round 18px); }
+    to { opacity: 1; transform: none; clip-path: inset(0 0 0 0 round 18px); }
+  }
+  @keyframes cat-beat { 0%, 56%, 100% { transform: scale(1); } 14% { transform: scale(1.2); } 28% { transform: scale(1); } 42% { transform: scale(1.12); } }
+
+  /* estado vacío: carretera en perspectiva y la silueta de la marca que se acerca y pasa */
+  .cat__empty {
+    position: relative; overflow: hidden; text-align: center; padding: 0 20px 56px;
+    border: 1px solid var(--am-line); border-radius: 22px;
+    background: radial-gradient(70% 60% at 50% 0%, rgba(227, 20, 31, .14), transparent 70%), linear-gradient(180deg, var(--am-surface), #0b0b0d);
+  }
+  
+    html.am-anim.js .cat__empty:not([hidden]) { animation: cat-empty-in .8s var(--am-ease-out) both; }
+  
+  @keyframes cat-empty-in { from { opacity: 0; transform: translateY(24px) scale(.98); } }
+  .cat__scene {
+    position: relative; height: clamp(160px, 22vw, 230px); margin: 0 -20px 6px; overflow: hidden;
+    perspective: 260px; perspective-origin: 50% 25%;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 28%, #000 80%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 28%, #000 80%, transparent);
+  }
+  .cat__horizon { position: absolute; left: 10%; right: 10%; top: 30%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 74, 61, .8), transparent); box-shadow: 0 0 24px 4px rgba(255, 42, 31, .35); }
+  .cat__road {
+    position: absolute; left: 50%; bottom: 0; width: min(78%, 520px); height: 230%; overflow: hidden;
+    transform: translateX(-50%) rotateX(70deg); transform-origin: 50% 100%;
+    border-inline: 2px solid rgba(255, 255, 255, .16);
+    background: linear-gradient(90deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .07) 50%, rgba(255, 255, 255, .03));
+  }
+  .cat__lane { position: absolute; left: 50%; top: -64px; bottom: 0; width: 6px; margin-left: -3px; background: repeating-linear-gradient(180deg, rgba(255, 255, 255, .6) 0 30px, transparent 30px 64px); }
+  .cat__scene .cat__car { position: absolute; left: 50%; top: 52%; width: clamp(120px, 18vw, 170px); color: #dfe2e6; translate: -50% -50%; filter: drop-shadow(0 0 16px rgba(255, 42, 31, .55)); }
+  .cat__flare { position: absolute; left: 50%; top: 56%; width: 300px; height: 90px; translate: -50% -50%; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(255, 255, 255, .3), rgba(255, 74, 61, .12) 55%, transparent); mix-blend-mode: screen; }
+  
+    html.am-anim .cat__lane { animation: cat-lane .55s linear infinite; }
+    html.am-anim .cat__car, html.am-anim .cat__flare { animation: cat-pass 3.6s cubic-bezier(.55, 0, .8, .25) infinite; }
+  
+  @keyframes cat-lane { to { transform: translateY(64px); } }
+  @keyframes cat-pass {
+    0% { transform: translateY(-34%) scale(.12); opacity: 0; }
+    18% { opacity: 1; }
+    80% { transform: translateY(0) scale(1.05); opacity: 1; }
+    100% { transform: translateY(26%) scale(2.6); opacity: 0; }
+  }
+  .cat__empty h2 { margin: 0; font-family: var(--am-display); font-weight: 700; font-stretch: 115%; font-size: clamp(24px, 3vw, 34px); line-height: 1.1; }
   .cat__empty p { color: var(--am-muted); margin: 10px auto 24px; max-width: 46ch; }
   .cat__empty-ctas { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .cat__badge { min-width: 20px; height: 20px; border-radius: 999px; background: var(--am-red); color: #fff; font-size: 12px; display: inline-grid; place-items: center; padding: 0 6px; }
-  .cat__scrim { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 55; }
 
+  .cat__scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, .6); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); z-index: 55; }
+  
+    html.am-anim .cat__scrim:not([hidden]) { animation: cat-fade .3s ease both; }
+  
+  @keyframes cat-fade { from { opacity: 0; } }
+
+  /* ================= móvil / tablet ================= */
   @media (max-width: 900px) {
-    .cat__layout { grid-template-columns: 1fr; gap: 0; }
-    .cat__open { display: inline-flex; min-height: 44px; }
-    .cat__bar { justify-content: space-between; align-items: center; gap: 10px; }
+    .cat__titlerow { flex-wrap: wrap; }
+    .cat__title { font-size: clamp(60px, 15.5vw, 140px); }
+    /* el contador siempre en su propia línea: la ola de la tipografía no lo hace brincar */
+    .cat__count { flex-basis: 100%; padding-top: 0; }
+    .cat__cue { display: none; }
+
+    .cat__bar { top: calc(var(--am-header-h) + 4px); }
+    .cat__bar-in { gap: 8px; padding: 4px; }
+    .cat__bar-in::after { left: 22px; right: 22px; }
+    .cat__bar .cat__open { display: inline-flex; flex: none; width: 44px; min-height: 44px; padding: 0; }
+    .cat__open-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .cat__open .cat__badge { position: absolute; top: 2px; right: 2px; min-width: 17px; height: 17px; font-size: 10.5px; padding: 0 4px; }
+    .cat__chips {
+      flex: 1 1 auto; padding: 3px;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 10px, #000 calc(100% - 16px), transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 10px, #000 calc(100% - 16px), transparent);
+    }
+    .cat__chip { min-height: 44px; padding: 0 14px; }
+    .cat__chip-n { margin-top: 11px; }
+    .cat__mini { display: none; }
     .cat__sort .am-label { display: none; }
-    .cat__sort .am-select { min-height: 44px; max-width: 210px; }
-    .cat__chips { margin-bottom: 16px; }
+    /* orden como botón redondo con ícono; el select nativo sigue abriendo sus opciones */
+    .cat__sort-box .am-select { width: 44px; min-height: 44px; padding: 0; border-radius: 50%; color: transparent; background-image: none; }
+    .cat__sort-ico { display: grid; place-items: center; position: absolute; inset: 0; pointer-events: none; color: var(--am-text); }
+    .cat__sort-box.is-custom::after { content: ''; position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--am-red-hi); box-shadow: 0 0 8px var(--am-neon); pointer-events: none; }
+
+    .cat__layout { grid-template-columns: 1fr; gap: 0; }
     .cat__filters {
       position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 60; max-height: 86vh; overflow-y: auto;
       border-radius: 20px 20px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, var(--am-surface), #0f1013);
       transform: translateY(105%); visibility: hidden;
-      transition: transform .3s cubic-bezier(.2,.7,.2,1), visibility 0s linear .3s;
+      transition: transform .3s cubic-bezier(.2, .7, .2, 1), visibility 0s linear .3s;
     }
-    .cat__filters.is-open { transform: none; visibility: visible; transition: transform .3s cubic-bezier(.2,.7,.2,1), visibility 0s; }
+    .cat__filters::before { content: ''; display: block; width: 40px; height: 4px; border-radius: 4px; background: var(--am-line2); margin: -8px auto 14px; }
+    .cat__filters.is-open { transform: none; visibility: visible; transition: transform .3s cubic-bezier(.2, .7, .2, 1), visibility 0s; }
     .cat__x { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--am-line2); background: transparent; color: var(--am-text); cursor: pointer; }
     .cat__form-actions { grid-template-columns: 1fr 1.4fr; position: sticky; bottom: 0; background: var(--am-surface); padding-top: 8px; }
-    .cat__apply { display: inline-flex; }
+    .cat__form .cat__apply { display: inline-flex; }
+    .cat__favhead { flex-wrap: wrap; }
+    .cat__favhead p { flex-basis: calc(100% - 60px); }
+    .cat__favhead .am-btn { margin-left: 58px; }
   }
+
+  
+    html:not(.am-anim) .cat__pill, html:not(.am-anim) .odo__strip, html:not(.am-anim) .cat__bar-in, html:not(.am-anim) .cat__bar-in::after, html:not(.am-anim) .cat__mini, html:not(.am-anim) .cat__chip-t > span, html:not(.am-anim) .cat__filters { transition: none !important; }
+  
 </style>

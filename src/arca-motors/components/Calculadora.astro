@@ -5,6 +5,11 @@
  *  - Financiera: CreditoGo / Caja Hipódromo (desde 15%, hasta 60 meses, tasa desde 15.90%).
  *  - 60% de enganche y 6 meses sin intereses.
  * Arca no publica precios de contado, así que el precio se escribe a mano.
+ *
+ * Motion: los números del resultado se animan (tween ~320 ms con requestAnimationFrame), el
+ * slider pinta su track relleno (--fill) y los grupos de botones llevan una píldora que se
+ * desliza al elegido. Con movimiento reducido todo cambia al instante. La lógica de cálculo
+ * es la misma de siempre.
  */
 import { FINANCIAMIENTO, DEMO, wa } from '../config';
 import Icon from './Icon.astro';
@@ -16,28 +21,34 @@ const msi = FINANCIAMIENTO.planes.find((p) => p.msi);
 const cfg = { auto, planes, msi: msi?.msi ?? 6, msiEng: msi?.enganche ?? 0.6 };
 const fmt = (n: number) => new Intl.NumberFormat('es-MX').format(n);
 const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
+const ENG_MAX = 90;
+const fill = (p: (typeof planes)[number]) => ((p.engancheDefault * 100 - p.engancheMin * 100) / (ENG_MAX - p.engancheMin * 100)) * 100;
 ---
-<div class="am-calc" data-calc={JSON.stringify(cfg)} id={id}>
+<div class="am-calc" data-calc={JSON.stringify(cfg)} id={id} data-spotlight>
+  <span class="am-spotlight am-calc__spot" aria-hidden="true"></span>
+
   <div class="am-calc__tabs" role="group" aria-label="Plan de pago">
+    <span class="am-calc__pill am-calc__pill--tab" data-pill aria-hidden="true"></span>
     {planes.map((p, i) => <button type="button" aria-pressed={i === 0 ? 'true' : 'false'} data-plan={p.id}>{p.nombre}</button>)}
     <button type="button" aria-pressed="false" data-plan="msi">{cfg.msi} MSI</button>
   </div>
 
   <div class="am-field">
     <label for={`${id}-precio`}>Precio del auto</label>
-    <input class="am-input" id={`${id}-precio`} inputmode="numeric" autocomplete="off" data-calc-precio value={fmt(precio)} />
+    <input class="am-input am-calc__precio" id={`${id}-precio`} inputmode="numeric" autocomplete="off" data-calc-precio value={fmt(precio)} />
   </div>
 
   {planes.map((p, i) => (
     <div class="am-calc__row" data-only={p.id} hidden={i > 0 ? true : undefined}>
       <div class="am-field">
         <label for={`${id}-eng-${p.id}`}>Enganche <output data-engpct>{pct(p.engancheDefault)}</output></label>
-        <input type="range" id={`${id}-eng-${p.id}`} min={p.engancheMin * 100} max="90" step="5" value={p.engancheDefault * 100} data-eng />
+        <input type="range" id={`${id}-eng-${p.id}`} min={p.engancheMin * 100} max={ENG_MAX} step="5" value={p.engancheDefault * 100} data-eng style={`--fill: ${fill(p)}%`} />
         <p class="am-calc__hint"><output data-engmxn></output> de enganche · mínimo {pct(p.engancheMin)}</p>
       </div>
       <div class="am-field">
         <span class="am-label" id={`${id}-plazo-${p.id}`}>Plazo (meses)</span>
         <div class="am-calc__plazos" role="group" aria-labelledby={`${id}-plazo-${p.id}`}>
+          <span class="am-calc__pill am-calc__pill--plazo" data-pill aria-hidden="true"></span>
           {p.plazos.map((m) => (
             <button type="button" aria-pressed={m === p.plazoDefault ? 'true' : 'false'} data-plazo={m} aria-label={`${m} meses`}>{m}</button>
           ))}
@@ -51,13 +62,19 @@ const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
     Enganche de <strong data-calc-msieng></strong> ({Math.round(cfg.msiEng * 100)}%) y el resto en {cfg.msi} pagos iguales, sin intereses.
   </p>
 
-  <div class="am-calc__out" aria-live="polite">
+  <div class="am-calc__out">
     <p class="am-label">Pagarías aprox.</p>
-    <p class="am-calc__big"><span data-calc-mes>—</span><small>/mes</small></p>
+    <p class="am-calc__big"><span class="am-calc__num" data-calc-mes>—</span><small>/mes</small></p>
+    <div class="am-calc__split" aria-hidden="true">
+      <div class="am-calc__bar"><span data-calc-bar></span></div>
+      <div class="am-calc__legend"><span>Enganche <b data-calc-epct></b></span><span>Resto <b data-calc-rpct></b></span></div>
+    </div>
     <p class="am-calc__note" data-calc-note></p>
+    <!-- Lector de pantalla: solo el resultado final (no cada cuadro del tween). -->
+    <p class="am-calc__sr" aria-live="polite" data-calc-live></p>
   </div>
 
-  <a class="am-btn am-btn--wa am-btn--block am-btn--lg" data-calc-wa href={wa('Hola, quiero cotizar un crédito.')} target="_blank" rel="noopener">
+  <a class="am-btn am-btn--wa am-btn--block am-btn--lg" data-calc-wa href={wa('Hola, quiero cotizar un crédito.')} target="_blank" rel="noopener" data-magnetic>
     <Icon name="whatsapp" size={20} /> Pedir esta cotización
   </a>
   <p class="am-calc__legal">Estimación. Sujeta a aprobación de crédito; pide la cotización exacta por WhatsApp.</p>
@@ -67,6 +84,43 @@ const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
   import { NEGOCIO } from '../config';
   const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
   const num = new Intl.NumberFormat('es-MX');
+  const reduceMQ = matchMedia(document.documentElement.classList.contains('am-anim') ? 'not all' : 'all');
+
+  // Tween de números: de lo que se ve ahora al valor nuevo en ~320 ms (easeOutCubic).
+  const tweens = new WeakMap<HTMLElement, { shown: number; raf: number }>();
+  function tweenTo(el: HTMLElement, to: number, text: (n: number) => string) {
+    let st = tweens.get(el);
+    if (!st) { st = { shown: NaN, raf: 0 }; tweens.set(el, st); }
+    cancelAnimationFrame(st.raf);
+    const from = st.shown;
+    if (reduceMQ.matches || !Number.isFinite(from) || from === to) {
+      st.shown = to;
+      el.textContent = text(to);
+      return;
+    }
+    const s = st;
+    const t0 = performance.now();
+    const dur = 320;
+    const step = (t: number) => {
+      const k = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - k, 3);
+      s.shown = from + (to - from) * e;
+      el.textContent = text(Math.round(s.shown));
+      if (k < 1) s.raf = requestAnimationFrame(step);
+      else s.shown = to;
+    };
+    s.raf = requestAnimationFrame(step);
+    // un golpe vertical breve al cambiar (sin reiniciarlo mientras corre, p. ej. al arrastrar)
+    if (el.animate && !el.getAnimations().length) {
+      el.animate([{ transform: 'translateY(14%)', opacity: 0.6 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.16,1,.3,1)' });
+    }
+  }
+  function resetTween(el: HTMLElement, text: string) {
+    const st = tweens.get(el);
+    if (st) { cancelAnimationFrame(st.raf); st.shown = NaN; }
+    el.textContent = text;
+  }
+
   document.querySelectorAll<HTMLElement>('[data-calc]').forEach((root) => {
     const cfg = JSON.parse(root.dataset.calc || '{}');
     const planes: any[] = cfg.planes;
@@ -75,33 +129,81 @@ const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
     const $ = <T extends Element>(s: string, el: ParentNode = root) => el.querySelector<T>(s);
     const precioIn = $<HTMLInputElement>('[data-calc-precio]')!;
     const wa = $<HTMLAnchorElement>('[data-calc-wa]')!;
+    const mesEl = $<HTMLElement>('[data-calc-mes]')!;
+    const live = $<HTMLElement>('[data-calc-live]');
+    const bar = $<HTMLElement>('[data-calc-bar]');
+    const epct = $<HTMLElement>('[data-calc-epct]');
+    const rpct = $<HTMLElement>('[data-calc-rpct]');
     const auto = cfg.auto ? ' para el ' + cfg.auto : '';
     const precio = () => Number(String(precioIn.value).replace(/[^\d]/g, '')) || 0;
 
+    /* ---------- píldoras deslizantes (plan y plazo) ---------- */
+    function placePill(group: HTMLElement) {
+      const pill = group.querySelector<HTMLElement>('[data-pill]');
+      const on = group.querySelector<HTMLElement>('[aria-pressed="true"]');
+      if (!pill || !on || !on.offsetWidth) return;
+      const first = !pill.dataset.placed;
+      if (first) pill.style.transition = 'none';
+      pill.style.width = `${on.offsetWidth}px`;
+      pill.style.height = `${on.offsetHeight}px`;
+      pill.style.transform = `translate3d(${on.offsetLeft}px, ${on.offsetTop}px, 0)`;
+      if (first) {
+        pill.dataset.placed = '1';
+        void pill.offsetWidth;
+        pill.style.transition = '';
+      }
+    }
+    const placeAll = () => root.querySelectorAll<HTMLElement>('.am-calc__tabs, .am-calc__plazos').forEach(placePill);
+
+    /* ---------- slider: track relleno ---------- */
+    const setFill = (r: HTMLInputElement) => {
+      const min = Number(r.min) || 0;
+      const max = Number(r.max) || 100;
+      r.style.setProperty('--fill', `${((Number(r.value) - min) / (max - min)) * 100}%`);
+    };
+
+    let liveT = 0;
+    let started = false;
     function render() {
       const p = precio();
-      let mes = 0, note = '', msg = '';
+      let mes = 0, note = '', msg = '', e = 0;
       if (plan === 'msi') {
-        const e = p * cfg.msiEng;
-        mes = Math.round((p - e) / cfg.msi);
-        $('[data-calc-msieng]')!.textContent = fmt.format(Math.round(e));
-        note = `${cfg.msi} pagos sin intereses · enganche ${fmt.format(Math.round(e))}`;
+        e = cfg.msiEng;
+        const eng = p * e;
+        mes = Math.round((p - eng) / cfg.msi);
+        $('[data-calc-msieng]')!.textContent = fmt.format(Math.round(eng));
+        note = `${cfg.msi} pagos sin intereses · enganche ${fmt.format(Math.round(eng))}`;
         msg = `Hola Arca Motors, me interesa el plan de ${Math.round(cfg.msiEng * 100)}% de enganche y ${cfg.msi} MSI${auto}: precio ${fmt.format(p)}.`;
       } else {
         const cp = planes.find((x) => x.id === plan);
         const block = $<HTMLElement>(`[data-only="${plan}"]`)!;
-        const e = Number($<HTMLInputElement>('[data-eng]', block)!.value) / 100;
+        const range = $<HTMLInputElement>('[data-eng]', block)!;
+        e = Number(range.value) / 100;
+        setFill(range);
         const plazo = plazos[plan];
         const r = cp.tasaAnual / 12;
         mes = Math.round((p * (1 - e) * r) / (1 - Math.pow(1 + r, -plazo)));
         $('[data-engpct]', block)!.textContent = `${Math.round(e * 100)}%`;
-        $('[data-engmxn]', block)!.textContent = fmt.format(Math.round(p * e));
+        tweenTo($<HTMLElement>('[data-engmxn]', block)!, Math.round(p * e), (v) => fmt.format(v));
         note = `${cp.nombre} · ${plazo} pagos · enganche ${fmt.format(Math.round(p * e))}`;
         msg = `Hola Arca Motors, quiero cotizar ${cp.nombre.toLowerCase()}${auto}: precio ${fmt.format(p)}, enganche ${Math.round(e * 100)}% (${fmt.format(Math.round(p * e))}) a ${plazo} meses. La calculadora me dio ${fmt.format(mes)} al mes.`;
       }
-      $('[data-calc-mes]')!.textContent = p ? fmt.format(mes) : '—';
+      if (p) tweenTo(mesEl, mes, (v) => fmt.format(v));
+      else resetTween(mesEl, '—');
       $('[data-calc-note]')!.textContent = p ? note : 'Escribe un precio';
+      if (!p) msg = `Hola Arca Motors, quiero cotizar un crédito${auto}.`;
       wa.href = `https://wa.me/52${NEGOCIO.telefonos[0]}?text=${encodeURIComponent(msg)}`;
+      // barra enganche / resto
+      if (bar) bar.style.transform = `scaleX(${e.toFixed(3)})`;
+      if (epct) epct.textContent = `${Math.round(e * 100)}%`;
+      if (rpct) rpct.textContent = `${Math.round((1 - e) * 100)}%`;
+      // aviso al lector de pantalla cuando el usuario deja de mover (no al cargar la página)
+      if (live && started) {
+        clearTimeout(liveT);
+        const said = p ? `${fmt.format(mes)} al mes. ${note}` : 'Escribe un precio';
+        liveT = window.setTimeout(() => { live.textContent = said; }, 600);
+      }
+      placeAll();
     }
 
     root.querySelectorAll<HTMLButtonElement>('[data-plan]').forEach((b) =>
@@ -122,6 +224,7 @@ const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
       );
       block.querySelector('[data-eng]')?.addEventListener('input', render);
     });
+    root.querySelectorAll<HTMLInputElement>('[data-eng]').forEach(setFill);
     // Mientras se escribe: solo dígitos (el cursor no brinca). Al salir: con comas.
     precioIn.addEventListener('focus', () => { precioIn.value = precioIn.value.replace(/[^\d]/g, ''); });
     precioIn.addEventListener('blur', () => { const n = precio(); precioIn.value = n ? num.format(n) : ''; });
@@ -131,28 +234,114 @@ const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
       render();
     });
     render();
+    started = true;
+    // primera colocación de las píldoras sin animación; después se deslizan
+    requestAnimationFrame(() => { placeAll(); root.classList.add('is-ready'); });
+    if ('ResizeObserver' in window) new ResizeObserver(placeAll).observe(root);
+    document.fonts?.ready.then(placeAll);
   });
 </script>
 
 <style>
-  .am-calc { display: grid; gap: 18px; background: linear-gradient(180deg, var(--am-surface2), var(--am-surface)); border: 1px solid var(--am-line2); border-radius: 18px; padding: clamp(18px, 3vw, 28px); }
-  .am-calc__tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--am-bg2); border: 1px solid var(--am-line); border-radius: 12px; }
-  .am-calc__tabs button { min-height: 44px; padding: 0 6px; border-radius: 9px; border: 0; background: transparent; color: var(--am-muted); font: 600 14px var(--am-body); cursor: pointer; }
-  .am-calc__tabs button[aria-pressed='true'] { background: var(--am-surface2); color: var(--am-text); box-shadow: 0 0 0 1px var(--am-line2), 0 6px 16px -8px rgba(0,0,0,.8); }
+  .am-calc {
+    position: relative; isolation: isolate; overflow: hidden;
+    display: grid; gap: 18px; padding: clamp(18px, 3vw, 28px); border-radius: 20px;
+    border: 1px solid transparent;
+    background:
+      radial-gradient(110% 70% at 100% 0%, rgba(227, 20, 31, .1), transparent 60%) padding-box,
+      linear-gradient(180deg, var(--am-surface2), var(--am-surface)) padding-box,
+      linear-gradient(155deg, rgba(255, 74, 61, .55), rgba(255, 255, 255, .1) 38%, rgba(255, 255, 255, .05) 70%, rgba(255, 74, 61, .25)) border-box;
+    box-shadow: 0 40px 80px -44px rgba(0, 0, 0, .95), 0 0 60px -38px var(--am-neon);
+  }
+  .am-calc > :not(.am-spotlight) { position: relative; z-index: 1; }
+  .am-calc__spot { --am-spot-size: 520px; opacity: .45; }
+
+  /* pestañas de plan con píldora deslizante */
+  .am-calc__tabs { position: relative; isolation: isolate; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--am-bg2); border: 1px solid var(--am-line); border-radius: 14px; }
+  .am-calc__tabs button {
+    min-height: 44px; padding: 4px 6px; border-radius: 10px; border: 0; background: transparent; color: var(--am-muted);
+    font: 600 13.5px/1.15 var(--am-body); cursor: pointer; transition: color .3s ease;
+  }
+  .am-calc__tabs button:hover { color: var(--am-text); }
+  .am-calc__tabs button[aria-pressed='true'] { color: var(--am-text); }
+  .am-calc:not(.is-ready) .am-calc__tabs button[aria-pressed='true'] { background: var(--am-surface2); box-shadow: 0 0 0 1px var(--am-line2), 0 6px 16px -8px rgba(0, 0, 0, .8); }
+  .am-calc__pill { position: absolute; left: 0; top: 0; pointer-events: none; opacity: 0; }
+  .am-calc.is-ready .am-calc__pill { opacity: 1; transition: transform .55s var(--am-ease-out), width .55s var(--am-ease-out), height .55s var(--am-ease-out), opacity .3s ease; }
+  .am-calc__pill--tab {
+    z-index: -1; border-radius: 10px; background: var(--am-surface2);
+    box-shadow: 0 0 0 1px var(--am-line2), 0 8px 20px -10px rgba(0, 0, 0, .9);
+  }
+  .am-calc__pill--tab::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 3px; height: 2px; border-radius: 2px; background: var(--am-red-hi); box-shadow: 0 0 10px var(--am-neon); }
+
+  .am-calc__precio { font-family: var(--am-display); font-stretch: 110%; font-weight: 600; font-size: 18px; font-variant-numeric: tabular-nums; }
+
   .am-calc__row { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
   @media (max-width: 520px) { .am-calc__row { grid-template-columns: 1fr; } }
-  .am-calc label output { color: var(--am-text); margin-left: 6px; letter-spacing: 0; }
-  .am-calc input[type='range'] { width: 100%; accent-color: var(--am-red); height: 32px; }
+  .am-calc label output { color: var(--am-text); margin-left: 6px; letter-spacing: 0; font-variant-numeric: tabular-nums; }
   .am-calc__hint { margin: 0; font-size: 13px; color: var(--am-muted); }
-  .am-calc__plazos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .am-calc__plazos button { min-height: 44px; border-radius: 10px; border: 1px solid var(--am-line2); background: var(--am-bg2); color: var(--am-muted); font: 600 15px var(--am-body); cursor: pointer; font-variant-numeric: tabular-nums; }
-  .am-calc__plazos button[aria-pressed='true'] { border-color: var(--am-red); color: #fff; background: rgba(227,20,31,.14); }
+  .am-calc__hint output { color: var(--am-text); font-weight: 600; font-variant-numeric: tabular-nums; display: inline-block; }
+
+  /* slider: track relleno con degradado + thumb con glow */
+  .am-calc input[type='range'] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; cursor: pointer; }
+  .am-calc input[type='range']::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 99px;
+    background: linear-gradient(90deg, var(--am-red-lo), var(--am-red-hi) var(--fill, 0%), rgba(255, 255, 255, .12) var(--fill, 0%));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+  }
+  .am-calc input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 22px; height: 22px; margin-top: -8px; border: 0; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff, #dfe2e6 55%, #9ca1a9);
+    box-shadow: 0 0 0 4px rgba(255, 74, 61, .3), 0 0 18px 2px var(--am-neon-soft), 0 2px 6px rgba(0, 0, 0, .6);
+    transition: transform .3s var(--am-ease-out), box-shadow .3s ease;
+  }
+  .am-calc input[type='range']:hover::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(255, 74, 61, .3), 0 0 26px 4px var(--am-neon-soft), 0 2px 6px rgba(0, 0, 0, .6); }
+  .am-calc input[type='range']:active::-webkit-slider-thumb { transform: scale(1.18); box-shadow: 0 0 0 7px rgba(255, 74, 61, .35), 0 0 30px 6px var(--am-neon), 0 2px 6px rgba(0, 0, 0, .6); }
+  .am-calc input[type='range']:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--am-bg2), 0 0 0 5px var(--am-red-hi), 0 0 24px 4px var(--am-neon); }
+  .am-calc input[type='range']::-moz-range-track { height: 6px; border-radius: 99px; background: rgba(255, 255, 255, .12); }
+  .am-calc input[type='range']::-moz-range-progress { height: 6px; border-radius: 99px; background: linear-gradient(90deg, var(--am-red-lo), var(--am-red-hi)); }
+  .am-calc input[type='range']::-moz-range-thumb {
+    width: 22px; height: 22px; border: 0; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff, #dfe2e6 55%, #9ca1a9);
+    box-shadow: 0 0 0 4px rgba(255, 74, 61, .3), 0 0 18px 2px var(--am-neon-soft), 0 2px 6px rgba(0, 0, 0, .6);
+    transition: transform .3s var(--am-ease-out), box-shadow .3s ease;
+  }
+  .am-calc input[type='range']:active::-moz-range-thumb { transform: scale(1.18); }
+
+  /* plazos con indicador deslizante (anillo rojo encima del elegido) */
+  .am-calc__plazos { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .am-calc__plazos button {
+    min-height: 44px; border-radius: 10px; border: 1px solid var(--am-line2); background: var(--am-bg2); color: var(--am-muted);
+    font: 600 15px var(--am-body); cursor: pointer; font-variant-numeric: tabular-nums; transition: color .3s ease, border-color .3s ease;
+  }
+  .am-calc__plazos button:hover { color: var(--am-text); border-color: rgba(255, 255, 255, .26); }
+  .am-calc__plazos button[aria-pressed='true'] { color: #fff; }
+  .am-calc:not(.is-ready) .am-calc__plazos button[aria-pressed='true'] { border-color: var(--am-red); background: rgba(227, 20, 31, .14); }
+  .am-calc__pill--plazo {
+    z-index: 1; border-radius: 10px; background: rgba(227, 20, 31, .16);
+    box-shadow: inset 0 0 0 1px var(--am-red-hi), 0 0 20px -4px var(--am-neon);
+  }
+
   .am-calc__msi { margin: 0; color: var(--am-muted); font-size: 15px; }
   .am-calc__msi strong { color: var(--am-text); }
+
+  /* resultado */
   .am-calc__out { padding: 16px 0 4px; border-top: 1px solid var(--am-line); }
   .am-calc__out .am-label { margin: 0; }
-  .am-calc__big { margin: 4px 0 0; font-family: var(--am-display); font-stretch: 112%; font-weight: 700; font-size: clamp(34px, 5vw, 44px); line-height: 1.05; font-variant-numeric: tabular-nums; }
-  .am-calc__big small { font-size: .42em; color: var(--am-muted); font-weight: 500; margin-left: 4px; }
-  .am-calc__note { margin: 4px 0 0; color: var(--am-muted); font-size: 14px; }
+  .am-calc__big { margin: 6px 0 0; font-family: var(--am-display); font-stretch: 114%; font-weight: 800; font-size: clamp(36px, 5vw, 50px); line-height: 1.05; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .am-calc__num { display: inline-block; text-shadow: 0 0 34px rgba(255, 42, 31, .28); }
+  .am-calc__big small { font-size: .38em; color: var(--am-muted); font-weight: 500; margin-left: 6px; letter-spacing: 0; }
+  .am-calc__split { margin-top: 14px; }
+  .am-calc__bar { position: relative; height: 6px; border-radius: 99px; overflow: hidden; background: rgba(255, 255, 255, .1); }
+  .am-calc__bar span { position: absolute; inset: 0; border-radius: inherit; transform-origin: 0 50%; transform: scaleX(.4); background: linear-gradient(90deg, var(--am-red-lo), var(--am-red-hi)); box-shadow: 0 0 12px var(--am-neon-soft); transition: transform .6s var(--am-ease-out); }
+  .am-calc__legend { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--am-muted); letter-spacing: .04em; }
+  .am-calc__legend b { color: var(--am-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .am-calc:not(.is-ready) .am-calc__split { display: none; }
+  .am-calc__note { margin: 10px 0 0; color: var(--am-muted); font-size: 14px; }
+  .am-calc__sr { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
   .am-calc__legal { margin: -6px 0 0; font-size: 12px; color: var(--am-dim); }
+
+  
+    html:not(.am-anim) .am-calc.is-ready .am-calc__pill, html:not(.am-anim) .am-calc__bar span,
+    html:not(.am-anim) .am-calc input[type='range']::-webkit-slider-thumb { transition: none; }
+  
 </style>

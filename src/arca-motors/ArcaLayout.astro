@@ -1,8 +1,10 @@
 ---
 /**
- * Arca Motors — layout autocontenido (cabecera, pie, barra móvil y estilos).
+ * Arca Motors — layout autocontenido (cabecera, pie, barra móvil, estilos y motion).
  * Todo lo de la marca vive en src/arca-motors/ y public/arca-motors/.
+ * El sistema de animación está en ./motion.ts; sus utilidades CSS, documentadas abajo.
  */
+import 'lenis/dist/lenis.css';
 import { BASE, ASSETS, NEGOCIO, DEMO, wa, tel, telBonito } from './config';
 import Icon from './components/Icon.astro';
 import { INVENTARIO } from './inventario';
@@ -32,6 +34,51 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <script is:inline>
+    // Antes de pintar: .js habilita los estados iniciales de las animaciones; .is-touch para táctiles.
+    // Si motion.ts no arranca en 3.5 s, se quita .js y todo queda visible.
+    (function (d) {
+      var h = d.documentElement;
+      h.classList.add('js');
+      try { if (matchMedia('(pointer: coarse)').matches) h.classList.add('is-touch'); } catch (e) {}
+      setTimeout(function () { if (!h.classList.contains('am-motion')) h.classList.remove('js'); }, 3500);
+      // .am-anim = movimiento permitido. Por omisión sigue al sistema (prefers-reduced-motion), pero el
+      // visitante puede elegir con el botón "Animaciones" (se guarda en este navegador). Windows en modo
+      // "mejor rendimiento" apaga las animaciones del navegador sin que la persona lo sepa: por eso el botón.
+      var pref = null, osReduce = false;
+      try { pref = localStorage.getItem('arca-motion'); } catch (e) {}
+      try { osReduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+      if (pref === 'on' || (pref !== 'off' && !osReduce)) h.classList.add('am-anim');
+      if (osReduce) h.classList.add('am-os-reduce');
+      if (pref) h.classList.add('am-motion-chosen');
+      // Sin movimiento, las transiciones entre páginas se saltan.
+      addEventListener('pageswap', function (e) { if (e.viewTransition && !h.classList.contains('am-anim')) e.viewTransition.skipTransition(); });
+      addEventListener('pagereveal', function (e) { if (e.viewTransition && !h.classList.contains('am-anim')) e.viewTransition.skipTransition(); });
+      // View Transition al volver de una ficha: la tarjeta de esa unidad (si está a la vista) recibe
+      // el nombre car-<folio> para que la foto regrese a su lugar. Va aquí porque pagereveal llega
+      // antes del primer cuadro, cuando los módulos quizá no corrieron.
+      addEventListener('pagereveal', function (e) {
+        try {
+          var vt = e.viewTransition, from = window.navigation && navigation.activation && navigation.activation.from;
+          if (!vt || !from || !from.url) return;
+          var m = /\/auto\/[^/?#]*-(arc-\d+)\/?(?:[?#]|$)/i.exec(from.url);
+          if (!m) return;
+          var name = 'car-' + m[1].toLowerCase();
+          var media = d.querySelector('[data-vt="' + name + '"]');
+          var vis = media && media.querySelector('.am-visual');
+          if (!vis) return;
+          var r = vis.getBoundingClientRect();
+          if (!r.width || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return;
+          var clip = media.closest('[data-rec-vp]');
+          if (clip) { var c = clip.getBoundingClientRect(); if (r.right <= c.left || r.left >= c.right) return; }
+          var card = media.closest('.am-card'); if (card) card.classList.add('is-in');
+          vis.style.viewTransitionName = name;
+          var off = function () { vis.style.viewTransitionName = ''; };
+          vt.finished.then(off, off);
+        } catch (err) {}
+      });
+    })(document);
+  </script>
   <title>{title}</title>
   <meta name="description" content={description} />
   {DEMO && <meta name="robots" content="noindex, nofollow" />}
@@ -76,23 +123,27 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     </defs>
   </svg>
 
+  <div class="am-progress" aria-hidden="true"><span class="am-progress__bar"></span></div>
+  <div class="am-grain" aria-hidden="true"></div>
+
   {DEMO && (
     <div class="am-demo">
+      <span class="am-pulse-dot" aria-hidden="true"></span>
       <span>Demo de propuesta<span class="am-demo__long"> · fotos y datos tomados de @arca.motors, disponibilidad por confirmar</span><span class="am-demo__short"> · datos de su Instagram</span></span>
     </div>
   )}
 
   <header class="am-header">
-    <div class="am-wrap am-header__in">
+    <div class="am-header__in">
       <a href={`${BASE}/`} class="am-header__logo" aria-label="Arca Motors, inicio">
         <img src={`${ASSETS}/brand/arca-wordmark-solo-dark.svg`} alt="Arca Motors" width="190" height="18" />
       </a>
       <nav class="am-nav" aria-label="Principal">
         {nav.map((n) => (
-          <a href={n.href} aria-current={active === n.id ? 'page' : undefined}>{n.label}</a>
+          <a href={n.href} data-text={n.label} aria-current={active === n.id ? 'page' : undefined}><span class="am-nav__t">{n.label}</span></a>
         ))}
       </nav>
-      <a class="am-btn am-btn--wa am-header__wa" href={wa(waMensaje)} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+      <a class="am-btn am-btn--wa am-header__wa" href={wa(waMensaje)} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp" data-magnetic>
         <Icon name="whatsapp" size={18} /> <span>WhatsApp</span>
       </a>
     </div>
@@ -103,6 +154,16 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   </main>
 
   <footer class="am-footer" id="contacto">
+    <div class="am-marquee am-marquee--fade am-footer__marquee" data-marquee="45" aria-hidden="true">
+      <div class="am-marquee__track">
+        {NEGOCIO.servicios.map((s, i) => (
+          <span class="am-footer__svc">
+            <span class:list={[i % 2 ? 'am-silver-text' : 'am-outline-text']}>{s}</span>
+            <span class="am-carmark"></span>
+          </span>
+        ))}
+      </div>
+    </div>
     <div class="am-wrap am-footer__grid">
       <div class="am-footer__brand">
         <img src={`${ASSETS}/brand/arca-logo-dark.svg`} alt="Arca Motors — Excelencia en seminuevos" width="220" height="124" loading="lazy" />
@@ -132,9 +193,40 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
         </ul>
       </div>
     </div>
+
+    <!-- Tipografía como layout: "ARCA MOTORS" a todo el ancho, en contorno plata con un brillo que la recorre. -->
+    <div class="am-wrap am-giant" aria-hidden="true">
+      <svg viewBox="0 0 1200 156" preserveAspectRatio="xMidYMid meet" focusable="false">
+        <defs>
+          <linearGradient id="am-giant-silver" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fbfbfc" />
+            <stop offset=".38" stop-color="#d3d6da" />
+            <stop offset=".52" stop-color="#7d838b" />
+            <stop offset=".7" stop-color="#e6e8eb" />
+            <stop offset="1" stop-color="#a3a8ae" />
+          </linearGradient>
+          <linearGradient id="am-giant-sheen" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#fff" stop-opacity="0" />
+            <stop offset=".45" stop-color="#ffd9d4" stop-opacity=".55" />
+            <stop offset=".5" stop-color="#fff" stop-opacity=".95" />
+            <stop offset=".55" stop-color="#ffd9d4" stop-opacity=".55" />
+            <stop offset="1" stop-color="#fff" stop-opacity="0" />
+          </linearGradient>
+          <clipPath id="am-giant-clip">
+            <text class="am-giant__t" x="600" y="148" text-anchor="middle" textLength="1188" lengthAdjust="spacingAndGlyphs">ARCA MOTORS</text>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#am-giant-clip)">
+          <rect width="1200" height="156" fill="url(#am-giant-silver)" opacity=".08" />
+          <rect class="am-giant__sheen" x="-380" y="0" width="380" height="156" fill="url(#am-giant-sheen)" />
+        </g>
+        <text class="am-giant__t am-giant__stroke" x="600" y="148" text-anchor="middle" textLength="1188" lengthAdjust="spacingAndGlyphs">ARCA MOTORS</text>
+      </svg>
+    </div>
+
     <div class="am-wrap am-footer__legal">
       <p>*Enganche y mensualidad como se publicaron en Instagram. Sujetos a aprobación de crédito y a cambios sin previo aviso; no son una oferta vinculante.</p>
-      <p>© {new Date().getFullYear()} {NEGOCIO.nombre} · {NEGOCIO.ciudad}</p>
+      <p>© {new Date().getFullYear()} {NEGOCIO.nombre} · {NEGOCIO.ciudad} · <button class="am-mtoggle-link" type="button" data-mtoggle aria-pressed="false">Animaciones: <b data-mtoggle-state>no</b></button></p>
     </div>
   </footer>
 
@@ -145,6 +237,37 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     </div>
   )}
   <slot name="bar" />
+
+  <!-- Interruptor de animaciones: sigue al sistema por omisión; si el sistema las reduce, lo dice en vez de apagarlas en silencio. -->
+  <button class="am-mtoggle" type="button" data-mtoggle aria-pressed="false" data-cursor="">
+    <span class="am-mtoggle__eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span class="am-mtoggle__txt">
+      <span class="am-mtoggle__hint">Tu sistema tiene las animaciones reducidas</span>
+      <span class="am-mtoggle__lbl">Animaciones <b data-mtoggle-state>no</b></span>
+    </span>
+  </button>
+  <script is:inline>
+    (function () {
+      var h = document.documentElement, on = h.classList.contains('am-anim');
+      document.querySelectorAll('[data-mtoggle]').forEach(function (b) {
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        var st = b.querySelector('[data-mtoggle-state]');
+        if (st) st.textContent = on ? 'sí' : 'no';
+        b.addEventListener('click', function () {
+          var want = on ? 'off' : 'on', ok = false;
+          try { localStorage.setItem('arca-motion', want); ok = localStorage.getItem('arca-motion') === want; } catch (e) {}
+          if (ok) { location.reload(); return; }
+          // Sin almacenamiento (datos del sitio bloqueados): se aplica solo a esta vista, sin recargar.
+          on = !on;
+          h.classList.toggle('am-anim', on); h.classList.add('am-motion-chosen');
+          document.querySelectorAll('[data-mtoggle]').forEach(function (x) {
+            x.setAttribute('aria-pressed', on ? 'true' : 'false');
+            var s = x.querySelector('[data-mtoggle-state]'); if (s) s.textContent = on ? 'sí' : 'no';
+          });
+        });
+      });
+    })();
+  </script>
 
   <script is:inline>
     // Favoritos sin cuenta: viven en este navegador.
@@ -169,16 +292,38 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
         var id = b.getAttribute('data-fav'), favs = read(), i = favs.indexOf(id);
         if (i > -1) favs.splice(i, 1); else favs.push(id);
         write(favs); paint();
+        // Estallido solo al guardar (no al pintar el estado guardado al cargar).
+        if (i === -1) {
+          b.classList.remove('is-pop'); void b.offsetWidth; b.classList.add('is-pop');
+          setTimeout(function () { b.classList.remove('is-pop'); }, 900);
+        }
         document.dispatchEvent(new CustomEvent('arca:favs'));
       });
       window.arcaFavs = read;
       paint();
+      // Al volver con Atrás (bfcache) o si otra pestaña cambió los favoritos, se repinta y se avisa al catálogo.
+      function sync() { paint(); document.dispatchEvent(new CustomEvent('arca:favs')); }
+      addEventListener('pageshow', function (e) { if (e.persisted) sync(); });
+      addEventListener('storage', function (e) { if (e.key === KEY || e.key === null) sync(); });
     })();
+  </script>
+  <script>
+    import './motion';
   </script>
 </body>
 </html>
 
 <style is:global>
+  /* ======================================================================
+     TOKENS
+     --am-ease-out   salida suave y larga (revelados, hovers)      cubic-bezier(.16,1,.3,1)
+     --am-ease-io    entrada/salida simétrica (bucles, barridos)   cubic-bezier(.65,0,.35,1)
+     --am-neon       rojo luminoso para glows / sombras de color (no para texto pequeño)
+     --am-neon-soft  el mismo neón translúcido para halos grandes
+     --am-glass      fondo de vidrio oscuro (con backdrop-filter)
+     --am-header-h   alto de la zona del header (72px escritorio, 60px móvil)
+     --am-delay      retraso extra de un revelado (ponlo inline: style="--am-delay: 200ms")
+     ====================================================================== */
   :root {
     --am-bg: #070708;
     --am-bg2: #0d0e10;
@@ -194,15 +339,25 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     --am-red-lo: #9c0b12;
     --am-amber: #f2a33a;
     --am-wa: #25d366;
+    --am-neon: #ff2a1f;
+    --am-neon-soft: rgba(255, 42, 31, 0.35);
+    --am-glass: rgba(16, 16, 19, 0.62);
     --am-silver: linear-gradient(180deg, #fbfbfc 0%, #d3d6da 38%, #7d838b 52%, #e6e8eb 70%, #a3a8ae 100%);
+    --am-ease-out: cubic-bezier(.16, 1, .3, 1);
+    --am-ease-io: cubic-bezier(.65, 0, .35, 1);
     --am-radius: 14px;
     --am-display: 'Saira', 'Arial Narrow', system-ui, sans-serif;
     --am-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --am-gutter: clamp(16px, 4vw, 32px);
+    --am-header-h: 72px;
     color-scheme: dark;
   }
-  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  @media (max-width: 900px) { :root { --am-header-h: 60px; } }
+
+  /* hidden = respaldo para navegadores sin `clip` (Safari < 16); solo en html, en body rompería los sticky */
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; overflow-x: hidden; overflow-x: clip; }
+  html.lenis, html.lenis body { scroll-behavior: auto !important; }
+   html:not(.am-anim) { scroll-behavior: auto; } 
   body.am {
     margin: 0;
     background: var(--am-bg);
@@ -211,61 +366,363 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     font-size: 16px;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   .am a { color: inherit; text-decoration: none; }
   .am img { max-width: 100%; display: block; }
   .am :focus-visible { outline: 2px solid var(--am-red-hi); outline-offset: 3px; border-radius: 6px; }
   .am [hidden] { display: none !important; }
+  .am ::selection { background: var(--am-red); color: #fff; }
   .am-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
   .am-wrap { width: 100%; max-width: 1240px; margin-inline: auto; padding-inline: var(--am-gutter); box-sizing: border-box; }
   .am-icon { flex: none; }
 
+  /* ---------- transiciones entre páginas (View Transitions, cross-document) ----------
+     Cada CarCard trae data-vt="car-<folio>"; motion.ts pone ese view-transition-name solo en la
+     foto de la tarjeta que se toca, y el script inline del <head> lo pone al volver de la ficha.
+     La ficha lo lleva fijo en su foto principal (CarVisual prop `vt`). Un nombre = una vez por página. */
+  
+    @media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }
+  
+  .am-header { view-transition-name: am-header; }
+  ::view-transition-group(*) { animation-duration: .7s; animation-timing-function: cubic-bezier(.16, 1, .3, 1); }
+  ::view-transition-old(root) { animation: am-vt-out .4s cubic-bezier(.65, 0, .35, 1) both; }
+  ::view-transition-new(root) { animation: am-vt-in .7s cubic-bezier(.16, 1, .3, 1) .05s both; }
+  @keyframes am-vt-out { to { opacity: 0; transform: scale(.985); } }
+  @keyframes am-vt-in { from { opacity: 0; transform: translateY(28px); } }
+
+  /* ---------- siempre activo: grano de película + progreso de scroll ---------- */
+  .am-grain {
+    /* 130% basta para el desplazamiento máximo (9% de su tamaño); 200% era una capa 4× la pantalla. */
+    position: fixed; left: -15%; top: -15%; width: 130%; height: 130%; z-index: 90; pointer-events: none;
+    opacity: .06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  
+    html.am-anim .am-grain { animation: am-grain 1s steps(6) infinite; }
+  
+  @keyframes am-grain {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    17% { transform: translate3d(-6%, 4%, 0); }
+    33% { transform: translate3d(4%, -7%, 0); }
+    50% { transform: translate3d(-9%, 2%, 0); }
+    67% { transform: translate3d(7%, 6%, 0); }
+    83% { transform: translate3d(-3%, -5%, 0); }
+  }
+  .am-progress { position: fixed; left: 0; right: 0; top: 0; height: 2px; z-index: 70; pointer-events: none; }
+  .am-progress__bar {
+    display: block; height: 100%; transform: scaleX(0); transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--am-red-lo), var(--am-red) 40%, var(--am-red-hi));
+    box-shadow: 0 0 12px var(--am-neon), 0 0 2px var(--am-red-hi);
+  }
+
   /* ---------- tipografía ---------- */
   .am-display { font-family: var(--am-display); font-stretch: 118%; font-weight: 700; letter-spacing: -0.01em; line-height: 1.02; }
-  .am-kicker { font-family: var(--am-display); font-stretch: 112%; font-weight: 600; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--am-red-hi); margin: 0 0 14px; }
+  .am-kicker { display: inline-flex; align-items: center; gap: 10px; font-family: var(--am-display); font-stretch: 112%; font-weight: 600; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--am-red-hi); margin: 0 0 14px; }
+  .am-kicker::before { content: ''; width: 22px; height: 2px; border-radius: 2px; background: currentColor; box-shadow: 0 0 10px var(--am-neon); flex: none; }
   .am-h2 { font-family: var(--am-display); font-stretch: 115%; font-weight: 700; font-size: clamp(28px, 4.2vw, 46px); line-height: 1.05; margin: 0; letter-spacing: -0.01em; }
+  /* .am-h2 se ensancha (wdth 100% → 115%) al entrar en pantalla. */
+  
+    html.am-anim.js .am-h2 { font-stretch: 100%; transition: font-stretch 1.4s var(--am-ease-out) .1s; }
+    html.am-anim.js .am-h2.is-in { font-stretch: 115%; }
+  
   .am-lead { color: var(--am-muted); font-size: clamp(16px, 1.6vw, 18px); max-width: 58ch; margin: 14px 0 0; }
   .am-silver-text { background: var(--am-silver); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .am-red-text { background: linear-gradient(180deg, var(--am-red-hi), var(--am-red) 45%, var(--am-red-lo)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
-  /* ---------- botones ---------- */
+  /* ======================================================================
+     UTILIDADES PARA LAS PÁGINAS
+     ====================================================================== */
+
+  /* .am-outline-text — texto solo con contorno plata (para tipografía gigante decorativa).
+     .am-outline-text--red en rojo. No lo uses para texto que deba leerse: contraste bajo. */
+  .am-outline-text { color: transparent; -webkit-text-stroke: 1px rgba(232, 234, 237, .55); }
+  .am-outline-text--red { color: transparent; -webkit-text-stroke: 1px var(--am-red-hi); }
+
+  /* .am-glow — halo neón rojo alrededor de lo que sea (texto o caja) vía drop-shadow.
+     .am-glow--pulse lo hace respirar (bucle; se pausa fuera de pantalla si además lleva .am-loop). */
+  .am-glow { filter: drop-shadow(0 0 14px var(--am-neon-soft)) drop-shadow(0 0 2px rgba(255, 74, 61, .5)); }
+  
+    html.am-anim .am-glow--pulse { animation: am-glow 3.6s var(--am-ease-io) infinite; }
+  
+  @keyframes am-glow {
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 42, 31, .22)) drop-shadow(0 0 1px rgba(255, 74, 61, .4)); }
+    50% { filter: drop-shadow(0 0 26px rgba(255, 42, 31, .55)) drop-shadow(0 0 3px rgba(255, 74, 61, .7)); }
+  }
+
+  /* .am-glass — panel de vidrio oscuro (fondo translúcido + blur + borde fino). */
+  .am-glass { background: var(--am-glass); -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px); border: 1px solid rgba(255, 255, 255, .1); }
+
+  /* .am-pulse-dot — punto rojo "en vivo" con onda (bucle). */
+  .am-pulse-dot { position: relative; display: inline-block; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--am-red-hi); box-shadow: 0 0 10px var(--am-neon); vertical-align: middle; }
+  .am-pulse-dot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--am-red-hi); opacity: 0; }
+  
+    html.am-anim .am-pulse-dot::after { animation: am-ping 1.8s var(--am-ease-out) infinite; }
+  
+  @keyframes am-ping { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(3.4); } }
+
+  /* .am-carmark — silueta del auto de la marca (arca-car-mono.svg) pintada con currentColor.
+     Dale ancho (p. ej. width: 3em); la altura sale sola. */
+  .am-carmark {
+    display: inline-block; width: 2.6em; aspect-ratio: 594 / 216; background: currentColor; color: var(--am-red);
+    -webkit-mask: url('/arca-motors/brand/arca-car-mono.svg') center / contain no-repeat;
+    mask: url('/arca-motors/brand/arca-car-mono.svg') center / contain no-repeat;
+  }
+
+  /* .am-under-header — para un hero que debe pasar POR DEBAJO del header transparente:
+     lo sube el alto del header y compensa con padding. */
+  .am-under-header { margin-top: calc(-1 * var(--am-header-h)); padding-top: var(--am-header-h); }
+
+  /* .am-rule (+ data-inview) — línea roja que se dibuja de izquierda a derecha al entrar. */
+  .am-rule { display: block; height: 1px; border: 0; margin: 0; background: linear-gradient(90deg, var(--am-red-hi), rgba(255, 74, 61, .25) 40%, transparent); transform-origin: 0 50%; }
+  
+    html.am-anim.js .am-rule[data-inview] { transform: scaleX(0); transition: transform 1.4s var(--am-ease-out) var(--am-delay, 0ms); }
+    html.am-anim.js .am-rule[data-inview].is-in { transform: none; }
+  
+
+  /* .am-reveal — aparece (opacidad + sube 32px) al entrar en pantalla. Los que entran juntos
+     se escalonan solos 70 ms; para fijar el retraso: style="--am-delay: 240ms".
+     Usa animación (no transición) y la propiedad `translate`, así convive con transform/transition propios. */
+  
+    html.am-anim.js .am-reveal:not(.is-in) { opacity: 0; }
+    html.am-anim.js .am-reveal.is-in { animation: am-rise 1.1s var(--am-ease-out) var(--am-delay, 0ms) backwards; }
+  
+  @keyframes am-rise { from { opacity: 0; translate: 0 32px; } to { opacity: 1; translate: 0 0; } }
+
+  /* [data-inview] — solo recibe la clase .is-in (una vez) al entrar: para animaciones propias de la página.
+     Escríbelas así:  html.am-anim.js .x:not(.is-in) {…}  html.am-anim .x.is-in {…}
+     (html.am-anim = movimiento permitido: lo decide el script de <head> con el SO + la elección guardada). */
+
+  /* [data-split] — en h1/h2/p: el texto se parte en palabras (span.am-w > span.am-w__i) que suben
+     desde una máscara con 40 ms entre palabra y palabra (+ --am-delay). Respeta <br> y los spans
+     internos; las clases *-text (am-silver-text, am-red-text, am-outline-text) pasan a cada palabra.
+     No lo pongas en elementos con enlaces/botones dentro (ahí no se oculta nada al lector de pantalla,
+     pero el texto queda partido). */
+  .am-w { display: inline-block; vertical-align: top; overflow: hidden; overflow: visible clip; padding-bottom: .12em; margin-bottom: -.12em; }
+  .am-w__i { display: inline-block; }
+  
+    html.am-anim.js [data-split] .am-w__i { transform: translateY(105%); transition: transform 1.1s var(--am-ease-out); transition-delay: calc(var(--i, 0) * 40ms + var(--am-delay, 0ms)); }
+    html.am-anim.js [data-split].is-in .am-w__i { transform: none; }
+  
+
+  /* [data-kinetic] — tipografía cinética con el eje wdth de Saira: cada letra (span.am-ch) se
+     ensancha cerca del puntero (puntero fino) y en táctil hace una ola continua.
+     data-kinetic="wave" fuerza la ola siempre. data-kinetic-max="125" (tope), data-kinetic-radius="280".
+     Úsalo en 1–2 palabras display grandes (hero); no lo combines con .am-h2. Se puede combinar con data-split. */
+  @property --am-k { syntax: '<number>'; inherits: false; initial-value: 100; }
+  .am-ch { display: inline-block; font-variation-settings: 'wdth' var(--am-k); }
+  
+    html.am-anim.is-touch [data-kinetic] .am-ch, html.am-anim [data-kinetic='wave'] .am-ch { animation: am-kwave 3.4s var(--am-ease-io) infinite; animation-delay: calc(var(--ci, 0) * 110ms); }
+  
+  @keyframes am-kwave { 0%, 100% { --am-k: var(--am-k-base, 100); } 50% { --am-k: var(--am-k-max, 125); } }
+
+  /* [data-count] — el número del texto cuenta desde 0 al entrar (formato es-MX; conserva
+     prefijo/sufijo: "$385,000", "1.6 mil", "21"). data-count="off" lo desactiva; data-count-dur="1600" (ms). */
+  [data-count] { font-variant-numeric: tabular-nums; }
+
+  /* [data-marquee] + .am-marquee > .am-marquee__track — marquesina infinita. Pon UNA vez el
+     contenido en la pista; el script la clona (aria-hidden) hasta llenar y la anima por CSS.
+     data-marquee="60" = px/seg. Se pausa con :hover y fuera de pantalla.
+     Variantes: .am-marquee--reverse (al revés), .am-marquee--fade (bordes que se desvanecen).
+     Espacio entre elementos: --am-marquee-gap (por omisión 40px). */
+  .am-marquee { --am-marquee-gap: 40px; position: relative; overflow: hidden; }
+  .am-marquee--fade { -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .am-marquee__track { display: flex; align-items: center; gap: var(--am-marquee-gap); padding-right: var(--am-marquee-gap); width: max-content; }
+  .am-marquee__track > * { flex: none; }
+  
+    html.am-anim.js .am-marquee.is-ready .am-marquee__track { animation: am-marquee var(--am-marquee-dur, 30s) linear infinite; }
+    html.am-anim .am-marquee--reverse .am-marquee__track { animation-direction: reverse !important; }
+    html.am-anim .am-marquee:hover .am-marquee__track, html.am-anim .am-marquee.is-off .am-marquee__track { animation-play-state: paused; }
+  
+  
+    /* Sin movimiento: una sola fila que se recorre a mano (no 12 renglones apilados). */
+    html:not(.am-anim) .am-marquee { overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+    html:not(.am-anim) .am-marquee[aria-hidden='true'], html:not(.am-anim) [aria-hidden='true'] .am-marquee { overflow-x: hidden; }
+    html:not(.am-anim) .am-marquee::-webkit-scrollbar { display: none; }
+  
+  @keyframes am-marquee { to { transform: translate3d(-50%, 0, 0); } }
+
+  /* [data-tilt] — tilt 3D (máx 6°, o data-tilt="10") con puntero fino. El script pone --rx --ry
+     (grados) y --mx --my (% de la posición del puntero). El elemento recibe `transform`: no le
+     pongas transform propio (usa un hijo). Mientras sigue al puntero tiene .is-tilting.
+     Añade <span class="am-glare" aria-hidden="true"></span> como hijo directo para el brillo
+     (el padre necesita position: relative y overflow: hidden). */
+  :where([data-tilt]) { transition: transform .7s var(--am-ease-out); }
+  :where([data-tilt].is-tilting) { transition-duration: .2s; }
+  @media (hover: hover) and (pointer: fine) {
+    html.am-anim .am [data-tilt] { transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--am-lift, 0px)); }
+  }
+  .am-glare { position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit; opacity: 0; transition: opacity .5s ease; background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, .2), rgba(255, 255, 255, .05) 28%, transparent 55%); mix-blend-mode: overlay; }
+  @media (hover: hover) and (pointer: fine) {
+    [data-tilt]:hover > .am-glare { opacity: 1; }
+  }
+
+  /* [data-magnetic] — se acerca al puntero (máx 10px; fuerza data-magnetic="0.35") y vuelve con
+     resorte. Usa la propiedad `translate` (no `transform`): no lo combines con .am-reveal ni
+     [data-parallax] en el MISMO elemento. */
+
+  /* [data-cursor="Texto"] — con el cursor custom (solo puntero fino) el anillo crece, se vuelve rojo
+     y muestra "Texto" al pasar encima. Ej.: data-cursor="Ver", "Arrastra", "Abrir". */
+
+  /* [data-parallax="0.15"] — se desplaza en Y con el scroll (factor; negativo = al revés). Usa
+     `translate`. Ideal en capas decorativas/fondos; no en texto principal. Apagado en reduce. */
+
+  /* [data-scrub] — expone --p de 0 (su borde superior toca el fondo de la pantalla) a 1 (su borde
+     inferior sale por arriba). Úsalo para animaciones ligadas al scroll: transform: scale(calc(1 + var(--p) * .2)).
+     En reduce no se actualiza: escribe siempre var(--p, <valor estático>). */
+
+  /* [data-spotlight] + hijo .am-spotlight — foco de luz roja (o .am-spotlight--white) que sigue al
+     puntero con inercia y, en táctil o sin puntero, deriva solo. El contenedor también recibe
+     --sx --sy (px) para máscaras propias: mask-image: radial-gradient(circle 220px at var(--sx) var(--sy), #000, transparent).
+     El contenedor necesita position: relative y overflow: hidden. Tamaño: --am-spot-size. */
+  .am-spotlight {
+    position: absolute; left: 50%; top: 45%; z-index: 0; pointer-events: none;
+    width: var(--am-spot-size, min(110vmax, 1200px)); aspect-ratio: 1; border-radius: 50%;
+    translate: -50% -50%;
+    background: radial-gradient(closest-side, rgba(255, 42, 31, .34), rgba(255, 42, 31, .12) 45%, transparent 72%);
+    mix-blend-mode: screen; will-change: transform;
+  }
+  .am-spotlight--white { background: radial-gradient(closest-side, rgba(255, 255, 255, .16), rgba(255, 255, 255, .05) 45%, transparent 72%); }
+
+  /* .am-loop — añádela a cualquier elemento con animación en bucle propia: recibe .is-off fuera de
+     pantalla y sus animaciones (y las de sus hijos) se pausan. */
+  .is-off, .is-off *, .is-off::before, .is-off::after, .is-off *::before, .is-off *::after { animation-play-state: paused !important; }
+
+  /* ---------- cursor custom (lo crea motion.ts solo con puntero fino y sin reduce) ---------- */
+  html.has-cursor, html.has-cursor * { cursor: none !important; }
+  html.has-cursor :is(input, select, textarea, [contenteditable='true'], iframe) { cursor: auto !important; }
+  .am-cursor { position: fixed; inset: 0; z-index: 100; pointer-events: none; transition: opacity .3s ease; }
+  .am-cursor.is-hidden, .am-cursor.is-native { opacity: 0; }
+  .am-cursor__dot, .am-cursor__ring { position: absolute; left: 0; top: 0; will-change: transform; }
+  .am-cursor__dot::before { content: ''; position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: var(--am-red-hi); box-shadow: 0 0 10px var(--am-neon); transition: transform .35s var(--am-ease-out), opacity .25s; }
+  .am-cursor__circle {
+    position: absolute; width: 38px; height: 38px; margin: -19px 0 0 -19px; border-radius: 50%; box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, .5); background: rgba(255, 255, 255, 0);
+    transition: transform .5s var(--am-ease-out), background-color .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .am-cursor__label {
+    position: absolute; left: 0; top: 0; transform: translate(-50%, -50%) scale(.5); opacity: 0; white-space: nowrap;
+    font: 700 11px/1 var(--am-display); font-stretch: 118%; letter-spacing: .16em; text-transform: uppercase; color: #fff;
+    transition: transform .45s var(--am-ease-out), opacity .25s ease;
+  }
+  .am-cursor.is-hover .am-cursor__circle { transform: scale(1.45); border-color: var(--am-red-hi); background: rgba(255, 74, 61, .08); }
+  .am-cursor.is-hover .am-cursor__dot::before { transform: scale(.5); }
+  .am-cursor.is-label .am-cursor__circle { transform: scale(2.4); border-color: transparent; background: rgba(227, 20, 31, .92); box-shadow: 0 0 30px -4px var(--am-neon); }
+  .am-cursor.is-label .am-cursor__label { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .am-cursor.is-label .am-cursor__dot::before { opacity: 0; }
+  .am-cursor.is-down .am-cursor__circle { transform: scale(.75); }
+  .am-cursor.is-down.is-label .am-cursor__circle { transform: scale(2.1); }
+
+  /* ---------- botones ----------
+     .am-btn (+ --red, --ghost, --wa, --lg, --block). Al hover un relleno barre de izquierda a derecha;
+     un ícono "arrow"/"arrowUpRight" dentro sale y vuelve a entrar. El rojo lleva un brillo que lo
+     recorre cada ~5 s. Agrega data-magnetic a los CTA principales. */
   .am-btn {
+    position: relative; isolation: isolate; overflow: hidden;
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     min-height: 46px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent;
     font: 600 15px/1 var(--am-body); cursor: pointer; white-space: nowrap;
-    transition: transform .15s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+    transition: transform .25s var(--am-ease-out), background-color .3s ease, border-color .3s ease, box-shadow .4s ease, color .3s ease;
   }
-  .am-btn:active { transform: translateY(1px); }
-  .am-btn--red { background: linear-gradient(180deg, #f2232d, #c40f19); color: #fff; box-shadow: 0 8px 28px -10px rgba(227, 20, 31, .8), inset 0 1px 0 rgba(255,255,255,.25); }
-  .am-btn--red:hover { box-shadow: 0 10px 34px -8px rgba(255, 58, 46, .9), inset 0 1px 0 rgba(255,255,255,.3); }
-  .am-btn--ghost { background: rgba(255,255,255,.04); border-color: var(--am-line2); color: var(--am-text); }
-  .am-btn--ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.24); }
-  .am-btn--wa { background: #1f9e52; color: #fff; }
-  .am-btn--wa:hover { background: #22b45d; }
+  .am-btn::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
+    background: var(--am-btn-fill, rgba(255, 255, 255, .1));
+    transform: scaleX(0); transform-origin: 100% 50%;
+    transition: transform .6s var(--am-ease-out);
+  }
+  .am-btn:hover::before, .am-btn:focus-visible::before { transform: scaleX(1); transform-origin: 0 50%; }
+  .am-btn:active { transform: scale(.97); }
+  .am-btn--red { --am-btn-fill: linear-gradient(180deg, #ff5a4c, #e3141f); background: linear-gradient(180deg, #f2232d, #c40f19); color: #fff; box-shadow: 0 8px 28px -10px rgba(227, 20, 31, .8), inset 0 1px 0 rgba(255,255,255,.25); }
+  .am-btn--red:hover { box-shadow: 0 14px 40px -10px rgba(255, 42, 31, .95), 0 0 0 1px rgba(255, 90, 76, .4), inset 0 1px 0 rgba(255,255,255,.3); }
+  .am-btn--red::after {
+    content: ''; position: absolute; top: -10%; bottom: -10%; left: 0; width: 45%; z-index: -1; pointer-events: none;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .38) 50%, transparent);
+    transform: translateX(-130%) skewX(-18deg);
+  }
+  
+    html.am-anim .am-btn--red::after { animation: am-shine 5.5s var(--am-ease-io) infinite; }
+  
+  @keyframes am-shine { 0%, 68% { transform: translateX(-130%) skewX(-18deg); } 100% { transform: translateX(330%) skewX(-18deg); } }
+  .am-btn--ghost { --am-btn-fill: rgba(255, 255, 255, .1); background: rgba(255,255,255,.04); border-color: var(--am-line2); color: var(--am-text); }
+  .am-btn--ghost:hover { border-color: rgba(255,255,255,.3); }
+  .am-btn--wa { --am-btn-fill: #25c160; background: #1f9e52; color: #fff; }
+  .am-btn--wa:hover { box-shadow: 0 10px 30px -12px rgba(37, 211, 102, .7); }
   .am-btn--lg { min-height: 54px; padding: 0 26px; font-size: 16px; }
   .am-btn--block { width: 100%; }
+  
+    html.am-anim .am-btn:hover .am-icon--arrow, html.am-anim .am-link:hover .am-icon--arrow { animation: am-arrow .65s var(--am-ease-out); }
+    html.am-anim .am-btn:hover .am-icon--arrowUpRight, html.am-anim .am-link:hover .am-icon--arrowUpRight { animation: am-arrow-diag .65s var(--am-ease-out); }
+  
+  @keyframes am-arrow { 0% { transform: none; } 45% { transform: translateX(150%); opacity: 0; } 46% { transform: translateX(-150%); opacity: 0; } 100% { transform: none; opacity: 1; } }
+  @keyframes am-arrow-diag { 0% { transform: none; } 45% { transform: translate(150%, -150%); opacity: 0; } 46% { transform: translate(-150%, 150%); opacity: 0; } 100% { transform: none; opacity: 1; } }
 
-  /* ---------- franja demo + header ---------- */
+  /* ---------- franja demo ---------- */
   .am-demo__short { display: none; }
-  @media (max-width: 900px) { .am-demo__short { display: inline; } }
-  .am-demo { background: repeating-linear-gradient(135deg, #1a0a0b 0 12px, #140809 12px 24px); border-bottom: 1px solid rgba(227,20,31,.35); color: #ffb4ad; font-size: 12.5px; text-align: center; padding: 7px 16px; letter-spacing: .02em; }
-  .am-header { position: sticky; top: 0; z-index: 40; background: rgba(7,7,8,.78); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid var(--am-line); }
-  .am-header__in { display: flex; align-items: center; gap: 28px; height: 68px; }
-  .am-header__logo { display: inline-flex; align-items: center; min-height: 44px; }
+  .am-demo {
+    position: relative; z-index: 61; display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(90deg, #120607, #1c0809 50%, #120607); border-bottom: 1px solid rgba(227,20,31,.3);
+    color: #ffb4ad; font-size: 12px; line-height: 1.35; text-align: center; padding: 6px 16px; letter-spacing: .03em;
+  }
+
+  /* ---------- header: transparente arriba, píldora de vidrio al hacer scroll ---------- */
+  .am-header { position: sticky; top: 0; z-index: 60; height: var(--am-header-h); pointer-events: none; }
+  .am-header__in {
+    pointer-events: auto; box-sizing: border-box;
+    display: flex; align-items: center; gap: 24px;
+    width: 100%; height: var(--am-header-h); margin: 0 auto;
+    padding-inline: max(var(--am-gutter), calc((100% - 1240px) / 2 + var(--am-gutter)));
+    border: 1px solid transparent; border-width: 0 0 1px; border-color: var(--am-line);
+    background-color: rgba(7, 7, 8, .78);
+    -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px);
+  }
+  
+    html.am-anim .am-header__in { transition: width .8s var(--am-ease-out), height .6s var(--am-ease-out), margin .6s var(--am-ease-out), padding .6s var(--am-ease-out), border-radius .6s var(--am-ease-out), background-color .45s ease, border-color .45s ease, box-shadow .6s ease, -webkit-backdrop-filter .45s ease, backdrop-filter .45s ease; }
+    html.am-anim .am-header__logo img { transition: height .6s var(--am-ease-out); }
+  
+  /* Con JS: transparente mientras está arriba. Sin JS se queda como barra de vidrio. */
+  html.js .am-header:not(.is-scrolled) .am-header__in { background-color: rgba(7, 7, 8, 0); border-color: transparent; -webkit-backdrop-filter: saturate(1) blur(0px); backdrop-filter: saturate(1) blur(0px); }
+  .am-header.is-scrolled .am-header__in {
+    width: min(100% - 20px, 900px); height: 58px; margin-top: 8px; padding-inline: 24px 7px;
+    border-width: 1px; border-radius: 999px; border-color: rgba(255, 255, 255, .1);
+    /* Más opaco que --am-glass: encima pasan precios y títulos, y no deben leerse a través. */
+    background-color: rgba(11, 11, 13, .86);
+    box-shadow: 0 18px 50px -18px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .07);
+  }
+  .am-nav a { white-space: nowrap; }
+  @media (max-width: 1100px) and (min-width: 901px) {
+    .am-nav a { padding: 0 8px; letter-spacing: .08em; }
+    .am-header.is-scrolled .am-header__in { padding-inline: 18px 6px; }
+  }
+  .am-header__logo { display: inline-flex; align-items: center; min-height: 44px; flex: none; }
   .am-header__logo img { height: 20px; width: auto; }
-  .am-nav { display: flex; gap: 26px; margin-left: auto; font-size: 14.5px; color: var(--am-muted); }
-  .am-nav a { padding: 6px 0; position: relative; transition: color .2s; }
-  .am-nav a:hover, .am-nav a[aria-current='page'] { color: var(--am-text); }
-  .am-nav a[aria-current='page']::after { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px; background: var(--am-red); border-radius: 2px; }
-  .am-header__wa { min-height: 40px; padding: 0 16px; font-size: 14px; }
+  .am-header.is-scrolled .am-header__logo img { height: 17px; }
+  .am-nav { display: flex; gap: 2px; margin-left: auto; }
+  .am-nav a {
+    position: relative; display: inline-grid; place-items: center; min-height: 44px; padding: 0 12px;
+    font-family: var(--am-display); font-weight: 600; font-size: 12.5px; letter-spacing: .13em; text-transform: uppercase;
+    font-stretch: 100%; color: var(--am-muted); transition: color .3s ease;
+  }
+  /* Reserva el ancho de la versión ancha para que el hover no empuje a los vecinos. */
+  .am-nav a::before { content: attr(data-text); content: attr(data-text) / ''; grid-area: 1 / 1; font-stretch: 125%; height: 0; overflow: hidden; visibility: hidden; }
+  .am-nav__t { grid-area: 1 / 1; font-stretch: 100%; transition: font-stretch .5s var(--am-ease-out); }
+  .am-nav a::after {
+    content: ''; position: absolute; left: 12px; right: 12px; bottom: 9px; height: 1.5px; border-radius: 2px;
+    background: var(--am-red-hi); box-shadow: 0 0 8px var(--am-neon);
+    transform: scaleX(0); transform-origin: 100% 50%; transition: transform .55s var(--am-ease-out);
+  }
+  .am-nav a:hover, .am-nav a:focus-visible, .am-nav a[aria-current='page'] { color: var(--am-text); }
+  .am-nav a:hover .am-nav__t, .am-nav a:focus-visible .am-nav__t { font-stretch: 125%; }
+  .am-nav a:hover::after, .am-nav a:focus-visible::after, .am-nav a[aria-current='page']::after { transform: scaleX(1); transform-origin: 0 50%; }
+  .am-header__wa { min-height: 44px; padding: 0 18px; font-size: 14px; flex: none; }
   @media (max-width: 900px) {
     .am-nav { display: none; }
-    .am-header__in { height: 60px; justify-content: space-between; }
-    .am-header__logo img { height: 16px; }
+    .am-header__in { justify-content: space-between; }
+    .am-header.is-scrolled .am-header__in { width: calc(100% - 16px); height: 52px; margin-top: 6px; padding-inline: 18px 4px; }
+    .am-header__logo img, .am-header.is-scrolled .am-header__logo img { height: 16px; }
     .am-demo__long { display: none; }
+    .am-demo__short { display: inline; }
     .am-header__wa span { display: none; }
-    .am-header__wa { width: 40px; padding: 0; }
+    .am-header__wa { width: 44px; padding: 0; }
   }
 
   /* ---------- barra móvil ---------- */
@@ -275,18 +732,28 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
       display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px;
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
       padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(10,10,11,.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      background: rgba(10,10,11,.8); -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px);
       border-top: 1px solid var(--am-line);
+      box-shadow: 0 -18px 40px -20px rgba(0, 0, 0, .9);
     }
+    .am-bar::before { content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 74, 61, .6), transparent); }
     .am-bar .am-btn { min-height: 48px; }
     body.am { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
     html { scroll-padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   }
 
-  /* ---------- visual del auto ---------- */
-  .am-visual { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: center 55%; background: #0b0b0c; }
-  .am-visual--frame { position: relative; overflow: hidden; }
+  /* ---------- visual del auto ----------
+     Las fotos son verticales (≈3:4). .am-visual base es 4:5 (recorte mínimo).
+     .am-visual--frame (CarVisual big): escenario con la misma foto desenfocada de fondo y la foto
+     completa encima (contain) — el formato recomendado para fotos verticales en espacios anchos. */
+  .am-visual { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 50%; background: #0b0b0c; }
+  .am-visual--frame { position: relative; overflow: hidden; isolation: isolate; }
   .am-visual__blur { position: absolute; inset: -8%; width: 116%; height: 116%; object-fit: cover; filter: blur(28px) brightness(.45) saturate(1.2); transform: scale(1.05); }
+  
+    html.am-anim .am-visual__blur { animation: am-breathe 16s var(--am-ease-io) infinite alternate; }
+  
+  @keyframes am-breathe { from { transform: scale(1.05) translate3d(-1.5%, 0, 0); } to { transform: scale(1.16) translate3d(1.5%, -1%, 0); } }
+  .am-visual--frame::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0, 0, 0, .55)); }
   .am-visual__img { position: relative; width: 100%; height: 100%; object-fit: contain; }
   .am-visual--studio {
     position: relative; overflow: hidden; container-type: inline-size;
@@ -301,48 +768,96 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-size: min(22cqw, calc(108cqw / var(--len, 6))); line-height: 1; letter-spacing: -.02em;
     color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.075); white-space: nowrap; user-select: none;
   }
-  .am-visual__car { position: absolute; left: 9%; width: 82%; bottom: 7%; filter: drop-shadow(0 10px 14px rgba(0,0,0,.55)); }
-  .am-visual__toma { position: absolute; left: 12px; bottom: 10px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--am-dim); }
+  .am-visual__car { position: absolute; left: 9%; width: 82%; bottom: 7%; filter: drop-shadow(0 10px 14px rgba(0,0,0,.55)); transition: transform .5s ease; }
+  .am-visual__toma { position: absolute; z-index: 2; left: 12px; bottom: 10px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--am-dim); }
   .am-visual--big .am-visual__toma { left: 20px; bottom: 16px; font-size: 12px; }
 
-  /* ---------- tarjeta ---------- */
-  .am-card { position: relative; display: flex; flex-direction: column; background: var(--am-surface); border: 1px solid var(--am-line); border-radius: var(--am-radius); overflow: hidden; transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
-  .am-card:hover { transform: translateY(-3px); border-color: var(--am-line2); box-shadow: 0 24px 50px -24px rgba(0,0,0,.9), 0 0 0 1px rgba(227,20,31,.12); }
+  /* ---------- tarjeta (CarCard) ----------
+     data-tilt + data-cursor="Ver"; .am-card__media[data-vt] (nombre de view transition al tocarla); .am-reveal. */
+  .am-card {
+    position: relative; display: flex; flex-direction: column; overflow: hidden;
+    background: linear-gradient(180deg, var(--am-surface), #0f1013);
+    border: 1px solid var(--am-line); border-radius: 18px;
+    transform: translateY(var(--am-lift, 0px));
+    transition: transform .7s var(--am-ease-out), border-color .4s ease, box-shadow .5s ease;
+  }
+  .am-card.is-tilting { transition-duration: .2s, .4s, .5s; }
+  .am-card:hover { --am-lift: -4px; border-color: rgba(255, 74, 61, .28); box-shadow: 0 30px 60px -30px rgba(0,0,0,.95), 0 0 46px -18px rgba(255, 42, 31, .45); }
+  .am-card__media { position: relative; overflow: hidden; }
+  .am-card .am-visual { transition: transform 1.2s var(--am-ease-out), filter .6s ease; }
+  .am-card:hover .am-visual { transform: scale(1.06); }
   .am-card:hover .am-visual__car { transform: translateX(1.5%); }
-  .am-card .am-visual--foto { transition: transform .6s cubic-bezier(.2,.7,.2,1); }
-  .am-card:hover .am-visual--foto { transform: scale(1.04); }
-  .am-card__media { overflow: hidden; }
-  .am-visual__car { transition: transform .5s ease; }
-  .am-card__media { position: relative; }
-  .am-card__badges { position: absolute; left: 12px; top: 12px; display: flex; flex-wrap: wrap; gap: 6px; z-index: 2; }
-  .am-badge { font-size: 11.5px; font-weight: 600; padding: 5px 9px; border-radius: 999px; background: rgba(10,10,11,.72); border: 1px solid var(--am-line2); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: #dfe2e6; }
-  .am-badge--new { background: var(--am-red); border-color: transparent; color: #fff; }
+  .am-card__shade { position: absolute; inset: auto 0 0 0; height: 38%; z-index: 1; pointer-events: none; background: linear-gradient(180deg, transparent, rgba(7, 7, 8, .75)); }
+  .am-card > .am-glare { z-index: 1; }
+  .am-card__badges { position: absolute; left: 12px; top: 12px; right: 60px; display: flex; flex-wrap: wrap; gap: 6px; z-index: 2; pointer-events: none; }
+  .am-badge { font-size: 11.5px; font-weight: 600; padding: 5px 9px; border-radius: 999px; background: rgba(10,10,11,.72); border: 1px solid var(--am-line2); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: #dfe2e6; }
+  .am-badge--new { position: relative; padding-left: 22px; background: var(--am-red); border-color: transparent; color: #fff; box-shadow: 0 0 22px -4px rgba(255, 42, 31, .75); }
+  .am-badge--new::before, .am-badge--new::after { content: ''; position: absolute; left: 9px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: #fff; }
+  .am-badge--new::after { background: transparent; border: 1px solid #fff; box-sizing: border-box; opacity: 0; }
+  
+    html.am-anim .am-badge--new::after { animation: am-ping 1.8s var(--am-ease-out) infinite; }
+  
   .am-badge--held { background: var(--am-amber); border-color: transparent; color: #1b1203; }
   .am-badge--sold { background: #e9ebee; color: #111; border-color: transparent; }
-  .am-fav { position: absolute; right: 8px; top: 8px; z-index: 3; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(10,10,11,.6); border: 1px solid var(--am-line2); color: #d7dade; cursor: pointer; transition: background .2s, color .2s, transform .15s; }
-  .am-fav:hover { background: rgba(10,10,11,.85); }
-  .am-fav[aria-pressed='true'] { color: var(--am-red-hi); background: rgba(227,20,31,.14); border-color: rgba(255,74,61,.45); }
+
+  /* favorito: estallido (anillo + partículas) al guardar → clase .is-pop puesta por el script de favoritos */
+  .am-fav { position: absolute; right: 8px; top: 8px; z-index: 3; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(10,10,11,.6); border: 1px solid var(--am-line2); color: #d7dade; cursor: pointer; transition: background .2s, color .2s, border-color .2s, transform .2s var(--am-ease-out); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .am-fav:hover { background: rgba(10,10,11,.85); transform: scale(1.06); }
+  .am-fav[aria-pressed='true'] { color: var(--am-red-hi); background: rgba(227,20,31,.16); border-color: rgba(255,74,61,.5); box-shadow: 0 0 18px -4px var(--am-neon); }
   .am-fav[aria-pressed='true'] svg { fill: currentColor; }
+  .am-fav::before, .am-fav::after { content: ''; position: absolute; pointer-events: none; opacity: 0; border-radius: 50%; }
+  .am-fav::before { inset: 0; border: 2px solid var(--am-red-hi); }
+  .am-fav::after {
+    left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px;
+    box-shadow: 0 -21px 0 var(--am-red-hi), 15px -15px 0 #fff, 21px 0 0 var(--am-red-hi), 15px 15px 0 #fff,
+      0 21px 0 var(--am-red-hi), -15px 15px 0 #fff, -21px 0 0 var(--am-red-hi), -15px -15px 0 #fff;
+  }
+  
+    html.am-anim .am-fav.is-pop::before { animation: am-fav-ring .6s var(--am-ease-out); }
+    html.am-anim .am-fav.is-pop::after { animation: am-fav-dots .75s var(--am-ease-out); }
+    html.am-anim .am-fav.is-pop svg { animation: am-fav-heart .55s var(--am-ease-out); }
+  
+  @keyframes am-fav-ring { from { opacity: 1; transform: scale(.4); } to { opacity: 0; transform: scale(1.7); } }
+  @keyframes am-fav-dots { 0% { opacity: 1; transform: scale(.3); } 60% { opacity: 1; } 100% { opacity: 0; transform: scale(1.25); } }
+  @keyframes am-fav-heart { 0% { transform: scale(.5); } 45% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
   .am-card__body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .am-card__kicker { margin: 0; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--am-dim); }
+  .am-card__folio::before { content: '·'; content: '·' / ''; margin-right: 8px; color: var(--am-red-hi); }
   .am-card__title { margin: 0; font-family: var(--am-display); font-stretch: 108%; font-weight: 650; font-size: 20px; line-height: 1.15; }
   .am-card__title span { color: var(--am-muted); font-weight: 500; }
   .am-card__link::after { content: ''; position: absolute; inset: 0; z-index: 1; }
   .am-card__specs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--am-muted); font-size: 13.5px; }
   .am-card__specs li + li::before { content: '·'; margin-right: 12px; color: var(--am-dim); }
-  .am-card__price { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--am-line); padding-right: 52px; }
+  .am-card__price { position: relative; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--am-line); padding-right: 52px; transition: transform .6s var(--am-ease-out); }
+  .am-card__price::before { content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: linear-gradient(90deg, var(--am-red-hi), rgba(255, 74, 61, .2) 60%, transparent); box-shadow: 0 0 10px var(--am-neon-soft); transform: scaleX(0); transform-origin: 0 50%; transition: transform .8s var(--am-ease-out); }
+  .am-card:hover .am-card__price { transform: translateY(-4px); }
+  .am-card:hover .am-card__price::before { transform: scaleX(1); }
   .am-price { margin: 0; font-family: var(--am-display); font-stretch: 110%; font-weight: 700; font-size: 22px; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
   .am-plan { margin: 0; display: flex; gap: 18px; align-items: end; flex-wrap: wrap; }
   .am-plan dt { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--am-dim); font-weight: 600; }
   .am-plan dd { margin: 2px 0 0; }
   .am-plan__mes { font-family: var(--am-display); font-stretch: 108%; font-weight: 600; font-size: 17px; color: #d9dce0; font-variant-numeric: tabular-nums; }
-  .am-card__nfotos { position: absolute; right: 10px; bottom: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 8px; border-radius: 999px; background: rgba(10,10,11,.66); color: #e5e7ea; }
+  .am-card__nfotos { position: absolute; right: 10px; bottom: 10px; z-index: 2; pointer-events: none; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 8px; border-radius: 999px; background: rgba(10,10,11,.66); color: #e5e7ea; }
   .am-month { margin: 2px 0 0; color: var(--am-muted); font-size: 13.5px; }
   .am-month strong { color: var(--am-text); font-weight: 600; }
-  .am-card__wa { position: absolute; right: 14px; bottom: 16px; z-index: 2; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: rgba(37,211,102,.12); color: var(--am-wa); border: 1px solid rgba(37,211,102,.3); transition: background .2s; }
-  .am-card__wa:hover { background: rgba(37,211,102,.22); }
+  .am-card__wa { position: absolute; right: 14px; bottom: 16px; z-index: 2; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(37,211,102,.12); color: var(--am-wa); border: 1px solid rgba(37,211,102,.3); transition: background .25s, transform .4s var(--am-ease-out), box-shadow .3s; }
+  .am-card__wa:hover { background: rgba(37,211,102,.22); transform: scale(1.08); box-shadow: 0 0 20px -6px rgba(37, 211, 102, .7); }
   .am-card.is-sold .am-visual { filter: grayscale(1) brightness(.7); }
   .am-card.is-sold .am-price { color: var(--am-muted); font-size: 18px; }
+  .am-card.is-sold:hover { border-color: var(--am-line2); box-shadow: 0 30px 60px -30px rgba(0,0,0,.95); }
+  /* táctil: sin hover, un barrido de luz recorre la tarjeta una vez al aparecer */
+  
+    html.am-anim.is-touch .am-card.is-in > .am-glare {
+      opacity: 1; mix-blend-mode: normal;
+      background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .1) 50%, transparent 70%);
+      animation: am-sweep 1.5s var(--am-ease-out) calc(var(--am-delay, 0ms) + .35s) both;
+    }
+  
+  @keyframes am-sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+  
+    html:not(.am-anim) .am-card, html:not(.am-anim) .am-card .am-visual, html:not(.am-anim) .am-card__price, html:not(.am-anim) .am-card__price::before { transition: none; }
+  
 
   .am-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
 
@@ -350,8 +865,11 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   .am-section { padding: clamp(64px, 9vw, 120px) 0; position: relative; }
   .am-section--tight { padding: clamp(40px, 6vw, 72px) 0; }
   .am-section__head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 36px; flex-wrap: wrap; }
-  .am-link { display: inline-flex; align-items: center; gap: 8px; color: var(--am-text); font-weight: 600; font-size: 15px; border-bottom: 1px solid var(--am-line2); padding-bottom: 4px; transition: border-color .2s, gap .2s; }
-  .am-link:hover { border-color: var(--am-red-hi); gap: 12px; }
+  .am-link { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--am-text); font-weight: 600; font-size: 15px; transition: gap .35s var(--am-ease-out), color .3s; }
+  .am-link::before { content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 1px; background: var(--am-line2); }
+  .am-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 1px; background: var(--am-red-hi); box-shadow: 0 0 8px var(--am-neon); transform: scaleX(0); transform-origin: 100% 50%; transition: transform .55s var(--am-ease-out); }
+  .am-link:hover { gap: 12px; }
+  .am-link:hover::after, .am-link:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
 
   /* ---------- formularios ---------- */
   .am-field { display: flex; flex-direction: column; gap: 6px; }
@@ -361,29 +879,77 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     min-height: 48px; padding: 0 14px; border-radius: 10px;
     background: var(--am-bg2); border: 1px solid var(--am-line2); color: var(--am-text);
     font: 500 15px var(--am-body);
+    transition: border-color .25s ease, box-shadow .3s ease, background-color .25s ease;
   }
+  .am-input:hover, .am-select:hover { border-color: rgba(255,255,255,.24); }
   .am-select { padding-right: 38px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca1a9' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
-  .am-input:focus, .am-select:focus { outline: none; border-color: rgba(255,74,61,.6); box-shadow: 0 0 0 3px rgba(227,20,31,.18); }
+  .am-input:focus, .am-select:focus { outline: none; border-color: rgba(255,74,61,.7); box-shadow: 0 0 0 3px rgba(227,20,31,.2), 0 0 24px -8px var(--am-neon); }
   .am-input::placeholder { color: var(--am-dim); }
   textarea.am-input { padding: 12px 14px; min-height: 96px; resize: vertical; }
 
   /* ---------- pie ---------- */
-  .am-footer { border-top: 1px solid var(--am-line); background: linear-gradient(180deg, var(--am-bg2), #050506); padding: 64px 0 28px; margin-top: 40px; }
+  .am-footer { position: relative; overflow: hidden; border-top: 1px solid var(--am-line); background: radial-gradient(80% 60% at 50% 110%, rgba(227, 20, 31, .12), transparent 70%), linear-gradient(180deg, var(--am-bg2), #050506); padding: 0 0 28px; margin-top: 40px; }
+  .am-footer__marquee { --am-marquee-gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--am-line); margin-bottom: 56px; }
+  .am-footer__svc { display: inline-flex; align-items: center; gap: 28px; font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-size: clamp(30px, 5.4vw, 68px); line-height: 1.05; text-transform: uppercase; letter-spacing: -.01em; }
+  .am-footer__svc .am-carmark { width: 1.5em; color: var(--am-red); filter: drop-shadow(0 0 10px var(--am-neon-soft)); }
   .am-footer__grid { display: grid; gap: 36px; grid-template-columns: 1.4fr repeat(3, 1fr); }
   .am-footer__brand img { width: 200px; height: auto; }
   .am-footer__brand p { color: var(--am-dim); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; margin: 14px 0 0; }
   .am-footer__h { font-family: var(--am-display); font-stretch: 112%; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: var(--am-muted); margin: 0 0 14px; font-weight: 600; }
   .am-footer__list { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; font-size: 14.5px; color: #cfd2d6; }
-  .am-footer__list li, .am-footer__list a { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; }
-  .am-footer__list a:hover { color: #fff; }
-  .am-footer__legal { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--am-line); display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; color: var(--am-dim); font-size: 12.5px; }
+  .am-footer__list li, .am-footer__list a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; }
+  .am-footer__list a { transition: color .25s ease, transform .4s var(--am-ease-out); }
+  .am-footer__list a:hover { color: #fff; transform: translateX(4px); }
+  .am-footer__list a:hover .am-icon { color: var(--am-red-hi); }
+  .am-giant { margin-top: 56px; }
+  .am-giant svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .am-giant__t { font-family: var(--am-display); font-weight: 800; font-stretch: 125%; font-variation-settings: 'wdth' 125; font-size: 196px; letter-spacing: 0; }
+  .am-giant__stroke { fill: none; stroke: url(#am-giant-silver); stroke-width: 1; vector-effect: non-scaling-stroke; opacity: .6; }
+  
+    html.am-anim .am-giant__sheen { animation: am-giant-sheen 9s var(--am-ease-io) infinite; }
+  
+  @keyframes am-giant-sheen { 0% { transform: translateX(0); } 75%, 100% { transform: translateX(1640px); } }
+  .am-footer__legal { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--am-line); display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; color: var(--am-dim); font-size: 12.5px; }
   .am-footer__legal p { margin: 0; max-width: 70ch; }
   @media (max-width: 900px) { .am-footer__grid { grid-template-columns: 1fr 1fr; } .am-footer__brand { grid-column: 1 / -1; } }
-  @media (max-width: 520px) { .am-footer__grid { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) { .am-footer__grid { grid-template-columns: 1fr; } .am-giant { margin-top: 40px; } }
 
-  /* ---------- aparición al hacer scroll ---------- */
-  @media (prefers-reduced-motion: no-preference) {
-    .am-reveal { animation: am-rise .8s cubic-bezier(.2,.7,.2,1) both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
-    @keyframes am-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  /* ---------- interruptor de animaciones ---------- */
+  .am-mtoggle {
+    position: fixed; left: 16px; bottom: 16px; z-index: 45;
+    display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px 0 14px;
+    border-radius: 999px; border: 1px solid var(--am-line2); background: rgba(12, 12, 14, .78);
+    backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    color: var(--am-muted); font: 500 12.5px/1.2 var(--am-body); text-align: left; cursor: pointer;
+    box-shadow: 0 12px 30px -14px rgba(0, 0, 0, .9);
+    transition: border-color .25s ease, color .25s ease, background-color .25s ease;
   }
+  .am-mtoggle:hover { color: var(--am-text); border-color: rgba(255, 74, 61, .45); }
+  .am-mtoggle__txt { display: grid; }
+  .am-mtoggle__lbl b { color: var(--am-text); font-weight: 600; }
+  .am-mtoggle__hint { display: none; color: #ffb4ad; }
+  /* El sistema las reduce y nadie ha elegido: el botón lo dice y se vuelve la llamada a activarlas. */
+  html.am-os-reduce:not(.am-motion-chosen) .am-mtoggle { border-color: rgba(255, 74, 61, .55); background: rgba(40, 8, 10, .85); color: var(--am-text); }
+  html.am-os-reduce:not(.am-motion-chosen) .am-mtoggle__hint { display: block; }
+  html.am-os-reduce:not(.am-motion-chosen) .am-mtoggle__lbl::after { content: ' · Activar'; color: var(--am-red-hi); font-weight: 600; }
+  .am-mtoggle__eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .am-mtoggle__eq i { width: 3px; height: 30%; border-radius: 2px; background: currentColor; }
+  html.am-anim .am-mtoggle__eq i { background: var(--am-red-hi); animation: am-eq 1.1s var(--am-ease-io) infinite alternate; }
+  html.am-anim .am-mtoggle__eq i:nth-child(2) { animation-delay: -.35s; }
+  html.am-anim .am-mtoggle__eq i:nth-child(3) { animation-delay: -.7s; }
+  html.am-anim .am-mtoggle__eq i:nth-child(4) { animation-delay: -.2s; }
+  @keyframes am-eq { from { height: 25%; } to { height: 100%; } }
+  /* Ya elegido: se encoge a un botón discreto que solo se abre al pasar el cursor o con foco. */
+  html.am-motion-chosen .am-mtoggle, html:not(.am-os-reduce) .am-mtoggle { padding: 0; width: 44px; justify-content: center; }
+  html.am-motion-chosen .am-mtoggle__txt, html:not(.am-os-reduce) .am-mtoggle__txt { position: absolute; left: 52px; white-space: nowrap; padding: 8px 12px; border-radius: 10px; background: rgba(12, 12, 14, .92); border: 1px solid var(--am-line2); opacity: 0; translate: -6px 0; pointer-events: none; transition: opacity .2s ease, translate .3s var(--am-ease-out); }
+  html.am-motion-chosen .am-mtoggle:is(:hover, :focus-visible) .am-mtoggle__txt, html:not(.am-os-reduce) .am-mtoggle:is(:hover, :focus-visible) .am-mtoggle__txt { opacity: 1; translate: 0 0; }
+  @media (max-width: 900px) {
+    .am-mtoggle { bottom: calc(80px + env(safe-area-inset-bottom)); left: 12px; }
+    /* En el celular el botón flotante tapa contenido: solo aparece si el sistema las reduce y nadie ha
+       elegido. Después queda el interruptor del pie. */
+    html.am-motion-chosen .am-mtoggle, html:not(.am-os-reduce) .am-mtoggle { display: none; }
+  }
+  .am-mtoggle-link { appearance: none; background: none; border: 0; padding: 0; margin: 0; min-height: 44px; font: inherit; color: inherit; cursor: pointer; text-decoration: underline; text-decoration-color: var(--am-line2); text-underline-offset: 3px; }
+  .am-mtoggle-link:hover { color: var(--am-text); text-decoration-color: var(--am-red-hi); }
+  .am-mtoggle-link b { font-weight: 600; color: var(--am-text); }
 </style>

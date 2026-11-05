@@ -15,8 +15,14 @@ interface Props {
   big?: boolean;
   /** atributo sizes del <img> */
   sizes?: string;
+  /**
+   * view-transition-name de la foto principal (p. ej. `car-arc-0221`), para que la foto
+   * "vuele" de la tarjeta a la ficha. Debe ser único en la página.
+   */
+  vt?: string;
 }
-const { v, i = 0, toma, eager = false, big = false, sizes = '(max-width: 640px) 100vw, 400px' } = Astro.props;
+const { v, i = 0, toma, eager = false, big = false, sizes = '(max-width: 640px) 100vw, 400px', vt } = Astro.props;
+const vtStyle = vt ? `view-transition-name: ${vt}` : undefined;
 const hayFoto = i < v.nFotos;
 const foto = hayFoto ? rutaFoto(v, i, 800) : '';
 const srcset = hayFoto ? `${rutaFoto(v, i, 800)} 800w, ${rutaFoto(v, i, 1280)} 1280w` : '';
@@ -70,13 +76,13 @@ const fondo = v.modelo.toUpperCase();
   big ? (
     <div class="am-visual am-visual--big am-visual--frame">
       <img class="am-visual__blur" src={foto} alt="" aria-hidden="true" loading={eager ? 'eager' : 'lazy'} decoding="async" />
-      <img class="am-visual__img" src={foto} srcset={srcset} sizes={sizes} alt={alt} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+      <img class="am-visual__img" src={foto} srcset={srcset} sizes={sizes} alt={alt} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" style={vtStyle} />
     </div>
   ) : (
-    <img class="am-visual am-visual--foto" src={foto} srcset={srcset} sizes={sizes} alt={alt} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+    <img class="am-visual am-visual--foto" src={foto} srcset={srcset} sizes={sizes} alt={alt} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" style={vtStyle} />
   )
 ) : (
-  <div class:list={['am-visual', 'am-visual--studio', { 'am-visual--big': big }]} role="img" aria-label={`${v.marca} ${v.modelo} ${v.anio} (foto de ejemplo)`}>
+  <div class:list={['am-visual', 'am-visual--studio', { 'am-visual--big': big }]} role="img" aria-label={`${v.marca} ${v.modelo} ${v.anio} (foto de ejemplo)`} style={vtStyle}>
     <span class="am-visual__bg" aria-hidden="true" style={`--len:${Math.max(fondo.length, 4)}`}>{fondo}</span>
     <svg class="am-visual__car" viewBox="0 0 400 186" aria-hidden="true">
       <ellipse cx="200" cy="179" rx="196" ry="7" fill="url(#am-floor)" />

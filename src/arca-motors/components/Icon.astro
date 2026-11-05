@@ -1,5 +1,8 @@
 ---
-/** Íconos de trazo (24×24, currentColor). WhatsApp e Instagram van rellenos. */
+/**
+ * Íconos de trazo (24×24, currentColor). WhatsApp e Instagram van rellenos.
+ * Cada SVG lleva la clase `am-icon--<nombre>` (p. ej. `.am-icon--arrow`) para animarlo.
+ */
 interface Props { name: string; size?: number; class?: string }
 const { name, size = 20, class: cls = '' } = Astro.props;
 
@@ -29,6 +32,12 @@ const STROKE: Record<string, string> = {
   play: '<path d="M8 5v14l11-7z"/>',
   road: '<path d="M6 21 9 3M18 21 15 3M12 5v2M12 11v2M12 17v2"/>',
   tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  arrowUpRight: '<path d="M7 17 17 7M8 7h9v9"/>',
+  arrowDown: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+  chevronDown: '<path d="m6 9 6 6 6-6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  mouse: '<rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 7v4"/>',
+  bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
 };
 
 const FILL: Record<string, string> = {
@@ -41,7 +50,7 @@ const body = STROKE[name] ?? FILL[name] ?? '';
 const isFill = name in FILL;
 ---
 <svg
-  class={`am-icon ${cls}`}
+  class={`am-icon am-icon--${name} ${cls}`}
   width={size}
   height={size}
   viewBox="0 0 24 24"
