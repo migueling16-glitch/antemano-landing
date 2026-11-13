@@ -1,0 +1,18 @@
+---
+// Caja "En corto" al inicio de cada capítulo de una propuesta: la idea en una frase
+// y los tres puntos que hay que llevarse. Estilos en la página (clases .encorto*).
+interface Props {
+  frase: string;
+  puntos?: string[];
+}
+const { frase, puntos = [] } = Astro.props;
+---
+<div class="encorto">
+  <span class="encorto-t">En corto</span>
+  <p class="encorto-f">{frase}</p>
+  {puntos.length > 0 && (
+    <ol class="encorto-p">
+      {puntos.map((p) => <li>{p}</li>)}
+    </ol>
+  )}
+</div>

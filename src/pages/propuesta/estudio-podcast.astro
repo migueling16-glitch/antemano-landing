@@ -3,6 +3,8 @@
 // noindex: URL privada, no se enlaza desde el sitio.
 // Todo el contenido sale de src/data/estudio-podcast.json (investigación verificada, 13-nov-2026).
 import d from '../../data/estudio-podcast.json';
+import EnCorto from '../../components/propuesta/EnCorto.astro';
+import CapNav from '../../components/propuesta/CapNav.astro';
 
 const D: any = d;
 const mxn = (n: unknown) =>
@@ -32,23 +34,177 @@ const iCruce = serieCaja.findIndex((s: any) => s.acumulado > 0);
 const iBajo = serieCaja.reduce((m: number, s: any, i: number) => (s.acumulado < serieCaja[m].acumulado ? i : m), 0);
 
 const capitulos = [
-  { id: 'por-que', n: '01', t: 'Por qué ahora' },
-  { id: 'casos', n: '02', t: 'Quién ya lo hace' },
-  { id: 'caminos', n: '03', t: 'Tres caminos' },
-  { id: 'propuesta', n: '04', t: 'Lo que vendemos' },
-  { id: 'mvp', n: '05', t: 'El arranque' },
-  { id: 'opera', n: '06', t: 'Cómo opera' },
-  { id: 'personas', n: '07', t: 'Quién lo hace' },
-  { id: 'hitos', n: '08', t: 'Hitos' },
-  { id: 'numeros', n: '09', t: 'Los números' },
-  { id: 'dinero', n: '10', t: 'El dinero del socio' },
-  { id: 'politica', n: '11', t: 'El nicho político' },
-  { id: 'durango', n: '12', t: 'Durango' },
-  { id: 'escalar', n: '13', t: 'Casa de medios' },
-  { id: 'riesgos', n: '14', t: 'Riesgos' },
-  { id: 'decidir', n: '15', t: 'Lo que decidimos' },
-  { id: 'fuentes', n: '16', t: 'Fuentes' },
+  { id: 'por-que', n: '01', t: 'Por qué ahora', p: 0, d: 'Lo que dicen los datos del formato y la ventana electoral de Durango.' },
+  { id: 'casos', n: '02', t: 'Quién ya lo hace', p: 0, d: `${(D.casos || []).length} casos reales y qué aprendemos de cada uno.` },
+  { id: 'caminos', n: '03', t: 'Tres caminos', p: 0, d: 'Las tres estrategias que compitieron y por qué gana la mezcla.' },
+  { id: 'propuesta', n: '04', t: 'Lo que vendemos', p: 1, d: `La propuesta de valor y los ${(D.paquetes || []).length} paquetes con su precio.` },
+  { id: 'mvp', n: '05', t: 'El arranque', p: 1, d: 'El equipo en tres niveles, qué cambia del equipo pensado y el espacio.' },
+  { id: 'opera', n: '06', t: 'Cómo opera', p: 1, d: 'Un episodio paso a paso, con y sin IA, y las herramientas.' },
+  { id: 'personas', n: '07', t: 'Quién lo hace', p: 1, d: 'El equipo por fase, los socios y las horas de Miguel.' },
+  { id: 'hitos', n: '08', t: 'Hitos', p: 1, d: `Las ${(D.hitos || []).length} pruebas que liberan cada inversión, en una línea de tiempo.` },
+  { id: 'numeros', n: '09', t: 'Los números', p: 2, d: 'Simulador del mes: precios, costos, escenarios y capacidad.' },
+  { id: 'dinero', n: '10', t: 'El dinero del socio', p: 2, d: 'Capital por tramos, curva de la caja, reparto y reglas de cierre.' },
+  { id: 'politica', n: '11', t: 'El nicho político', p: 3, d: 'La oportunidad, el calendario electoral y las reglas del INE.' },
+  { id: 'durango', n: '12', t: 'Durango', p: 3, d: 'El mercado en cifras y los nichos en orden de ataque.' },
+  { id: 'escalar', n: '13', t: 'Casa de medios', p: 3, d: 'Cómo crece la infraestructura, etapa por etapa.' },
+  { id: 'riesgos', n: '14', t: 'Riesgos', p: 4, d: `Los ${(D.riesgos || []).length} riesgos en una matriz y qué hacemos con cada uno.` },
+  { id: 'decidir', n: '15', t: 'Lo que decidimos', p: 4, d: `${(D.decisiones || []).length} decisiones para votar y mandar.` },
+  { id: 'fuentes', n: '16', t: 'Fuentes', p: 4, d: `Las ${(D.fuentes || []).length} fuentes de cada dato.` },
 ];
+const partes = ['La oportunidad', 'El negocio', 'El dinero', 'El contexto', 'Riesgos y decisiones'];
+const sigDe = (id: string) => { const i = capitulos.findIndex((c) => c.id === id); return capitulos[i + 1] || null; };
+
+// ── Datos del resumen ──
+const paq = (nombre: string) => (D.paquetes || []).find((p: any) => p.nombre === nombre) || {};
+const pVoz = paq('Voz (iguala)'), pVP = paq('Voz Pública (iguala)'), pEp = paq('Episodio listo'), pCamp = paq('Sprint de campaña'), pJor = paq('Jornada de contenido');
+const escNom = (n: string) => escenarios.find((e: any) => e.nombre === n) || {};
+const maxUtil = Math.max(1, ...escenarios.map((e: any) => e.utilidad_mes_mxn || 0));
+const ordenR = (r: any) => ['alta', 'media', 'baja'].indexOf(r.probabilidad) * 3 + (2 - ['bajo', 'medio', 'alto'].indexOf(r.impacto));
+const riesgosTop = [...(D.riesgos || [])].sort((a: any, b: any) => ordenR(a) - ordenR(b));
+const tituloRiesgo = (t: string) => String(t).split(/[:.(]/)[0].trim();
+const opRec = (D.opciones || []).find((o: any) => o.recomendada) || {};
+const opsOrden = [...(D.opciones || [])].sort((a: any, b: any) => b.puntaje - a.puntaje);
+const nivelRec = niveles[iRec] || {};
+const hm: any = D.horas_miguel || { serie: [] };
+const fijosMvp = (D.personas || []).filter((p: any) => /mvp/i.test(p.fase || '') && typeof p.costo_mes_mxn === 'number').reduce((s: number, p: any) => s + p.costo_mes_mxn, 0);
+const horasEp = (m: number) => (m / 60).toLocaleString('es-MX', { maximumFractionDigits: 1 });
+const ahorroIa = minManual ? Math.round((1 - minIa / minManual) * 100) : 0;
+
+// Hitos en la línea de tiempo: meses desde nov-2026 (0) hasta jul-2028 (20), según el plazo de cada hito
+const mesesEje = ['nov', 'dic', 'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic', 'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul'];
+const anios = [{ t: '’26', a: 0, b: 1 }, { t: '2027', a: 2, b: 13 }, { t: '2028', a: 14, b: 20 }];
+const gantt: Record<string, [number, number, boolean?]> = {
+  H1: [0, 1], H2: [0, 3], H3: [2, 3], H4: [3, 3], H5: [4, 4], H6: [5, 7], H7: [8, 10], H8: [8, 20, true], H9: [12, 13], H10: [14, 20],
+};
+const marcaHito: Record<string, string> = { H4: 'libera el tramo 2', H8: 'libera el local' };
+const gruposPaq = [
+  { t: 'Igualas mensuales', d: 'El centro del negocio: ingreso que se repite cada mes.', n: ['Voz (iguala)', 'Voz Pública (iguala)', 'Comunidad y pauta (extra)'] },
+  { t: 'Por proyecto', d: 'Para empezar con un cliente o llenar huecos de agenda.', n: ['Diagnóstico de voz', 'Episodio listo', 'Jornada de contenido', 'Informe de labores'] },
+  { t: 'Campañas', d: 'Solo dentro de las fechas legales, cobrado por adelantado.', n: ['Sprint de precampaña', 'Sprint de campaña'] },
+  { t: 'Cuando haya local y vitrina', d: 'Ingresos extra de la etapa 2 en adelante.', n: ['Renta de set en horas valle', 'Patrocinio de la vitrina'] },
+];
+const enGrupos = new Set(gruposPaq.flatMap((g) => g.n));
+if ((D.paquetes || []).some((p: any) => !enGrupos.has(p.nombre))) throw new Error('Paquete sin grupo');
+
+// ── "En corto" de cada capítulo (sale de los datos de abajo, sin cifras nuevas) ──
+const enCorto: Record<string, { frase: string; puntos: string[] }> = {
+  'por-que': {
+    frase: 'El podcast ya es video, los clips son lo que trae alcance y Durango tiene elecciones casi sin pausa hasta 2028.',
+    puntos: [
+      'YouTube pasó de 1,000 millones de usuarios de podcast al mes; en México más de 27 millones escuchan podcasts en Spotify.',
+      'El 89% de los oyentes ve clips en redes y la mitad de los podcasts no pasa de 6 episodios: la constancia es el problema que resolvemos.',
+      '2027: 29 diputaciones en Durango. 2028: gubernatura y 39 ayuntamientos.',
+    ],
+  },
+  casos: {
+    frase: 'Los que ganan cobran igualas mensuales, no horas de estudio, y escalan con procesos, no con metros cuadrados.',
+    puntos: [
+      'Ashmedia: el cliente graba unas 3 horas al mes y la agencia hace todo lo demás.',
+      'Authentic Exposure (Austin): un fundador, 4 igualas de US$5,000 o más al mes.',
+      'Carpa (León): el mismo equipo que pensamos, a $2,999 por episodio con 3 clips.',
+    ],
+  },
+  caminos: {
+    frase: `Recomendamos el híbrido (${opRec.puntaje}/100): la agencia por iguala, con el menú de estudio y una vitrina propia quincenal.`,
+    puntos: [
+      `Puntajes: ${opsOrden.map((o: any) => `${o.corto} ${o.puntaje}`).join(' · ')}.`,
+      'Gana en probabilidad de éxito y en escalabilidad.',
+      'Pierde un poco frente a la agencia sola en tiempo de socios y en riesgo.',
+    ],
+  },
+  propuesta: {
+    frase: 'Vendemos la voz pública de personas ocupadas: el cliente graba unas 3 horas al mes y nosotros hacemos todo lo demás.',
+    puntos: [
+      `Voz: ${mxn(pVoz.precio_mxn)} al mes (profesionistas, universidades, regidores). Voz Pública: ${mxn(pVP.precio_mxn)} al mes, con narrativa y cumplimiento ante el INE.`,
+      `Por proyecto: Episodio listo ${mxn(pEp.precio_mxn)}, Jornada de contenido ${mxn(pJor.precio_mxn)}, Sprint de campaña ${mxn(pCamp.precio_mxn)}.`,
+      'Precios sin IVA, calibrados con tarifas reales de León, Querétaro, CDMX y Morelia; se validan en las entrevistas.',
+    ],
+  },
+  mvp: {
+    frase: 'Arrancamos con un kit portátil de 4 cámaras y sin local: el local llega cuando las horas vendidas lo pagan.',
+    puntos: [
+      `Nivel recomendado: ${mxn(nivelRec.total_mxn)} (3 Sony FX30, la A7 IV de Miguel, 4 micrófonos dinámicos, corte en vivo y luz).`,
+      'Cambio al equipo pensado: la ZV-E10 II no tiene ventilador y se apaga por calor en sesiones largas; la FX30 sí aguanta.',
+      'Local propio solo con 40 horas vendidas al mes durante 2 meses seguidos.',
+    ],
+  },
+  opera: {
+    frase: `La IA baja el trabajo humano por episodio de ${horasEp(minManual)} a ${horasEp(minIa)} horas (${ahorroIa}% menos), pero no reemplaza al editor.`,
+    puntos: [
+      'DaVinci Resolve 21.1 con Claude Code hace la sincronía, el multicámara, el audio y los subtítulos.',
+      'Una persona elige los clips, sobre todo con políticos.',
+      'El costo de IA es de pocos pesos por episodio: lo caro es la hora humana.',
+    ],
+  },
+  personas: {
+    frase: 'Una sola persona de planta; lo demás se paga por pieza o por hora.',
+    puntos: [
+      `En el arranque, unos ${mxn(fijosMvp)} al mes en personas fijas.`,
+      `Miguel: de 7 a 9 horas por semana al principio y unas ${hm.meta} desde abril de 2027.`,
+      'El socio inversionista: 1 a 2 horas por semana para decidir tramos, presupuesto y cierre.',
+    ],
+  },
+  hitos: {
+    frase: 'No se escala por fecha: cada inversión se libera solo cuando se cumple una prueba medible.',
+    puntos: [
+      'H1 · Validar sin gastar: 10 o más entrevistas antes del 15 de diciembre.',
+      'H4 · Igualas que cubran los costos fijos ($57,600 al mes): libera el tramo 2.',
+      'H8 · 40 horas vendidas al mes durante 2 meses: libera el local.',
+    ],
+  },
+  numeros: {
+    frase: `Con 3 o 4 igualas se cubre el mes; el escenario base deja ${mxn(escNom('Base').utilidad_mes_mxn)} de utilidad al mes.`,
+    puntos: [
+      'Punto de equilibrio: unos $75,000 de ingreso al mes, sin local.',
+      `Lento: ${mxn(escNom('Lento').utilidad_mes_mxn)} al mes. Fuerte: ${mxn(escNom('Fuerte').utilidad_mes_mxn)} al mes.`,
+      'Mueve el simulador para probar tu propia mezcla.',
+    ],
+  },
+  dinero: {
+    frase: `El socio pone hasta ${mxn(capital.maximo)} por tramos; en el escenario base la caja vuelve a positivo en el mes ${iCruce + 1}.`,
+    puntos: [
+      `Tramo 1: ${mxn(capital.tramos[0] && capital.tramos[0].mxn)} para validar y arrancar. Tramo 2: ${mxn(capital.tramos[1] && capital.tramos[1].mxn)}, solo con igualas firmadas.`,
+      `Lo más bajo de la caja: ${mxn(serieCaja[iBajo] && serieCaja[iBajo].acumulado).replace('$-', '−$')} en ${serieCaja[iBajo] && serieCaja[iBajo].mes}.`,
+      'Las reglas para cerrar se firman desde el principio: pérdida máxima estimada de $210,000 a $280,000.',
+    ],
+  },
+  politica: {
+    frase: 'La demanda política no para hasta 2028, pero tiene reglas que convertimos en parte del producto.',
+    puntos: [
+      'Registro en el Registro Nacional de Proveedores del INE para venderle a partidos y candidatos.',
+      'Factura con complemento INE y lo cobrado en campaña cuenta como gasto de campaña.',
+      'Cero cortesías: una empresa no puede aportar en especie. Mismo precio para todos los partidos.',
+    ],
+  },
+  durango: {
+    frase: 'Un mercado más chico y con menos ingreso que el promedio, pero plural y sin un estudio dedicado a la vista.',
+    puntos: [
+      'El ingreso de un hogar de Durango está 10.6% abajo del promedio nacional.',
+      'Mercado plural: los municipios se reparten entre tres bloques y el cabildo de la capital tiene regidores de cinco partidos.',
+      'Nichos en orden: funcionarios en funciones, aspirantes a 2028, candidatos de 2027 y profesionistas.',
+    ],
+  },
+  escalar: {
+    frase: 'Cada compra la paga la anterior: de kit portátil a casa de medios en seis etapas.',
+    puntos: [
+      'Etapa 2 · Estudio propio, con la caja del negocio (no antes de julio de 2027).',
+      'Etapa 3 · Salir del estudio y servidor de equipo (2028).',
+      'Etapas 4 y 5 · Productora comercial y casa de medios (2028 en adelante).',
+    ],
+  },
+  riesgos: {
+    frase: `Identificamos ${(D.riesgos || []).length} riesgos; el más serio es depender demasiado de Miguel.`,
+    puntos: riesgosTop.slice(0, 3).map((r: any) => tituloRiesgo(r.riesgo) + '.'),
+  },
+  decidir: {
+    frase: `${(D.decisiones || []).length} decisiones para tomar juntos: vota en cada una y mándale tus respuestas a Miguel.`,
+    puntos: [
+      'Qué camino tomamos y cuánto cobramos por Voz Pública.',
+      'Cómo repartimos entre el capital y el trabajo, y qué figura legal usamos.',
+      'Cuándo cerramos si no funciona.',
+    ],
+  },
+};
 // Recomendación: primera oración visible, el resto en "Por qué"
 const corte = (t: string): [string, string] => {
   const s = String(t || '').trim();
@@ -395,6 +551,177 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
     html.js.anim .rv { opacity: 0; transform: translateY(18px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
     html.js.anim .rv.ok { opacity: 1; transform: none; }
     html:not(.anim) * { transition-duration: 0s !important; animation: none !important; }
+    /* ── Lectura: cuerpo más grande, gris con más contraste ── */
+    body { font-size: 17px; line-height: 1.65; }
+    :root { --soft: #6E757E; }
+    .lead { font-size: 1.14rem; line-height: 1.6; }
+    .tarjeta p, .lista li { font-size: 1rem; line-height: 1.6; }
+    .nota { font-size: .86rem; line-height: 1.55; }
+    .sec h3 { font-size: 1.22rem; }
+
+    /* En corto */
+    .encorto { margin: 22px 0 26px; padding: 20px 22px; background: var(--g); border-left: 4px solid var(--amber); border-radius: 0 var(--r) var(--r) 0; max-width: 820px; }
+    .gris .encorto { background: #fff; }
+    .osc .encorto { background: rgba(255,255,255,.06); }
+    .encorto-t { font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-t); }
+    .osc .encorto-t { color: var(--amber); }
+    .encorto-f { font-size: clamp(1.15rem, 2.4vw, 1.35rem); font-weight: 700; line-height: 1.4; letter-spacing: -.01em; margin: 6px 0 12px; }
+    .encorto-p { list-style: none; counter-reset: ec; display: grid; gap: 8px; }
+    .encorto-p li { counter-increment: ec; position: relative; padding-left: 34px; font-size: 1rem; line-height: 1.55; }
+    .encorto-p li::before { content: counter(ec); position: absolute; left: 0; top: 1px; width: 22px; height: 22px; border-radius: 50%; background: var(--c); color: #fff; font-size: .75rem; font-weight: 800; display: grid; place-items: center; }
+    .osc .encorto-p li::before { background: var(--amber); color: var(--c); }
+
+    /* Navegación entre capítulos */
+    .capnav { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .osc .capnav { border-color: var(--line-d); }
+    .capnav a { text-decoration: none; }
+    .capnav-ind { font-size: .88rem; font-weight: 700; color: var(--mid); }
+    .osc .capnav-ind { color: rgba(255,255,255,.65); }
+    .capnav-sig { display: grid; text-align: right; padding: 12px 18px; border: 1px solid var(--line); border-radius: var(--r); background: #fff; margin-left: auto; }
+    .osc .capnav-sig { background: var(--c2); border-color: var(--line-d); }
+    .capnav-sig span { font-size: .75rem; color: var(--soft); text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+    .capnav-sig b { font-size: 1rem; }
+    .capnav-sig:hover { border-color: var(--c); }
+
+    /* Introducción */
+    .intro-grid { display: grid; gap: 28px; margin-top: 26px; }
+    @media (min-width: 900px) { .intro-grid { grid-template-columns: 1.3fr 1fr; gap: 48px; } }
+    .intro .texto { display: grid; gap: 16px; font-size: 1.1rem; line-height: 1.7; max-width: 62ch; }
+    .aviso-claro { font-size: .95rem; color: var(--mid); border-left: 3px solid var(--amber); padding-left: 14px; }
+    .como-leer { background: var(--c); color: #fff; border-radius: var(--r); padding: 24px; align-self: start; }
+    .como-leer h3 { color: #fff; }
+    .como-leer ol { list-style: none; counter-reset: cl; display: grid; gap: 10px; margin: 14px 0; }
+    .como-leer li { counter-increment: cl; }
+    .como-leer a { display: grid; grid-template-columns: 34px 1fr; gap: 2px 12px; text-decoration: none; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.06); }
+    .como-leer a:hover { background: rgba(255,255,255,.12); }
+    .como-leer a::before { content: counter(cl); grid-row: span 2; width: 34px; height: 34px; border-radius: 50%; background: var(--amber); color: var(--c); font-weight: 900; display: grid; place-items: center; }
+    .como-leer a span { font-size: .9rem; color: rgba(255,255,255,.65); }
+    .como-leer .nota { color: rgba(255,255,255,.6); }
+
+    /* Resumen ejecutivo */
+    .rbloque { margin-top: 22px; background: #fff; border: 1px solid var(--line); border-radius: var(--r); padding: 22px; }
+    @media (min-width: 820px) { .rbloque { padding: 28px 32px; } }
+    .rcab { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .rcab h3 { margin: 0; }
+    .rn { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--amber); color: var(--c); font-weight: 900; font-size: .85rem; display: grid; place-items: center; }
+    .rfrase { font-size: clamp(1.15rem, 2.6vw, 1.45rem); line-height: 1.45; max-width: 46ch; letter-spacing: -.01em; }
+    .rnota { margin-top: 14px; font-size: .92rem; color: var(--mid); }
+    .rnota a { color: var(--c); font-weight: 700; text-decoration: none; border-bottom: 1.5px solid var(--amber); }
+    .modelo { display: grid; gap: 10px; margin-top: 20px; align-items: stretch; }
+    @media (min-width: 900px) { .modelo { grid-template-columns: 1fr auto 1.6fr auto 1fr; } }
+    .mpaso { border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 4px; align-content: start; }
+    .mpaso b { font-size: 1.05rem; line-height: 1.35; }
+    .mnos { background: var(--c); color: #fff; border-color: var(--c); }
+    .mt { font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-t); }
+    .mnos .mt { color: var(--amber); }
+    .ms { font-size: .88rem; color: var(--mid); }
+    .mchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .mchips span { font-size: .82rem; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,.1); }
+    .mchips span:last-child { background: var(--amber); color: var(--c); }
+    .mflecha { display: grid; place-items: center; font-size: 1.4rem; color: var(--amber-t); transform: rotate(90deg); }
+    @media (min-width: 900px) { .mflecha { transform: none; } }
+    .rstats, .rgente { display: grid; gap: 1px; grid-template-columns: 1fr 1fr; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    @media (min-width: 820px) { .rstats, .rgente { grid-template-columns: repeat(4, 1fr); } }
+    .rstats div, .rgente div { background: #fff; padding: 16px; display: grid; gap: 4px; align-content: start; }
+    .rstats b, .rgente b { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+    .rstats span, .rgente span { font-size: .9rem; color: var(--mid); line-height: 1.45; }
+    .rprecios { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    @media (min-width: 820px) { .rprecios { grid-template-columns: repeat(4, 1fr); } }
+    .rprecios div { border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 2px; }
+    .rprecios div:nth-child(2) { background: var(--c); color: #fff; border-color: var(--c); }
+    .rpn { font-weight: 700; font-size: .95rem; }
+    .rprecios b { font-size: clamp(1.4rem, 3.6vw, 1.9rem); font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    .rpu { font-size: .82rem; color: var(--mid); }
+    .rprecios div:nth-child(2) .rpu { color: rgba(255,255,255,.6); }
+    .rdinero { display: grid; gap: 22px; }
+    @media (min-width: 820px) { .rdinero { grid-template-columns: 1fr 1fr; align-items: center; } }
+    .rbarra { display: flex; gap: 3px; height: 18px; margin-bottom: 14px; }
+    .rbarra i { display: block; border-radius: 5px; background: var(--amber); }
+    .rbarra i + i { background: var(--c); }
+    .rtramo { display: grid; grid-template-columns: auto 1fr; gap: 0 12px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .rtramo b { font-size: 1.5rem; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; border-left: 4px solid var(--amber); padding-left: 10px; }
+    .rtramo.dos b { border-color: var(--c); }
+    .rtramo span { font-size: .92rem; color: var(--mid); }
+    .rcurva { color: var(--c); }
+    .rcurva svg { width: 100%; height: auto; display: block; }
+    .rcurva-lee { display: grid; gap: 6px; margin-top: 10px; font-size: .92rem; color: var(--mid); }
+    .rcurva-lee b { color: var(--c); font-size: 1.05rem; margin-right: 4px; }
+    .rescs { display: grid; gap: 12px; }
+    .resc { display: grid; grid-template-columns: 70px 1fr auto; gap: 12px; align-items: center; }
+    .ren { font-weight: 700; }
+    .rep { height: 22px; background: var(--g); border-radius: 0 6px 6px 0; overflow: hidden; }
+    .rep i { display: block; height: 100%; background: var(--c); border-radius: 0 5px 5px 0; }
+    .resc:nth-child(2) .rep i { background: var(--amber); }
+    .resc b { font-variant-numeric: tabular-nums; font-size: 1.05rem; min-width: 84px; text-align: right; }
+    .rpasos { list-style: none; display: grid; gap: 0; position: relative; }
+    @media (min-width: 900px) { .rpasos { grid-template-columns: repeat(5, 1fr); gap: 12px; } }
+    .rpasos li { display: grid; gap: 2px; padding: 12px 0 12px 22px; border-left: 2px solid var(--line); position: relative; }
+    .rpasos li::before { content: ''; position: absolute; left: -7px; top: 17px; width: 12px; height: 12px; border-radius: 50%; background: var(--amber); }
+    @media (min-width: 900px) {
+      .rpasos li { border-left: 0; border-top: 2px solid var(--line); padding: 18px 0 0; }
+      .rpasos li::before { left: 0; top: -7px; }
+    }
+    .rpf { font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--amber-t); }
+    .rpasos b { font-size: 1rem; }
+    .rpasos span:last-child { font-size: .9rem; color: var(--mid); }
+    .rdos { display: grid; gap: 26px; }
+    @media (min-width: 820px) { .rdos { grid-template-columns: 1fr 1fr; } }
+    .rlista { list-style: none; display: grid; gap: 8px; }
+    .rlista li { padding: 10px 12px; border-radius: 10px; background: var(--g); font-weight: 600; font-size: .97rem; line-height: 1.45; }
+
+    /* Índice */
+    .partes { display: grid; gap: 28px; margin-top: 28px; }
+    .parte-t { display: flex; align-items: baseline; gap: 12px; font-size: 1.15rem; font-weight: 800; margin-bottom: 10px; }
+    .parte-t span { font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-t); }
+    .parte-caps { display: grid; gap: 8px; }
+    @media (min-width: 760px) { .parte-caps { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 1040px) { .parte-caps { grid-template-columns: repeat(3, 1fr); } }
+    .cap-card { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 16px; border: 1px solid var(--line); border-radius: var(--r); text-decoration: none; background: #fff; transition: border-color .2s; }
+    .cap-card:hover { border-color: var(--c); }
+    .cap-card .cn { font-size: 1.5rem; font-weight: 900; letter-spacing: -.04em; color: var(--amber-t); font-variant-numeric: tabular-nums; }
+    .cap-card .ct { display: grid; gap: 2px; }
+    .cap-card .ct b { font-size: 1.02rem; }
+    .cap-card .ct span { font-size: .88rem; color: var(--mid); line-height: 1.45; }
+    .cap-card .cf { color: var(--soft); }
+
+    /* Caminos: comparación */
+    .comp { display: grid; gap: 12px; max-width: 760px; }
+    .comp-f { display: grid; grid-template-columns: 1fr 36px; gap: 4px 12px; align-items: center; }
+    .comp-f .comp-n { grid-column: 1 / -1; }
+    @media (min-width: 640px) { .comp-f { grid-template-columns: 210px 1fr 36px; } .comp-f .comp-n { grid-column: auto; } }
+    .comp-n { font-weight: 700; font-size: .95rem; }
+    .comp-p { height: 14px; background: rgba(255,255,255,.1); border-radius: 0 7px 7px 0; overflow: hidden; }
+    .comp-p i { display: block; height: 100%; background: rgba(255,255,255,.75); border-radius: 0 6px 6px 0; }
+    .comp-f.rec .comp-p i { background: var(--amber); }
+    .comp-f b { font-variant-numeric: tabular-nums; text-align: right; font-size: 1.1rem; }
+    .comp .nota { margin-top: 4px; }
+
+    /* Paquetes por grupo */
+    .grupo-paq { margin-top: 30px; }
+    .grupo-t { display: grid; gap: 2px; border-left: 4px solid var(--amber); padding-left: 12px; }
+    .grupo-t b { font-size: 1.15rem; }
+    .grupo-t span { color: var(--mid); font-size: .95rem; }
+
+    /* Línea de tiempo de hitos */
+    .gantt { border: 1px solid var(--line); border-radius: var(--r); padding: 12px 16px 16px; background: #fff; }
+    .g-fila { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--line); text-decoration: none; align-items: center; }
+    .g-fila:last-of-type { border-bottom: 0; }
+    a.g-fila:hover .g-lab b { color: var(--amber-t); }
+    @media (min-width: 760px) { .g-fila { grid-template-columns: 260px 1fr; gap: 16px; } }
+    .g-lab { font-size: .92rem; line-height: 1.35; }
+    .g-lab b { display: inline-block; min-width: 30px; }
+    .g-lab em { font-style: normal; color: var(--amber-t); font-weight: 700; }
+    .g-eje .g-lab { display: none; }
+    @media (min-width: 760px) { .g-eje .g-lab { display: block; } }
+    .g-pista { display: grid; grid-template-columns: repeat(21, 1fr); align-items: center; min-height: 16px; background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 21 - 1px), var(--line) calc(100% / 21 - 1px) calc(100% / 21)); }
+    .g-eje .g-pista { background: none; row-gap: 2px; }
+    .g-anio { grid-row: 1; font-size: .72rem; font-weight: 800; color: var(--c); border-left: 2px solid var(--c); padding-left: 4px; }
+    .g-mes { grid-row: 2; font-size: .64rem; color: var(--soft); text-align: center; text-transform: uppercase; }
+    .g-barra { grid-row: 1; height: 12px; border-radius: 6px; background: var(--c); }
+    .g-barra.clave { background: var(--amber); }
+    .g-barra.punto { width: 12px; height: 12px; justify-self: center; border-radius: 2px; transform: rotate(45deg); }
+    .g-barra.abierta { background: repeating-linear-gradient(90deg, var(--amber) 0 8px, transparent 8px 12px); }
+
     .pl { white-space: pre-line; }
     @media (max-width: 639px) {
       .carr { display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin-left: -16px; margin-right: -16px; padding: 2px 16px 10px; scrollbar-width: none; }
@@ -456,6 +783,9 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
     <div class="top-prog" id="top-prog"></div>
   </header>
   <nav class="indice" id="indice" aria-label="Capítulos">
+    <a href="#intro" data-cap="intro"><span>·</span>Introducción</a>
+    <a href="#resumen" data-cap="resumen"><span>·</span>Resumen ejecutivo</a>
+    <a href="#indice-doc" data-cap="indice-doc"><span>·</span>Índice</a>
     {capitulos.map((c) => <a href={`#${c.id}`} data-cap={c.id}><span>{c.n}</span>{c.t}</a>)}
     <div class="mov"><span>Animaciones</span><button class="top-btn" id="btn-mov" type="button">—</button></div>
   </nav>
@@ -467,11 +797,9 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
         <p class="eyebrow">Proyecto ejecutivo para socios · Durango · 13-nov-2026</p>
         <h1 set:html={(D.h1 || D.titular || 'Voz Durango').replace(/[&<>]/g, (c: string) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } as any)[c]).replace(/\*(.+?)\*/g, '<span class="si">$1</span>')}></h1>
         {D.bajada && <p class="sub">{D.bajada}</p>}
-        <p class="tesis">{D.tesis}</p>
-        {D.subtitulo && <p class="aviso">{D.subtitulo.replace(/^Proyecto ejecutivo para socios · Durango · [^·]+· /, '')}</p>}
         <div class="acciones">
-          <a class="btn btn-claro" href="#por-que">Empezar el recorrido →</a>
-          <a class="btn btn-linea" href="#dinero">Ir al dinero del socio</a>
+          <a class="btn btn-claro" href="#intro">Empezar a leer →</a>
+          <a class="btn btn-linea" href="#resumen">Ir al resumen (3 min)</a>
         </div>
         <div class="onda" aria-hidden="true">
           {Array.from({ length: 64 }).map((_, i) => {
@@ -488,11 +816,189 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       </div>
     </section>
 
+    <!-- Introducción -->
+    <section class="sec intro" id="intro">
+      <div class="wrap">
+        <p class="cap-n">Introducción</p>
+        <h2>Qué es <span class="si">este documento.</span></h2>
+        <div class="intro-grid">
+          <div class="texto">
+            <p>Es la propuesta para crear en Durango una <b>agencia de podcast y comunicación</b>: grabamos, editamos, publicamos y asesoramos la narrativa de personas ocupadas, empezando por la clase política y abriéndonos después al trabajo comercial.</p>
+            <p>La idea de fondo: <b>no vendemos horas de estudio, vendemos la voz pública de personas ocupadas.</b> El cliente graba unas 3 horas al mes y nosotros hacemos todo lo demás.</p>
+            <p>Se armó con una investigación de <b>{(D.fuentes || []).length} fuentes</b> al 13 de noviembre de 2026. Cada dato pasó por un verificador que intentó tumbarlo. Lo que dice <i>estimado</i> es cálculo nuestro y lo que no se sabe dice <i>por confirmar</i>.</p>
+            {D.subtitulo && <p class="aviso-claro">{D.subtitulo.replace(/^Proyecto ejecutivo para socios · Durango · [^·]+· /, '').split('. ')[0]}.</p>}
+          </div>
+          <div class="como-leer">
+            <h3>Cómo leerlo</h3>
+            <ol>
+              <li><a href="#resumen"><b>El resumen</b><span>Todo el proyecto en 3 minutos.</span></a></li>
+              <li><a href="#indice-doc"><b>El índice</b><span>{capitulos.length} capítulos en 5 partes; ve al que te interese.</span></a></li>
+              <li><a href="#decidir"><b>Las decisiones</b><span>Al final votas {(D.decisiones || []).length} decisiones y se las mandas a Miguel.</span></a></li>
+            </ol>
+            <p class="nota">Cada capítulo empieza con un recuadro <b>En corto</b>: si solo lees esos, ya tienes lo esencial.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resumen ejecutivo -->
+    <section class="sec gris" id="resumen">
+      <div class="wrap">
+        <p class="cap-n">Resumen ejecutivo · 3 minutos</p>
+        <h2>El proyecto <span class="si">en una página.</span></h2>
+
+        <div class="rbloque">
+          <div class="rcab"><span class="rn">1</span><h3>La idea</h3></div>
+          <p class="rfrase">Vendemos la voz pública de personas ocupadas. <b>El cliente graba unas 3 horas al mes y nosotros hacemos todo lo demás.</b></p>
+          <div class="modelo" role="img" aria-label="El cliente graba 3 horas al mes, nosotros hacemos narrativa, grabación, edición con IA, clips, publicación y reporte, y el resultado son episodios y clips publicados cada mes">
+            <div class="mpaso"><span class="mt">El cliente</span><b>Graba unas 3 horas al mes</b><span class="ms">en una sola sesión, en su oficina o en el set</span></div>
+            <span class="mflecha" aria-hidden="true">→</span>
+            <div class="mpaso mnos"><span class="mt">Nosotros</span>
+              <div class="mchips"><span>Narrativa</span><span>Grabación con 4 cámaras</span><span>Edición con IA</span><span>Clips verticales</span><span>Publicación</span><span>Reporte</span><span>Cumplimiento INE</span></div>
+            </div>
+            <span class="mflecha" aria-hidden="true">→</span>
+            <div class="mpaso"><span class="mt">El resultado</span><b>4 episodios y 16 a 20 clips al mes</b><span class="ms">publicados con constancia en sus redes y YouTube</span></div>
+          </div>
+        </div>
+
+        <div class="rbloque">
+          <div class="rcab"><span class="rn">2</span><h3>Por qué ahora</h3></div>
+          <div class="rstats">
+            <div><b>29</b><span>diputaciones en juego en Durango en 2027</span></div>
+            <div><b>39 + 1</b><span>ayuntamientos y gubernatura en 2028</span></div>
+            <div><b>89%</b><span>de los oyentes de podcast ve clips en redes</span></div>
+            <div><b>52.8%</b><span>de los podcasts no pasa de 6 episodios: falta constancia</span></div>
+          </div>
+        </div>
+
+        <div class="rbloque">
+          <div class="rcab"><span class="rn">3</span><h3>Qué vendemos</h3></div>
+          <div class="rprecios">
+            {[pVoz, pVP, pEp, pCamp].map((p: any) => (
+              <div><span class="rpn">{p.nombre}</span><b>{mxn(p.precio_mxn)}</b><span class="rpu">{p.unidad} · sin IVA</span></div>
+            ))}
+          </div>
+          <p class="rnota">Las igualas mensuales son el centro del negocio; lo demás llena huecos de agenda. <a href="#propuesta">Ver los {(D.paquetes || []).length} paquetes →</a></p>
+        </div>
+
+        <div class="rbloque">
+          <div class="rcab"><span class="rn">4</span><h3>Cuánto se pone y cuándo regresa</h3></div>
+          <div class="rdinero">
+            <div class="rtramos">
+              <div class="rbarra" aria-hidden="true">
+                <i style={`flex:${capital.tramos[0] && capital.tramos[0].mxn}`}></i>
+                <i style={`flex:${capital.tramos[1] && capital.tramos[1].mxn}`}></i>
+              </div>
+              <div class="rtramo"><b>{mxn(capital.tramos[0] && capital.tramos[0].mxn)}</b><span>Tramo 1 · validar y arrancar (nov a feb)</span></div>
+              <div class="rtramo dos"><b>+{mxn(capital.tramos[1] && capital.tramos[1].mxn)}</b><span>Tramo 2 · solo con igualas firmadas que cubran los costos fijos</span></div>
+              <p class="rnota">El local y las etapas siguientes se pagan con la caja del negocio.</p>
+            </div>
+            <div class="rcurva">
+              {(() => {
+                const W = 320, H = 130, pad = 8;
+                const vals = serieCaja.map((s: any) => s.acumulado);
+                const mn = Math.min(0, ...vals), mx = Math.max(0, ...vals);
+                const x = (i: number) => pad + (i * (W - 2 * pad)) / Math.max(1, vals.length - 1);
+                const y = (v: number) => pad + ((mx - v) * (H - 2 * pad)) / Math.max(1, mx - mn);
+                const pts = vals.map((v: number, i: number) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Caja acumulada: baja hasta ${mxn(vals[iBajo])} y vuelve a positivo en el mes ${iCruce + 1}`}>
+                    <line x1={pad} x2={W - pad} y1={y(0)} y2={y(0)} stroke="currentColor" stroke-opacity=".35" />
+                    <polyline points={pts} fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" />
+                    <circle cx={x(iBajo)} cy={y(vals[iBajo])} r="4.5" fill="#C8963E" />
+                    {iCruce >= 0 && <circle cx={x(iCruce)} cy={y(vals[iCruce])} r="4.5" fill="#C8963E" />}
+                  </svg>
+                );
+              })()}
+              <div class="rcurva-lee">
+                <span><b>{corto(serieCaja[iBajo] && serieCaja[iBajo].acumulado).replace('$-', '−$')}</b> lo más bajo ({serieCaja[iBajo] && serieCaja[iBajo].mes})</span>
+                <span><b>Mes {iCruce + 1}</b> la caja vuelve a positivo (escenario base)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rbloque">
+          <div class="rcab"><span class="rn">5</span><h3>Cuánto deja al mes, ya operando</h3></div>
+          <div class="rescs">
+            {escenarios.map((e: any) => (
+              <div class="resc">
+                <span class="ren">{e.nombre}</span>
+                <span class="rep"><i style={`width:${(100 * (e.utilidad_mes_mxn || 0)) / maxUtil}%`}></i></span>
+                <b>{mxn(e.utilidad_mes_mxn)}</b>
+              </div>
+            ))}
+          </div>
+          <p class="rnota">Utilidad antes de impuestos con ingresos de {escenarios.map((e: any) => mxn(e.ingreso_mes_mxn)).join(', ')} al mes (estimado). <a href="#numeros">Probar el simulador →</a></p>
+        </div>
+
+        <div class="rbloque">
+          <div class="rcab"><span class="rn">6</span><h3>Quién lo hace</h3></div>
+          <div class="rgente">
+            <div><b>1</b><span>persona de planta: el productor-operador</span></div>
+            <div><b>~{hm.meta} h</b><span>por semana de Miguel, desde abril de 2027</span></div>
+            <div><b>1–2 h</b><span>por semana del socio inversionista</span></div>
+            <div><b>Por pieza</b><span>editor, community manager y consultor de narrativa</span></div>
+          </div>
+        </div>
+
+        <div class="rbloque">
+          <div class="rcab"><span class="rn">7</span><h3>Cómo avanzamos</h3></div>
+          <ol class="rpasos">
+            <li><span class="rpf">nov–dic 2026</span><b>Validar sin gastar</b><span>10 o más entrevistas con clientes posibles.</span></li>
+            <li><span class="rpf">ene–feb 2027</span><b>Probar la receta</b><span>Pilotos cobrados con el kit y la sociedad constituida.</span></li>
+            <li><span class="rpf">28 feb 2027</span><b>Igualas que cubren los fijos</b><span>Se libera el tramo 2.</span></li>
+            <li><span class="rpf">abr–jun 2027</span><b>Campaña sin errores</b><span>Sprints cobrados por adelantado.</span></li>
+            <li><span class="rpf">jul 2027 →</span><b>Estudio propio</b><span>Solo con 40 horas vendidas al mes.</span></li>
+          </ol>
+          <p class="rnota"><a href="#hitos">Ver los {(D.hitos || []).length} hitos en la línea de tiempo →</a></p>
+        </div>
+
+        <div class="rbloque rdos">
+          <div>
+            <div class="rcab"><span class="rn">8</span><h3>Los riesgos principales</h3></div>
+            <ul class="rlista">{riesgosTop.slice(0, 3).map((r: any) => <li>{tituloRiesgo(r.riesgo)}</li>)}</ul>
+            <p class="rnota"><a href="#riesgos">Los {(D.riesgos || []).length} riesgos y qué hacemos →</a></p>
+          </div>
+          <div>
+            <div class="rcab"><span class="rn">9</span><h3>Lo que hay que decidir</h3></div>
+            <ul class="rlista">{(D.decisiones || []).slice(0, 4).map((q: any) => <li>{q.pregunta}</li>)}</ul>
+            <p class="rnota"><a href="#decidir">Votar las {(D.decisiones || []).length} decisiones →</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Índice -->
+    <section class="sec" id="indice-doc">
+      <div class="wrap">
+        <p class="cap-n">Índice</p>
+        <h2>{capitulos.length} capítulos <span class="si">en cinco partes.</span></h2>
+        <div class="partes">
+          {partes.map((parte, ip) => (
+            <div class="parte">
+              <p class="parte-t"><span>Parte {ip + 1}</span>{parte}</p>
+              <div class="parte-caps">
+                {capitulos.filter((c) => c.p === ip).map((c) => (
+                  <a class="cap-card" href={`#${c.id}`}>
+                    <span class="cn">{c.n}</span>
+                    <span class="ct"><b>{c.t}</b><span>{c.d}</span></span>
+                    <span class="cf" aria-hidden="true">→</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
     <!-- 01 Por qué ahora -->
     <section class="sec" id="por-que">
       <div class="wrap">
         <p class="cap-n">01 · Por qué ahora</p>
         <h2>El podcast ya no se escucha: <span class="si">se ve.</span></h2>
+        <EnCorto {...enCorto['por-que']} />
         <p class="lead">Lo que dicen los datos del formato, con su fuente. Toca cualquier fuente para abrirla.</p>
         <div class="rejilla r3 bloque carr">
           {(D.por_que_ahora || []).map((p: any) => (
@@ -508,6 +1014,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
           <div class="tarjeta rv"><h3>Lo bueno del formato</h3><ul class="lista mas" data-max="4">{(D.pros_formato || []).map((x: string) => <li>{x}</li>)}</ul></div>
           <div class="tarjeta rv"><h3>Lo que cuesta</h3><ul class="lista menos" data-max="4">{(D.contras_formato || []).map((x: string) => <li>{x}</li>)}</ul></div>
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('por-que')} />
       </div>
     </section>
 
@@ -516,6 +1023,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">02 · Quién ya lo hace</p>
         <h2>Casos reales y <span class="si">qué nos enseñan.</span></h2>
+        <EnCorto {...enCorto['casos']} />
         <p class="lead">Estudios, agencias, medios y productoras que recorrieron parte de este camino. Filtra por tipo.</p>
         <div class="chips bloque" id="filtro-casos" role="group" aria-label="Filtrar casos"></div>
         <div class="rejilla r3 carr" id="casos-lista" style="margin-top:16px">
@@ -530,6 +1038,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             </article>
           ))}
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('casos')} />
       </div>
     </section>
 
@@ -538,13 +1047,25 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">03 · Tres caminos</p>
         <h2>Probamos la idea <span class="si">desde tres lados.</span></h2>
+        <EnCorto {...enCorto['caminos']} />
         <p class="lead">Tres equipos diseñaron un camino cada uno con la misma investigación. Un juez los puntuó y armó una mezcla con lo mejor de cada uno. Compara.</p>
+        <div class="comp bloque" role="img" aria-label={`Puntaje de cada camino: ${opsOrden.map((o: any) => `${o.corto} ${o.puntaje}`).join(', ')}`}>
+          {opsOrden.map((o: any) => (
+            <div class={`comp-f${o.recomendada ? ' rec' : ''}`}>
+              <span class="comp-n">{o.id} · {o.corto}{o.recomendada ? ' ★' : ''}</span>
+              <span class="comp-p"><i style={`width:${o.puntaje}%`}></i></span>
+              <b>{o.puntaje}</b>
+            </div>
+          ))}
+          <p class="nota">Puntaje de 0 a 100 del juez, promedio de cinco criterios. Elige un camino abajo para ver el detalle.</p>
+        </div>
         <div class="bloque"><div class="seg" id="seg-caminos" role="group" aria-label="Caminos"></div></div>
         <div class="camino" id="camino-panel" aria-live="polite"></div>
         <div class="tarjeta bloque rv" style="border-color:var(--amber)">
           <span class="etq oro">Recomendación</span>
           <p style="font-size:1.05rem" class="pl">{D.recomendacion}</p>
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('caminos')} />
       </div>
     </section>
 
@@ -553,6 +1074,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">04 · Lo que vendemos</p>
         <h2>No vendemos horas de estudio: <span class="si">vendemos la voz pública.</span></h2>
+        <EnCorto {...enCorto['propuesta']} />
         <div class="rejilla r3 bloque carr">
           <div class="tarjeta rv"><h3>Para el cliente</h3><ul class="lista" data-max="4">{((D.propuesta_valor && D.propuesta_valor.cliente) || []).map((x: string) => <li>{x}</li>)}</ul></div>
           <div class="tarjeta rv"><h3>Para su público</h3><ul class="lista" data-max="4">{((D.propuesta_valor && D.propuesta_valor.publico) || []).map((x: string) => <li>{x}</li>)}</ul></div>
@@ -561,8 +1083,11 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
 <p class="desliza-hint" aria-hidden="true">Desliza para ver más →</p>
         <h3 class="bloque">Paquetes</h3>
         <p class="lead">Precios propuestos para arrancar en Durango, sin IVA. El margen sale del costo directo estimado de cada uno; toca "Cómo se calculó" para ver de dónde sale el precio.</p>
-        <div class="rejilla r3 carr" style="margin-top:16px">
-          {(D.paquetes || []).map((p: any) => {
+        {gruposPaq.map((g) => (
+        <div class="grupo-paq">
+        <p class="grupo-t"><b>{g.t}</b><span>{g.d}</span></p>
+        <div class="rejilla r3 carr" style="margin-top:12px">
+          {(D.paquetes || []).filter((p: any) => g.n.includes(p.nombre)).map((p: any) => {
             const margen = typeof p.costo_directo_mxn === 'number' && p.precio_mxn ? Math.round((1 - p.costo_directo_mxn / p.precio_mxn) * 100) : null;
             return (
               <article class="tarjeta rv">
@@ -579,6 +1104,9 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             );
           })}
         </div>
+        </div>
+        ))}
+        <CapNav indice="indice-doc" sig={sigDe('propuesta')} />
       </div>
     </section>
 
@@ -587,6 +1115,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">05 · El arranque</p>
         <h2>El mínimo que se ve <span class="si">de primer nivel.</span></h2>
+        <EnCorto {...enCorto['mvp']} />
         <p class="lead">Tres niveles de equipo. Elige uno: el total alimenta el simulador de números.</p>
         <div class="equipo-cab">
           <div class="seg" id="seg-nivel" role="group" aria-label="Nivel de equipo">
@@ -605,6 +1134,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
           <div class="tarjeta rv"><h3>Sobre el equipo que pensamos</h3><ul class="lista" data-max="3">{(D.sobre_el_equipo_pensado || []).map((x: string) => <li>{x}</li>)}</ul></div>
           <div class="tarjeta rv"><h3>El espacio</h3><ul class="lista" data-max="3">{(D.espacio || []).map((x: string) => <li>{x}</li>)}</ul></div>
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('mvp')} />
       </div>
     </section>
 
@@ -613,6 +1143,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">06 · Cómo opera</p>
         <h2>Un episodio, de la agenda <span class="si">a las redes.</span></h2>
+        <EnCorto {...enCorto['opera']} />
         <p class="lead">Cada paso con sus minutos de trabajo humano sin IA y con IA. Toca un paso para ver qué pasa y con qué herramienta.</p>
         <div class="ahorro">
           <div class="tarjeta"><span class="nota">Sin IA, por episodio</span><div class="cifra cifra-chica">{(minManual / 60).toLocaleString('es-MX', { maximumFractionDigits: 1 })} h</div></div>
@@ -686,6 +1217,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             </article>
           ))}
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('opera')} />
       </div>
     </section>
 
@@ -694,6 +1226,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">07 · Quién lo hace</p>
         <h2>Plantilla mínima, <span class="si">capacidad alta.</span></h2>
+        <EnCorto {...enCorto['personas']} />
         <p class="lead">Quién hace qué en cada fase. Cambia de fase para ver cómo crece el equipo.</p>
         <div class="bloque" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
           <div class="seg" id="seg-fase" role="group" aria-label="Fase">
@@ -727,6 +1260,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             </article>
           ))}
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('personas')} />
       </div>
     </section>
 
@@ -735,10 +1269,32 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">08 · Hitos</p>
         <h2>No se escala por fecha: <span class="si">se escala por prueba.</span></h2>
-        <p class="lead">Cada hito tiene una condición medible. Si no se cumple, no se invierte en el siguiente. Toca uno para ver el detalle.</p>
+        <EnCorto {...enCorto['hitos']} />
+        <p class="lead">Cada hito tiene una condición medible. Si no se cumple, no se invierte en el siguiente. Toca un hito para ver el detalle.</p>
+        <div class="gantt bloque" aria-label="Línea de tiempo de los hitos, de noviembre de 2026 a julio de 2028">
+          <div class="g-fila g-eje" aria-hidden="true">
+            <span class="g-lab"></span>
+            <div class="g-pista">
+              {anios.map((a) => <span class="g-anio" style={`grid-column:${a.a + 1} / ${a.b + 2}`}>{a.t}</span>)}
+              {mesesEje.map((m, i) => <span class="g-mes" style={`grid-column:${i + 1}`}>{m[0]}</span>)}
+            </div>
+          </div>
+          {(D.hitos || []).map((h: any) => {
+            const g = gantt[h.id] || [0, 0];
+            return (
+              <a class="g-fila" href={`#hito-${h.id}`} data-hito={h.id}>
+                <span class="g-lab"><b>{h.id}</b> {h.nombre}{marcaHito[h.id] && <em> · {marcaHito[h.id]}</em>}</span>
+                <span class="g-pista">
+                  <span class={`g-barra${g[0] === g[1] ? ' punto' : ''}${g[2] ? ' abierta' : ''}${marcaHito[h.id] ? ' clave' : ''}`} style={`grid-column:${g[0] + 1} / ${g[1] + 2}`}></span>
+                </span>
+              </a>
+            );
+          })}
+          <p class="nota" style="margin-top:10px">Las barras marcan el plazo de cada hito; el rombo es una fecha de corte y la barra punteada, un hito que se cumple cuando se dé la condición (no antes de julio de 2027).</p>
+        </div>
         <div class="hitos">
           {(D.hitos || []).map((h: any, i: number) => (
-            <details class="hito rv" open={i === 0}>
+            <details class="hito rv" open={i === 0} id={`hito-${h.id}`}>
               <summary>
                 <span class="hid">{h.id}</span>
                 <span><span class="hn">{h.nombre}</span><br /><span class="hp">{h.fase}{h.plazo ? ` · ${h.plazo}` : ''}{typeof h.inversion_mxn === 'number' && h.inversion_mxn > 0 ? ` · ${corto(h.inversion_mxn)}` : ''}</span></span>
@@ -752,6 +1308,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             </details>
           ))}
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('hitos')} />
       </div>
     </section>
 
@@ -760,6 +1317,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">09 · Los números</p>
         <h2>Juega con <span class="si">el mes.</span></h2>
+        <EnCorto {...enCorto['numeros']} />
         <p class="lead">Elige un escenario o mueve cuántos paquetes se venden al mes. El simulador usa el precio, el costo directo y las horas de cada paquete, los costos fijos de la fase y el equipo que elegiste en el capítulo 5.</p>
         <div class="bloque" style="display:grid;gap:12px">
           <div><span class="nota" style="display:block;margin-bottom:6px">Escenario</span><div class="seg" id="seg-esc" role="group" aria-label="Escenarios"></div></div>
@@ -787,6 +1345,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             {D.finanzas && D.finanzas.punto_equilibrio && <p class="nota" style="margin-top:8px"><b>Punto de equilibrio:</b> {D.finanzas.punto_equilibrio}</p>}
           </div>
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('numeros')} />
       </div>
     </section>
 
@@ -795,6 +1354,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">{nCap('dinero')} · El dinero del socio</p>
         <h2>Cuánto se pone <span class="si">y cuándo regresa.</span></h2>
+        <EnCorto {...enCorto['dinero']} />
         <p class="lead">El capital entra por tramos y cada tramo tiene su condición. Si una condición no se cumple, no se pone el siguiente peso.</p>
         <div class="tramos">
           {capital.tramos.map((t: any, i: number) => (
@@ -868,6 +1428,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             {fc.perdida_cierre && <p class="nota" style="margin-top:12px">{fc.perdida_cierre}</p>}
           </div>
         )}
+        <CapNav indice="indice-doc" sig={sigDe('dinero')} />
       </div>
     </section>
 
@@ -876,6 +1437,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">{nCap('politica')} · El nicho político</p>
         <h2>La oportunidad <span class="si">y sus reglas.</span></h2>
+        <EnCorto {...enCorto['politica']} />
         <p class="lead pl">{D.politica && D.politica.oportunidad}</p>
         <div class="rejilla r2 bloque carr">
           {((D.politica && D.politica.evidencia) || []).map((e: any) => (
@@ -908,6 +1470,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
           <div class="tarjeta"><h3>Riesgos de trabajar con políticos</h3><ul class="lista" data-max="4">{((D.politica && D.politica.riesgos) || []).map((x: string) => <li>{x}</li>)}</ul></div>
           <div class="tarjeta"><h3>Cómo los cuidamos</h3><ul class="lista" data-max="4">{((D.politica && D.politica.mitigacion) || []).map((x: string) => <li>{x}</li>)}</ul></div>
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('politica')} />
       </div>
     </section>
 
@@ -916,6 +1479,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">{nCap('durango')} · Durango</p>
         <h2>El mercado <span class="si">que tenemos enfrente.</span></h2>
+        <EnCorto {...enCorto['durango']} />
         <div class="rejilla r3 bloque carr">
           {(D.mercado_durango || []).map((m: any) => (
             <article class="tarjeta rv"><div class="cifra cifra-chica">{m.cifra}</div><p>{m.texto}</p>{m.url && <div class="pie"><a class="fuente" href={m.url} target="_blank" rel="noopener">{host(m.url)}</a></div>}</article>
@@ -930,6 +1494,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             </li>
           ))}
         </ol>
+        <CapNav indice="indice-doc" sig={sigDe('durango')} />
       </div>
     </section>
 
@@ -938,6 +1503,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">{nCap('escalar')} · De estudio a casa de medios</p>
         <h2>Cada compra <span class="si">la paga la anterior.</span></h2>
+        <EnCorto {...enCorto['escalar']} />
         <p class="lead">La infraestructura crece por disparadores medibles, no por ganas.</p>
         <div class="escalera">
           {(D.escalamiento || []).map((e: any, i: number) => (
@@ -952,6 +1518,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             </article>
           ))}
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('escalar')} />
       </div>
     </section>
 
@@ -960,6 +1527,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">{nCap('riesgos')} · Riesgos</p>
         <h2>Lo que puede salir mal <span class="si">y qué hacemos.</span></h2>
+        <EnCorto {...enCorto['riesgos']} />
         <p class="lead">Toca una celda de la matriz para ver sus riesgos. Entre más oscura, más riesgos caen ahí.</p>
         <div class="matriz-wrap">
           <div>
@@ -974,6 +1542,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             <div class="tarjeta rv" style="flex-direction:row;gap:14px"><span class="cap-n" style="flex:none">{String(i + 1).padStart(2, '0')}</span><p>{p}</p></div>
           ))}
         </div>
+        <CapNav indice="indice-doc" sig={sigDe('riesgos')} />
       </div>
     </section>
 
@@ -982,6 +1551,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       <div class="wrap">
         <p class="cap-n">{nCap('decidir')} · Lo que decidimos juntos</p>
         <h2>Tu voto, <span class="si">pregunta por pregunta.</span></h2>
+        <EnCorto {...enCorto['decidir']} />
         <p class="lead">Elige una opción en cada decisión. Se guarda en este teléfono; al final puedes copiar tus respuestas y mandárselas a Miguel.</p>
         <div class="rejilla r2 bloque" id="decisiones">
           {(D.decisiones || []).map((q: any, i: number) => (
@@ -1013,6 +1583,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
             <ul class="lista" data-max="5">{D.por_confirmar.map((x: string) => <li>{x}</li>)}</ul>
           </div>
         )}
+        <CapNav indice="indice-doc" sig={sigDe('decidir')} />
       </div>
     </section>
 
@@ -1027,6 +1598,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
           {(D.fuentes || []).map((f: any) => <li><a href={f.url} target="_blank" rel="noopener">{f.titulo}</a> <small>{host(f.url)}</small></li>)}
         </ol>
         </details>
+        <CapNav indice="indice-doc" sig={sigDe('fuentes')} />
       </div>
     </section>
   </main>
@@ -1075,7 +1647,7 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
     const prog = $('#top-prog')!, cap = $('#top-cap')!;
     const secciones = $$('main section[id]');
     const nombres: Record<string, string> = {};
-    $$('#indice a').forEach((a) => (nombres[a.dataset.cap!] = a.textContent!.replace(/^\d+/, '')));
+    $$('#indice a').forEach((a) => (nombres[a.dataset.cap!] = a.textContent!.replace(/^[\d·]+/, '')));
     let ticking = false;
     function alScroll() {
       ticking = false;
@@ -1107,6 +1679,12 @@ const datosCliente = JSON.stringify({ opciones, equipo_niveles, personas, paquet
       ul.after(b);
     }); }
     acortarListas(document);
+
+    /* ── Línea de tiempo de hitos: abre el hito que se toca ── */
+    $$('.gantt a.g-fila[data-hito]').forEach((a) => a.addEventListener('click', () => {
+      const det = document.getElementById('hito-' + a.dataset.hito) as HTMLDetailsElement | null;
+      if (det) det.open = true;
+    }));
 
     /* ── Aparición suave ── */
     if ('IntersectionObserver' in window) {

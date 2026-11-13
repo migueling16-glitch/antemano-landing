@@ -1,0 +1,17 @@
+---
+// Pie de capítulo: volver al índice y pasar al siguiente. Estilos en la página (.capnav).
+interface Props {
+  indice: string;
+  sig?: { id: string; n: string; t: string } | null;
+}
+const { indice, sig } = Astro.props;
+---
+<nav class="capnav" aria-label="Navegación entre capítulos">
+  <a href={`#${indice}`} class="capnav-ind">↑ Índice</a>
+  {sig && (
+    <a href={`#${sig.id}`} class="capnav-sig">
+      <span>Siguiente</span>
+      <b>{sig.n} · {sig.t} →</b>
+    </a>
+  )}
+</nav>
