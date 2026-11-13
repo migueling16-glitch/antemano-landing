@@ -1,0 +1,3668 @@
+{
+ "titular": "Voz Durango: una agencia de podcast por iguala, con motor de IA y un estudio que se gana con horas vendidas",
+ "subtitulo": "Proyecto ejecutivo para socios · Durango · 13 de noviembre de 2026 · Es una empresa nueva propuesta, separada de Antemano (\"Voz Durango\" es nombre de trabajo). Cada cifra trae su fuente. Lo que dice \"estimado\" es cálculo nuestro y lo que no se sabe va en \"por confirmar\".",
+ "tesis": "No vamos a vender horas de estudio. Vamos a vender la voz pública de personas ocupadas: el cliente graba unas 3 horas al mes y nosotros hacemos todo lo demás (narrativa, grabación, clips, publicación, reporte y, con políticos, el cumplimiento ante el INE). La fábrica es un kit de 4 cámaras, una estación de edición y un motor de IA sobre DaVinci Resolve y Claude Code, con una sola persona de planta. El local propio llega solo cuando las horas vendidas lo pagan. El dinero entra por tramos atados a indicadores: unos $368,500 para validar y arrancar, y $139,500 más solo cuando haya igualas firmadas que cubran los costos fijos (estimado).",
+ "por_que_ahora": [
+  {
+   "cifra": "0 estudios",
+   "texto": "En una búsqueda web preliminar no apareció ningún estudio de podcast dedicado en Durango. Puede ser un hueco de mercado o una señal de poca demanda. Antes de presentar hay que confirmarlo con capturas de Google Maps e Instagram de Durango, Gómez Palacio y Torreón.",
+   "url": "https://ivy.fm/tag/durango",
+   "fecha": "13-nov-2026",
+   "fuente": "Búsqueda propia, preliminar"
+  },
+  {
+   "cifra": "29 diputaciones",
+   "texto": "El 6 de junio de 2027 Durango elige 25 diputaciones locales y 4 federales, con 11 partidos en la boleta. El proceso local empezó el 1-nov-2026.",
+   "url": "https://www.posta.com.mx/durango/elecciones-durango-2027-que-partidos-politicos-contenderan-en-este-proceso/vl2274344",
+   "fecha": "3-nov-2026",
+   "fuente": "Posta Durango"
+  },
+  {
+   "cifra": "Gubernatura + 39 ayuntamientos",
+   "texto": "En 2028 se renuevan la gubernatura y los 39 ayuntamientos. Quien aspire empieza a construir su narrativa desde la segunda mitad de 2027.",
+   "url": "https://politica.expansion.mx/mexico/2026/09/30/guia-electoral-2027-fechas-y-ruta-por-estado",
+   "fecha": "30-sep-2026",
+   "fuente": "Expansión Política"
+  },
+  {
+   "cifra": "$18,000–35,000 al mes",
+   "texto": "Una agencia regional (Néctar, Morelia) ya les cobra a políticos, más IVA y sin podcast ni estudio, en dos niveles. Presencia, a $18,000 al mes con 3 meses mínimo, incluye contenido diario, 2 redes y manejo de pauta. Campaña, a $35,000 al mes con 6 meses mínimo, incluye 3 redes, pauta en Meta y Google, 2 spots al mes y testigos para el INE.",
+   "url": "https://nectardigital.agency/politico.html",
+   "fecha": "consultado 13-nov-2026",
+   "fuente": "Néctar Digital Agency"
+  },
+  {
+   "cifra": "9-sep-2026",
+   "texto": "DaVinci Resolve Studio 21.1, que Miguel ya tiene, trae un servidor MCP nativo para que Claude Code lo maneje. Por su API se pueden sincronizar cámaras, armar el multicam, cambiar de toma según quién habla, aislar voces, transcribir y subtitular.",
+   "url": "https://www.blackmagicdesign.com/products/davinciresolve/whatsnew",
+   "fecha": "9-sep-2026",
+   "fuente": "Blackmagic Design"
+  },
+  {
+   "cifra": "$3.72 por hora",
+   "texto": "Transcribir una hora de audio con ElevenLabs Scribe v2 cuesta 0.20 USD, unos $3.72. Los títulos, descripciones y capítulos con Claude Sonnet 5.5 cuestan unos $1.3 por episodio (estimado). La IA ya no es el costo: lo caro es la hora humana.",
+   "url": "https://elevenlabs.io/pricing/api",
+   "fecha": "13-nov-2026",
+   "fuente": "ElevenLabs / Anthropic"
+  },
+  {
+   "cifra": ">1,000 millones",
+   "texto": "YouTube pasó de 1,000 millones de usuarios mensuales de podcast en el mundo. En EE.UU. es la plataforma de podcast más usada: 39% en el 4T-2025, contra 20% de Spotify. El podcast ya es video.",
+   "url": "https://blog.youtube/news-and-events/1-billion-monthly-podcast-users/",
+   "fecha": "26-feb-2025",
+   "fuente": "YouTube / Edison (netinfluencer)"
+  },
+  {
+   "cifra": ">27 millones",
+   "texto": "Más de 27 millones de mexicanos escucharon podcasts en Spotify en 2024, 19% más que en 2023. México es el 7.º país del mundo en esa plataforma.",
+   "url": "https://dplnews.com/cuanto-vale-economia-podcast/",
+   "fecha": "19-may-2025",
+   "fuente": "DPL News (datos de Spotify)"
+  },
+  {
+   "cifra": "66%",
+   "texto": "El 66% de los mexicanos se informa cada semana en redes sociales. La confianza en las noticias está en su punto más bajo (31%), pero los medios locales conservan credibilidad.",
+   "url": "https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/mexico",
+   "fecha": "jun-2026",
+   "fuente": "Reuters Institute, Digital News Report 2026"
+  },
+  {
+   "cifra": "89%",
+   "texto": "El 89% de los oyentes ve clips de podcast en redes, y el 72% de quienes empiezan a escuchar llegó por el video. Los clips son lo que trae alcance.",
+   "url": "https://soundsprofitable.com/article/the-front-door/",
+   "fecha": "15-jul-2026",
+   "fuente": "Sounds Profitable"
+  },
+  {
+   "cifra": "52.8%",
+   "texto": "La mitad de los podcasts no pasa de 6 episodios. Un servicio que le quite al cliente el trabajo de ser constante ataca la causa principal de abandono.",
+   "url": "https://www.castfox.net/research/podcast-statistics-2026",
+   "fecha": "13-oct-2026",
+   "fuente": "Castfox"
+  }
+ ],
+ "casos": [
+  {
+   "nombre": "Ashmedia",
+   "tipo": "agencia",
+   "lugar": "Remoto (EE.UU.)",
+   "modelo": "Iguala mensual sin contrato forzoso, desde US$1,500 (unos $27,928)",
+   "numeros": "15 personas. El cliente graba unas 3 horas al mes y recibe 4–8 episodios, 4–8 clips largos y 16–32 cortos. También vende un coaching con sus procedimientos.",
+   "leccion": "\"Usted graba 3 horas al mes y nosotros hacemos lo demás\" es exactamente el argumento de venta para un político o un director.",
+   "url": "https://ashmedia.org/"
+  },
+  {
+   "nombre": "Poddster / Podyx",
+   "tipo": "estudio",
+   "lugar": "Dubái, Abu Dabi y Singapur",
+   "modelo": "Red de estudios de renta que después convirtió su operación en software",
+   "numeros": "14 sets, 600–700 grabaciones al mes, más de 200 procedimientos escritos y respuesta en 3–5 minutos (abr-2026). Podyx tiene más de 160 estudios que pagan y más de US$6M procesados.",
+   "leccion": "Lo que escala es el sistema (procedimientos, respuesta inmediata, software), no los metros cuadrados. Hay que escribir los procesos desde el día uno.",
+   "url": "https://www.analysepodcast.com/building-the-worlds-largest-podcast-studio-network-poddster-podyx-with-borko-kovacevic"
+  },
+  {
+   "nombre": "Authentic Exposure Studio",
+   "tipo": "estudio",
+   "lugar": "Austin, EE.UU.",
+   "modelo": "Estudio de video podcast de un solo fundador, con igualas mensuales y SEO",
+   "numeros": "US$250–300k en 2025 (unos $4.7–5.6 M). 4 igualas de US$5,000 o más al mes. Cobra US$300 la hora contra US$99–125 del mercado. Cerca de 50% del ingreso llega por SEO.",
+   "leccion": "El dinero está en las igualas, no en la hora de estudio. Su límite no fue el capital sino la confianza del cliente y depender del fundador. Hace falta un operador desde temprano.",
+   "url": "https://founderpath.com/the-deal/authentic-exposure-studio"
+  },
+  {
+   "nombre": "Carpa Producciones · Sala de podcast",
+   "tipo": "estudio",
+   "lugar": "León, Guanajuato",
+   "modelo": "Episodio terminado a precio cerrado",
+   "numeros": "$2,999 más IVA por episodio editado con 3 clips, grabado con Sony ZV-E10, A7 IV y FX3. Cuatro episodios semanales cuestan $7,996.",
+   "leccion": "Es el caso más parecido: mismo equipo y una ciudad media. En Durango el precio de entrada debe rondar ahí y competir con estrategia, no con precio.",
+   "url": "https://carpaproducciones.com/sala-de-podcast/"
+  },
+  {
+   "nombre": "Foortuna Media",
+   "tipo": "productora",
+   "lugar": "CDMX (Roma Sur)",
+   "modelo": "Tres paquetes de 4 episodios; el más caro suma manejo de redes",
+   "numeros": "$16,999, $20,999 y $25,999 más IVA por 4 episodios, con 3 a 5 reels por episodio.",
+   "leccion": "El precio sube según cuánto contenido derivado y cuánta gestión se incluye, no por la grabación. Nuestras igualas siguen esa lógica.",
+   "url": "https://foortunamedia.com/"
+  },
+  {
+   "nombre": "Néctar Digital · Político",
+   "tipo": "agencia",
+   "lugar": "Morelia, Michoacán",
+   "modelo": "Iguala política con mínimo de meses, en tres niveles",
+   "numeros": "Presencia: $18,000 al mes con 3 meses mínimo (estrategia, contenido diario, narrativa, producción de spots, 2 redes con community management y manejo de pauta). Campaña: $35,000 al mes con 6 meses mínimo (3 redes, pauta en Meta y Google, 2 spots al mes, testigos para el INE). War Room, a consultar. Spot para el INE desde $25,000.",
+   "leccion": "Una agencia regional ya cobra esto a políticos sin estudio ni podcast. Fuera de campaña, el paquete comparable a Voz Pública es Presencia ($18,000), no Campaña. Por eso Voz Pública se propone en $28,000 (estimado) y se valida antes de cobrarla.",
+   "url": "https://nectardigital.agency/politico.html"
+  },
+  {
+   "nombre": "Sweet Fish Media",
+   "tipo": "agencia",
+   "lugar": "EE.UU.",
+   "modelo": "Iguala B2B que pasó del podcast a video y \"marcas de medios\"",
+   "numeros": "30 personas y 60–70 clientes a US$3,000–5,000 al mes (2020–21). Perdió 15% de su ingreso recurrente en un solo mes.",
+   "leccion": "Las bajas se miden cada mes y cada cliente se revisa cada trimestre con datos. Cambiar la oferta muy seguido confunde.",
+   "url": "https://databox.com/metrics-and-chill-sweet-fish-media"
+  },
+  {
+   "nombre": "Lower Street",
+   "tipo": "agencia",
+   "lugar": "Remoto (Reino Unido, EE.UU., Canadá)",
+   "modelo": "Agencia premium a la medida",
+   "numeros": "Pasó de 5 personas (2019) a 18 y hoy tiene 37. Proyectos desde US$50,000. Perdió cerca de 30% del ingreso en dos semanas con el COVID.",
+   "leccion": "Se crece con menos clientes que pagan más, pero depender de pocos clientes es el riesgo.",
+   "url": "https://lowerstreet.co/"
+  },
+  {
+   "nombre": "Crooked Media",
+   "tipo": "medio",
+   "lugar": "Los Ángeles, 2017",
+   "modelo": "Podcast político propio que se volvió red, autofinanciada",
+   "numeros": "40 empleados y 12 podcasts en 2019. Más de 20 millones de oyentes al mes en 2024. Acuerdo con MS NOW en feb-2026.",
+   "leccion": "Un medio político se vuelve casa de medios con contenido propio y diversificándose fuera de la política. El servicio a terceros por sí solo no llega ahí.",
+   "url": "https://en.wikipedia.org/wiki/Crooked_Media"
+  },
+  {
+   "nombre": "Goalhanger",
+   "tipo": "medio",
+   "lugar": "Londres",
+   "modelo": "De productora de TV a red de formatos propios (The Rest Is Politics, entre otros)",
+   "numeros": "Ventas de £37.9 M en 2025. Más de 250,000 suscriptores de pago y unos 70 millones de vistas de episodio completo al mes.",
+   "leccion": "Un formato político con conductores de bandos distintos puede mover toda una casa de medios.",
+   "url": "https://pressgazette.co.uk/paywalls/goalhanger-subscribers/"
+  },
+  {
+   "nombre": "Sonoro",
+   "tipo": "productora",
+   "lugar": "Los Ángeles, Nueva York y CDMX",
+   "modelo": "\"Media company as a service\": servicios a creadores a cambio de participación, y el audio como prueba barata de historias que luego van a TV",
+   "numeros": "58 millones de descargas al mes, más de 150 podcasts y más de 140 marcas aliadas (mar-2024). US$12.5M levantados (2023).",
+   "leccion": "Producir en México da costos bajos, y el valor crece con contenido propio o con participación en los negocios de los creadores.",
+   "url": "https://prnewswire.com/news-releases/sonoro-announces-100-year-over-year-growth-and-massive-global-expansion-302083023.html"
+  },
+  {
+   "nombre": "Ticker Studios",
+   "tipo": "medio",
+   "lugar": "Melbourne, Australia",
+   "modelo": "Canal propio de noticias que abre su estudio a marcas",
+   "numeros": "Una empresa graba 4 episodios en una sesión al mes y Ticker los publica uno por semana. Ticker News llega a más de 4 millones de personas al mes.",
+   "leccion": "El programa de la casa sirve de vitrina y de canal de ventas: el invitado termina comprando sus clips o un paquete. Aquí aplica solo con invitados no políticos. A un invitado político de la vitrina nunca se le venden clips.",
+   "url": "https://mediaweek.com.au/news/how-ticker-studios-went-from-the-news-desk-to-podcast-disruptor"
+  },
+  {
+   "nombre": "The Wild Project (Jordi Wild)",
+   "tipo": "medio",
+   "lugar": "España",
+   "modelo": "Video podcast de entrevistas largas con productora propia",
+   "numeros": "Su productora facturó 2.4 M€ en 2024. Fue el podcast más escuchado de Spotify España en 2024. En oct-2026 entrevistó a Feijóo y Abascal en plena campaña.",
+   "leccion": "Los políticos van a donde hay audiencia y reglas claras. Una regla pública de \"todos o ninguno\" protege la credibilidad.",
+   "url": "https://www.xataka.com/magnet/jordi-wild-culmina-su-transformacion-joe-rogan-espanol-entrevistara-a-feijoo-abascal-plena-campana-electoral"
+  },
+  {
+   "nombre": "Designjoy",
+   "tipo": "agencia",
+   "lugar": "EE.UU.",
+   "modelo": "Servicio productizado de una sola persona: precio fijo, una solicitud a la vez, todo asíncrono",
+   "numeros": "US$5,000 al mes por cliente y unos US$2M al año sin equipo (dato del propio fundador, jun-2025).",
+   "leccion": "Con paquete cerrado, cola visible y tiempos prometidos se atiende a muchos clientes con plantilla mínima. Es el modelo operativo para un negocio paralelo.",
+   "url": "https://www.news.aakashg.com/p/brett-designjoy-podcast"
+  },
+  {
+   "nombre": "Contacto Hoy, \"En Voz Alta\"",
+   "tipo": "medio",
+   "lugar": "Durango",
+   "modelo": "Medio digital local con entrevistas tipo podcast a regidores",
+   "numeros": "Al menos 7 episodios. No obtuve vistas.",
+   "leccion": "La clase política de Durango ya acepta el formato. A los medios locales conviene verlos como socios de distribución, no solo como competencia.",
+   "url": "https://www.youtube.com/watch?v=hjAMrS2VJOo"
+  },
+  {
+   "nombre": "Gimlet y Wondery (fracasos)",
+   "tipo": "productora",
+   "lugar": "EE.UU.",
+   "modelo": "Audio narrativo caro financiado con publicidad",
+   "numeros": "Gimlet se vendió en US$230M (2019) y eliminó 200 puestos en 2023. Wondery (~US$300M) se dividió en 2025 con unos 110 despidos.",
+   "leccion": "No hay que depender de la publicidad ni del audio caro. El camino es video y cuota mensual por servicio.",
+   "url": "https://en.wikipedia.org/wiki/Wondery"
+  },
+  {
+   "nombre": "MeidasTouch",
+   "tipo": "medio",
+   "lugar": "EE.UU., 2020",
+   "modelo": "De comité de anuncios políticos a red de noticias en YouTube",
+   "numeros": "12 empleados de planta y 30 colaboradores (mar-2025). #1 en podcasts entre enero y febrero de 2025.",
+   "leccion": "Con un equipo mínimo se puede tener mucho alcance, y lo que se aprende comunicando en campañas puede volverse un medio propio.",
+   "url": "https://en.wikipedia.org/wiki/MeidasTouch"
+  }
+ ],
+ "opciones": [
+  {
+   "id": "A",
+   "nombre": "Estudio primero: un set que se llena por sesión, episodio y jornada",
+   "tesis": "Abrir desde el día uno el primer estudio dedicado de video podcast en Durango y llenarlo con sesiones, episodios listos y jornadas. La consultoría queda como mejora para subir el ticket.",
+   "pros": [
+    "Puede llegar primero: no apareció ningún estudio dedicado en Durango (preliminar).",
+    "El precio por episodio ya está probado con el mismo equipo: Carpa (León) cobra $2,999 y Querétaro $2,850 por sesión.",
+    "El set físico da confianza y sirve de punto de encuentro con la clase política.",
+    "El equipo se puede revender: los lentes conservan 80–85% de su valor después de un año."
+   ],
+   "contras": [
+    "Es el enfoque con menos respaldo: los negocios que crecen venden cuota mensual, no cuartos. YouTube incluso cerró sus estudios gratuitos en 2021.",
+    "Cada cliente reserva de 2 a 4 veces al mes como máximo. Hacen falta decenas de clientes que vuelvan, en un mercado chico con ingreso 10.6% bajo el promedio nacional.",
+    "Es el que más capital pide (unos $666,000, estimado: set completo, local desde el inicio, estación y arranque) y carga renta y nómina desde el día uno.",
+    "Margen de fábrica (30–40% de margen bruto) mientras la consultoría no pese."
+   ],
+   "puntaje": 47,
+   "recomendada": false,
+   "inversion_mxn": 666000,
+   "puntajes": {
+    "probabilidad_exito": 45,
+    "tiempo_socios": 50,
+    "recurrencia": 45,
+    "riesgo": 35,
+    "escalabilidad": 60
+   },
+   "corto": "Estudio primero"
+  },
+  {
+   "id": "B",
+   "nombre": "Agencia de narrativa por iguala (el estudio es solo la herramienta)",
+   "tesis": "Vender la voz pública de pocos clientes de alto valor con igualas mensuales (Voz, Voz Pública y sprints de campaña), grabando con un kit portátil. Se vende antes de construir y nunca se renta local.",
+   "pros": [
+    "Ticket alto y recurrente: una iguala de Voz Pública de $28,000 equivale a unas 22 horas de renta a $1,250.",
+    "Las igualas pierden 18% de clientes al año, contra 42% de los proyectos sueltos.",
+    "Pocos clientes significan poca operación, lo que encaja con un negocio paralelo.",
+    "Aprovecha lo que ya existe: Resolve con Claude Code, Metricool y la experiencia de Antemano en \"Marca Persona\"."
+   ],
+   "contras": [
+    "Depende mucho del criterio y la red de Miguel.",
+    "Con 5 o 6 igualas, perder a un político quita de 15 a 30% del ingreso de golpe.",
+    "No hay tarifas locales validadas ni un caso de agencia de podcast para políticos en México.",
+    "Sin vitrina propia, la semilla de casa de medios queda débil."
+   ],
+   "puntaje": 65,
+   "recomendada": false,
+   "inversion_mxn": 492000,
+   "puntajes": {
+    "probabilidad_exito": 66,
+    "tiempo_socios": 60,
+    "recurrencia": 82,
+    "riesgo": 60,
+    "escalabilidad": 55
+   },
+   "corto": "Agencia por iguala"
+  },
+  {
+   "id": "C",
+   "nombre": "Vitrina primero: un medio propio de Durango que vende el estudio",
+   "tesis": "Arrancar con un programa semanal plural (política, negocios y ciudad) que muestra la calidad, abre relaciones y junta audiencia. Sobre esa vitrina se venden producción, consultoría y patrocinio.",
+   "pros": [
+    "Es el camino por el que Crooked, Goalhanger y Flight Story llegaron a ser casas de medios.",
+    "Cada invitado no político se lleva un producto terminado y se vuelve prospecto (modelo Ticker).",
+    "Las secciones de negocios y ciudad mantienen vivo el programa en los años sin elección."
+   ],
+   "contras": [
+    "Es lo más lento: el programa cuesta cada semana antes de generar ingreso, y el podcast mediano junta unas 27 descargas en su primera semana.",
+    "La publicidad no lo paga: en 2025 el audio digital captó 0.24% de la inversión publicitaria en México.",
+    "Mezcla lo editorial con lo comercial en el nicho más delicado: dar espacio gratis a un aspirante puede contar como aportación en especie, con multa de hasta 100,000 UMA.",
+    "Pide más criterio editorial y más horas de los socios (unos $480,000 de inversión, estimado)."
+   ],
+   "puntaje": 50,
+   "recomendada": false,
+   "inversion_mxn": 480000,
+   "puntajes": {
+    "probabilidad_exito": 40,
+    "tiempo_socios": 40,
+    "recurrencia": 45,
+    "riesgo": 42,
+    "escalabilidad": 82
+   },
+   "corto": "Vitrina primero"
+  },
+  {
+   "id": "H",
+   "nombre": "Híbrido recomendado: agencia por iguala (B), menú de estudio para llenar huecos (A) y vitrina quincenal (C)",
+   "tesis": "El centro es B: igualas Voz y Voz Pública, vendidas antes de construir. De A se toma el menú de estudio: episodio listo en 48 h, jornadas y, cuando haya local, renta en horas valle. De C se toma una vitrina propia y quincenal de negocios, ciudad y cultura, con dos conductores externos. Durante los procesos electorales la vitrina no entrevista aspirantes ni candidatos, y nunca le vende clips a un invitado político.\n\nMVP: en enero, un kit portátil (2 FX30, la A7 IV de Miguel rentada con calendario, ATEM Mini Pro ISO, RØDECaster con 4 micrófonos dinámicos y luces) que graba en la oficina del cliente o en un espacio rentado por hora. Cuando las igualas cubran los costos fijos ($57,600 al mes) entran la estación de edición, la tercera cámara y el productor de tiempo completo. El local propio llega solo con 40 horas vendidas al mes durante 2 meses, y se paga con la caja del negocio.\n\nInversión: unos $508,000 en dos tramos (estimado). $368,500 para validar y arrancar, y $139,500 cuando se cumpla el disparador.",
+   "pros": [
+    "Se vende antes de construir. Si al 31-mar-2027 no hay al menos $40,000 al mes de ingreso recurrente comprometido, se cierra con una pérdida máxima estimada de $210,000 a $280,000. La sociedad no se recupera; las cámaras y los lentes conservan 65–85% de su valor.",
+    "El ingreso viene de igualas, no de llenar un cuarto. En el escenario base el set se usa unas 27 horas al mes y deja utilidad sin rentar local.",
+    "No se firma renta hasta que las horas vendidas la pagan, y el local sale de la caja del negocio.",
+    "La vitrina quincenal construye audiencia y propiedad intelectual con la mitad del costo y del tiempo del plan C.",
+    "El cumplimiento electoral resuelto (registro de proveedor ante el INE, Complemento INE, política de pagador, bloqueo de veda) es parte del producto y frena a los productores informales."
+   ],
+   "contras": [
+    "Pide algo más de horas de socios que B (la vitrina y el menú de estudio) y suma riesgo editorial; por eso califica debajo de B en tiempo y en riesgo.",
+    "Sigue dependiendo de Miguel para la narrativa. Tope: con el tercer cliente de Voz Pública entra un consultor de narrativa.",
+    "Cuesta algo más que B (unos $508,000 contra $492,000, estimado).",
+    "Por el ciclo electoral, el valle de la segunda mitad de 2028 y de 2029 exige que lo no político pese antes de esas fechas.",
+    "Los precios locales y las horas humanas por episodio todavía no están medidos."
+   ],
+   "puntaje": 67,
+   "recomendada": true,
+   "inversion_mxn": 508000,
+   "puntajes": {
+    "probabilidad_exito": 70,
+    "tiempo_socios": 56,
+    "recurrencia": 80,
+    "riesgo": 57,
+    "escalabilidad": 74
+   },
+   "corto": "Híbrido"
+  }
+ ],
+ "recomendacion": "Recomiendo el híbrido (67/100, o 65.5 si el tiempo de los socios pesa el doble), con la agencia por iguala del plan B (65/100) muy cerca. Su centro es B, que es lo que respalda la evidencia: Ashmedia, Authentic Exposure y Néctar ganan con cuotas mensuales, no con horas de estudio. Del plan A toma el menú de estudio y del plan C una vitrina quincenal y barata. Le gana a B en probabilidad de éxito y en escalabilidad, no en tiempo ni en riesgo: pide algunas horas más y suma riesgo editorial. El riesgo se controla vendiendo antes de construir: el tramo 2 se libera solo con igualas firmadas que cubran los costos fijos, el local solo con 40 horas vendidas al mes durante 2 meses, y hay criterios de cierre por escrito (la rúbrica está en la primera decisión).",
+ "propuesta_valor": {
+  "cliente": [
+   "\"Usted graba unas 3 horas al mes y nosotros hacemos lo demás\": narrativa, grabación, edición, clips, publicación y reporte (modelo Ashmedia).",
+   "Episodio y clips en 48 horas o menos. Es una meta que se mide y se publica desde el primer episodio.",
+   "Cumplimiento electoral según su situación. Si es precandidato o candidato: estudio dado de alta en el Registro Nacional de Proveedores (RNP) del INE, factura con Complemento INE, contrato registrado en 30 días y evidencias para la fiscalización. Si está en funciones sin candidatura: factura a su nombre, declaración de origen de los recursos y revisión para no caer en actos anticipados de campaña. En los dos casos, publicación bloqueada automáticamente en la veda.",
+   "Pagos claros: solo por transferencia desde su cuenta o la del partido, con factura a su nombre. Nunca en efectivo ni de terceros, para que nadie quede expuesto a una aportación prohibida.",
+   "Cada pieza pasa por revisión humana y por una aprobación registrada (quién aprobó qué y cuándo). Eso protege al cliente y al estudio.",
+   "Confidencialidad, dicha como es. El video crudo no sale del estudio y el editor trabaja en la computadora del estudio. La transcripción y los textos sí pasan por servicios en la nube (ElevenLabs y Anthropic), cuyos términos comerciales revisamos uno por uno. Quien lo pida tiene un nivel 100% local, con más tiempo de revisión y precio mayor. Cada cliente firma acuerdo de confidencialidad.",
+   "Un reporte mensual con métricas que sí se pueden cumplir: alcance y retención de los clips, seguidores nuevos y menciones. No prometemos descargas."
+  ],
+  "publico": [
+   "Conversaciones largas y con contexto con quienes deciden en Durango, en el formato que la gente ya ve: YouTube y Reels.",
+   "Clips cortos con subtítulos, hechos para verse en el celular.",
+   "Un programa de la casa plural, de negocios, ciudad y cultura. Mientras hay proceso electoral, el análisis político lo hacen periodistas y analistas, no aspirantes."
+  ],
+  "diferenciadores": [
+   "Sería el primer estudio dedicado de video podcast en Durango (falta confirmarlo en Google Maps e Instagram).",
+   "Un motor de IA propio sobre DaVinci Resolve y Claude Code: más rapidez y un costo de IA de pocos pesos por episodio.",
+   "Una sola cuota que integra lo que otros cobran por separado. En CDMX, InHouseWork cobra $500 por cada publicación; en Monterrey, Podcast Zone cotiza los clips aparte.",
+   "Neutral: precios públicos e iguales para todos los partidos, sin cortesías.",
+   "Marca propia, separada de Antemano. De Antemano trae la experiencia en \"Marca Persona\": narrativa y guiones para hablar a cámara."
+  ]
+ },
+ "nichos": [
+  {
+   "nicho": "Funcionarios en funciones sin candidatura en curso: diputados locales (25) y federales, alcaldes (39), regidores de la capital (17), gabinete estatal, los 3 senadores por Durango y los diputados plurinominales que viven en el estado",
+   "por_que": "Compran todo el año para sus canales personales o de partido, con recursos propios (Voz o Voz Pública fuera de proceso) y con el informe anual de labores. Ojo: de enero a junio de 2027, quien busque reelegirse pasa a ser precandidato o candidato, y su contenido institucional se suspende en campañas. Sus dietas están por confirmar en la Plataforma Nacional de Transparencia: a quien no le alcance Voz Pública se le ofrece Voz.",
+   "prioridad": 1
+  },
+  {
+   "nicho": "Aspirantes a 2028 (gubernatura y 39 ayuntamientos) antes de que abra su proceso",
+   "por_que": "Empiezan a construir narrativa en la segunda mitad de 2027. Se les vende Voz Pública con revisión de actos anticipados de campaña: nada de llamados al voto ni pedir apoyo. Al registrarse como precandidatos entran a fiscalización y al RNP.",
+   "prioridad": 2
+  },
+  {
+   "nicho": "Precandidatos y candidatos (campañas de 2027 y procesos de 2028)",
+   "por_que": "Es el pico de demanda (11 partidos en 2027; gubernatura y 39 ayuntamientos en 2028). Sprints por periodo legal, 100% adelantados, solo con el RNP activo. La precampaña de 2027 probablemente se pierde porque la sociedad no estará lista a tiempo.",
+   "prioridad": 3
+  },
+  {
+   "nicho": "Profesionistas con marca personal (médicos especialistas, abogados, notarios, inmobiliarias)",
+   "por_que": "Sostienen el negocio en los años sin elección, y son la cartera natural de \"Marca Persona\" si el cliente acepta pasarse. El sector salud ya paga por visibilidad: El Siglo de Durango vende una \"Guía Médica\". Con médicos aplica COFEPRIS: la publicidad de actividades profesionales de la salud requiere aviso (art. 86) y algunos servicios requieren permiso (art. 79). Lo tramita y lo responde el médico.",
+   "prioridad": 4
+  },
+  {
+   "nicho": "Universidades (la UJED tiene 21,108 alumnos, más el Tecnológico y las privadas)",
+   "por_que": "Podcasts institucionales con presupuesto y calendario académico. Además son fuente de talento.",
+   "prioridad": 5
+  },
+  {
+   "nicho": "Medios locales y agencias (Contacto Hoy, El Siglo y las 58 agencias de la capital)",
+   "por_que": "Coproducción, contratación en marca blanca y, cuando haya local, renta en horas valle. Llenan horas sin salir a vender.",
+   "prioridad": 6
+  },
+  {
+   "nicho": "Empresas y cámaras empresariales",
+   "por_que": "Son el puente hacia el trabajo comercial y la forma de no depender del ciclo electoral.",
+   "prioridad": 7
+  },
+  {
+   "nicho": "La Laguna duranguense (Gómez Palacio y Lerdo, 536 mil habitantes)",
+   "por_que": "Vota en Durango y se atiende con el kit portátil, sin abrir otro estudio.",
+   "prioridad": 8
+  },
+  {
+   "nicho": "Producciones que filman en Durango",
+   "por_que": "El estado da incentivos de 5–10% de la inversión a quien contrate proveedores locales. Es la puerta a la productora comercial de la etapa 4.",
+   "prioridad": 9
+  }
+ ],
+ "mercado_durango": [
+  {
+   "cifra": "1,931,226",
+   "texto": "Habitantes del estado en 2025, con edad mediana de 30 años y crecimiento de 1.1% anual.",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2026/ei/EIC2025-def_Dgo.pdf"
+  },
+  {
+   "cifra": "688,697",
+   "texto": "Habitantes del municipio de Durango en el Censo 2020, el 37.6% del estado.",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2021/EstSociodemo/ResultCenso2020_Dgo.pdf"
+  },
+  {
+   "cifra": "-10.6%",
+   "texto": "Un hogar de Durango ingresa $69,589 por trimestre, contra $77,864 del promedio nacional (ENIGH 2024). El comercio local paga poco.",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2025/enigh/ENIGH2024_RR.pdf"
+  },
+  {
+   "cifra": "55.2%",
+   "texto": "Informalidad laboral, con salario promedio de $8,190 al mes (1T-2026).",
+   "url": "https://www.economia.gob.mx/datamexico/es/profile/geo/durango-dg"
+  },
+  {
+   "cifra": "72.0%",
+   "texto": "Hogares con internet en 2025, contra 47.3% en 2020. El celular está en 95.2% de las viviendas.",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2026/ei/EIC2025-def_Dgo.pdf"
+  },
+  {
+   "cifra": "20 / 16 / 3",
+   "texto": "Municipios ganados en 2025 según la tabla de Integralia: PAN-PRI 20, Morena y aliados 16, MC 3. Es un mercado plural, con clientes en todos los bloques. Hay que confirmar el conteo con el IEPC.",
+   "url": "https://integralia.com.mx/web/wp-content/uploads/2025/07/Elecciones-Veracruz-y-Durango_02JUL25.pdf"
+  },
+  {
+   "cifra": "17 regidurías",
+   "texto": "El cabildo de la capital 2025–2028 tiene regidores de cinco partidos: MC 5, PAN 4, PRI 4, Morena 3 y PT 1.",
+   "url": "https://www.posta.com.mx/durango/ellos-son-los-regidores-y-regidoras-de-durango-que-inician-funciones-este-1-de-septiembre/vl2088529"
+  },
+  {
+   "cifra": "25 diputados",
+   "texto": "En el Congreso local (2024–2027) Morena tiene 10, PRI 7, PAN 5, PVEM 2 y MC 1. La fuente es una copia de Wikipedia: falta confirmarlo en congresodurango.gob.mx.",
+   "url": "https://wiki.krisyotam.com/content/wikipedia_en_all_nopic_2026-03/Congress_of_Durango"
+  },
+  {
+   "cifra": "88 agencias",
+   "texto": "Agencias de marketing en el estado, 58 de ellas en la capital. Solo 43% tiene sitio web: la competencia está dispersa. El dato sale de un listado automático, así que hay que tomarlo como aproximado.",
+   "url": "https://rentechdigital.com/smartscraper/business-report-details/mexico/list-of-marketing-agencies-in-durango"
+  },
+  {
+   "cifra": "~$1,400",
+   "texto": "Lo que cobra en promedio por servicio un videógrafo independiente en la ciudad de Durango. Es la referencia de precio que tiene el cliente local.",
+   "url": "https://www.cronoshare.com.mx/servicios/videografo/durango/victoria-de-durango"
+  },
+  {
+   "cifra": "$7,000–13,500",
+   "texto": "Renta mensual de un local de 37 a 45 m² según anuncios (Zona Centro, Av. 20 de Noviembre, Lomas del Guadiana).",
+   "url": "https://www.pincali.com/inmobiliarios/carog_1/locales-comerciales-en-renta-en-durango-durango"
+  },
+  {
+   "cifra": "21,108",
+   "texto": "Alumnos de la UJED en 2025.",
+   "url": "https://es.wikipedia.org/wiki/Universidad_Ju%C3%A1rez_del_Estado_de_Durango"
+  },
+  {
+   "cifra": "536,063",
+   "texto": "Habitantes de Gómez Palacio (372,750) y Lerdo (163,313) en 2020. Son parte de La Laguna y del mercado político de Durango.",
+   "url": "https://es.wikipedia.org/wiki/Zona_metropolitana_de_La_Laguna"
+  },
+  {
+   "cifra": "41.1%",
+   "texto": "Hogares que reciben algún programa de gobierno en 2025 (27.4% en 2020). La comunicación política y de gobierno es muy intensa.",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2026/ei/EIC2025-def_Dgo.pdf"
+  },
+  {
+   "cifra": "$51,550 M",
+   "texto": "Presupuesto estatal récord para 2026. No encontré cuánto va a comunicación social.",
+   "url": "https://www.posta.com.mx/durango/presupuesto-2026-en-durango-destinos-y-prioridades-del-gasto-publico/vl2132833"
+  }
+ ],
+ "pros_formato": [
+  "El video ya es masivo: 51% de los estadounidenses ha visto un video podcast, y YouTube pasa de 1,000 millones de usuarios mensuales de podcast.",
+  "Genera confianza: en México, 71% de quienes escuchan cada semana siente una conexión emocional con sus conductores. Entre la Gen Z, 63% confía en los creadores de podcast y solo 37% en los locutores de radio.",
+  "Se recuerda: 86% de los oyentes intensos recuerda un anuncio de la semana anterior, y los anuncios suben 10 puntos el conocimiento de marca y 6 la intención de compra.",
+  "Poca saturación: en México solo 20% siente que los podcasts tienen demasiados anuncios, contra 52% en YouTube y 65% en la TV abierta.",
+  "De una sola grabación salen el episodio, los clips, el audio y el texto.",
+  "Los clips son la puerta de entrada: 72% de los nuevos oyentes llegó por el video.",
+  "Ser constante ya es una ventaja: publicar cada semana durante un año supera a cerca de 88% de los podcasts."
+ ],
+ "contras_formato": [
+  "Está saturado: hay 3.8 millones de podcasts en el mundo y 35,266 en México, aunque solo unos 583 mil tuvieron actividad en 2026.",
+  "Las audiencias típicas son mínimas: el podcast mediano junta unas 27 descargas en su primera semana.",
+  "Solo cerca de un tercio de quienes ven un clip pasa con frecuencia al episodio completo.",
+  "En México no vive de publicidad: en 2025 el audio digital captó 446 millones de pesos, el 0.24% de la inversión publicitaria.",
+  "Lo que se ha medido de su efecto en el voto es pequeño y solo correlacional. Al político se le venden presencia y relación, no votos.",
+  "Le exige constancia al cliente, los resultados tardan y la medición queda repartida entre YouTube, Spotify y redes.",
+  "Un clip fuera de contexto puede volverse viral en contra.",
+  "El formato largo político en México lo domina la mañanera: más de 24 millones de horas vistas en YouTube de enero a septiembre de 2025."
+ ],
+ "equipo_niveles": [
+  {
+   "nivel": "Austero",
+   "resumen": "3 cámaras (2 ZV-E10 II y la A7 IV de Miguel) para hasta 3 personas, sin corte en vivo. Solo funciona si el cuarto tiene aire acondicionado y se graba 4K/30 a bitrate bajo, porque la ZV-E10 II se calienta. A precio normal estimado suma $110,523; con los precios de oferta del Buen Fin, que vencen el 18-nov, serían unos $93,347. No incluye soportes, energía, acústica ni muebles (hay que sumar 35% de reserva para accesorios).",
+   "total_mxn": 110523,
+   "items": [
+    {
+     "categoria": "Cámara",
+     "item": "Sony ZV-E10 II kit con 16-50 II",
+     "cantidad": 2,
+     "precio_unit_mxn": 27699,
+     "por_que": "Es la cámara que pensó Miguel. No tiene ventilador: con el ajuste de fábrica se apaga a unos 5 min de 4K; en \"Alto\" aguanta 1 h 17 min a 23 °C. Precio de Profoto: $27,699. En Sony Store está en $22,999 de oferta hasta el 18-nov (lista $39,999).",
+     "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/zv-e10m2k/p"
+    },
+    {
+     "categoria": "Cámara",
+     "item": "Sony A7 IV de Miguel (plano general)",
+     "cantidad": 1,
+     "precio_unit_mxn": 0,
+     "por_que": "Ya la tiene. Se le renta a la sociedad con calendario. Usa montura E y batería NP-FZ100.",
+     "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/dc-c1/p"
+    },
+    {
+     "categoria": "Lente",
+     "item": "Sigma 18-50 mm f/2.8 DC DN",
+     "cantidad": 1,
+     "precio_unit_mxn": 14233,
+     "por_que": "El lente de mejor calidad para el plano de una persona en APS-C (equivale a unos 27–75 mm). Precio regular US$659, estimado con IVA. En oferta está en US$499, unos $10,777.",
+     "url": "https://www.sigmaphoto.com/18-50mm-f2-8-dc-dn-c"
+    },
+    {
+     "categoria": "Audio",
+     "item": "RØDE PodMic USB (dinámico)",
+     "cantidad": 3,
+     "precio_unit_mxn": 4149,
+     "por_que": "Un micrófono dinámico por persona capta menos el ruido del cuarto que un micrófono de solapa.",
+     "url": "https://rode.com/es-mx/products/podmic-usb"
+    },
+    {
+     "categoria": "Audio",
+     "item": "Zoom PodTrak P8 (6 XLR, multipista)",
+     "cantidad": 1,
+     "precio_unit_mxn": 10799,
+     "por_que": "Graba una pista aislada por persona, que es lo que necesita el cambio de cámara automático. Precio estimado con IVA; hoy está en preventa.",
+     "url": "https://zoomcorp.com/en/us/podtrak-recorders/podcast-recorders/podtrak-p8/"
+    },
+    {
+     "categoria": "Luz",
+     "item": "amaran 200x S (principal y relleno)",
+     "cantidad": 2,
+     "precio_unit_mxn": 7538,
+     "por_que": "200 W bicolor con montura Bowens para softbox. Precio regular US$349, estimado con IVA; en oferta US$249, unos $5,378. Está agotada: hay que cotizar una alternativa.",
+     "url": "https://amarancreators.com/collections/all"
+    },
+    {
+     "categoria": "Luz",
+     "item": "amaran Halo 60x (contraluz)",
+     "cantidad": 1,
+     "precio_unit_mxn": 2570,
+     "por_que": "Separa a la persona del fondo. Precio estimado con IVA.",
+     "url": "https://amarancreators.com/collections/all"
+    }
+   ]
+  },
+  {
+   "nivel": "Recomendado",
+   "resumen": "Es el nivel del MVP: 4 cámaras (3 FX30 con ventilador y la A7 IV), corte en vivo con el ATEM Mini Pro ISO, 4 micrófonos dinámicos en el RØDECaster Pro II, inalámbricos de respaldo y luz completa. A precio normal estimado (lo que se pagaría en dic-ene) son $233,003; a precio de oferta del Buen Fin, unos $188,750. Se compra en dos tramos. Tramo 1: el kit de servicio, $174,495 (2 FX30, 2 lentes, audio, ATEM y 4 luces). Tramo 2: la tercera FX30, el tercer lente y la luz de fondo, $58,508. A cada tramo se le suma 35% de reserva para accesorios y almacenamiento ($61,073 y $20,478).",
+   "total_mxn": 233003,
+   "items": [
+    {
+     "categoria": "Cámara",
+     "item": "Sony FX30 (cuerpo)",
+     "cantidad": 3,
+     "precio_unit_mxn": 38854,
+     "por_que": "Tiene ventilador y aguanta sesiones de 1 a 2 h, justo donde falla la ZV-E10 II. Precio normal estimado: lanzamiento US$1,799 × 18.6188 × IVA. Sanborns la tiene en $31,899 (listado sin fecha) y Sony Store en $28,999 de oferta hasta el 18-nov.",
+     "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/ilme-fx30b/p"
+    },
+    {
+     "categoria": "Cámara",
+     "item": "Sony A7 IV de Miguel (plano general)",
+     "cantidad": 1,
+     "precio_unit_mxn": 0,
+     "por_que": "Se le renta a la sociedad con calendario mientras se usa también en Antemano. En la etapa 2 la reemplaza una cuarta cámara propia.",
+     "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/dc-c1/p"
+    },
+    {
+     "categoria": "Lente",
+     "item": "Sigma 18-50 mm f/2.8 DC DN",
+     "cantidad": 3,
+     "precio_unit_mxn": 14233,
+     "por_que": "Un lente por cámara de persona. Los lentes conservan 80–85% de su valor después de un año. Precio regular estimado; en oferta, unos $10,777.",
+     "url": "https://www.sigmaphoto.com/18-50mm-f2-8-dc-dn-c"
+    },
+    {
+     "categoria": "Audio",
+     "item": "RØDE PodMic USB (dinámico)",
+     "cantidad": 4,
+     "precio_unit_mxn": 4149,
+     "por_que": "Una pista por persona. Con micrófonos separados, el cambio de cámara automático acierta 85–95%.",
+     "url": "https://rode.com/es-mx/products/podmic-usb"
+    },
+    {
+     "categoria": "Audio",
+     "item": "RØDECaster Pro II",
+     "cantidad": 1,
+     "precio_unit_mxn": 14255,
+     "por_que": "4 entradas XLR, graba multipista y trae receptor inalámbrico.",
+     "url": "https://rode.com/es-mx/products/rodecaster-pro-ii"
+    },
+    {
+     "categoria": "Audio",
+     "item": "DJI Mic Mini 2S (2 TX + RX)",
+     "cantidad": 1,
+     "precio_unit_mxn": 3669,
+     "por_que": "Cada transmisor guarda su propia grabación en 32-bit flotante. Sirve de respaldo, para exteriores y para quien no quiere micrófono a cuadro.",
+     "url": "https://www.xataka.com.mx/audio/dji-mic-mini-2s-lanzamiento-precio-mexico-caracteristicas-especificaciones-ficha-tecnica"
+    },
+    {
+     "categoria": "Switch",
+     "item": "Blackmagic ATEM Mini Pro ISO",
+     "cantidad": 1,
+     "precio_unit_mxn": 11425,
+     "por_que": "Hace el corte en vivo, guarda un archivo por cámara y arma el proyecto de Resolve con los cortes. Solo trabaja en 1080p, así que los verticales salen del 4K de cada cámara. US$529 en Blackmagic México, estimado con IVA.",
+     "url": "https://www.blackmagicdesign.com/mx/products/atemmini"
+    },
+    {
+     "categoria": "Luz",
+     "item": "amaran 200x S",
+     "cantidad": 2,
+     "precio_unit_mxn": 7538,
+     "por_que": "Principal y relleno. Precio regular estimado; agotada, hay que cotizar una alternativa.",
+     "url": "https://amarancreators.com/collections/all"
+    },
+    {
+     "categoria": "Luz",
+     "item": "amaran Halo 100x",
+     "cantidad": 2,
+     "precio_unit_mxn": 3650,
+     "por_que": "Contraluces. Precio estimado con IVA.",
+     "url": "https://amarancreators.com/collections/all"
+    },
+    {
+     "categoria": "Luz",
+     "item": "amaran 150c RGB (fondo)",
+     "cantidad": 1,
+     "precio_unit_mxn": 5421,
+     "por_que": "Color de fondo para cambiar el look según el cliente. Precio estimado; agotada, hay que cotizar una alternativa.",
+     "url": "https://amarancreators.com/collections/all"
+    }
+   ]
+  },
+  {
+   "nivel": "Premium",
+   "resumen": "Para 4 a 6 fuentes y un look de referencia: micrófonos SM7B, ATEM de 8 entradas y luz RGB más potente. A precio normal estimado son $336,317 (unos $293,685 a precio de oferta). Solo se justifica con eventos, foros o más de 4 cámaras, en la etapa 3.",
+   "total_mxn": 336317,
+   "items": [
+    {
+     "categoria": "Cámara",
+     "item": "Sony FX30 (cuerpo)",
+     "cantidad": 3,
+     "precio_unit_mxn": 38854,
+     "por_que": "Igual que en el nivel Recomendado.",
+     "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/ilme-fx30b/p"
+    },
+    {
+     "categoria": "Cámara",
+     "item": "Sony A7 IV de Miguel",
+     "cantidad": 1,
+     "precio_unit_mxn": 0,
+     "por_que": "Plano general.",
+     "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/dc-c1/p"
+    },
+    {
+     "categoria": "Lente",
+     "item": "Sigma 18-50 mm f/2.8 DC DN",
+     "cantidad": 3,
+     "precio_unit_mxn": 14233,
+     "por_que": "Plano de cada persona.",
+     "url": "https://www.sigmaphoto.com/18-50mm-f2-8-dc-dn-c"
+    },
+    {
+     "categoria": "Lente",
+     "item": "Sigma 16 mm f/1.4 DC DN",
+     "cantidad": 1,
+     "precio_unit_mxn": 11641,
+     "por_que": "Gran angular luminoso para el plano general o un set de pie. Precio regular US$539, estimado con IVA; en oferta, unos $8,942.",
+     "url": "https://www.sigmaphoto.com/16mm-f1-4-dc-dn-c"
+    },
+    {
+     "categoria": "Audio",
+     "item": "Shure SM7B",
+     "cantidad": 4,
+     "precio_unit_mxn": 9579,
+     "por_que": "El dinámico de referencia. Pide mucha ganancia, así que hay que probarlo con la interfaz.",
+     "url": "https://www.cyberpuerta.mx/Audio-y-Video/Audio/Accesorios-de-Audio/Microfonos/Shure-Microfono-SM7B-Alambrico.html"
+    },
+    {
+     "categoria": "Audio",
+     "item": "RØDECaster Pro II",
+     "cantidad": 1,
+     "precio_unit_mxn": 14255,
+     "por_que": "Multipista con 4 entradas XLR.",
+     "url": "https://rode.com/es-mx/products/rodecaster-pro-ii"
+    },
+    {
+     "categoria": "Audio",
+     "item": "DJI Mic Mini 2S (2 TX + RX)",
+     "cantidad": 2,
+     "precio_unit_mxn": 3669,
+     "por_que": "4 transmisores con respaldo interno.",
+     "url": "https://www.xataka.com.mx/audio/dji-mic-mini-2s-lanzamiento-precio-mexico-caracteristicas-especificaciones-ficha-tecnica"
+    },
+    {
+     "categoria": "Switch",
+     "item": "Blackmagic ATEM Mini Extreme ISO G2",
+     "cantidad": 1,
+     "precio_unit_mxn": 67796,
+     "por_que": "8 entradas con grabación por cámara y 2 XLR. También es solo HD. US$3,139 en Blackmagic México, estimado con IVA.",
+     "url": "https://www.blackmagicdesign.com/mx/products/atemmini/techspecs/W-APS-16"
+    },
+    {
+     "categoria": "Luz",
+     "item": "amaran 300c RGB",
+     "cantidad": 2,
+     "precio_unit_mxn": 9827,
+     "por_que": "Principal y fondo con color. Precio estimado; agotada.",
+     "url": "https://amarancreators.com/collections/all"
+    },
+    {
+     "categoria": "Luz",
+     "item": "amaran Halo 200x",
+     "cantidad": 2,
+     "precio_unit_mxn": 5378,
+     "por_que": "Relleno. Precio estimado.",
+     "url": "https://amarancreators.com/collections/all"
+    },
+    {
+     "categoria": "Luz",
+     "item": "amaran Halo 100x",
+     "cantidad": 2,
+     "precio_unit_mxn": 3650,
+     "por_que": "Contraluces. Precio estimado.",
+     "url": "https://amarancreators.com/collections/all"
+    }
+   ]
+  }
+ ],
+ "sobre_el_equipo_pensado": [
+  "La \"ZV-10\" casi seguro es la Sony ZV-E10 II. Da buena imagen (4K/30 sin recorte, tomado de 6K), pero no tiene ventilador. Con el ajuste de fábrica se apaga a unos 5 minutos de 4K. Con \"Auto Power OFF Temp\" en Alto y a 23 °C, DPReview midió 1 h 17 min en 4K60 a 200 Mb/s y 1 h 53 min a 45 Mb/s. En una sesión de 1 a 2 horas con un político, que la cámara se apague es un riesgo real.",
+  "Cambio recomendado: la Sony FX30, que tiene ventilador y la misma montura E. Hoy, en oferta del Buen Fin, el cuerpo cuesta $28,999 en Sony Store y el kit de la ZV-E10 II $22,999 (hasta el 18-nov). A precio normal estimado serían unos $38,854 y unos $27,699. Pagar unos $6,000–11,000 más por cámara quita el riesgo de perder una toma.",
+  "No hacen falta 4 cámaras nuevas: bastan 3 FX30 para el plano de cada persona y la A7 IV de Miguel como plano general (rentada con calendario). Falta probar que la A7 IV saque 1080p por HDMI mientras graba 4K por dentro.",
+  "Lente: el Sigma 18-50 f/2.8 en cada cámara de persona (regular US$659, unos $14,233 estimados; en oferta US$499). Los lentes conservan entre 80 y 85% de su valor al año, más que las cámaras.",
+  "Micrófonos: los DJI Mic Mini y los Hollyland Lark son buenos para grabar en campo. En un cuarto sin tratar, un micrófono de solapa capta la reverberación. En el estudio conviene un micrófono dinámico por persona (RØDE PodMic USB, $4,149) conectado a una consola multipista (RØDECaster Pro II, $14,255), para tener una pista aislada por persona. De eso depende la automatización: el cambio de cámara automático acierta 85–95% con micrófonos separados y 60–75% cuando las voces se enciman.",
+  "Si se compran inalámbricos, que sean DJI Mic Mini 2S ($3,669 con 2 transmisores), porque cada transmisor guarda su propio respaldo en 32-bit flotante. Ni el Mic Mini original ni el Hollyland Lark M2S anuncian grabación interna.",
+  "Hay que agregar un ATEM Mini Pro ISO (US$529 en Blackmagic México, unos $11,425 estimados con IVA). Hace el corte en vivo, guarda un archivo por cámara y arma el proyecto de Resolve con los cortes. Solo trabaja en 1080p: un vertical sacado del ATEM queda en 608×1080, y uno sacado del 4K de cada cámara en 1215×2160.",
+  "Luces: amaran 200x S como principal y relleno, Halo como contraluz y 150c RGB para el fondo. Varias están agotadas, así que hay que cotizar alternativas antes de comprar.",
+  "Mientras se edite en la laptop de Miguel (solo en los pilotos), conviene grabar en 4K 4:2:0 10-bit y no en 4:2:2, porque la RTX 2050 no decodifica 4:2:2 por hardware. También se puede editar con proxys.",
+  "Almacenamiento: una sesión de 4 cámaras ronda los 270 GB. El material crudo se respalda solo en local (dos discos o un NAS, pagados con la reserva del tramo 1). A la nube van solo los masters, los proxys y los proyectos.",
+  "Falta cotizar tripiés, brazos, monitor para el multiview, tarjetas rápidas, baterías, cables HDMI largos, softboxes, audífonos, no-break, discos y los acopladores DC-C1 ($2,199 cada uno en Sony Store; solo los 3 del kit suman $6,597). Para eso se reserva 35% sobre el equipo de cada tramo (estimado), hasta tener la lista cotizada con tienda y fecha."
+ ],
+ "espacio": [
+  "Para arrancar no hace falta local. El kit portátil graba en la oficina del cliente, en un foro o coworking rentado por hora, o en el espacio de Antemano con un contrato entre las dos empresas a precio fijo (falta confirmar que Antemano tenga espacio). Presupuesto: unos $5,000 al mes (estimado; no encontré tarifas de foros por hora en Durango).",
+  "Local propio solo cuando se vendan 40 horas al mes durante 2 meses seguidos (hito H8). En el escenario base el set se usa unas 27 horas al mes, así que no alcanza. Con local, se pagarían $16,000 al mes de renta y servicios por esas 27 horas: unos $590 por hora solo de costo fijo.",
+  "Cuando toque el local: 37 a 45 m², que según anuncios cuesta de $7,000 a $13,500 al mes en Zona Centro, Av. 20 de Noviembre o Lomas del Guadiana. Contrato corto y con cláusula de salida, porque la renta es el costo más difícil de quitar.",
+  "Cuarto chico, que no sea cuadrado y con superficies blandas: paneles frente a los micrófonos, trampas de graves en las esquinas, alfombra, sillones y cojines.",
+  "Aire acondicionado silencioso. Es clave contra el calor de las cámaras en el verano de Durango. El costo está por confirmar.",
+  "Dos ambientes: una mesa para 4 personas y un set de pie o sala para cápsulas. Así se cambia de look sin desmontar y caben sesiones seguidas de distintos clientes.",
+  "Corriente continua para las cámaras: acopladores DC-C1 ($2,199 cada uno) con cargadores de 65 W y un no-break. La frecuencia de cortes de luz en la zona está por confirmar.",
+  "El video se procesa en el estudio, no en la nube. Una hora de episodio con 4 cámaras pesa unos 180 GB, y subirla con 50 Mbps tarda cerca de 8 horas.",
+  "Respaldo 3-2-1 bien hecho. El crudo se guarda solo en local, en dos discos o un NAS, durante 60 a 90 días o lo que diga el contrato. A la nube (Backblaze B2) suben solo los masters, los proxys ligeros y los proyectos, unos 2 TB. Falta confirmar la velocidad de subida que se puede contratar en la zona.",
+  "Entrada discreta y estacionamiento para clientes políticos (criterio propio; la ubicación está por confirmar).",
+  "Muebles neutros y un fondo que se pueda cambiar, para que el mismo set sirva para trabajo comercial.",
+  "Cómo se mide el uso: horas vendidas al mes. Como referencia de capacidad, de lunes a viernes de 9 a 19 h son unas 200 horas al mes."
+ ],
+ "paquetes": [
+  {
+   "nombre": "Diagnóstico de voz",
+   "para_quien": "Cualquier cliente nuevo: político, profesionista o institución",
+   "incluye": [
+    "Sesión de 90 minutos de narrativa: mensaje, audiencias y temas",
+    "Revisión de sus redes actuales",
+    "Mapa de narrativa y calendario de 3 meses",
+    "Un episodio piloto con 3 clips"
+   ],
+   "precio_mxn": 12000,
+   "unidad": "por proyecto",
+   "costo_directo_mxn": 5800,
+   "horas_humanas": 9.5,
+   "nota_precio": "Estimado, en un rango de $10,000 a $14,000 más IVA. Así se cobran los pilotos. A clientes no políticos se les descuenta de la primera iguala si contratan en 30 días. A clientes políticos se les cobra completo: un descuento podría leerse como aportación en especie, salvo que el abogado valide uno público e igual para todos. Costo directo: 6 h de narrativa a $900 la hora y 1.5 h de edición a $250 la hora."
+  },
+  {
+   "nombre": "Episodio listo",
+   "para_quien": "Creadores, profesionistas y clientes de prueba",
+   "incluye": [
+    "Bloque de grabación con operador y 4 cámaras",
+    "Edición con IA y revisión humana",
+    "4 clips verticales sacados del 4K, con subtítulos",
+    "Entrega en 48 horas"
+   ],
+   "precio_mxn": 3000,
+   "unidad": "por episodio",
+   "costo_directo_mxn": 400,
+   "horas_humanas": 3.3,
+   "nota_precio": "Estimado, sin IVA. Referencias: Carpa (León) cobra $2,999 con 3 clips y Querétaro $2,850 por una sesión multicámara sin editar. Cuatro al mes con día fijo salen en $11,000."
+  },
+  {
+   "nombre": "Jornada de contenido",
+   "para_quien": "Informes de labores, marcas, universidades y profesionistas",
+   "incluye": [
+    "4 horas de grabación para un mismo cliente",
+    "De 8 a 12 cápsulas o 3 episodios",
+    "Clips verticales y subtítulos",
+    "Entrega en 72 horas"
+   ],
+   "precio_mxn": 7500,
+   "unidad": "por sesión",
+   "costo_directo_mxn": 1250,
+   "horas_humanas": 10,
+   "nota_precio": "Estimado, sin IVA. Referencia: el Content Day de 8 horas en Querétaro cuesta $9,950. Horas recalculadas con el flujo: unos 100 minutos de postproducción por cada pieza larga."
+  },
+  {
+   "nombre": "Voz (iguala)",
+   "para_quien": "Médicos especialistas, abogados, inmobiliarias, directivos, universidades y regidores con menor presupuesto",
+   "incluye": [
+    "Una sesión de 2 a 3 horas al mes para grabar 4 episodios",
+    "4 episodios y 16 clips con subtítulos",
+    "Miniaturas, títulos, descripciones y capítulos",
+    "Publicación en sus cuentas con Metricool y en YouTube",
+    "Reporte mensual del alcance de los clips"
+   ],
+   "precio_mxn": 14000,
+   "unidad": "al mes",
+   "costo_directo_mxn": 1600,
+   "horas_humanas": 11,
+   "nota_precio": "Estimado, en un rango de $12,000 a $16,000 más IVA. Mínimo 3 meses; solo los contratos de 6 meses cuentan para liberar el tramo 2. Referencias: Foortuna (CDMX) cobra de $16,999 a $25,999 por 4 episodios y Carpa (León) $7,996 por 4 episodios sin publicación. En Durango el ingreso es 10.6% menor que el promedio nacional. Con médicos, el contrato aclara que el aviso o permiso de COFEPRIS es responsabilidad del médico."
+  },
+  {
+   "nombre": "Voz Pública (iguala)",
+   "para_quien": "Diputados, alcaldes, regidores, funcionarios fuera de campaña y aspirantes antes de su proceso",
+   "incluye": [
+    "Todo lo de Voz, con 16 a 20 clips",
+    "Diagnóstico y calendario editorial; entrenamiento para entrevistas (6 h de narrativa al mes)",
+    "Revisión de cada clip en su contexto y aprobación registrada",
+    "Cumplimiento según su situación. En proceso: registro en el RNP, Complemento INE, contrato registrado en 30 días y evidencias. Fuera de proceso: factura a su nombre, declaración de origen de los recursos y revisión para no caer en actos anticipados",
+    "Bloqueo automático de publicaciones en la veda",
+    "No incluye manejo diario de redes ni pauta: eso es el extra Comunidad y pauta"
+   ],
+   "precio_mxn": 28000,
+   "unidad": "al mes",
+   "costo_directo_mxn": 7400,
+   "horas_humanas": 20.5,
+   "nota_precio": "Estimado, en un rango de $24,000 a $32,000 más IVA ($32,480 con IVA). Mínimo 6 meses, pago adelantado cada mes y solo por transferencia de la cuenta del cliente o del partido. Lista pública, igual para todos los partidos, sin cortesías. Comparación honesta con Néctar: Presencia cuesta $18,000 e incluye contenido diario, 2 redes y pauta; Campaña cuesta $35,000 e incluye 3 redes, pauta en Meta y Google, 2 spots y testigos para el INE. Voz Pública no trae contenido diario ni pauta, pero sí video largo, clips, consultoría y cumplimiento. Se valida en las entrevistas de H1. Si queda en $22,000, el escenario base sigue dejando unos $29,000 al mes. Opción 100% local: $5,000 más al mes (estimado)."
+  },
+  {
+   "nombre": "Comunidad y pauta (extra)",
+   "para_quien": "Clientes de Voz o Voz Pública que quieren manejo diario",
+   "incluye": [
+    "Publicaciones y respuestas diarias en 2 redes",
+    "Manejo de pauta (el dinero de la pauta va aparte, con la autorización de Meta a nombre del cliente)",
+    "Reporte semanal"
+   ],
+   "precio_mxn": 10000,
+   "unidad": "al mes",
+   "costo_directo_mxn": 6500,
+   "horas_humanas": 20,
+   "nota_precio": "Estimado, sin IVA. Lo hace un community manager freelance por cliente. Referencias: Brandinn cobra de $3,500 a $14,900 al mes y un freelance en México de $3,000 a más de $25,000. En TikTok no hay pauta política (regla vigente desde el 30-oct-2026). Si el cliente es candidato, la pauta se reporta al INE y queda en su expediente."
+  },
+  {
+   "nombre": "Sprint de precampaña",
+   "para_quien": "Precandidaturas, solo dentro de las fechas legales de precampaña",
+   "incluye": [
+    "Jornadas de cápsulas durante la precampaña",
+    "Respuesta en 24 horas",
+    "Reporte y factura separados como precampaña"
+   ],
+   "precio_mxn": 35000,
+   "unidad": "por proyecto",
+   "costo_directo_mxn": 15000,
+   "horas_humanas": 35,
+   "nota_precio": "Estimado, sin IVA, cobrado 100% por adelantado. Se factura con Complemento INE como precampaña. En la intercampaña no se produce promoción. La precampaña de 2027 (termina el 21-ene en Durango) probablemente se pierde porque la sociedad no estará lista. Aplica a los procesos de 2028 (fechas por confirmar)."
+  },
+  {
+   "nombre": "Sprint de campaña",
+   "para_quien": "Candidaturas registradas, durante la campaña legal",
+   "incluye": [
+    "Todo lo de Voz Pública con más volumen",
+    "Jornadas semanales de cápsulas",
+    "Respuesta a la coyuntura en 24 horas, con guardias",
+    "Personal temporal (editor y community manager por honorarios)",
+    "Apagón de publicaciones del 3 al 5 de junio de 2027"
+   ],
+   "precio_mxn": 60000,
+   "unidad": "por proyecto",
+   "costo_directo_mxn": 25000,
+   "horas_humanas": 60,
+   "nota_precio": "Estimado, sin IVA. Es el precio para la campaña local de Durango (29-abr al 2-jun-2027, unos 35 días); para la campaña federal de 60 días serían unos $90,000. Se cobra 100% por adelantado, cuenta como gasto de campaña y se aceptan como máximo 2 sprints a la vez. Referencia: una consultoría completa para una diputación federal cuesta menos de $1 millón por campaña (Milenio, oct-2026). No se ofrece a candidatos judiciales."
+  },
+  {
+   "nombre": "Informe de labores",
+   "para_quien": "Legisladores y funcionarios, una vez al año",
+   "incluye": [
+    "Jornada de grabación",
+    "Un episodio y 10 cápsulas",
+    "Publicación programada solo dentro de la ventana legal (7 días antes y 5 después del informe)"
+   ],
+   "precio_mxn": 25000,
+   "unidad": "por proyecto",
+   "costo_directo_mxn": 4500,
+   "horas_humanas": 16,
+   "nota_precio": "Estimado, sin IVA. Es legal y se repite cada año (LGIPE art. 242.5). Si lo paga una dependencia con dinero público, solo puede ser contenido institucional, con el contrato y el procedimiento de compra que marquen sus reglas."
+  },
+  {
+   "nombre": "Renta de set en horas valle",
+   "para_quien": "Creadores, medios locales y agencias (marca blanca)",
+   "incluye": [
+    "Set con 4 cámaras y audio",
+    "Archivos de cada cámara al terminar",
+    "Operador para encender y apagar"
+   ],
+   "precio_mxn": 900,
+   "unidad": "por hora",
+   "costo_directo_mxn": 50,
+   "horas_humanas": 1,
+   "nota_precio": "Estimado, en un rango de $800 a $1,200, con 2 horas mínimo. Solo existe con local propio (etapa 2) y en mañanas entre semana. Llena huecos de agenda, no es el negocio. Referencia: en Monterrey la hora cuesta de $800 a $2,350."
+  },
+  {
+   "nombre": "Patrocinio de la vitrina",
+   "para_quien": "Marcas locales no políticas",
+   "incluye": [
+    "Mención y segmento en el programa quincenal de la casa",
+    "Presencia en sus clips",
+    "Reporte de alcance"
+   ],
+   "precio_mxn": 8000,
+   "unidad": "al mes",
+   "costo_directo_mxn": 2000,
+   "horas_humanas": 2,
+   "nota_precio": "Es una hipótesis que hay que validar: no encontré tarifas mexicanas de patrocinio de podcast. La cuarta parte se va a los conductores para que les convenga que funcione."
+  }
+ ],
+ "flujo": [
+  {
+   "paso": "1. Reserva y brief",
+   "que_pasa": "El cliente reserva en línea y paga el anticipo. Al reservar llena el brief (tema, invitados, nombres propios) y recibe un recordatorio por WhatsApp.",
+   "herramienta": "Cal.com (gratis, con Stripe), formulario y WhatsApp Business",
+   "automatizacion": "total",
+   "min_humanos_manual": 30,
+   "min_humanos_con_ia": 5
+  },
+  {
+   "paso": "2. Preproducción narrativa",
+   "que_pasa": "A partir del brief, Claude investiga al invitado, propone el temario y las preguntas y arma la lista de nombres y términos del cliente para la transcripción. Miguel o el consultor de narrativa la revisa.",
+   "herramienta": "Claude Code y Google Drive",
+   "automatizacion": "parcial",
+   "min_humanos_manual": 90,
+   "min_humanos_con_ia": 30
+  },
+  {
+   "paso": "3. Encendido del set",
+   "que_pasa": "Checklist digital: FX30 encendidas (o temperatura en Alto si es una ZV-E10 II), alimentación continua, niveles de audio por persona y luz.",
+   "herramienta": "Checklist en la app interna",
+   "automatizacion": "humano",
+   "min_humanos_manual": 30,
+   "min_humanos_con_ia": 25
+  },
+  {
+   "paso": "4. Grabación con corte en vivo",
+   "que_pasa": "Unos 60 minutos de conversación. El ATEM corta en vivo y guarda cada cámara; cada cámara graba además su 4K por dentro, y el RØDECaster guarda una pista por persona.",
+   "herramienta": "ATEM Mini Pro ISO, FX30, A7 IV y RØDECaster Pro II",
+   "automatizacion": "humano",
+   "min_humanos_manual": 75,
+   "min_humanos_con_ia": 75
+  },
+  {
+   "paso": "5. Ingesta y respaldo",
+   "que_pasa": "Un script copia las tarjetas, verifica las copias, nombra los archivos por cliente y fecha y los guarda en dos discos locales. A la nube suben solo los masters, los proxys y el proyecto.",
+   "herramienta": "Script con Claude Code, NAS o discos locales y Backblaze B2",
+   "automatizacion": "total",
+   "min_humanos_manual": 20,
+   "min_humanos_con_ia": 3
+  },
+  {
+   "paso": "6. Sincronía y multicámara",
+   "que_pasa": "Resolve sincroniza las cámaras por audio, arma el multicam y corre SmartSwitch para cambiar de toma según quién habla. Una persona revisa los cortes donde se enciman las voces. Con micrófonos separados son unos 15 minutos; en mesas políticas con voces encimadas (60–75% de acierto) hay que calcular unos 30.",
+   "herramienta": "DaVinci Resolve Studio 21.1 por script o MCP (AutoSyncAudio, CreateMulticamClip, PerformMulticamSmartSwitch)",
+   "automatizacion": "parcial",
+   "min_humanos_manual": 60,
+   "min_humanos_con_ia": 15
+  },
+  {
+   "paso": "7. Audio terminado",
+   "que_pasa": "Aislamiento de voz por pista, nivelación y volumen final a -14 LUFS. Claude no oye, así que el resultado se verifica midiendo y una persona escucha una muestra.",
+   "herramienta": "Resolve (Voice Isolation y Fairlight) y ffmpeg loudnorm",
+   "automatizacion": "parcial",
+   "min_humanos_manual": 30,
+   "min_humanos_con_ia": 5
+  },
+  {
+   "paso": "8. Transcripción y subtítulos",
+   "que_pasa": "Transcripción con hablantes y la lista de términos del cliente. Una persona corrige nombres propios y cifras. En el nivel 100% local (Whisper), la revisión sube a unos 30 minutos: en la comparación de 2026 tuvo casi el triple de error que Scribe v2.",
+   "herramienta": "ElevenLabs Scribe v2 (0.20 USD por hora) o faster-whisper en la estación",
+   "automatizacion": "parcial",
+   "min_humanos_manual": 40,
+   "min_humanos_con_ia": 15
+  },
+  {
+   "paso": "9. Selección de clips",
+   "que_pasa": "Claude lee la transcripción (solo texto) y propone de 8 a 12 momentos con su motivo y sus tiempos. Una persona elige de 4 a 8 y revisa el contexto, sobre todo con políticos.",
+   "herramienta": "Claude (API Sonnet 5.5)",
+   "automatizacion": "parcial",
+   "min_humanos_manual": 45,
+   "min_humanos_con_ia": 20
+  },
+  {
+   "paso": "10. Verticales con subtítulos",
+   "que_pasa": "Recorte 9:16 desde el 4K de cada cámara (no desde el ATEM), subtítulos animados y gancho inicial.",
+   "herramienta": "Resolve (Smart Reframe y CreateSubtitlesFromAudio); Opus Clip Pro como plan B",
+   "automatizacion": "parcial",
+   "min_humanos_manual": 50,
+   "min_humanos_con_ia": 15
+  },
+  {
+   "paso": "11. Títulos, descripción, capítulos y miniatura",
+   "que_pasa": "Claude redacta títulos, descripción y capítulos con las reglas de YouTube (el primero en 00:00, al menos 3, cada uno de 10 segundos o más). Una persona aprueba la miniatura.",
+   "herramienta": "Claude (unos $1.3 por episodio, estimado)",
+   "automatizacion": "parcial",
+   "min_humanos_manual": 30,
+   "min_humanos_con_ia": 10
+  },
+  {
+   "paso": "12. Revisión y aprobación del cliente",
+   "que_pasa": "El cliente comenta el corte sobre la imagen, sin crear cuenta, en una liga con contraseña y caducidad, y aprueba cada publicación. Queda registrado quién aprobó qué y cuándo.",
+   "herramienta": "Frame.io Pro, aprobación de Metricool y registro en Supabase",
+   "automatizacion": "humano",
+   "min_humanos_manual": 15,
+   "min_humanos_con_ia": 10
+  },
+  {
+   "paso": "13. Publicación programada",
+   "que_pasa": "YouTube se sube directo por API. TikTok, Instagram, Facebook y LinkedIn se programan en Metricool como borrador hasta que el cliente aprueba. Un bloqueo de calendario impide publicar contenido político en la veda.",
+   "herramienta": "YouTube Data API y MCP de Metricool",
+   "automatizacion": "total",
+   "min_humanos_manual": 15,
+   "min_humanos_con_ia": 3
+  },
+  {
+   "paso": "14. Reporte",
+   "que_pasa": "Claude arma el reporte mensual con la analítica: alcance y retención de los clips, seguidores y mejores horarios. El productor agrega dos o tres recomendaciones. Aquí se cuenta la cuarta parte del reporte mensual por episodio.",
+   "herramienta": "MCP de Metricool y Claude Code",
+   "automatizacion": "parcial",
+   "min_humanos_manual": 15,
+   "min_humanos_con_ia": 5
+  }
+ ],
+ "stack_ia": [
+  {
+   "categoria": "Edición y postproducción",
+   "herramienta": "DaVinci Resolve Studio 21.1",
+   "uso": "Es el motor central: sincronía, multicámara con SmartSwitch, aislamiento de voz, transcripción con hablantes, subtítulos, verticales y render. Se controla por script y por MCP. Recibe todo el material, pero en la estación del estudio: nada sale.",
+   "precio_mes_mxn": 0,
+   "alternativa": "AutoPod (29 USD al mes) si SmartSwitch no rinde",
+   "url": "https://www.blackmagicdesign.com/mx/products/davinciresolve/studio"
+  },
+  {
+   "categoria": "Agente y orquestación",
+   "herramienta": "Claude Code (plan Max)",
+   "uso": "Maneja Resolve, arma las recetas probadas, escribe los scripts de ingesta y respaldo, programa en Metricool y arma reportes. Se supervisa desde el celular con Remote Control. Con Remote Control conectado, la conversación se guarda en Anthropic, así que en esas sesiones no se pegan transcripciones de clientes políticos. Precio: 100 USD con IVA.",
+   "precio_mes_mxn": 2160,
+   "alternativa": "OpenAI Codex (costo parecido)",
+   "url": "https://claude.com/pricing"
+  },
+  {
+   "categoria": "LLM para el pipeline de clientes",
+   "herramienta": "Claude API (Sonnet 5.5 y Haiku 5.5) con llave propia y tope de gasto",
+   "uso": "Propone clips y escribe títulos, descripciones, capítulos y textos. Recibe solo la transcripción (texto), nunca el video. Un servicio a clientes debe correr con llave de API, no con la suscripción. Unos 35 USD al mes con IVA (estimado).",
+   "precio_mes_mxn": 756,
+   "alternativa": "Gemini Flash para revisar momentos visuales (0.27–0.81 USD por hora de video)",
+   "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+   "categoria": "Transcripción en la nube",
+   "herramienta": "ElevenLabs Scribe v2",
+   "uso": "Transcripción con hablantes y lista de términos del cliente. Fue la de menor error en la comparación de 2026 de lenguas ibéricas. Recibe el audio de cada episodio. Unos 16 episodios al mes, con IVA.",
+   "precio_mes_mxn": 70,
+   "alternativa": "AssemblyAI (0.23 USD por hora)",
+   "url": "https://elevenlabs.io/pricing/api"
+  },
+  {
+   "categoria": "Transcripción local",
+   "herramienta": "faster-whisper / WhisperX",
+   "uso": "Es el nivel 100% local para quien no quiere que su audio salga del estudio. Tuvo casi el triple de error que Scribe v2 (19.34% contra 6.45%), así que pide más revisión. Hay que medirlo con audio de Durango antes de prometer tiempos.",
+   "precio_mes_mxn": 0,
+   "alternativa": "La transcripción integrada de Resolve",
+   "url": "https://github.com/SYSTRAN/faster-whisper"
+  },
+  {
+   "categoria": "Publicación y analítica",
+   "herramienta": "Metricool Advanced (15 marcas)",
+   "uso": "Programa en TikTok, Instagram, Facebook, LinkedIn y X; ahí aprueba el cliente, y la API y el MCP se conectan con Claude Code. Recibe solo clips aprobados. 67 USD al mes con IVA.",
+   "precio_mes_mxn": 1447,
+   "alternativa": "Publer Business (desde 10 USD por cuenta) como plan B",
+   "url": "https://metricool.com/pricing/"
+  },
+  {
+   "categoria": "Publicación directa",
+   "herramienta": "YouTube Data API v3",
+   "uso": "Sube el episodio largo y los Shorts directo: cada subida cuesta 1 unidad de cuota y caben 100 al día.",
+   "precio_mes_mxn": 0,
+   "alternativa": "Metricool",
+   "url": "https://developers.google.com/youtube/v3/determine_quota_cost"
+  },
+  {
+   "categoria": "Revisión de video",
+   "herramienta": "Frame.io Pro (1 miembro)",
+   "uso": "El cliente comenta el corte sobre la imagen sin crear cuenta, en una liga con contraseña y caducidad. Recibe solo el corte de revisión. 15 USD con IVA.",
+   "precio_mes_mxn": 324,
+   "alternativa": "Frame.io Free (2 GB, sin contraseña)",
+   "url": "https://frame.io/pricing"
+  },
+  {
+   "categoria": "Agenda y cobro",
+   "herramienta": "Cal.com Free con Stripe",
+   "uso": "Reservas con anticipo y formulario de brief. Recibe nombre, contacto y brief.",
+   "precio_mes_mxn": 0,
+   "alternativa": "Calendly Standard (10 USD por usuario)",
+   "url": "https://cal.com/pricing"
+  },
+  {
+   "categoria": "Mensajería",
+   "herramienta": "WhatsApp Business Platform (por Twilio)",
+   "uso": "Confirmaciones y recordatorios con plantillas de utilidad, a unos $0.16 por mensaje.",
+   "precio_mes_mxn": 58,
+   "alternativa": "360dialog (desde 49 EUR por número)",
+   "url": "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing"
+  },
+  {
+   "categoria": "Automatización",
+   "herramienta": "n8n autoalojado (Community)",
+   "uso": "Une los pasos internos en la estación: reserva, carpeta, ingesta, arranque de Resolve, revisión, programación y reporte. Solo para uso interno, sin dar acceso a clientes.",
+   "precio_mes_mxn": 0,
+   "alternativa": "Make Core (unos 10 USD)",
+   "url": "https://n8n.io/pricing/"
+  },
+  {
+   "categoria": "Portal y datos",
+   "herramienta": "Supabase Pro",
+   "uso": "Expediente de cada cliente: aprobaciones, entregables, reportes, evidencias para el INE y declaraciones de origen de los recursos. 25 USD con IVA.",
+   "precio_mes_mxn": 540,
+   "alternativa": "HubSpot CRM Free",
+   "url": "https://supabase.com/pricing"
+  },
+  {
+   "categoria": "Facturación",
+   "herramienta": "Facturama API",
+   "uso": "Facturas CFDI 4.0 por API ($1,650 al año más $0.50 por folio, con IVA). Hay que confirmar que soporte el Complemento INE.",
+   "precio_mes_mxn": 158,
+   "alternativa": "Facturapi ($299 al mes, con MCP)",
+   "url": "https://facturama.mx/planes-facturacion"
+  },
+  {
+   "categoria": "Contratos",
+   "herramienta": "Mifiel",
+   "uso": "Firma de contratos, cesiones de derechos de imagen, acuerdos de confidencialidad y declaraciones de origen de recursos, con constancia NOM-151. Unos 6 a 8 documentos al mes (estimado).",
+   "precio_mes_mxn": 500,
+   "alternativa": "Firma en papel",
+   "url": "https://webflow.mifiel.com/es/precios"
+  },
+  {
+   "categoria": "Respaldo",
+   "herramienta": "Backblaze B2",
+   "uso": "Copia fuera del estudio, solo de masters, proxys y proyectos (unos 2 TB a 6.95 USD por TB, con IVA). El crudo se respalda en local.",
+   "precio_mes_mxn": 300,
+   "alternativa": "Google Drive",
+   "url": "https://www.backblaze.com/cloud-storage/pricing"
+  },
+  {
+   "categoria": "Correo y archivos",
+   "herramienta": "Google Workspace Standard (2 usuarios)",
+   "uso": "Correo, Drive para entregas y calendario ($280 por usuario, más IVA).",
+   "precio_mes_mxn": 650,
+   "alternativa": "Workspace Starter ($140 por usuario)",
+   "url": "https://workspace.google.com/intl/es-419/pricing.html"
+  },
+  {
+   "categoria": "Clips (opcional)",
+   "herramienta": "Opus Clip Pro",
+   "uso": "Segunda opinión de clips y programación por API, si la receta propia se queda corta. Recibe el episodio ya aprobado, nunca material político sin aprobar. 29 USD con IVA.",
+   "precio_mes_mxn": 626,
+   "alternativa": "Klap API (unos 8.44 USD por episodio con 10 shorts)",
+   "url": "https://help.opus.pro/api-reference/overview"
+  }
+ ],
+ "claude_code": {
+  "laptop_actual": "La HP Victus (Ryzen 5 7535HS, 32 GB de RAM y RTX 2050 de 4 GB) es herramienta de Miguel en Antemano y se queda ahí. En la sociedad solo sirve para armar y probar la receta con los pilotos, hasta unos 8 episodios al mes, y con condiciones. Hay que editar con proxys o en una línea de tiempo de 1080p y grabar en 4:2:0, no en 4:2:2: la RTX 2050 no decodifica 4:2:2 por hardware y el Ryzen no trae QuickSync. El render 4K se deja para la noche. Está muy por debajo de lo que Puget recomienda como mínimo para 4K (12 GB de video y 96 GB de RAM). Cuando se cumple H4, o cuando hay más de 8 episodios al mes programados dos meses seguidos, entra la estación de la sociedad. Falta medir cuánto tardan en la laptop las funciones de IA de Resolve 21.",
+  "servidor": [
+   {
+    "etapa": "Etapa 0 · Piloto (nov-2026 a feb-2027)",
+    "hardware": "La laptop de Miguel, con calendario de uso acordado con Antemano, más Claude Max y una llave de API con tope de gasto para lo que se entrega a clientes. Remote Control permite supervisar desde el celular.",
+    "cuando": "Desde el primer piloto y hasta unos 8 episodios al mes",
+    "costo_mxn": 0
+   },
+   {
+    "etapa": "Etapa 1 · Estación siempre encendida (mar-2027, o antes si hay más de 8 episodios al mes)",
+    "hardware": "PC con RTX 5070 Ti de 16 GB, procesador Intel Core Ultra (QuickSync decodifica 4:2:2 en Resolve 21), de 64 a 96 GB de RAM y 2 discos NVMe, más una segunda licencia de Resolve Studio. Es el \"servidor propio\": transcribe, renderiza en cola y corre n8n y las tareas programadas locales. El editor trabaja en ella por escritorio remoto, sin descargar el crudo. La alternativa es una Mac mini M5 Pro, desde $39,999.",
+    "cuando": "Con H4 cumplido o con más de 8 episodios al mes programados dos meses seguidos",
+    "costo_mxn": 60500
+   },
+   {
+    "etapa": "Etapa 3 · Servidor de equipo (2028)",
+    "hardware": "NAS con red de 10 GbE, segunda estación y plan Team de Claude para usar entornos autoalojados: las tareas programadas procesan el material del NAS sin depender de una persona. Un modelo de IA local solo se agrega si un cliente político exige que nada salga del estudio. Costo por cotizar.",
+    "cuando": "Con más de 25 episodios al mes durante 3 meses o con 2 operadores"
+   }
+  ],
+  "que_habilita": [
+   "Operar Resolve por script y por MCP. Claude Code corre la receta completa de cada episodio (sincronía, multicámara, voz, transcripción, subtítulos y render) y a la persona le deja solo las decisiones de criterio.",
+   "Correr el pipeline sin interfaz (claude -p) con salida estructurada, tope de gasto por corrida y el costo reportado. Así se mide el costo real de IA por episodio desde el piloto.",
+   "Convertir cada técnica en una receta probada, que queda como activo de la empresa. Antecedente: el 12-nov-2026 Claude Code armó en Resolve 21.1 un video de cliente de 55 segundos con subtítulos automáticos, gráficos por script, zooms, música y mezcla a -14 LUFS.",
+   "Programar la publicación en Metricool como borrador por cliente y leer su analítica para el reporte.",
+   "Remote Control: manejar desde el celular la estación del estudio, con su disco y sus herramientas. Es el \"servidor propio\" práctico de la etapa 1.",
+   "Tareas programadas: reporte mensual, recordatorios, aviso de los 30 días para registrar contratos en el RNP y revisión del calendario electoral para que el bloqueo de veda se active solo.",
+   "Conectores de agenda y archivos (Google Calendar, Drive, Calendly, Notion) para la logística y el expediente de cada cliente.",
+   "Procedimientos convertidos en código: el método se documenta desde el día uno y después se puede vender o replicar en otra ciudad, como hizo Poddster con Podyx."
+  ],
+  "limites": [
+   "Claude no ve video, solo imágenes: un cuadro de 1080p cuesta 2,691 tokens. Los clips se eligen por la transcripción y la imagen solo se usa para confirmar a los candidatos.",
+   "Claude no oye: el audio se verifica midiendo el volumen, y una persona escucha una muestra.",
+   "La API de Resolve tiene fallas silenciosas. Un ajuste de render inválido no aplica nada, el texto de los subtítulos no se puede editar por API, los clips no se mueven (se borran y se vuelven a poner) y un intento con un archivo de subtítulos colgó el conector 30 minutos.",
+   "Algunas funciones de IA de Resolve (IntelliCut, IntelliScript, AI Audio Assistant) solo existen en la interfaz, no en la API.",
+   "Las tareas programadas en la nube corren como mínimo cada hora, están en vista previa y no ven los archivos del estudio.",
+   "Los límites semanales de la suscripción no se publican. Para los picos de campaña hacen falta créditos de uso o una llave de API.",
+   "La suscripción personal no puede ser la base de un servicio a clientes: ese pipeline debe usar llave de API (Agent SDK).",
+   "Mientras Remote Control está conectado, la conversación se guarda en servidores de Anthropic. Regla: en esas sesiones no se pegan transcripciones de clientes políticos.",
+   "Varias piezas están en beta o vista previa (Remote Control, entornos autoalojados, la API de Opus Clip) y pueden cambiar."
+  ],
+  "hype_vs_real": [
+   "Hype: \"un editor 100% autónomo\". Real: unos 100 minutos humanos de postproducción por episodio de 60 minutos con este flujo (estimado), contra 4 a 6 horas a mano, es decir, de 2.5 a 3.5 veces menos. En mesas políticas con voces encimadas, más. La persona no desaparece: pasa de editar a revisar. El número real sale de medir los 10 primeros episodios.",
+   "Hype: \"la IA te hace 10 veces más rápido\". Real: en el estudio de METR, desarrolladores expertos tardaron 19% más con IA, aunque creían ir más rápido. Hay que medir horas por episodio, no confiar en la sensación.",
+   "Hype: \"clips virales automáticos\". Real: no hay ninguna evaluación independiente de cómo eligen clips estas herramientas, y menos en español; tienden a premiar los momentos más ruidosos. Con políticos, elige una persona.",
+   "Hype: \"un modelo local reemplaza a Claude\". Real: un modelo local solo se justifica por confidencialidad o para trabajar sin red.",
+   "Hype: \"computer use opera cualquier programa\". Real: cada captura cuesta entre 1,000 y 1,800 tokens, los clics se desvían y no sirve como base de producción. Se automatiza por API y MCP.",
+   "Hype: \"compra una RTX 5090\". Real: en EE.UU. cuesta 370% más que su precio de lanzamiento, y una 5070 Ti de 16 GB alcanza.",
+   "Hype: \"todo en la nube\". Real: una hora de episodio con 4 cámaras pesa unos 180 GB. El video se procesa en el estudio y en la nube solo se trabaja el texto.",
+   "Real y subestimado: transcribir cuesta unos $3.72 por hora, los textos con IA unos $1.3 por episodio, y Resolve, que ya está pagado, trae casi todo."
+  ]
+ },
+ "personas": [
+  {
+   "rol": "Miguel, socio operador y director",
+   "fase": "MVP",
+   "dedicacion": "Horas por semana (estimado): nov 9, dic 9, ene 8, feb 7, mar 6. El productor de medio tiempo opera el kit desde enero para que Miguel no monte equipo.",
+   "hace": [
+    "Entrevistas de validación y primeras ventas (3–4 h por semana)",
+    "Receta de Resolve y pipeline con Claude Code (unas 3 h por semana en nov–ene)",
+    "Sociedad, contratos y políticas con el abogado (1 h)",
+    "Diagnósticos de narrativa y aprobación final de lo político (1 h)",
+    "Mide los 10 primeros episodios"
+   ],
+   "perfil": "Director de Antemano, con experiencia en sistemas con Claude Code y en edición por script. Cobra honorario hasta marzo de 2027.",
+   "costo_mes_mxn": 0
+  },
+  {
+   "rol": "Socio inversionista",
+   "fase": "MVP",
+   "dedicacion": "1 a 2 horas por semana",
+   "hace": [
+    "Libera los tramos de dinero según los disparadores",
+    "Abre puertas en su red",
+    "Junta mensual de socios y decisión de cierre si se cumple un criterio"
+   ],
+   "perfil": "Capital y relaciones. Firma una declaración de conflictos de interés y no debe ser la cara del estudio ante ningún partido.",
+   "costo_mes_mxn": 0
+  },
+  {
+   "rol": "Productor-operador de medio tiempo",
+   "fase": "MVP",
+   "dedicacion": "Medio tiempo de ene a feb-2027 (y en el escenario lento)",
+   "hace": [
+    "Lleva el kit a la oficina del cliente, lo monta y lo opera con checklist",
+    "Corre la ingesta y el respaldo",
+    "Publica y lleva el expediente de cada cliente"
+   ],
+   "perfil": "Operador con criterio técnico, de Durango",
+   "costo_mes_mxn": 9000
+  },
+  {
+   "rol": "Editor y revisor por pieza",
+   "fase": "MVP",
+   "dedicacion": "Unas 1.5 horas de revisión por episodio (estimado)",
+   "hace": [
+    "Revisa lo que deja la IA: cortes, nombres y cifras",
+    "Prepara los clips elegidos",
+    "Se encarga de las miniaturas"
+   ],
+   "perfil": "Editor freelance de Durango que trabaja en la estación del estudio o por escritorio remoto, sin descargar el crudo, con acuerdo de confidencialidad. Costo directo: $250 la hora (estimado)."
+  },
+  {
+   "rol": "Conductores de la vitrina (2)",
+   "fase": "MVP",
+   "dedicacion": "2 episodios al mes",
+   "hace": [
+    "Conducen el programa quincenal de la casa: negocios, ciudad y cultura",
+    "Aplican las reglas de pluralidad y no entrevistan aspirantes ni candidatos durante los procesos"
+   ],
+   "perfil": "Un periodista o analista local y una voz de negocios, que no sean socios ni Miguel. Antes de contratarlos se revisan sus conflictos (convenios de publicidad oficial, filiación). Si uno se vuelve candidato o funcionario, deja la conducción. Pago de unos $2,000 por conductor por episodio (estimado, por confirmar con 2 o 3 candidatos).",
+   "costo_mes_mxn": 8000
+  },
+  {
+   "rol": "Contador y abogado electoral",
+   "fase": "MVP",
+   "dedicacion": "Iguala por consulta",
+   "hace": [
+    "Constitución, régimen fiscal y facturación con Complemento INE",
+    "Contrato tipo, política de pagador, política de cumplimiento y criterio sobre la vitrina",
+    "Revisión de los clips y guiones políticos que tengan duda"
+   ],
+   "perfil": "Externos",
+   "costo_mes_mxn": 6000
+  },
+  {
+   "rol": "Productor-operador de tiempo completo",
+   "fase": "Tracción",
+   "dedicacion": "Tiempo completo desde que se cumple H4 (mar-2027)",
+   "hace": [
+    "Recibe al cliente y opera el set con checklist",
+    "Corre la receta de IA y revisa",
+    "Publica y lleva el expediente del INE",
+    "Contesta WhatsApp en minutos",
+    "Si Miguel no está, aprueba lo político con el checklist, siempre con la aprobación registrada del cliente"
+   ],
+   "perfil": "Es la primera contratación: alguien que opere, no un editor. Es lo que le faltó a Authentic Exposure. Sueldo y carga patronal estimados (el promedio nacional de un editor es $12,130 al mes).",
+   "costo_mes_mxn": 18000,
+   "reemplaza": "Productor-operador de medio tiempo"
+  },
+  {
+   "rol": "Miguel, en tracción",
+   "fase": "Tracción",
+   "dedicacion": "Horas por semana (estimado): abr 8, may 8, jun 6, jul 5, ago 5, sep 5, oct 6, nov 5.5, dic 5. De abril a diciembre de 2027 promedia 5.9 horas por semana.",
+   "hace": [
+    "Narrativa de los clientes de Voz Pública (6 h al mes por cliente; unas 2.8 h por semana con 2 clientes)",
+    "Aprobación final de las piezas políticas (unos 40 minutos por semana)",
+    "Ventas (1 h por semana)",
+    "Revisión mensual de indicadores y junta de socios (30 minutos por semana)",
+    "Mejora del sistema (30 minutos por semana)"
+   ],
+   "perfil": "Cobra $8,000 al mes de honorario de operación más la narrativa de cada cliente de Voz Pública (6 h a $900 = $5,400). En el escenario base son unos $18,800 al mes, ya dentro de los costos, aparte de las utilidades. Si pasa de 8 horas por semana durante 4 semanas fuera de campaña, se adelanta la siguiente contratación.",
+   "costo_mes_mxn": 8000,
+   "reemplaza": "Miguel, socio operador y director"
+  },
+  {
+   "rol": "Community manager freelance por cliente",
+   "fase": "Tracción",
+   "dedicacion": "Unas 20 horas al mes por cliente",
+   "hace": [
+    "Publicaciones y respuestas diarias en 2 redes de los clientes que contratan Comunidad y pauta",
+    "Manejo de la pauta con la autorización de Meta a nombre del cliente"
+   ],
+   "perfil": "Freelance de Durango. Es costo directo del extra: $6,500 al mes por cliente (estimado)."
+  },
+  {
+   "rol": "Personal temporal de campaña",
+   "fase": "Tracción",
+   "dedicacion": "Por honorarios de abril a junio",
+   "hace": [
+    "Edición y comunidad adicionales durante los sprints",
+    "Guardias para responder en 24 horas"
+   ],
+   "perfil": "Está incluido en el costo directo de cada sprint de campaña. Como máximo, 2 sprints a la vez."
+  },
+  {
+   "rol": "Asistente de clips y comunidad",
+   "fase": "Escala",
+   "dedicacion": "Medio tiempo",
+   "hace": [
+    "Clips, comunidad y respuestas en redes de los clientes",
+    "Apoyo en jornadas y eventos"
+   ],
+   "perfil": "Se contrata con más de 25 episodios al mes, o cuando Miguel pasa de 8 horas por semana fuera de campaña.",
+   "costo_mes_mxn": 8000
+  },
+  {
+   "rol": "Consultor de narrativa",
+   "fase": "Escala",
+   "dedicacion": "Unas 6 horas al mes por cliente de Voz Pública, a $900 la hora (estimado)",
+   "hace": [
+    "Lleva la narrativa a partir del tercer cliente de Voz Pública",
+    "Aprueba lo político cuando Miguel no está",
+    "Le quita a Miguel la dependencia"
+   ],
+   "perfil": "Comunicador político con experiencia en Durango, con declaración de conflictos y sin trabajar para un solo partido."
+  },
+  {
+   "rol": "Coordinador comercial no político",
+   "fase": "Escala",
+   "dedicacion": "Por comisión o medio tiempo (2028)",
+   "hace": [
+    "Vende a profesionistas, universidades, empresas y producciones que filman en Durango"
+   ],
+   "perfil": "Su meta es que lo no político pase de 50% del ingreso antes de jul-2028."
+  }
+ ],
+ "socios": [
+  {
+   "quien": "Miguel Salomón (socio operador)",
+   "aporta": "El sistema de IA (Resolve con Claude Code y Metricool), la red, la dirección de narrativa y su A7 IV, que renta a la sociedad con calendario hasta que la sociedad compre su cuarta cámara. La laptop se queda en Antemano. Los clientes de \"Marca Persona\" pasan a la sociedad solo si ellos aceptan, según un acuerdo escrito con Antemano. Firma una declaración de conflictos de interés.",
+   "decide": "Operación diaria, producto, línea editorial y aprobación de las piezas políticas. Cobra honorario y narrativa aparte de las utilidades, y gana sus acciones con el tiempo (vesting).",
+   "horas_semana": "9 en nov–dic, 7–8 en ene–feb y menos de 6 en promedio desde abril (8 en campaña)"
+  },
+  {
+   "quien": "Socio inversionista",
+   "aporta": "El capital en tramos: unos $368,500 para validar y arrancar y $139,500 al cumplirse H4 (estimado). El local sale de la caja del negocio. También aporta relaciones y consejo. Firma una declaración de conflictos de interés: filiación partidista, contratos con gobiernos, cargos públicos.",
+   "decide": "Liberar cada tramo según su disparador, el presupuesto anual, las contrataciones, el paso de etapa y aplicar los criterios de cierre.",
+   "horas_semana": "1 a 2"
+  }
+ ],
+ "hitos": [
+  {
+   "id": "H1",
+   "nombre": "Validar sin gastar",
+   "fase": "Etapa 0",
+   "plazo": "13-nov al 15-dic-2026",
+   "criterio": "10 o más entrevistas: políticos de PAN-PRI, Morena y MC, médicos, la UJED, Contacto Hoy, El Siglo y 3 agencias. La competencia revisada en Google Maps e Instagram (Durango, Gómez Palacio y Torreón), con capturas. Las dietas de diputados locales, alcaldes y regidores consultadas en la Plataforma Nacional de Transparencia. Al menos 3 cartas de intención con precio aceptado, una de Voz Pública, cada una con el pagador identificado (cuenta propia o del partido).",
+   "desbloquea": "El resto del tramo 1: el kit y la operación del arranque. No se compra equipo en el Buen Fin antes de cumplir esto, salvo decisión explícita del inversionista.",
+   "inversion_mxn": 0,
+   "kpis": [
+    "Entrevistas hechas",
+    "Cartas de intención firmadas",
+    "Precio aceptado contra el precio de lista",
+    "Competidores encontrados",
+    "Cuántos políticos del universo pueden pagar Voz Pública"
+   ]
+  },
+  {
+   "id": "H2",
+   "nombre": "Sociedad y cumplimiento con fechas reales",
+   "fase": "Etapa 0",
+   "plazo": "17-nov-2026 al 28-feb-2027",
+   "criterio": "La constitución empieza el 17-nov-2026, en paralelo con H1 (una SAPI tarda de 3 a 6 semanas). Entre dic y ene: acta ante notario con acuerdo de socios, que incluye el acuerdo con Antemano y las declaraciones de conflictos. En ene-2027: RFC y cita en el SAT para la e.firma de la sociedad. Entre ene y feb: solicitud al RNP con esa e.firma y factura con Complemento INE probada. El abogado revisa el contrato tipo, la política de pagador y las reglas de la vitrina. La precampaña de 2027 se da por perdida y la primera venta política es en campañas (desde el 4-abr federal y el 29-abr local). El plan B, que un socio persona física inscrito en el RNP facture temporalmente, solo se usa si lo valida el abogado: mezcla figuras y choca con la separación de marcas.",
+   "desbloquea": "Venderles a partidos, precandidatos y candidatos desde las campañas de 2027",
+   "inversion_mxn": 70000,
+   "kpis": [
+    "Fecha del acta",
+    "Fecha de la e.firma",
+    "Registro en el RNP activo",
+    "Contrato tipo aprobado",
+    "Factura con Complemento INE probada"
+   ]
+  },
+  {
+   "id": "H3",
+   "nombre": "Receta probada",
+   "fase": "Etapa 0",
+   "plazo": "ene a feb-2027",
+   "criterio": "3 pilotos de clientes, cobrados a precio de lista (Diagnóstico o Episodio listo), y 4 de la vitrina, grabados con el kit. Postproducción humana de 2 horas o menos por episodio de 60 minutos (2.5 horas o menos en mesas con voces encimadas). Entrega en 48 horas o menos. Correcciones de SmartSwitch de 15 minutos o menos por hora con micrófonos separados. Error en nombres propios medido con Scribe v2 y con Whisper local, usando audio de Durango.",
+   "desbloquea": "Prometer por escrito la entrega en 48 horas",
+   "inversion_mxn": 298500,
+   "kpis": [
+    "Minutos humanos por episodio",
+    "Horas hasta la entrega",
+    "Correcciones de SmartSwitch por hora",
+    "Errores de transcripción en nombres (nube contra local)"
+   ]
+  },
+  {
+   "id": "H4",
+   "nombre": "Ingreso recurrente que cubre los costos fijos",
+   "fase": "Etapa 0",
+   "plazo": "28-feb-2027",
+   "criterio": "Igualas firmadas que sumen $57,600 o más al mes (los costos fijos de la etapa 1), en contratos de 6 meses o más y con el primer mes pagado. Por ejemplo: 1 Voz Pública y 3 Voz, $70,000. Las preventas no cuentan. Criterio de cierre 1: si al 31-mar el ingreso recurrente comprometido no llega a $40,000 al mes, se cierra (se vende el equipo y se liquida la sociedad). Entre $40,000 y $57,600 se sigue en modo lento: 3 cámaras, productor de medio tiempo, y la estación solo si hay más de 8 episodios al mes.",
+   "desbloquea": "El tramo 2 (unos $139,500, estimado): estación de edición, tercera FX30, tercer lente, luz de fondo, accesorios y productor de tiempo completo",
+   "inversion_mxn": 0,
+   "kpis": [
+    "Ingreso recurrente comprometido",
+    "Meses de contrato firmados",
+    "Primer mes cobrado",
+    "Peso del cliente más grande"
+   ]
+  },
+  {
+   "id": "H5",
+   "nombre": "Etapa 1 operando",
+   "fase": "Etapa 1",
+   "plazo": "31-mar-2027",
+   "criterio": "Estación de edición operando, productor de tiempo completo, de 12 a 16 episodios al mes, 90% de las entregas en 48 horas o menos y Miguel en 7 horas por semana o menos.",
+   "desbloquea": "El menú de estudio a la venta (episodio listo y jornadas) y el editor trabajando por escritorio remoto",
+   "inversion_mxn": 139500,
+   "kpis": [
+    "Episodios al mes",
+    "Entregas a tiempo",
+    "Horas vendidas al mes",
+    "Horas de Miguel por semana"
+   ]
+  },
+  {
+   "id": "H6",
+   "nombre": "Campaña sin errores",
+   "fase": "Etapa 1",
+   "plazo": "29-abr al 6-jun-2027",
+   "criterio": "Al menos un sprint de campaña cobrado 100% por adelantado. Como máximo 2 sprints a la vez. 100% de los contratos registrados en el RNP en 30 días o menos. Cero publicaciones políticas del 3 al 5 de junio. Cero pagos de terceros o en efectivo. Expediente completo de cada cliente.",
+   "desbloquea": "Credibilidad para venderles a los aspirantes de 2028",
+   "inversion_mxn": 0,
+   "kpis": [
+    "Contratos registrados a tiempo",
+    "Publicaciones en veda (meta: 0)",
+    "Cobranza adelantada (meta: 100%)",
+    "Pagos que no vienen del cliente o del partido (meta: 0)"
+   ]
+  },
+  {
+   "id": "H7",
+   "nombre": "Pasar el bache después de la elección",
+   "fase": "Etapa 1",
+   "plazo": "jul a sep-2027",
+   "criterio": "80% o más de las igualas de 6 meses se renuevan. 40% o más del ingreso viene de clientes no políticos. Ningún cliente pesa más de 30%. El ingreso queda arriba del punto de equilibrio: unos $75,000 al mes con productor de tiempo completo, o $49,000 en modo lento (estimado). Criterio de cierre 2: si el ingreso queda abajo del punto de equilibrio 3 meses seguidos, se liquida de forma ordenada (aviso de 30 días a clientes y venta del equipo; no hay local del cual salir).",
+   "desbloquea": "Seguir sin poner más capital",
+   "inversion_mxn": 0,
+   "kpis": [
+    "Renovaciones",
+    "% de ingreso no político",
+    "Peso del cliente más grande",
+    "Ingreso contra punto de equilibrio"
+   ]
+  },
+  {
+   "id": "H8",
+   "nombre": "Estudio propio ganado con horas",
+   "fase": "Etapa 2",
+   "plazo": "Cuando se cumpla; no antes de jul-2027",
+   "criterio": "40 o más horas vendidas al mes durante 2 meses seguidos, ingreso recurrente igual o mayor a los costos fijos con local ($67,600 al mes) y caja suficiente para pagarlo sin aportación nueva (si no alcanza, decide el inversionista).",
+   "desbloquea": "El local de 37 a 45 m² con acústica, dos ambientes, renta en horas valle y una cuarta cámara propia (FX30 con Sigma 16 mm) para dejar de depender de la A7 IV",
+   "inversion_mxn": 171500,
+   "kpis": [
+    "Horas vendidas al mes",
+    "Ingreso recurrente contra costos fijos con local",
+    "Caja disponible"
+   ]
+  },
+  {
+   "id": "H9",
+   "nombre": "Mes 12",
+   "fase": "Etapa 1",
+   "plazo": "nov a dic-2027",
+   "criterio": "Ingreso de $127,500 al mes o más (escenario base, estimado). Ingreso recurrente de 1.5 veces los costos fijos o más ($86,400 o más). Horas de Miguel en 6 por semana o menos en promedio desde abril. Revisión: si la utilidad antes de impuestos queda abajo de $15,000 al mes o lo no político pesa menos de 30%, los socios eligen entre cerrar ordenadamente o seguir sin capital nuevo.",
+   "desbloquea": "La etapa 3: kit móvil para foros y eventos y asistente de clips (unos $120,000, estimado, pagados con utilidades)",
+   "inversion_mxn": 120000,
+   "kpis": [
+    "Ingreso mensual",
+    "Recurrente entre costos fijos",
+    "Utilidad antes de impuestos",
+    "Horas de los socios"
+   ]
+  },
+  {
+   "id": "H10",
+   "nombre": "2028 sin depender de la política",
+   "fase": "Etapa 3",
+   "plazo": "ene a jul-2028",
+   "criterio": "Más de 50% del ingreso viene de clientes no políticos antes de jul-2028. Hay un segundo formato propio (de negocios). Lo no político se mantiene en 30% o más durante 2 trimestres. No se vende nada a candidatos judiciales.",
+   "desbloquea": "La etapa 4: productora comercial con cámaras de cine, en renta o compra (unos $150,000, estimado, pagados con utilidades)",
+   "inversion_mxn": 150000,
+   "kpis": [
+    "% no político",
+    "Audiencia de los formatos propios",
+    "Clientes comerciales",
+    "Días al año que se renta equipo"
+   ]
+  }
+ ],
+ "escalamiento": [
+  {
+   "etapa": "Etapa 0 · Validar y constituir (nov-2026 a feb-2027)",
+   "adquiere": "La sociedad y su registro en el RNP. El kit de servicio: 2 FX30, la A7 IV rentada, 2 lentes Sigma, ATEM Mini Pro ISO, RØDECaster con 4 dinámicos, DJI Mic Mini 2S y 4 luces. Además, accesorios y almacenamiento local (35%), productor de medio tiempo desde enero, pilotos de la vitrina y $25,000 de capital de trabajo.",
+   "habilita": "Grabar en la oficina del cliente o en un espacio por hora y probar la receta de IA con material real",
+   "disparador": "$70,000 desde el 17-nov para la sociedad. El resto, cuando se cumpla H1 (10 entrevistas y 3 cartas de intención con pagador identificado).",
+   "costo_mxn": 368500
+  },
+  {
+   "etapa": "Etapa 1 · Operar con kit y estación (mar-2027)",
+   "adquiere": "La estación de edición con RTX 5070 Ti y una segunda licencia de Resolve, la tercera FX30, el tercer lente, la luz de fondo, sus accesorios y el productor de tiempo completo",
+   "habilita": "De 12 a 16 episodios al mes, entrega en 48 horas, editor por escritorio remoto y sprints de campaña",
+   "disparador": "H4: igualas de $57,600 al mes o más en contratos de 6 meses con el primer mes pagado. La estación sola entra antes si hay más de 8 episodios al mes programados dos meses seguidos.",
+   "costo_mxn": 139500
+  },
+  {
+   "etapa": "Etapa 2 · Estudio propio (no antes de jul-2027)",
+   "adquiere": "Local de 37 a 45 m² (depósito unos $36,000, adecuación y acústica unos $50,000, mobiliario unos $35,000; el aire acondicionado está por cotizar), set de dos ambientes y cuarta cámara propia (FX30 con Sigma 16 mm, unos $50,495)",
+   "habilita": "Renta en horas valle, jornadas en casa, más horas vendidas y dejar de depender de la A7 IV",
+   "disparador": "H8: 40 o más horas vendidas al mes durante 2 meses e ingreso recurrente de $67,600 o más. Se paga con la caja del negocio.",
+   "costo_mxn": 171500
+  },
+  {
+   "etapa": "Etapa 3 · Salir del estudio y servidor de equipo (2028)",
+   "adquiere": "Kit móvil (ATEM Mini Extreme ISO G2, unos $67,796, cámaras y audio para exteriores, DJI Mic 3 con timecode), asistente de clips y, cuando el volumen lo pida, NAS con 10 GbE, segunda estación y plan Team de Claude (por cotizar)",
+   "habilita": "Foros, informes, ruedas de prensa, eventos, la Laguna duranguense rumbo a la gubernatura de 2028 y 25 o más episodios al mes",
+   "disparador": "H9 cumplido, más 4 o más solicitudes al mes fuera del estudio o 25 o más episodios al mes durante 3 meses. Se paga con utilidades; si no alcanzan, el equipo se renta por evento.",
+   "costo_mxn": 120000
+  },
+  {
+   "etapa": "Etapa 4 · Productora comercial (2028–2029)",
+   "adquiere": "Cámara de cine (FX3A, unos $80,061, o en renta), lentes, iluminación de rodaje, equipo humano por proyecto y dron en renta",
+   "habilita": "Comerciales, contenido de marca y documental. También ser proveedor local de las producciones que filman en Durango, que reciben incentivos de 5–10% si contratan proveedores locales.",
+   "disparador": "H10: lo no político pesa 30% o más del ingreso durante 2 trimestres, y el equipo se usaría más de 20 a 25 días al año (si no, se renta). Se paga con utilidades.",
+   "costo_mxn": 150000
+  },
+  {
+   "etapa": "Etapa 5 · Casa de medios (2029 en adelante)",
+   "adquiere": "Red de formatos propios, segundo set o chroma, eventos en vivo, membresías, licencias de formato y servicios a creadores a cambio de participación. Una pantalla LED (desde unos $1.84 M) solo si ya se probó rentarla a terceros.",
+   "habilita": "Ingresos que no dependen de clientes: licencias (como La Saga con TV Mexiquense, $1.8 M por 12 meses), patrocinios y eventos",
+   "disparador": "Audiencia propia medible e ingresos por licencias o eventos de 10% o más (meta propia, por confirmar)"
+  }
+ ],
+ "finanzas": {
+  "costos_fijos_mes": [
+   {
+    "concepto": "Espacio de grabación por hora o por contrato con Antemano (no hay local en la etapa 1)",
+    "mxn": 5000
+   },
+   {
+    "concepto": "Productor-operador de tiempo completo (sueldo más carga patronal, estimado)",
+    "mxn": 18000
+   },
+   {
+    "concepto": "Honorario de operación de Miguel (aparte de la narrativa y de las utilidades)",
+    "mxn": 8000
+   },
+   {
+    "concepto": "Software e IA con IVA (Claude Max y API, Metricool, Frame.io, Supabase, Workspace, facturación, firma, respaldo, WhatsApp, Opus Clip)",
+    "mxn": 7600
+   },
+   {
+    "concepto": "Contador, abogado electoral y seguro del equipo",
+    "mxn": 6000
+   },
+   {
+    "concepto": "Conductores de la vitrina quincenal (2 conductores, 2 episodios)",
+    "mxn": 8000
+   },
+   {
+    "concepto": "Promoción y pauta propia",
+    "mxn": 3000
+   },
+   {
+    "concepto": "Traslados del kit, internet móvil y consumibles",
+    "mxn": 2000
+   }
+  ],
+  "escenarios": [
+   {
+    "nombre": "Lento",
+    "mezcla": "1 Voz Pública ($28,000), 2 Voz ($28,000), 4 episodios sueltos ($12,000) y 1 jornada ($7,500). Costos directos: $13,450. No se cumple H4: se trabaja con 3 cámaras, la estación entra en mayo, el productor es de medio tiempo y la vitrina se pausa desde mayo (costos fijos de $40,600). Capital: $429,000.",
+    "ingreso_mes_mxn": 75500,
+    "costo_mes_mxn": 54050,
+    "utilidad_mes_mxn": 21450,
+    "recuperacion_meses": 29,
+    "cantidades": [
+     0,
+     4,
+     1,
+     2,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "fase_fijos": 1
+   },
+   {
+    "nombre": "Base",
+    "mezcla": "2 Voz Pública ($56,000), 3 Voz ($42,000), 1 Comunidad y pauta ($10,000), 1 jornada ($7,500) y 4 episodios sueltos ($12,000). Costos directos: $28,950; fijos: $57,600, sin local. El set se usa unas 27 horas al mes, por debajo del umbral de 40 para rentar local. Capital: $508,000.",
+    "ingreso_mes_mxn": 127500,
+    "costo_mes_mxn": 86550,
+    "utilidad_mes_mxn": 40950,
+    "recuperacion_meses": 19,
+    "cantidades": [
+     0,
+     4,
+     1,
+     3,
+     2,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "fase_fijos": 2
+   },
+   {
+    "nombre": "Fuerte",
+    "mezcla": "3 Voz Pública ($84,000), 5 Voz ($70,000), 2 Comunidad y pauta ($20,000), 2 jornadas ($15,000), 6 episodios ($18,000), 10 horas de renta ($9,000) y 1 patrocinio ($8,000). Costos directos: $50,600; fijos con local y asistente de clips: $75,600. El set se usa unas 52 horas al mes, así que el local llega en jul-2027 y se paga con la caja. Capital: $508,000.",
+    "ingreso_mes_mxn": 224000,
+    "costo_mes_mxn": 126200,
+    "utilidad_mes_mxn": 97800,
+    "recuperacion_meses": 15,
+    "cantidades": [
+     0,
+     6,
+     2,
+     5,
+     3,
+     2,
+     0,
+     0,
+     0,
+     10,
+     1
+    ],
+    "fase_fijos": 4
+   }
+  ],
+  "punto_equilibrio": "Etapa 1, sin local y con productor de tiempo completo: unos $75,000 al mes de ingreso sin IVA (estimado). Son $57,600 de costos fijos divididos entre un margen de contribución de cerca de 77% en la mezcla base. Ejemplo: 1 Voz Pública, 3 Voz y 2 episodios suman $76,000. En modo lento (productor de medio tiempo, vitrina pausada): unos $49,000. Con local: unos $87,000. Con local y asistente: unos $98,000. El punto de equilibrio no depende de llenar un estudio sino de tener de 3 a 4 igualas.",
+  "supuestos": [
+   "Todos los precios son sin IVA y son estimados, calibrados con tarifas reales de Carpa (León), Querétaro, Foortuna (CDMX), Néctar (Morelia) y Filmorent (Monterrey). Los paquetes de esta propuesta usan los mismos precios y costos directos que las finanzas.",
+   "Costos unitarios (estimado). Editor: $250 la hora, dentro del rango latinoamericano de $185 a $740. Narrativa: $900 la hora, la cobre Miguel o el consultor; falta confirmar la tarifa en Durango. Community manager: $6,500 al mes por cliente. IA: de $25 a $500 por paquete. Cobro por SPEI, que casi no cuesta (Stripe cobra 3.6% más $3).",
+   "Costos fijos por fase (estimado). Arranque (ene–feb): unos $32,000 al mes. Etapa 1 sin local: $57,600. Modo lento: $40,600. Con local: $67,600 (renta de $12,000 y servicios de $4,000 en lugar del espacio por hora). Con local y asistente: $75,600.",
+   "Los meses de recuperación salen del flujo de caja antes de impuestos. Después de ISR y PTU se alargan unos 4 a 6 meses (estimado). Si la facturación de la sociedad nueva se retrasa en enero, esos ingresos se corren a febrero y los cubre el capital de trabajo.",
+   "Impuestos y márgenes en el escenario base (estimado). La utilidad antes de impuestos es 32% del ingreso. Después de PTU (estimada en 10% de la utilidad repartible) e ISR de 30% queda cerca de 20%, parecido al 19% de margen neto de las agencias de 0 a 9 personas (Promethean). El margen bruto, contando al productor y el honorario de Miguel como mano de obra, es de unos 57%.",
+   "Sensibilidad. Si Voz Pública se cobra a $22,000 en lugar de $28,000, la utilidad del escenario base baja a unos $28,950 al mes y la recuperación se alarga unos 5 meses (estimado). Si nadie acepta ni $22,000 en las entrevistas de H1, no se compra el kit.",
+   "Temporada de campaña. Al escenario base se le suma un sprint de campaña local en abril de 2027 ($60,000 cobrados por adelantado, con su costo repartido entre abril y mayo), y al fuerte dos. Los montos de 2028 (unos +$55,000 al mes en el primer semestre y +$25,000 en el segundo, en el base) son supuestos que se ajustan con los datos de 2027.",
+   "El sueldo del productor es estimado: el promedio nacional de un editor es de $12,130 al mes y la carga patronal no se investigó. Falta el dato de Durango.",
+   "La línea de software ($7,600) lleva IVA, porque muchos proveedores extranjeros no dan CFDI y su IVA no se puede acreditar (por confirmar con el contador).",
+   "El equipo se presupuesta a precio normal estimado. Comprando cámaras y lentes en el Buen Fin (hasta el 18-nov), el kit costaría unos $30,942 menos, pero solo si el inversionista lo decide explícitamente.",
+   "La utilidad es antes de ISR. El RESICO de personas morales (paga el ISR cuando se cobra) solo aplica si ningún socio controla otra sociedad mercantil (LISR art. 206). Si no aplica, se usa el régimen general, que paga al facturar, y se refuerza el cobro por adelantado."
+  ],
+  "fijos_por_fase": [
+   {
+    "nombre": "Arranque (ene–feb)",
+    "mxn": 32000
+   },
+   {
+    "nombre": "Modo lento",
+    "mxn": 40600
+   },
+   {
+    "nombre": "Etapa 1, sin local",
+    "mxn": 57600
+   },
+   {
+    "nombre": "Con local",
+    "mxn": 67600
+   },
+   {
+    "nombre": "Con local y asistente",
+    "mxn": 75600
+   }
+  ],
+  "capital": {
+   "tramos": [
+    {
+     "nombre": "Tramo 1",
+     "para": "Validar y arrancar",
+     "cuando": "nov-2026 a feb-2027",
+     "disparador": "Los $70,000 de la sociedad desde el 17-nov; el resto solo si se cumple H1 (10 o más entrevistas que validan el precio).",
+     "mxn": 368500,
+     "partes": [
+      {
+       "concepto": "Sociedad (desde el 17-nov)",
+       "mxn": 70000
+      },
+      {
+       "concepto": "Kit de grabación a precio normal",
+       "mxn": 174495
+      },
+      {
+       "concepto": "Accesorios y almacenamiento (35%)",
+       "mxn": 61073
+      },
+      {
+       "concepto": "Pérdida operativa de nov a feb",
+       "mxn": 37900
+      },
+      {
+       "concepto": "Capital de trabajo",
+       "mxn": 25000
+      }
+     ]
+    },
+    {
+     "nombre": "Tramo 2",
+     "para": "Operar la etapa 1",
+     "cuando": "mar-2027",
+     "disparador": "Solo con H4: igualas firmadas por $57,600 al mes o más, en contratos de 6 meses o más.",
+     "mxn": 139500,
+     "partes": [
+      {
+       "concepto": "Estación de edición",
+       "mxn": 60500
+      },
+      {
+       "concepto": "Tercera FX30",
+       "mxn": 38854
+      },
+      {
+       "concepto": "Tercer lente",
+       "mxn": 14233
+      },
+      {
+       "concepto": "Luz de fondo",
+       "mxn": 5421
+      },
+      {
+       "concepto": "Accesorios",
+       "mxn": 20478
+      }
+     ]
+    }
+   ],
+   "maximo": 508000,
+   "maximo_lento": 429000,
+   "de_la_caja": [
+    {
+     "concepto": "Local propio (etapa 2, con H8)",
+     "mxn": 171500
+    },
+    {
+     "concepto": "Etapa 3: salir del estudio y servidor de equipo",
+     "mxn": 120000
+    },
+    {
+     "concepto": "Etapa 4: productora comercial",
+     "mxn": 150000
+    }
+   ],
+   "nota": "El local y las etapas 3 y 4 se pagan con la caja y las utilidades del negocio, sin aportaciones nuevas obligatorias (estimado)."
+  },
+  "flujo_caja": {
+   "escenario": "Base",
+   "serie": [
+    {
+     "mes": "nov-26",
+     "acumulado": -73200,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "dic-26",
+     "acumulado": -317268,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "ene-27",
+     "acumulado": -335268,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "feb-27",
+     "acumulado": -343468,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "mar-27",
+     "acumulado": -477554,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "abr-27",
+     "acumulado": -424654,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "may-27",
+     "acumulado": -425504,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "jun-27",
+     "acumulado": -413854,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "jul-27",
+     "acumulado": -408454,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "ago-27",
+     "acumulado": -399554,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "sep-27",
+     "acumulado": -384404,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "oct-27",
+     "acumulado": -348654,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "nov-27",
+     "acumulado": -307704,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "dic-27",
+     "acumulado": -266754,
+     "tipo": "estimado"
+    },
+    {
+     "mes": "ene-28",
+     "acumulado": -211754,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "feb-28",
+     "acumulado": -156754,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "mar-28",
+     "acumulado": -101754,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "abr-28",
+     "acumulado": -46754,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "may-28",
+     "acumulado": 8246,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "jun-28",
+     "acumulado": 63246,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "jul-28",
+     "acumulado": 88246,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "ago-28",
+     "acumulado": 113246,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "sep-28",
+     "acumulado": 138246,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "oct-28",
+     "acumulado": 163246,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "nov-28",
+     "acumulado": 188246,
+     "tipo": "supuesto"
+    },
+    {
+     "mes": "dic-28",
+     "acumulado": 213246,
+     "tipo": "supuesto"
+    }
+   ],
+   "nota": "Acumulado antes de impuestos, con las inversiones de cada tramo (estimado). De nov-2026 a dic-2027, mes a mes según el proyecto; 2028 es un supuesto (unos +$55,000 al mes de ene a jun por la gubernatura y unos +$25,000 en el bache de jul a dic) que se ajusta con los datos de 2027. Después de ISR y PTU la recuperación se alarga unos 4 a 6 meses.",
+   "otros": [
+    {
+     "nombre": "Lento",
+     "texto": "Punto más bajo de −$414,768 en may-2027 (cuando se compra la estación); −$304,168 a dic-2027; unos −$34,000 a dic-2028. Se vuelve positivo hacia mar-2029 (mes 29) y cruza el bache de 2029."
+    },
+    {
+     "nombre": "Fuerte",
+     "texto": "Punto más bajo de −$456,254 en mar-2027. El local se paga con la caja en jul-2027 (había unos $203,000 disponibles). Se vuelve positivo en ene-2028 (mes 15)."
+    }
+   ],
+   "perdida_cierre": "Si se aplica el primer criterio de cierre (31-mar-2027), la pérdida máxima estimada es de $210,000 a $280,000: lo gastado, menos la caja que quede y la venta del equipo (las cámaras conservan 65–75% de su valor a un año y los lentes 80–85%)."
+  },
+  "reparto": {
+   "nota": "Ejemplos de diseño, no datos de mercado. Cifras acumuladas a oct-2029 (mes 36), después de ISR y PTU (estimado). Capital del inversionista: $429,000 en el escenario lento y $508,000 en el base y el fuerte. Caja que se podría repartir: unos $400,000 (lento), $630,000 (base) y $1,450,000 (fuerte).",
+   "capital": {
+    "Lento": 429000,
+    "Base": 508000,
+    "Fuerte": 508000
+   },
+   "estructuras": [
+    {
+     "id": "E1",
+     "nombre": "Preferente con premio",
+     "regla": "100% de lo que se reparta va al inversionista hasta que recupere su capital más 15%; después, 50/50.",
+     "recomendada": true,
+     "recibe": {
+      "Lento": [
+       400000,
+       0.9
+      ],
+      "Base": [
+       607000,
+       1.2
+      ],
+      "Fuerte": [
+       1017000,
+       2.0
+      ]
+     }
+    },
+    {
+     "id": "E2",
+     "nombre": "Preferente simple",
+     "regla": "100% al inversionista hasta que recupere su capital; después, 40% inversionista y 60% Miguel.",
+     "recibe": {
+      "Lento": [
+       400000,
+       0.9
+      ],
+      "Base": [
+       557000,
+       1.1
+      ],
+      "Fuerte": [
+       885000,
+       1.7
+      ]
+     }
+    },
+    {
+     "id": "E3",
+     "nombre": "Proporcional",
+     "regla": "50/50 desde el día uno.",
+     "recibe": {
+      "Lento": [
+       200000,
+       0.5
+      ],
+      "Base": [
+       315000,
+       0.6
+      ],
+      "Fuerte": [
+       725000,
+       1.4
+      ]
+     }
+    }
+   ],
+   "despues": "Después del mes 36 el inversionista conserva sus acciones. Miguel cobra su honorario y la narrativa aparte (ya están en los costos) y gana sus acciones con el tiempo: la referencia común es 4 años, con un año de espera antes de la primera porción (se confirma con el abogado; art. 114 de la LGSM, acciones de trabajo)."
+  },
+  "criterios_cierre": [
+   {
+    "cuando": "31-mar-2027",
+    "si": "El ingreso recurrente comprometido es menor a $40,000 al mes.",
+    "entonces": "Se vende el equipo y se liquida la sociedad. Pérdida máxima estimada: $210,000 a $280,000."
+   },
+   {
+    "cuando": "jul a sep-2027",
+    "si": "El ingreso queda abajo del punto de equilibrio de su fase 3 meses seguidos.",
+    "entonces": "Se liquida de forma ordenada."
+   },
+   {
+    "cuando": "Mes 12",
+    "si": "La utilidad antes de impuestos es menor a $15,000 al mes o lo no político pesa menos de 30%.",
+    "entonces": "Los socios deciden entre cerrar o seguir sin capital nuevo."
+   }
+  ]
+ },
+ "politica": {
+  "oportunidad": "De noviembre de 2026 a junio de 2028, Durango tiene demanda política casi sin pausa. En 2027 se disputan 29 diputaciones (25 locales y 4 federales) entre 11 partidos. En 2028 tocan la gubernatura y los 39 ayuntamientos.\n\nLos cargos en funciones compran todo el año para sus canales personales o de partido: 25 diputados locales, los federales, 39 alcaldes, 17 regidores en la capital, el gabinete estatal y los 3 senadores por Durango. Se les cobra con sus propios recursos y nunca con dinero público. Quien busque reelegirse en 2027 pasa a precandidato o candidato y cambian sus reglas.\n\nEl mercado está repartido: PAN-PRI gobierna 20 municipios, Morena y aliados 16, y MC 3. Eso permite tener clientes de todos los bloques con las mismas reglas.\n\nReferencias de precio:\n- Néctar cobra a políticos $18,000 al mes (Presencia: contenido diario, 2 redes y pauta) y $35,000 (Campaña), sin podcast.\n- Proponemos Voz Pública en $28,000 (estimado) y la validamos en entrevistas antes de cobrarla.\n- Una consultoría completa cuesta de $5 a $10 M para una gubernatura y menos de $1 M para una diputación federal.\n- El INE aprobó $10,842.65 M de financiamiento federal a partidos para 2027.\n\nAl político se le venden presencia, constancia y clips para su territorio, no votos: el efecto medido de los podcasts en el voto es pequeño. No encontré ningún caso de agencia de podcast para políticos en México, y no sé cuántos políticos de Durango pueden pagar $32,480 al mes con IVA: sus dietas están por confirmar. La demanda real es una hipótesis que se valida en H1.",
+  "calendario": [
+   {
+    "fecha": "1-nov-2026",
+    "evento": "Arranca el proceso electoral local de Durango",
+    "que_significa": "El calendario ya corre. La constitución de la sociedad empieza el 17-nov, en paralelo con la validación."
+   },
+   {
+    "fecha": "17-nov-2026 a feb-2027",
+    "evento": "Trámites de la sociedad: acta (3 a 6 semanas), RFC, e.firma en el SAT y registro en el RNP",
+    "que_significa": "No se le puede facturar a un partido ni a un candidato hasta tener el registro en el RNP activo."
+   },
+   {
+    "fecha": "4-ene a 12-feb-2027",
+    "evento": "Precampañas federales",
+    "que_significa": "Lo más probable es que la sociedad no llegue a tiempo: se da por perdida. Mientras tanto se venden Voz y Diagnósticos a clientes no políticos y a funcionarios sin candidatura."
+   },
+   {
+    "fecha": "21-ene-2027",
+    "evento": "Terminan las precampañas en Durango",
+    "que_significa": "Empieza la intercampaña: no se puede llamar al voto ni promover candidaturas, así que no se produce nada de promoción."
+   },
+   {
+    "fecha": "17 a 24-mar-2027",
+    "evento": "Registro de candidaturas locales",
+    "que_significa": "Se cierran los sprints de campaña con los candidatos ya registrados. Como máximo 2 a la vez."
+   },
+   {
+    "fecha": "4-abr a 6-jun-2027",
+    "evento": "Campañas federales y suspensión de la propaganda gubernamental",
+    "que_significa": "Primeras ventas políticas, con sprint de campaña federal. Se pausa todo contenido institucional que paguen gobiernos (art. 41 de la Constitución)."
+   },
+   {
+    "fecha": "29-abr a 2-jun-2027",
+    "evento": "Campañas locales en Durango (unos 35 días)",
+    "que_significa": "Pico de demanda: sprints a precio público, cobrados por adelantado."
+   },
+   {
+    "fecha": "3 a 5-jun-2027",
+    "evento": "Veda",
+    "que_significa": "Bloqueo automático de toda publicación política, también en las cuentas de los clientes."
+   },
+   {
+    "fecha": "6-jun-2027",
+    "evento": "Jornada electoral",
+    "que_significa": "Todos los contratos deben estar registrados en el RNP dentro de los 30 días siguientes a su firma."
+   },
+   {
+    "fecha": "Cada febrero",
+    "evento": "Refrendo del Registro Nacional de Proveedores",
+    "que_significa": "Si no se refrenda, se cancela el registro y ya no se le puede vender a ningún partido."
+   },
+   {
+    "fecha": "Alrededor de nov-2027 (por confirmar)",
+    "evento": "Arranca el proceso local 2027-2028",
+    "que_significa": "Desde aquí la vitrina vuelve a no entrevistar aspirantes ni candidatos, y los aspirantes a 2028 entran a reglas de proceso."
+   },
+   {
+    "fecha": "2028 (primer domingo de junio)",
+    "evento": "Gubernatura, 39 ayuntamientos y elección judicial",
+    "que_significa": "Es el año grande. A los candidatos judiciales no se les vende nada: la ley les prohíbe pagar su promoción."
+   },
+   {
+    "fecha": "Segunda mitad de 2028 y 2029",
+    "evento": "Bache después de la elección",
+    "que_significa": "Antes de llegar aquí, lo no político tiene que pasar de 50% del ingreso."
+   }
+  ],
+  "reglas": [
+   {
+    "regla": "Registro Nacional de Proveedores (RNP) del INE. Es obligatorio para vender propaganda a partidos, aspirantes, precandidatos y candidatos, sin importar el monto. Hay que inscribirse a más tardar 10 días después de ubicarse en el supuesto, refrendar cada febrero y registrar cada contrato en 30 días. Se tramita con la e.firma de la sociedad.",
+    "que_implica": "Sin este registro, el partido no puede contratar legalmente al estudio. La sociedad se constituye desde el 17-nov y hay que automatizar el aviso de los 30 días.",
+    "url": "https://www.ine.mx/actores-politicos/registro-nacional-proveedores/"
+   },
+   {
+    "regla": "La factura lleva Complemento INE: tipo de proceso (precampaña o campaña), ámbito, entidad y el número de contabilidad que da el partido.",
+    "que_implica": "Precampaña y campaña se facturan y reportan por separado. Falta confirmar que el sistema de facturación lo soporte.",
+    "url": "https://portalanterior.ine.mx/archivos2/tutoriales/sistemas/ApoyoInstitucional/SIFv4/rsc/PDF/Indicaciones_emision_CFDI.pdf"
+   },
+   {
+    "regla": "Una empresa (persona moral) no puede aportar a partidos ni a candidatos, ni en dinero ni en especie. La multa llega a 100,000 UMA.",
+    "que_implica": "Cero cortesías: los pilotos políticos se cobran a precio de lista, el descuento del Diagnóstico no aplica a políticos y la vitrina no les da espacio a aspirantes durante los procesos.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGPP.pdf"
+   },
+   {
+    "regla": "Lo que se le cobra a un candidato en campaña cuenta como gasto de campaña y el INE lo fiscaliza (LGPP art. 76).",
+    "que_implica": "Expediente por cliente con contrato, factura y evidencias de lo entregado. Si el INE pide información, hay 10 días hábiles para entregarla.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGPP.pdf"
+   },
+   {
+    "regla": "Está prohibido contratar radio o TV para propaganda electoral (LGIPE art. 159). En internet sí se puede, siempre que se reporte.",
+    "que_implica": "Los paquetes políticos son solo digitales.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGIPE.pdf"
+   },
+   {
+    "regla": "Veda: no se permite propaganda el día de la jornada ni los tres días anteriores. En 2021 el PVEM recibió una multa de $40.9 M por 104 influencers que publicaron en veda.",
+    "que_implica": "Un error de publicación automática en veda es el riesgo operativo más caro. Se bloquea en el calendario de Metricool y se pone en los contratos.",
+    "url": "https://politica.expansion.mx/mexico/2021/07/22/por-el-uso-de-influencers-en-veda-electoral-el-ine-multa-al-pvem-con-40-9-mdp"
+   },
+   {
+    "regla": "Actos anticipados de campaña: fuera de campaña no se puede llamar al voto ni pedir apoyo para una candidatura (LGIPE art. 3.1 a).",
+    "que_implica": "Antes de publicar, cada guion y cada clip de un funcionario o aspirante pasan por esa revisión.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGIPE.pdf"
+   },
+   {
+    "regla": "Art. 134 de la Constitución: la propaganda pagada por gobiernos es institucional, sin nombres, imágenes ni voces que promuevan a un servidor público, y se suspende en campañas.",
+    "que_implica": "Voz Pública se paga con recursos personales o del partido y el cliente firma que no usa dinero público. Con dependencias se usa otro contrato, solo institucional.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/CPEUM.pdf"
+   },
+   {
+    "regla": "Para vender comunicación social a entes públicos como medio, primero hay que inscribirse en el Padrón Nacional de Medios de SEGOB.",
+    "que_implica": "Falta confirmar si aplica a quien solo produce. Si aplica, hay que inscribirse antes de venderle a una dependencia.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGCS.pdf"
+   },
+   {
+    "regla": "Los informes de labores no cuentan como propaganda si salen una vez al año, entre 7 días antes y 5 después del informe, y nunca en campaña (LGIPE art. 242.5).",
+    "que_implica": "Es un producto que se repite cada año, sin riesgo legal, con 13 días de publicación por servidor público.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGIPE.pdf"
+   },
+   {
+    "regla": "Elección judicial de 2028: los candidatos no pueden pagar su promoción ni contratar espacios en medios digitales.",
+    "que_implica": "No se les vende nada.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGIPE.pdf"
+   },
+   {
+    "regla": "Si un partido pierde el registro, primero se les paga a los trabajadores, luego al fisco, y a los proveedores solo si queda algo (LGPP art. 97).",
+    "que_implica": "Se cobra por adelantado o por etapas, nunca a crédito al cierre de una campaña.",
+    "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGPP.pdf"
+   },
+   {
+    "regla": "Desde el 30-oct-2026, TikTok prohíbe la publicidad política pagada, incluido pagarles a creadores por contenido político de marca.",
+    "que_implica": "Los clips de un político se publican solo en su propia cuenta, nunca en las cuentas de la casa, y no hay pauta política en TikTok.",
+    "url": "https://www.tiktok.com/legal/page/global/bc-policy/en"
+   },
+   {
+    "regla": "Meta pide una autorización para publicar anuncios sobre temas sociales, elecciones o política.",
+    "que_implica": "La pauta política del extra Comunidad y pauta va a nombre del cliente, con su autorización, y se reporta al INE si es candidato. Los requisitos para México en 2026 están por confirmar.",
+    "url": "https://www.facebook.com/business/help/208949576550051"
+   }
+  ],
+  "evidencia": [
+   {
+    "texto": "EE.UU., 2024: el episodio de Trump con Joe Rogan sumó 28.3 M de vistas en YouTube en aproximadamente un día; el de Harris en Call Her Daddy, unas 703 mil en tres semanas. El alcance lo pone el anfitrión y su nicho.",
+    "url": "https://www.theepochtimes.com/us/joe-rogans-trump-episode-nets-28-million-views-on-youtube-5748724"
+   },
+   {
+    "texto": "El 50% de los votantes que oyen podcasts dice que influyeron en su voto de 2024. Ojo: la encuesta la pagó una agencia de podcasts y mide lo que la gente declara, no lo que hace.",
+    "url": "https://campaignsandelections.com/industry-news/podcasts-played-pivotal-role-in-2024-election/"
+   },
+   {
+    "texto": "En EE.UU., 32% de los adultos se informa con podcasts al menos a veces (22% en 2020), casi igual entre republicanos y demócratas.",
+    "url": "https://www.pewresearch.org/journalism/fact-sheet/podcasts/"
+   },
+   {
+    "texto": "En sentido contrario, un análisis de 36,659 episodios de 2024 encontró que el efecto de los podcasts en el voto es pequeño y solo correlacional.",
+    "url": "https://preprints.apsanet.org/engage/apsa/article-details/6a98d0514770e67d925c7566"
+   },
+   {
+    "texto": "En México, las mañaneras sumaron más de 24 M de horas vistas en YouTube de enero a septiembre de 2025. Un político local no les gana en audiencia; lo que le funciona son clips con narrativa local.",
+    "url": "https://www.bloomberglinea.com/latinoamerica/mexico/como-claudia-sheinbaum-se-convirtio-en-la-streamer-mas-popular-de-mexico/"
+   },
+   {
+    "texto": "Máynez lanzó un podcast semanal en YouTube después de perder en 2024, y Morena tiene \"La Moreniza\" cada jueves desde marzo de 2025. La clase política ya usa el podcast como canal permanente.",
+    "url": "https://www.elfinanciero.com.mx/nacional/2024/10/15/jorge-alvarez-maynez-anuncia-nuevo-podcast-con-invitados-excandidato-a-la-presidencia-movimiento-ciudadano/"
+   },
+   {
+    "texto": "En Durango, Contacto Hoy entrevista a regidores en \"En Voz Alta\", y el gobernador va a programas nacionales de YouTube a responder acusaciones.",
+    "url": "https://www.youtube.com/watch?v=AA0pn2YRVxc"
+   }
+  ],
+  "riesgos": [
+   "Una publicación automática en veda o un gasto que no se reportó. En 2021 eso le costó $40.9 M al PVEM, y la sanción también alcanzó a quienes publicaron.",
+   "Que un piloto gratis, un descuento o una entrevista en la vitrina se tomen como aportación en especie de una persona moral.",
+   "Que pague un tercero (un empresario o una empresa), que se pague con dinero público o que se pague en efectivo, y el estudio quede como intermediario.",
+   "La sociedad no llega a tiempo a la precampaña de 2027 por los trámites de constitución, e.firma y registro.",
+   "Cobranza: partidos que pierden el registro, candidatos que pierden y ya no pagan, y gobiernos que pagan lento.",
+   "Quedar marcado con un partido en un mercado chico y polarizado rumbo a la gubernatura de 2028.",
+   "Que un cliente o un socio tenga vínculos que dañen la marca. En 2026 se creó una comisión de integridad de candidaturas, lo que muestra que el riesgo existe.",
+   "Cambios de administración en 2028 y la suspensión de la propaganda gubernamental en cada campaña.",
+   "Una reforma electoral después de 2027 que recorte el financiamiento de los partidos (la propuesta de 2026 era de 25%).",
+   "Un clip fuera de contexto que provoque una crisis para el cliente y para el estudio."
+  ],
+  "mitigacion": [
+   "Constitución desde el 17-nov-2026, registro en el RNP con la e.firma de la sociedad antes de la primera venta política, contrato tipo, expediente por cliente y aviso automático de los 30 días.",
+   "Política de pagador: solo transferencias desde la cuenta del cliente o del partido, con CFDI a su nombre; ni terceros ni efectivo. El cliente firma una declaración de origen de los recursos y una cláusula de que no usa recursos públicos. Si paga una dependencia, se usa otro contrato, solo institucional y con su procedimiento de compra.",
+   "Lista de precios pública e igual para todos los partidos. Pilotos políticos cobrados a lista y sin descuentos fuera de la lista.",
+   "Cobro por adelantado cada mes, mínimos de 3 a 6 meses y cobro 100% adelantado en los sprints.",
+   "Bloqueo de calendario para la veda, la intercampaña y la suspensión de la propaganda gubernamental. Todo queda en borrador hasta que el cliente aprueba.",
+   "Vitrina: durante los procesos no entrevista aspirantes, precandidatos, candidatos ni funcionarios que busquen cargo. Nunca le vende clips a un invitado político, y el contenido pagado de un político se publica solo en la cuenta del cliente.",
+   "Revisión mínima de cada cliente político (notas públicas, sanciones del INE y del TEPJF) con derecho a rechazarlo, y declaración de conflictos de interés de los dos socios en el acuerdo de socios.",
+   "Marca propia, separada de Antemano. El contenido pagado se etiqueta y se mantiene aparte del contenido editorial.",
+   "Revisión humana de cada clip en su contexto, aprobación registrada y una lista de nombres y términos por cliente.",
+   "Regla interna: nunca voz sintética ni clonación con políticos.",
+   "Meta de 40% o más de ingreso no político en el bache de 2027 y de más de 50% antes de jul-2028."
+  ]
+ },
+ "riesgos": [
+  {
+   "riesgo": "Que en Durango no haya suficientes clientes que paguen una iguala política recurrente fuera de campaña. Voz Pública ($28,000) está arriba del paquete comparable de Néctar (Presencia, $18,000), no hay tarifas locales y no se sabe cuántos políticos pueden pagarla con sus dietas.",
+   "probabilidad": "media",
+   "impacto": "alto",
+   "mitigacion": "Vender antes de construir. El kit se compra solo con 3 cartas de intención, y el tramo 2 solo con igualas que cubran los costos fijos. En H1 se valida el precio (sensibilidad a $22,000) y se revisan las dietas en la Plataforma Nacional de Transparencia. Hay paquetes más baratos (Diagnóstico, Voz) y criterios de cierre por escrito."
+  },
+  {
+   "riesgo": "Dependencia de Miguel: la narrativa y la venta de Voz Pública dependen de su criterio y su red, y en los primeros 4 meses pide de 7 a 9 horas por semana.",
+   "probabilidad": "alta",
+   "impacto": "alto",
+   "mitigacion": "Una tabla de horas con la meta de un promedio menor a 6 por semana desde abril. Productor de medio tiempo desde enero para que Miguel no monte equipo. Honorario y narrativa pagados aparte de las utilidades, y acciones que se ganan con el tiempo. Consultor de narrativa desde el tercer cliente de Voz Pública. Regla escrita de quién aprueba cuando Miguel no está. Procesos escritos como recetas."
+  },
+  {
+   "riesgo": "Que la sociedad no llegue a tiempo para vender en la precampaña de 2027: el acta tarda de 3 a 6 semanas, y después vienen la e.firma y el registro en el RNP en temporada de vacaciones.",
+   "probabilidad": "alta",
+   "impacto": "medio",
+   "mitigacion": "Arrancar la constitución el 17-nov, en paralelo con la validación. Dar la precampaña por perdida y fijar la primera venta política en campañas. Revisar con el abogado un plan B temporal."
+  },
+  {
+   "riesgo": "Que se publique contenido político en veda por un error de la automatización.",
+   "probabilidad": "baja",
+   "impacto": "alto",
+   "mitigacion": "Bloqueo de calendario en Metricool, todo en borrador hasta que el cliente aprueba y apagón del 3 al 5 de junio. Se prueba antes de abril de 2027."
+  },
+  {
+   "riesgo": "Que algo regalado (un piloto, un descuento o una entrevista en la vitrina) cuente como aportación en especie.",
+   "probabilidad": "media",
+   "impacto": "alto",
+   "mitigacion": "Pilotos políticos cobrados a lista, descuento del Diagnóstico solo para no políticos, vitrina sin aspirantes durante los procesos y nunca vender clips a un invitado político. Criterio del abogado sobre los gastos subvaluados."
+  },
+  {
+   "riesgo": "Que pague un tercero, que se pague con dinero público o en efectivo, y el estudio quede como intermediario de una aportación prohibida o de promoción personalizada.",
+   "probabilidad": "media",
+   "impacto": "alto",
+   "mitigacion": "Política de pagador: transferencia desde la cuenta del cliente o del partido, CFDI a su nombre, declaración de origen de los recursos y cláusula de no usar recursos públicos. Con dependencias, otro contrato."
+  },
+  {
+   "riesgo": "Conflicto de interés con Antemano: hoy vende \"Marca Persona\" y manejo de redes en Durango. El inversionista puede preguntar qué impide que los mejores clientes se queden en Antemano.",
+   "probabilidad": "media",
+   "impacto": "alto",
+   "mitigacion": "Acuerdo escrito de no competencia y reparto de clientes. Lo que es podcast e igualas de voz va a la sociedad; Antemano entra como proveedor con precios fijos; un cliente se pasa solo si acepta. Esta propuesta se publica en una página privada, sin indexar."
+  },
+  {
+   "riesgo": "Prometer confidencialidad que el stack no cumple: la transcripción y los textos pasan por la nube y Remote Control guarda la conversación.",
+   "probabilidad": "media",
+   "impacto": "alto",
+   "mitigacion": "Promesa reescrita con lo que es cierto. Cada servicio dice qué dato recibe. El crudo no sale del estudio y el editor trabaja en la estación. Hay un nivel 100% local con precio mayor. Acuerdo de confidencialidad por cliente. Se mide el error de Whisper local con audio de Durango."
+  },
+  {
+   "riesgo": "Cobranza de clientes políticos y de gobierno.",
+   "probabilidad": "media",
+   "impacto": "alto",
+   "mitigacion": "Cobro por adelantado, mínimos de 3 a 6 meses y sprints 100% adelantados. El RESICO (que paga el ISR al cobrar) solo aplica si ningún socio controla otra sociedad."
+  },
+  {
+   "riesgo": "Concentración: con 5 o 6 igualas, perder un cliente quita de 15 a 30% del ingreso.",
+   "probabilidad": "media",
+   "impacto": "medio",
+   "mitigacion": "Ningún cliente arriba de 30% del ingreso, portafolio mixto (político y comercial) y revisión trimestral con datos."
+  },
+  {
+   "riesgo": "Quedar marcado con un partido y espantar a los otros bloques y a los clientes comerciales.",
+   "probabilidad": "media",
+   "impacto": "alto",
+   "mitigacion": "Marca propia, reglas públicas de pluralidad, clientes de todos los partidos con las mismas reglas y contenido pagado etiquetado."
+  },
+  {
+   "riesgo": "Que el inversionista, un conductor o un cliente político tenga filiación, contratos con gobiernos o vínculos que derrumben la promesa de pluralidad.",
+   "probabilidad": "baja",
+   "impacto": "alto",
+   "mitigacion": "Declaración de conflictos de los socios en el acuerdo, revisión de los conductores, revisión mínima de cada cliente político y derecho a rechazar clientes."
+  },
+  {
+   "riesgo": "El bajón de demanda después de las elecciones (segunda mitad de 2028 y 2029).",
+   "probabilidad": "alta",
+   "impacto": "medio",
+   "mitigacion": "Lo no político debe pesar 40% o más en el bache de 2027 y más de 50% antes de jul-2028. Para eso están los paquetes para profesionistas, universidades y medios y la productora comercial."
+  },
+  {
+   "riesgo": "Que los precios del equipo suban después del Buen Fin y que algunas luces sigan agotadas.",
+   "probabilidad": "media",
+   "impacto": "medio",
+   "mitigacion": "El presupuesto ya usa precio normal estimado. Se cotiza en diciembre con 2 o 3 distribuidores con CFDI y garantía de Sony México, y hay una alternativa para cada luz agotada."
+  },
+  {
+   "riesgo": "Que una cámara se apague por calor o falle el equipo a media sesión con un cliente.",
+   "probabilidad": "media",
+   "impacto": "medio",
+   "mitigacion": "FX30 con ventilador, aire acondicionado, alimentación continua, el ATEM grabando cada cámara por separado y DJI Mic Mini 2S con respaldo en 32-bit."
+  },
+  {
+   "riesgo": "Un clip fuera de contexto o un error de transcripción en un nombre o una cifra.",
+   "probabilidad": "media",
+   "impacto": "alto",
+   "mitigacion": "Revisión humana obligatoria, lista de nombres y términos por cliente y aprobación registrada antes de publicar."
+  },
+  {
+   "riesgo": "Depender de plataformas: Metricool, la auditoría de TikTok, la autorización de publicación de páginas en Meta y los cambios de algoritmo.",
+   "probabilidad": "media",
+   "impacto": "medio",
+   "mitigacion": "Publer o Buffer probados como respaldo, y YouTube subido directo por API."
+  },
+  {
+   "riesgo": "Perder material de un cliente.",
+   "probabilidad": "baja",
+   "impacto": "alto",
+   "mitigacion": "Crudo en dos discos locales o un NAS, con copias verificadas. Masters, proxys y proyectos en Backblaze B2. Tiempo de guarda definido en el contrato."
+  },
+  {
+   "riesgo": "Un contrato de médico sin el aviso o permiso de COFEPRIS, o con promesas de cura sin sustento.",
+   "probabilidad": "media",
+   "impacto": "medio",
+   "mitigacion": "Cláusula en Voz para profesionales de la salud: el médico responde por COFEPRIS y por su cédula. Checklist de contenido (Reglamento de la LGS en materia de publicidad, arts. 18, 79 y 86)."
+  },
+  {
+   "riesgo": "Prometerle al inversionista ahorros de tiempo que vienen de los proveedores y no se han medido.",
+   "probabilidad": "media",
+   "impacto": "medio",
+   "mitigacion": "Medir los minutos humanos de cada episodio desde el primero, presentar el número real en febrero de 2027 y ajustar los precios."
+  }
+ ],
+ "palancas_exito": [
+  "Vender antes de construir: 3 cartas de intención antes de comprar el kit, igualas que cubran los costos fijos antes del tramo 2 y 40 horas vendidas al mes antes de firmar un local.",
+  "Vender con la frase \"usted graba 3 horas al mes y nosotros hacemos lo demás\" (Ashmedia), grabando los 4 episodios del mes en una sola sesión.",
+  "Hacer del cumplimiento electoral parte del producto: registro en el RNP, Complemento INE, política de pagador, evidencias, bloqueo de veda y aprobación registrada. Los productores informales no pueden ofrecerlo.",
+  "Entregar en 48 horas y medirlo: con cada episodio, el cliente recibe sus clips antes que con cualquier competidor.",
+  "Pluralidad pública con la regla \"todos o ninguno\": mismo precio para todos los partidos y marca separada de Antemano.",
+  "Contratos de 3 a 6 meses mínimo, con un arranque cuidado en los primeros 90 días (ahí ocurre 43% de las bajas) y una revisión trimestral con datos.",
+  "Vender el alcance de los clips, no las descargas. Con una mediana de unas 27 descargas por semana, prometer audiencia de audio es perder al cliente.",
+  "Convertir los procedimientos en código: cada técnica de Resolve se vuelve una receta probada y verificada con render. Poddster escaló con más de 200 procedimientos escritos.",
+  "Una vitrina quincenal de negocios, ciudad y cultura como canal de ventas: cada invitado no político sale con su episodio y sus clips como muestra del servicio (modelo Ticker).",
+  "Empezar con los clientes de \"Marca Persona\" que acepten pasarse, según el acuerdo con Antemano, sin salir a conseguirlos de cero.",
+  "El informe de labores como producto anual: es legal y vuelve cada año.",
+  "Aliarse con medios locales (Contacto Hoy, El Siglo) para codistribuir o, cuando haya local, rentarles el set en horas valle.",
+  "Contestar WhatsApp en minutos (Poddster responde en 3 a 5) con plantillas y recordatorios automáticos.",
+  "Escalar con disparadores medidos y no por fechas: el dinero de cada etapa se libera solo con su indicador cumplido, y los criterios de cierre están por escrito.",
+  "Medir las horas de Miguel cada semana y contratar antes de que pase de 8 horas fuera de campaña: es lo que mantiene el negocio como algo paralelo."
+ ],
+ "decisiones": [
+  {
+   "pregunta": "¿Qué camino tomamos?",
+   "opciones": [
+    "A · Estudio primero",
+    "B · Agencia por iguala",
+    "C · Vitrina primero",
+    "Híbrido: B con el menú de A y la vitrina de C"
+   ],
+   "recomendacion": "El híbrido. Cómo se califica (de 0 a 100, criterio propio con estas referencias):\n- Probabilidad de éxito: cuánto lo respaldan casos comparables y si vende antes de gastar (igualas: Ashmedia, Authentic Exposure y Néctar; renta por hora: cada cliente reserva 2 a 4 veces al mes; vitrina: mediana de 27 descargas).\n- Tiempo de socios: 100 si pide menos de 3 horas por semana, 0 si pide más de 20.\n- Recurrencia: parte del ingreso esperado que viene de igualas mensuales.\n- Riesgo: 100 es el menos riesgoso (capital en riesgo antes de validar, más exposición legal electoral).\n- Escalabilidad: cuánto crece sin rehacer el modelo y si deja propiedad intelectual.\n\nResultado con todos los criterios iguales: Híbrido 67, B 65, C 50, A 47. Con el tiempo de socios al doble de peso: Híbrido 65.5, B 63.8, C 48.2, A 47.5.\n\nEl híbrido gana por probabilidad de éxito (70 contra 66) y escalabilidad (74 contra 55). Pierde frente a B en tiempo (56 contra 60) y en riesgo (57 contra 60)."
+  },
+  {
+   "pregunta": "¿Cuánto cobramos por Voz Pública?",
+   "opciones": [
+    "$22,000–28,000 sin redes diarias ni pauta",
+    "$28,000, con \"Comunidad y pauta\" como extra de $10,000",
+    "$40,000, sumando contenido diario y pauta como Néctar"
+   ],
+   "recomendacion": "Lista en $28,000 más IVA ($32,480 con IVA), con Comunidad y pauta como extra, validada en las 10 entrevistas de H1. Si nadie acepta $28,000, se baja a $22,000: el escenario base sigue con una utilidad de unos $28,950 al mes. A quien no le alcance se le ofrece Voz ($14,000)."
+  },
+  {
+   "pregunta": "¿Qué figura legal usamos?",
+   "opciones": [
+    "SAS (barata, con tope de $7.68 M de ingreso en 2026; un socio que controla otra sociedad no puede entrar)",
+    "S. de R.L. ($19,000–33,000; cerrada, complica sumar inversionistas después)",
+    "S.A. de C.V. ($30,000–50,000) con acuerdo de socios",
+    "SAPI ($50,000–120,000; series de acciones, vesting, reglas de salida)"
+   ],
+   "recomendacion": "SAPI, o S.A. de C.V. con acuerdo de socios, si el inversionista quiere protección y se planea crecer. Antes hay que confirmar si Miguel controla Antemano como sociedad y si el inversionista controla alguna empresa. Si alguno controla una, no hay SAS ni RESICO de personas morales (LISR art. 206, fr. I) y se usa el régimen general, que paga el ISR al facturar. Lo valida el abogado."
+  },
+  {
+   "pregunta": "¿Cómo repartimos entre el capital y el trabajo?",
+   "opciones": [
+    "E1 · Preferente con premio: 100% de lo que se reparta va al inversionista hasta que recupere su capital más 15%, y después 50/50",
+    "E2 · Preferente simple: 100% al inversionista hasta que recupere su capital, y después 40% inversionista y 60% Miguel",
+    "E3 · Proporcional desde el día uno: 50/50"
+   ],
+   "recomendacion": "E1 como base para negociar. Son ejemplos de diseño, no datos de mercado.\n\nCifras acumuladas a oct-2029 (mes 36), después de ISR y PTU (estimado). Capital del inversionista: $429,000 en el escenario lento y $508,000 en el base y el fuerte. Caja que se podría repartir: unos $400,000 (lento), $630,000 (base) y $1,450,000 (fuerte).\n\nLo que recibiría el inversionista en cada escenario (lento / base / fuerte):\n- E1: $400,000 (0.9 veces su capital) / $607,000 (1.2 veces) / $1,017,000 (2.0 veces).\n- E2: $400,000 (0.9 veces) / $557,000 (1.1 veces) / $885,000 (1.7 veces).\n- E3: $200,000 (0.5 veces) / $315,000 (0.6 veces) / $725,000 (1.4 veces).\n\nDespués del mes 36, el inversionista conserva sus acciones. Miguel cobra su honorario y la narrativa aparte (ya están en los costos) y gana sus acciones con el tiempo. La referencia común es 4 años, con un año de espera antes de la primera porción; se confirma con el abogado, usando el art. 114 de la LGSM (acciones de trabajo)."
+  },
+  {
+   "pregunta": "¿Cuánto pesa lo político?",
+   "opciones": [
+    "Solo político",
+    "Mixto, con meta de ingreso no político",
+    "Sin política"
+   ],
+   "recomendacion": "Mixto: 40% o más de ingreso no político en el bajón de 2027 y más de 50% antes de julio de 2028. Ningún cliente arriba de 30%."
+  },
+  {
+   "pregunta": "¿Cómo convivimos con Antemano?",
+   "opciones": [
+    "Los clientes de Antemano pasan libremente",
+    "Acuerdo de no competencia y reparto de clientes, con Antemano como proveedor a precios fijos",
+    "Hacerlo dentro de Antemano"
+   ],
+   "recomendacion": "Acuerdo de no competencia y reparto de clientes, con Antemano como proveedor a precios fijos. Por escrito: qué servicios quedan en Antemano y cuáles en la sociedad (podcast e igualas de voz). Un cliente de \"Marca Persona\" pasa solo si acepta. Antemano puede ser proveedor (espacio, equipo) con precios de transferencia fijos. Marca propia separada, para proteger a las dos empresas si un cliente político se complica."
+  },
+  {
+   "pregunta": "¿Dónde publicamos esta propuesta?",
+   "opciones": [
+    "Página pública en el dominio de Antemano",
+    "Página privada sin indexar, con enlace directo o contraseña",
+    "Solo un PDF"
+   ],
+   "recomendacion": "Página privada, sin indexar y con enlace directo o contraseña, que aclare desde la portada que es una empresa nueva propuesta, separada de Antemano. Una página pública con precios, partidos objetivo y estrategia ligaría a Antemano con clientes políticos y le daría la información a la competencia."
+  },
+  {
+   "pregunta": "¿Qué cámaras compramos?",
+   "opciones": [
+    "4 Sony ZV-E10 II",
+    "3 Sony FX30 más la A7 IV de Miguel",
+    "Mezcla"
+   ],
+   "recomendacion": "3 FX30 más la A7 IV. Pagar unos $6,000 a $11,000 más por cámara quita el riesgo de que se apague por calor en sesiones de 1 a 2 horas."
+  },
+  {
+   "pregunta": "¿Compramos ya con los precios del Buen Fin (hasta el 18-nov)?",
+   "opciones": [
+    "Comprar ya todo el equipo",
+    "Comprar ya solo cámaras y lentes, como decisión explícita del inversionista",
+    "Esperar a H1 y cotizar en diciembre a precio normal"
+   ],
+   "recomendacion": "Esperar a H1. Si el inversionista quiere aprovechar la oferta, que sea su decisión explícita y solo para cámaras y lentes, que son lo que mejor se revende: ahorro de unos $26,622 (estimado). El presupuesto ya está hecho a precio normal."
+  },
+  {
+   "pregunta": "¿Rentamos local propio o empezamos sin él?",
+   "opciones": [
+    "Local propio desde enero",
+    "Kit portátil más espacio por hora (o el de Antemano con contrato), y local al cumplir 40 horas vendidas al mes",
+    "Solo espacio compartido, siempre"
+   ],
+   "recomendacion": "Kit portátil más espacio por hora (o el de Antemano con contrato), y local al cumplir 40 horas vendidas al mes. El local llega con H8 (40 horas vendidas al mes durante 2 meses e ingreso recurrente de $67,600 o más), se paga con la caja del negocio y se firma con contrato corto y cláusula de salida."
+  },
+  {
+   "pregunta": "¿Cada cuánto sale la vitrina y con qué reglas?",
+   "opciones": [
+    "Semanal",
+    "Quincenal",
+    "No hacer vitrina"
+   ],
+   "recomendacion": "Quincenal, de negocios, ciudad y cultura, con dos conductores externos y sus conflictos revisados. Durante los procesos no entrevista aspirantes ni candidatos y nunca le vende clips a un invitado político. Se revisa en el mes 4: si no genera clientes, se pausa (en el escenario lento se pausa en mayo)."
+  },
+  {
+   "pregunta": "¿Cómo entra el equipo de Miguel (A7 IV, laptop, licencia de Resolve)?",
+   "opciones": [
+    "Aportación en especie valuada",
+    "Renta a la sociedad con calendario de uso",
+    "Se queda fuera"
+   ],
+   "recomendacion": "La A7 IV se renta con calendario (Antemano tiene prioridad acordada) hasta que la sociedad compre su cuarta cámara en la etapa 2. La laptop se queda en Antemano y solo se usa en los pilotos. La sociedad compra su propia estación y su licencia de Resolve. Todo se documenta desde el acta para no mezclar activos."
+  },
+  {
+   "pregunta": "¿Cuándo cerramos si no funciona?",
+   "opciones": [
+    "Sin criterios: se decide sobre la marcha",
+    "Criterios de cierre por escrito en el acuerdo de socios"
+   ],
+   "recomendacion": "Por escrito. (1) Al 31-mar-2027, si el ingreso recurrente comprometido es menor a $40,000 al mes, se cierra: pérdida máxima estimada de $210,000 a $280,000. (2) Entre julio y septiembre de 2027, si el ingreso queda abajo del punto de equilibrio 3 meses seguidos, se liquida. (3) En el mes 12, si la utilidad es menor a $15,000 al mes o lo no político pesa menos de 30%, se decide entre cerrar o seguir sin capital nuevo."
+  }
+ ],
+ "estructura_legal": [
+  {
+   "tema": "Figura de la sociedad",
+   "recomendacion": "SAPI, o S.A. de C.V. con acuerdo de socios. Permiten series de acciones con derechos distintos, dividendo preferente, arrastre y acompañamiento en la venta, derecho de tanto y vesting del socio operador. Una SAPI cuesta de $50,000 a $120,000 y tarda de 3 a 6 semanas, así que se arranca el 17-nov.",
+   "url": "https://praxiumconsultores.com/blog/sa-cv-vs-sapi-cual-necesitas"
+  },
+  {
+   "tema": "Por qué no SAS",
+   "recomendacion": "Su tope de ingresos en 2026 es de $7,678,849.94, solo admite personas físicas y quien controla otra sociedad mercantil no puede ser accionista. Hay que revisar qué figura tiene Antemano.",
+   "url": "https://amcpdf.org.mx/consideraciones-2026-para-las-sociedades-por-acciones-simplificadas-sas/"
+  },
+  {
+   "tema": "RESICO de personas morales",
+   "recomendacion": "Paga el ISR de 30% cuando se cobra y protege la caja con clientes que pagan tarde, pero tiene la misma trampa que la SAS. El art. 206, fr. I, de la LISR lo prohíbe si algún socio tiene el control o la administración de otra sociedad mercantil, o si son partes relacionadas. Antes de elegirlo hay que confirmar la figura de Antemano y si el inversionista controla alguna empresa. Si no aplica, régimen general (se paga al facturar) y cobro por adelantado.",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf"
+  },
+  {
+   "tema": "Acciones para el socio operador",
+   "recomendacion": "El art. 114 de la LGSM permite emitir acciones de trabajo si los estatutos lo prevén. La ley no dice cómo valuar ese trabajo, así que se negocia y se pone por escrito, con vesting y reglas de salida.",
+   "url": "https://vlex.com.mx/vid/ley-mercantiles-entregar-empleados-408197334"
+  },
+  {
+   "tema": "Acuerdo con Antemano",
+   "recomendacion": "No competencia y reparto de clientes: el podcast y las igualas de voz van a la sociedad. Un cliente de \"Marca Persona\" pasa solo si acepta. Si Antemano aporta espacio o servicios, es con contrato entre empresas y precios de transferencia fijos. La renta de la A7 IV se hace con calendario.",
+   "url": "https://antemano.com.mx"
+  },
+  {
+   "tema": "Conflictos de interés y revisión de clientes",
+   "recomendacion": "Los dos socios firman en el acuerdo una declaración de conflictos: filiación partidista, contratos con gobiernos, cargos públicos y vínculos con grupos. A cada cliente político se le hace una revisión mínima (notas públicas, sanciones del INE y del TEPJF), con derecho a rechazarlo.",
+   "url": "https://www.ine.mx/actores-politicos/registro-nacional-proveedores/"
+  },
+  {
+   "tema": "Proveedor del INE",
+   "recomendacion": "Inscribirse en el RNP con RFC activo y la e.firma de la sociedad, refrendar cada febrero y registrar cada contrato en 30 días.",
+   "url": "https://www.ine.mx/actores-politicos/registro-nacional-proveedores/"
+  },
+  {
+   "tema": "Facturación a partidos",
+   "recomendacion": "Las facturas a partidos llevan Complemento INE con el número de contabilidad del partido, y precampaña y campaña van por separado. Hay que validar que el sistema de facturación lo soporte.",
+   "url": "https://portalanterior.ine.mx/archivos2/tutoriales/sistemas/ApoyoInstitucional/SIFv4/rsc/PDF/Indicaciones_emision_CFDI.pdf"
+  },
+  {
+   "tema": "Política de pagador",
+   "recomendacion": "Solo transferencias desde la cuenta del cliente o del partido, con CFDI a su nombre. Ni terceros ni efectivo. Declaración de origen de los recursos y cláusula de no usar recursos públicos (art. 134). Con dependencias, contrato aparte, solo institucional.",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/CPEUM.pdf"
+  },
+  {
+   "tema": "Aportaciones prohibidas",
+   "recomendacion": "Una empresa no puede aportar en especie a partidos ni a candidatos. Por eso hay una política escrita de cero cortesías y precios públicos, y los pilotos políticos se cobran a lista. Falta confirmar si un socio persona física también tiene prohibido aportar (art. 121 del Reglamento de Fiscalización).",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGPP.pdf"
+  },
+  {
+   "tema": "Contratos, cesión de imagen y confidencialidad",
+   "recomendacion": "Contrato tipo por paquete, cesión de derechos de imagen de cada invitado y acuerdo de confidencialidad con cada cliente y con el editor, firmados con e.firma o firma biométrica y constancia NOM-151 (Mifiel, de $59 a $89 por documento). El contrato fija cuánto tiempo se guarda el crudo.",
+   "url": "https://webflow.mifiel.com/es/precios"
+  },
+  {
+   "tema": "Venta a gobiernos",
+   "recomendacion": "Solo contenido institucional, sin promoción personalizada (art. 134), con pausa en campañas. Falta confirmar si hay que inscribirse en el Padrón Nacional de Medios.",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGCS.pdf"
+  },
+  {
+   "tema": "Publicidad de servicios de salud",
+   "recomendacion": "En los contratos de Voz con médicos: el médico responde por el aviso de publicidad de actividades profesionales de la salud (art. 86, fr. I), por el permiso cuando aplique (art. 79, fr. I y VI) y por su cédula. Nada de tratamientos sin eficacia comprobada (art. 18). Lo confirma el abogado.",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/regley/Reg_LGS_MP.pdf"
+  },
+  {
+   "tema": "Pauta política en redes",
+   "recomendacion": "La autorización de Meta para anuncios de temas sociales, electorales o políticos va a nombre del cliente. En TikTok no hay pauta política. Si el cliente es candidato, la pauta queda en su expediente para el INE.",
+   "url": "https://www.facebook.com/business/help/208949576550051"
+  },
+  {
+   "tema": "Licencias de software para uso comercial",
+   "recomendacion": "El pipeline que atiende clientes corre con llave de API (Agent SDK), no con la suscripción personal. n8n se usa solo para operación interna, sin dar acceso a clientes.",
+   "url": "https://code.claude.com/docs/en/agent-sdk/overview"
+  }
+ ],
+ "por_confirmar": [
+  "La competencia real en Google Maps, Instagram y Facebook en Durango, Gómez Palacio y Torreón, con capturas. La conclusión de que \"no hay estudio\" es preliminar.",
+  "Las dietas de diputados locales, alcaldes y regidores de Durango en la Plataforma Nacional de Transparencia, para saber cuántos pueden pagar Voz Pública ($32,480 al mes con IVA).",
+  "Cuánto acepta pagar el cliente de Durango por Voz ($14,000) y por Voz Pública ($28,000), con 5 a 10 entrevistas. No hay ninguna tarifa local de producción para políticos.",
+  "Algún caso de agencia o estudio de podcast que atienda a políticos en México o Latinoamérica: no encontré ninguno.",
+  "Los topes de gasto de campaña de 2027 por distrito federal (INE) y local (IEPC Durango), y el calendario oficial del IEPC, incluida la fecha de arranque del proceso 2027-2028.",
+  "El valor de la UMA en 2026 (no se pudo consultar en el INEGI) para calcular multas y umbrales.",
+  "Si la vitrina puede tener a funcionarios sin candidatura fuera de los procesos sin que cuente como aportación o propaganda, y si un socio persona física también tiene prohibido aportar en especie (art. 121 del Reglamento de Fiscalización). Lo resuelve el abogado electoral, junto con los criterios del INE sobre gastos subvaluados.",
+  "Si el plan B de facturar temporalmente como persona física inscrita en el RNP es viable y conveniente.",
+  "Las reglas de reelección de los diputados locales en 2027 y en qué fecha un diputado en funciones pasa a ser precandidato.",
+  "Si Facturama o Facturapi soportan el Complemento INE.",
+  "Si el Padrón Nacional de Medios de SEGOB aplica a quien solo produce contenido.",
+  "Si Antemano es una sociedad que controla Miguel y si el inversionista controla alguna empresa. Eso decide si se pueden usar la SAS y el RESICO de personas morales (LISR art. 206).",
+  "Si Antemano tiene un espacio utilizable para la etapa 1 y a qué precio entre empresas, y cuánto cuesta un foro o coworking por hora en Durango (presupuestado en unos $5,000 al mes).",
+  "La carga patronal y los sueldos reales de editor y operador en Durango, y la tarifa de un consultor de narrativa política local (presupuestada en $900 la hora).",
+  "Lo que cobran 2 o 3 conductores posibles para la vitrina (presupuestado en unos $2,000 por conductor por episodio).",
+  "La lista completa de accesorios cotizada con tienda y fecha (tripiés, brazos, monitor, tarjetas, baterías, acopladores DC-C1, cargadores, no-break, SSD, NAS o discos, softboxes, audífonos, cables), para reemplazar la reserva de 35%.",
+  "El costo de acústica, aire acondicionado silencioso, muebles y seguro del equipo.",
+  "El precio normal de la FX30 y de la ZV-E10 II después del 18-nov-2026 con distribuidores que den CFDI y garantía de Sony México, y alternativas a las luces amaran agotadas.",
+  "Una prueba de 2 horas con FX30 y ZV-E10 II conectadas al ATEM y con alimentación USB, y si la A7 IV saca 1080p por HDMI mientras graba 4K.",
+  "Cuánto rinde la IA de Resolve 21 (transcripción, SmartSwitch, aislamiento de voz) en la laptop con RTX 2050, y si su MCP funciona en Windows sin internet.",
+  "Cuánto acierta SmartSwitch con 3 a 4 cámaras y qué error tiene la transcripción (Scribe v2 y Whisper local) con el acento de Durango y los nombres locales.",
+  "Los términos comerciales de ElevenLabs, Anthropic, Frame.io, Metricool y Backblaze sobre uso y retención de datos, y las obligaciones de la LFPDPPP con material de políticos que no se ha publicado.",
+  "Si los términos de Claude Max permiten este uso y cuánto rinde por semana en temporada de campaña.",
+  "Si la aprobación de Metricool permite que apruebe un cliente sin licencia, y sus límites por API.",
+  "Las tarifas oficiales de WhatsApp en pesos desde el 1-oct-2026.",
+  "Los requisitos de Meta para anuncios políticos en México en 2026 y si las páginas de políticos quedan obligadas a la autorización de publicación (PPA).",
+  "Las tarifas de patrocinio local para la vitrina (el patrocinio de $8,000 es una hipótesis).",
+  "Cuánto tiempo se queda un cliente de iguala de contenido en México (la única cifra de bajas es de EE.UU.).",
+  "El gasto en comunicación social del gobierno estatal y de los municipios de Durango, Gómez Palacio y Lerdo, y cuánto tardan en pagar a proveedores.",
+  "Si el IVA de los servicios digitales extranjeros es acreditable (depende de si dan CFDI), cómo se calcula la PTU de la sociedad y la depreciación del equipo.",
+  "La composición del Congreso local en congresodurango.gob.mx (la fuente usada es una copia de Wikipedia) y el conteo de municipios en el IEPC.",
+  "La velocidad de subida que se puede contratar en la zona del futuro local y la frecuencia de cortes de luz."
+ ],
+ "fuentes": [
+  {
+   "titulo": "Filmorent: estudio de podcast en Monterrey (precios)",
+   "url": "https://filmorent.com/estudio-podcast.html"
+  },
+  {
+   "titulo": "Jademk: servicio de podcast en Guadalajara",
+   "url": "https://jademk.com.mx/servicio-de-podcast/"
+  },
+  {
+   "titulo": "Podyx: guía de precios de estudios 2026",
+   "url": "https://podyx.com/blog/podcast-studio-pricing-guide-2026-hourly-rates-day-rates-packages/"
+  },
+  {
+   "titulo": "Analyse Podcast: cómo se construyó Poddster/Podyx",
+   "url": "https://www.analysepodcast.com/building-the-worlds-largest-podcast-studio-network-poddster-podyx-with-borko-kovacevic"
+  },
+  {
+   "titulo": "Podyx: los 3 costos que definen un estudio",
+   "url": "https://www.podyx.com/blog/the-3-biggest-costs-that-make-or-break-a-podcast-studio"
+  },
+  {
+   "titulo": "Podyx: por qué fracasan los estudios (2026)",
+   "url": "https://www.podyx.com/blog/why-podcast-studios-fail-6-patterns-to-avoid-in-2026/"
+  },
+  {
+   "titulo": "Lower Street",
+   "url": "https://lowerstreet.co/"
+  },
+  {
+   "titulo": "Databox: Sweet Fish Media",
+   "url": "https://databox.com/metrics-and-chill-sweet-fish-media"
+  },
+  {
+   "titulo": "Ashmedia",
+   "url": "https://ashmedia.org/"
+  },
+  {
+   "titulo": "Ashmedia: costo de producción de un podcast B2B",
+   "url": "https://ashmedia.org/blog/b2b-podcast-production-cost"
+  },
+  {
+   "titulo": "Fame",
+   "url": "https://www.fame.so/"
+  },
+  {
+   "titulo": "Simon Owens: Sonoro",
+   "url": "https://simonowens.substack.com/p/this-former-disney-execs-podcast-be2"
+  },
+  {
+   "titulo": "Wikipedia: Crooked Media",
+   "url": "https://en.wikipedia.org/wiki/Crooked_Media"
+  },
+  {
+   "titulo": "Wikipedia: MeidasTouch",
+   "url": "https://en.wikipedia.org/wiki/MeidasTouch"
+  },
+  {
+   "titulo": "Wikipedia: Wondery",
+   "url": "https://en.wikipedia.org/wiki/Wondery"
+  },
+  {
+   "titulo": "Wikipedia: Gimlet Media",
+   "url": "https://en.wikipedia.org/wiki/Gimlet_Media"
+  },
+  {
+   "titulo": "Signal: cierre de Fable and Folly (oct-2026)",
+   "url": "https://buttondown.com/signal-podosphere/archive/2026-10-05-signal-38-a-fiction-network-blames-ad-shifts-and/"
+  },
+  {
+   "titulo": "INE: Registro Nacional de Proveedores",
+   "url": "https://www.ine.mx/actores-politicos/registro-nacional-proveedores/"
+  },
+  {
+   "titulo": "INE: sistema RNP 5.0",
+   "url": "https://rnp.ine.mx/rnp//"
+  },
+  {
+   "titulo": "Metricool: estudio de podcasts en México 2025",
+   "url": "https://metricool.com/es/estudio-podcasts-mexico/"
+  },
+  {
+   "titulo": "InHouseWork: estudio en CDMX",
+   "url": "https://inhousework.mx/en/studio/"
+  },
+  {
+   "titulo": "Podcast Zone Monterrey",
+   "url": "https://www.podcastzone.mx/"
+  },
+  {
+   "titulo": "Clutch: productoras de podcast en México",
+   "url": "https://clutch.co/mx/audio-production/podcasting"
+  },
+  {
+   "titulo": "INE: calendario del proceso federal 2026-2027",
+   "url": "https://centralelectoral.ine.mx/2026/07/31/planeara-y-organizara-ine-mas-de-500-actividades-del-proceso-electoral-federal-2026%E2%80%912027/"
+  },
+  {
+   "titulo": "Posta: elecciones Durango 2027",
+   "url": "https://www.posta.com.mx/durango/elecciones-durango-2027-que-partidos-politicos-contenderan-en-este-proceso/vl2274344"
+  },
+  {
+   "titulo": "Posta: próximas elecciones en Durango",
+   "url": "https://www.posta.com.mx/durango/cuando-seran-las-proximas-elecciones-en-durango-y-que-cargos-estaran-en-disputa/vl2157394"
+  },
+  {
+   "titulo": "Constitución Política (CPEUM)",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/CPEUM.pdf"
+  },
+  {
+   "titulo": "LGIPE",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGIPE.pdf"
+  },
+  {
+   "titulo": "Ley General de Partidos Políticos",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGPP.pdf"
+  },
+  {
+   "titulo": "Ley General de Comunicación Social",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LGCS.pdf"
+  },
+  {
+   "titulo": "Ley del Impuesto sobre la Renta (art. 206, RESICO de personas morales)",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf"
+  },
+  {
+   "titulo": "Reglamento de la Ley General de Salud en materia de publicidad",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/regley/Reg_LGS_MP.pdf"
+  },
+  {
+   "titulo": "Meta: autorización para anuncios sobre temas sociales, elecciones o política",
+   "url": "https://www.facebook.com/business/help/208949576550051"
+  },
+  {
+   "titulo": "INEGI: UMA",
+   "url": "https://www.inegi.org.mx/temas/uma/"
+  },
+  {
+   "titulo": "INE: lineamientos del RNP (INE/CG27/2020)",
+   "url": "https://repositoriodocumental.ine.mx/xmlui/bitstream/handle/123456789/113337/CGex202001-22ap-15.pdf"
+  },
+  {
+   "titulo": "INE: emisión de CFDI con Complemento INE",
+   "url": "https://portalanterior.ine.mx/archivos2/tutoriales/sistemas/ApoyoInstitucional/SIFv4/rsc/PDF/Indicaciones_emision_CFDI.pdf"
+  },
+  {
+   "titulo": "INE: SIF en el proceso 2023-2024",
+   "url": "https://repositoriodocumental.ine.mx/xmlui/bitstream/handle/123456789/166357/002-Camp-SIF-PEC-2023-2024.pdf"
+  },
+  {
+   "titulo": "Integralia: elecciones Durango 2025",
+   "url": "https://integralia.com.mx/web/wp-content/uploads/2025/07/Elecciones-Veracruz-y-Durango_02JUL25.pdf"
+  },
+  {
+   "titulo": "Periódico Correo: nueva reforma electoral (nov-2026)",
+   "url": "https://periodicocorreo.com.mx/nacional/2026/nov/09/sheinbaum-anuncia-nueva-reforma-electoral-busca-eliminar-plurinominales-y-reducir-gastos-del-ine-171156.html"
+  },
+  {
+   "titulo": "Expansión: multa al PVEM por influencers en veda",
+   "url": "https://politica.expansion.mx/mexico/2021/07/22/por-el-uso-de-influencers-en-veda-electoral-el-ine-multa-al-pvem-con-40-9-mdp"
+  },
+  {
+   "titulo": "Wikipedia: Mariana Rodríguez Cantú (caso INE/TEPJF)",
+   "url": "https://es.wikipedia.org/wiki/Mariana_Rodr%C3%ADguez_Cant%C3%BA"
+  },
+  {
+   "titulo": "LexLatin: influencers y política en México",
+   "url": "https://lexlatin.com/reportajes/influencers-politica-dilema-legal-mexico"
+  },
+  {
+   "titulo": "Epoch Times: Trump en Joe Rogan",
+   "url": "https://www.theepochtimes.com/us/joe-rogans-trump-episode-nets-28-million-views-on-youtube-5748724"
+  },
+  {
+   "titulo": "American Survey Center: podcasts y género en 2024",
+   "url": "https://www.americansurveycenter.org/short-reads/podcast-politics-how-trump-and-harris-are-leaning-into-gender-divisions/"
+  },
+  {
+   "titulo": "Campaigns & Elections: podcasts en la elección 2024",
+   "url": "https://campaignsandelections.com/industry-news/podcasts-played-pivotal-role-in-2024-election/"
+  },
+  {
+   "titulo": "Pew Research: podcasts y noticias",
+   "url": "https://www.pewresearch.org/journalism/fact-sheet/podcasts/"
+  },
+  {
+   "titulo": "APSA preprint: podcasts y brecha de género 2024",
+   "url": "https://preprints.apsanet.org/engage/apsa/article-details/6a98d0514770e67d925c7566"
+  },
+  {
+   "titulo": "Edison Research: la elección del podcast y de YouTube",
+   "url": "https://edisonresearch.com/the-podcast-and-youtube-election"
+  },
+  {
+   "titulo": "Bloomberg Línea: Sheinbaum como streamer",
+   "url": "https://www.bloomberglinea.com/latinoamerica/mexico/como-claudia-sheinbaum-se-convirtio-en-la-streamer-mas-popular-de-mexico/"
+  },
+  {
+   "titulo": "El Financiero: El Podcast de Máynez",
+   "url": "https://www.elfinanciero.com.mx/nacional/2024/10/15/jorge-alvarez-maynez-anuncia-nuevo-podcast-con-invitados-excandidato-a-la-presidencia-movimiento-ciudadano/"
+  },
+  {
+   "titulo": "Publimetro: La Moreniza",
+   "url": "https://www.publimetro.com.mx/noticias/2025/03/11/luisa-maria-alcalde-se-convierte-en-influencer-lanza-el-podcast-la-moreniza/"
+  },
+  {
+   "titulo": "Miranda Intelligence: podcasts políticos en México",
+   "url": "https://mirandaintelligence.substack.com/p/mexico-podcast-chatter-e45"
+  },
+  {
+   "titulo": "Blackmagic: DaVinci Resolve Studio (México)",
+   "url": "https://www.blackmagicdesign.com/mx/products/davinciresolve/studio"
+  },
+  {
+   "titulo": "Blackmagic: novedades de DaVinci Resolve 21",
+   "url": "https://www.blackmagicdesign.com/products/davinciresolve/whatsnew"
+  },
+  {
+   "titulo": "Blackmagic: SmartSwitch (abr-2025)",
+   "url": "https://www.blackmagicdesign.com/media/partial/release/20250404-02"
+  },
+  {
+   "titulo": "Blackmagic: notas de DaVinci Resolve 20",
+   "url": "https://www.blackmagicdesign.com/us/support/content/readme/a6e2bbb59c294d728d131fa21d18676b"
+  },
+  {
+   "titulo": "Wideframe: precisión del multicam automático",
+   "url": "https://try.wideframe.com/blog/best-ai-tools-for-podcast-multicam-switching/"
+  },
+  {
+   "titulo": "AutoPod: precios",
+   "url": "https://www.autopod.fm/pricing"
+  },
+  {
+   "titulo": "Digital Production: IA de voz en Resolve 21",
+   "url": "https://digitalproduction.com/2026/08/17/hearing-voices-what-can-ai-in-davinci-resolve-21-do-for-you/"
+  },
+  {
+   "titulo": "arXiv: comparación de transcripción en lenguas ibéricas (2026)",
+   "url": "https://arxiv.org/html/2609.36920v1"
+  },
+  {
+   "titulo": "arXiv: transcripción en español (FLEURS y Common Voice)",
+   "url": "https://arxiv.org/pdf/2507.13264"
+  },
+  {
+   "titulo": "Hugging Face: Whisper large-v3-turbo",
+   "url": "https://huggingface.co/openai/whisper-large-v3-turbo"
+  },
+  {
+   "titulo": "faster-whisper (GitHub)",
+   "url": "https://github.com/SYSTRAN/faster-whisper"
+  },
+  {
+   "titulo": "ElevenLabs: precios de API",
+   "url": "https://elevenlabs.io/pricing/api"
+  },
+  {
+   "titulo": "Deepgram: precios",
+   "url": "https://deepgram.com/pricing"
+  },
+  {
+   "titulo": "AssemblyAI: precios",
+   "url": "https://www.assemblyai.com/blog/speech-to-text-api-pricing"
+  },
+  {
+   "titulo": "Auphonic: precios",
+   "url": "https://auphonic.com/pricing"
+  },
+  {
+   "titulo": "Descript: API",
+   "url": "https://www.descript.com/api"
+  },
+  {
+   "titulo": "Riverside: precios",
+   "url": "https://riverside.com/pricing"
+  },
+  {
+   "titulo": "Anthropic: precios de la API de Claude",
+   "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+   "titulo": "Anthropic: visión (costo por imagen)",
+   "url": "https://platform.claude.com/docs/en/build-with-claude/vision"
+  },
+  {
+   "titulo": "Anthropic: computer use",
+   "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool"
+  },
+  {
+   "titulo": "Claude Code: modo sin interfaz",
+   "url": "https://code.claude.com/docs/en/headless"
+  },
+  {
+   "titulo": "Claude Code: tareas programadas",
+   "url": "https://code.claude.com/docs/en/routines"
+  },
+  {
+   "titulo": "Claude Code: Remote Control",
+   "url": "https://code.claude.com/docs/en/remote-control"
+  },
+  {
+   "titulo": "Claude Code: entornos autoalojados",
+   "url": "https://code.claude.com/docs/en/self-hosted-environments"
+  },
+  {
+   "titulo": "Claude Agent SDK",
+   "url": "https://code.claude.com/docs/en/agent-sdk/overview"
+  },
+  {
+   "titulo": "Claude Code: costos",
+   "url": "https://code.claude.com/docs/en/costs"
+  },
+  {
+   "titulo": "Claude: planes y precios",
+   "url": "https://claude.com/pricing"
+  },
+  {
+   "titulo": "Anthropic: cómo usan Claude Code sus equipos",
+   "url": "https://claude.com/blog/how-anthropic-teams-use-claude-code"
+  },
+  {
+   "titulo": "Google AI Studio: comprensión de video",
+   "url": "https://aistudio.google.com/docs/video-understanding"
+  },
+  {
+   "titulo": "Opus Clip: API",
+   "url": "https://help.opus.pro/api-reference/overview"
+  },
+  {
+   "titulo": "Klap: precios de API",
+   "url": "https://docs.klap.app/pricing"
+  },
+  {
+   "titulo": "Vizard: precios de API",
+   "url": "https://docs.vizard.ai/docs/pricing"
+  },
+  {
+   "titulo": "Ssemble: comparativa de herramientas de clips 2026",
+   "url": "https://ssemble.com/blog/best-ai-podcast-clip-maker-2026"
+  },
+  {
+   "titulo": "Cutback: guía de edición de entrevistas",
+   "url": "https://cutback.video/blog/the-complete-guide-to-podcast-interview-editing-in-2025-(manual-premiere-pro-ai-workflows)"
+  },
+  {
+   "titulo": "DavinciClaude: edición de podcast con IA en Resolve",
+   "url": "https://www.davinciclaude.com/en/blog/ai-podcast-editing-davinci-resolve"
+  },
+  {
+   "titulo": "Aerion: producción de podcast con IA",
+   "url": "https://aerion.com.au/blog/technology/transforming-podcast-production-ai/"
+  },
+  {
+   "titulo": "YouTube: capítulos en videos",
+   "url": "https://support.google.com/youtube/answer/9884579"
+  },
+  {
+   "titulo": "DOF: indicadores (tipo de cambio 13-nov-2026)",
+   "url": "https://dof.gob.mx/indicadores.php"
+  },
+  {
+   "titulo": "Metricool: precios",
+   "url": "https://metricool.com/pricing/"
+  },
+  {
+   "titulo": "Metricool MCP",
+   "url": "https://metricool.com/metricool-mcp/"
+  },
+  {
+   "titulo": "TikTok: API de publicación",
+   "url": "https://developers.tiktok.com/doc/content-posting-api-reference-upload-video"
+  },
+  {
+   "titulo": "TikTok: lineamientos para compartir contenido",
+   "url": "https://developers.tiktok.com/doc/content-sharing-guidelines"
+  },
+  {
+   "titulo": "TikTok: política de contenido de marca",
+   "url": "https://www.tiktok.com/legal/page/global/bc-policy/en"
+  },
+  {
+   "titulo": "Meta: publicación en Instagram por API",
+   "url": "https://developers.facebook.com/docs/instagram-platform/content-publishing"
+  },
+  {
+   "titulo": "YouTube Data API: costo de cuota",
+   "url": "https://developers.google.com/youtube/v3/determine_quota_cost"
+  },
+  {
+   "titulo": "X API: precios",
+   "url": "https://docs.x.com/x-api/getting-started/pricing"
+  },
+  {
+   "titulo": "Buffer: precios",
+   "url": "https://buffer.com/pricing"
+  },
+  {
+   "titulo": "Publer: planes",
+   "url": "https://publer.com/help/en/article/what-are-publers-plans-and-pricing-15h4yqh/"
+  },
+  {
+   "titulo": "Repurpose.io: precios",
+   "url": "https://repurpose.io/pricing/"
+  },
+  {
+   "titulo": "Hootsuite: planes",
+   "url": "https://www.hootsuite.com/plans"
+  },
+  {
+   "titulo": "Postiz (GitHub)",
+   "url": "https://github.com/gitroomhq/postiz-app"
+  },
+  {
+   "titulo": "Frame.io: precios",
+   "url": "https://frame.io/pricing"
+  },
+  {
+   "titulo": "Meta: precios de WhatsApp Business",
+   "url": "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing"
+  },
+  {
+   "titulo": "Cal.com: precios",
+   "url": "https://cal.com/pricing"
+  },
+  {
+   "titulo": "Cal.com (GitHub)",
+   "url": "https://github.com/calcom/cal.com"
+  },
+  {
+   "titulo": "Calendly: precios",
+   "url": "https://calendly.com/pricing"
+  },
+  {
+   "titulo": "Peerspace: espacios fuera de EE.UU.",
+   "url": "https://support.peerspace.com/en/articles/10119330-can-i-list-my-space-if-i-live-outside-the-united-states"
+  },
+  {
+   "titulo": "n8n: precios",
+   "url": "https://n8n.io/pricing/"
+  },
+  {
+   "titulo": "Zapier: precios",
+   "url": "https://zapier.com/pricing"
+  },
+  {
+   "titulo": "Backblaze B2: precios",
+   "url": "https://www.backblaze.com/cloud-storage/pricing"
+  },
+  {
+   "titulo": "Google Workspace México: precios",
+   "url": "https://workspace.google.com/intl/es-419/pricing.html"
+  },
+  {
+   "titulo": "Supabase: precios",
+   "url": "https://supabase.com/pricing"
+  },
+  {
+   "titulo": "Stripe México: precios",
+   "url": "https://stripe.com/mx/pricing"
+  },
+  {
+   "titulo": "Facturapi: precios",
+   "url": "https://www.facturapi.io/pricing"
+  },
+  {
+   "titulo": "Facturama: planes",
+   "url": "https://facturama.mx/planes-facturacion"
+  },
+  {
+   "titulo": "Mifiel: precios",
+   "url": "https://webflow.mifiel.com/es/precios"
+  },
+  {
+   "titulo": "HubSpot CRM: precios",
+   "url": "https://www.hubspot.com/pricing/crm"
+  },
+  {
+   "titulo": "Designjoy (entrevista a Brett Williams)",
+   "url": "https://www.news.aakashg.com/p/brett-designjoy-podcast"
+  },
+  {
+   "titulo": "Upraw Media: agencias B2B de podcast 2026",
+   "url": "https://www.uprawmedia.com/blog/best-b2b-podcast-agencies-saas-companies"
+  },
+  {
+   "titulo": "Karl Hughes: productora de podcast de un millón",
+   "url": "https://www.karllhughes.com/posts/million-dollar-podcast-production-company"
+  },
+  {
+   "titulo": "The Podcast Consultant: producción de video podcast",
+   "url": "https://thepodcastconsultant.com/blog/video-podcast-production"
+  },
+  {
+   "titulo": "ManyRequests: ingresos de servicios productizados",
+   "url": "https://manyrequests.com/blog/productized-service-revenue"
+  },
+  {
+   "titulo": "NVIDIA: matriz de codificación y decodificación",
+   "url": "https://developer.nvidia.com/video-encode-decode-support-matrix"
+  },
+  {
+   "titulo": "Puget Systems: hardware para DaVinci Resolve",
+   "url": "https://www.pugetsystems.com/solutions/video-editing-workstations/davinci-resolve/hardware-recommendations"
+  },
+  {
+   "titulo": "Profesional Review: precio de la RTX 5090 (nov-2026)",
+   "url": "https://www.profesionalreview.com/2026/11/03/la-nvidia-rtx-5090-ya-cuesta-un-370-mas-que-su-precio-de-lanzamiento-en-estados-unidos/amp/"
+  },
+  {
+   "titulo": "Apple México: Mac mini",
+   "url": "https://www.apple.com/mx/mac-mini/specs/"
+  },
+  {
+   "titulo": "RunPod: precios",
+   "url": "https://www.runpod.io/pricing"
+  },
+  {
+   "titulo": "METR: productividad de desarrolladores con IA",
+   "url": "https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/"
+  },
+  {
+   "titulo": "METR: actualización 2026",
+   "url": "https://metr.org/blog/2026-02-24-uplift-update/"
+  },
+  {
+   "titulo": "DPReview: Sony ZV-E10 II (calentamiento)",
+   "url": "https://www.dpreview.com/reviews/8510905811/3"
+  },
+  {
+   "titulo": "Videomaker: reseña de la ZV-E10 II",
+   "url": "https://www.videomaker.com/reviews/sony-zv-e10-ii-review/"
+  },
+  {
+   "titulo": "PhotoReview: Sony ZV-E10 II",
+   "url": "https://www.photoreview.com.au/reviews/mirrorless-cameras/mirrorless-cameras-aps-c/sony-zv-e10-mark-ii/"
+  },
+  {
+   "titulo": "Sony Store México: FX30",
+   "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/ilme-fx30b/p"
+  },
+  {
+   "titulo": "Sony Store México: ZV-E10 II kit",
+   "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/zv-e10m2k/p"
+  },
+  {
+   "titulo": "Sony Store México: DC-C1",
+   "url": "https://store.sony.com.mx/api/catalog_system/pub/products/search/dc-c1/p"
+  },
+  {
+   "titulo": "Liverpool: Sony FX30",
+   "url": "https://www.liverpool.com.mx/tienda/pdp/camara-sin-espejo-modelo-ilme-fx30b-qe38/1128905479"
+  },
+  {
+   "titulo": "Sanborns: Sony FX30",
+   "url": "https://www.sanborns.com.mx/producto/361269/undefined"
+  },
+  {
+   "titulo": "YMCinema: aumento de precio de la Sony FX3A",
+   "url": "https://ymcinema.com/2026/07/09/sony-fx3a-price-jump-4299/"
+  },
+  {
+   "titulo": "Blackmagic: ATEM Mini",
+   "url": "https://www.blackmagicdesign.com/mx/products/atemmini"
+  },
+  {
+   "titulo": "Blackmagic: especificaciones del ATEM Mini Pro ISO",
+   "url": "https://www.blackmagicdesign.com/mx/products/atemmini/techspecs/W-APS-14"
+  },
+  {
+   "titulo": "Blackmagic: especificaciones del ATEM Mini Extreme ISO G2",
+   "url": "https://www.blackmagicdesign.com/mx/products/atemmini/techspecs/W-APS-16"
+  },
+  {
+   "titulo": "SVC: Melrose Podcasts con ATEM Mini Pro ISO",
+   "url": "https://www.svconline.com/the-wire/melrose-podcasts-uplevels-podcast-production-with-atem-mini-pro-iso"
+  },
+  {
+   "titulo": "Creative Cow: Rick Shiels con ATEM Mini Extreme ISO",
+   "url": "https://creativecow.net/rick-shiels-media-ltd-producespodcast-format-with-atem-mini-extreme-iso/"
+  },
+  {
+   "titulo": "Riverside: cómo montar un estudio de podcast",
+   "url": "https://riverside.com/blog/podcast-studio-setup"
+  },
+  {
+   "titulo": "Xataka México: DJI Mic Mini 2S",
+   "url": "https://www.xataka.com.mx/audio/dji-mic-mini-2s-lanzamiento-precio-mexico-caracteristicas-especificaciones-ficha-tecnica"
+  },
+  {
+   "titulo": "DJI: Mic Mini (especificaciones)",
+   "url": "https://www.dji.com/mx/mic-mini/specs"
+  },
+  {
+   "titulo": "DJI: Mic 3 (especificaciones)",
+   "url": "https://www.dji.com/mx/mic-3/specs"
+  },
+  {
+   "titulo": "Hollyland Lark M2S",
+   "url": "https://www.hollyland.com/product/lark-m2s"
+  },
+  {
+   "titulo": "RØDE México: RØDECaster Pro II",
+   "url": "https://rode.com/es-mx/products/rodecaster-pro-ii"
+  },
+  {
+   "titulo": "RØDE México: PodMic USB",
+   "url": "https://rode.com/es-mx/products/podmic-usb"
+  },
+  {
+   "titulo": "Cyberpuerta: Shure SM7B",
+   "url": "https://www.cyberpuerta.mx/Audio-y-Video/Audio/Accesorios-de-Audio/Microfonos/Shure-Microfono-SM7B-Alambrico.html"
+  },
+  {
+   "titulo": "Zoom: PodTrak P8",
+   "url": "https://zoomcorp.com/en/us/podtrak-recorders/podcast-recorders/podtrak-p8/"
+  },
+  {
+   "titulo": "amaran: catálogo de luces",
+   "url": "https://amarancreators.com/collections/all"
+  },
+  {
+   "titulo": "Sigma 18-50 mm f/2.8 DC DN",
+   "url": "https://www.sigmaphoto.com/18-50mm-f2-8-dc-dn-c"
+  },
+  {
+   "titulo": "Sigma 16 mm f/1.4 DC DN",
+   "url": "https://www.sigmaphoto.com/16mm-f1-4-dc-dn-c"
+  },
+  {
+   "titulo": "Tentacle Sync E",
+   "url": "https://tentaclesync.com/sync-e"
+  },
+  {
+   "titulo": "Podnews: Infinite Dial US 2026",
+   "url": "https://podnews.net/press-release/infinite-dial-us-2026"
+  },
+  {
+   "titulo": "Podnews: Podcast Consumer 2025",
+   "url": "https://podnews.net/press-release/podcast-consumer-2025"
+  },
+  {
+   "titulo": "YouTube: mil millones de usuarios de podcast",
+   "url": "https://blog.youtube/news-and-events/1-billion-monthly-podcast-users/"
+  },
+  {
+   "titulo": "Netinfluencer: plataforma más usada para podcast",
+   "url": "https://www.netinfluencer.com/?p=44900"
+  },
+  {
+   "titulo": "Marketing4Ecommerce: estudio de audio digital IAB 2022",
+   "url": "https://marketing4ecommerce.mx/43-de-los-internautas-mexicanos-escuchan-podcast-la-mayoria-desde-su-celular-estudio-de-audio-digital-2022/"
+  },
+  {
+   "titulo": "DPL News: economía del podcast",
+   "url": "https://dplnews.com/cuanto-vale-economia-podcast/"
+  },
+  {
+   "titulo": "Puro Marketing: podcasts en México",
+   "url": "https://www.puromarketing.com/18/215575/podcasts-mexico-atencion-afinidad-oportunidades-para-marcas"
+  },
+  {
+   "titulo": "Reuters Institute: Digital News Report 2026, México",
+   "url": "https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/mexico"
+  },
+  {
+   "titulo": "Reuters Institute: Digital News Report 2025, México",
+   "url": "https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2025/mexico"
+  },
+  {
+   "titulo": "Reuters Institute: creadores de noticias en México",
+   "url": "https://reutersinstitute.politics.ox.ac.uk/news-creators-influencers/2025/Mexico"
+  },
+  {
+   "titulo": "Listen Notes: estadísticas de podcasts",
+   "url": "https://www.listennotes.com/podcast-stats.md"
+  },
+  {
+   "titulo": "Podcast Index: estadísticas",
+   "url": "https://podcastindex.org/stats"
+  },
+  {
+   "titulo": "Castfox: estadísticas de podcasts 2026",
+   "url": "https://www.castfox.net/research/podcast-statistics-2026"
+  },
+  {
+   "titulo": "Buzzsprout: estadísticas de la plataforma",
+   "url": "https://www.buzzsprout.com/stats"
+  },
+  {
+   "titulo": "Triton Digital: datos de Omny 2024",
+   "url": "https://tritondigital.com/news-item/April-30-2025/how-does-your-podcast-measure-up-omny-s-2024-data-has-the-answer"
+  },
+  {
+   "titulo": "Sounds Profitable: The Front Door (clips)",
+   "url": "https://soundsprofitable.com/article/the-front-door/"
+  },
+  {
+   "titulo": "Sounds Profitable: video podcast entre nuevos oyentes",
+   "url": "https://soundsprofitable.com/press-release/video-podcasts-now-more-popular-than-audio-only-among-first-year-consumers-findings-from-the-evolving-ear-webinar/"
+  },
+  {
+   "titulo": "Radio Ink: efecto de los anuncios en podcast",
+   "url": "https://radioink.com/?p=94280"
+  },
+  {
+   "titulo": "Merca2.0: inversión publicitaria en México 2025",
+   "url": "https://www.merca20.com/asi-crecio-la-publicidad-en-mexico-segun-la-7a-edicion-de-valor-total-media/"
+  },
+  {
+   "titulo": "Carpa Producciones: sala de podcast (León)",
+   "url": "https://carpaproducciones.com/sala-de-podcast/"
+  },
+  {
+   "titulo": "Querétaro Podcast Studio",
+   "url": "https://www.queretaropodcast.com/"
+  },
+  {
+   "titulo": "Foortuna Media",
+   "url": "https://foortunamedia.com/"
+  },
+  {
+   "titulo": "Néctar Digital: paquete político",
+   "url": "https://nectardigital.agency/politico.html"
+  },
+  {
+   "titulo": "Brandinn: paquetes de community manager",
+   "url": "https://brandinn.com.mx/agencia/paquetes-de-community-manager-starter/"
+  },
+  {
+   "titulo": "Nebugrama: cuánto cobra un community manager en México",
+   "url": "https://www.nebugrama.com/blog/cuanto-cobra-community-manager-mexico"
+  },
+  {
+   "titulo": "Milenio: cuánto cobran las consultoras rumbo a 2027",
+   "url": "https://www.milenio.com/negocios/elecciones-2027-consultoras-cobran-10-millones-pesos"
+  },
+  {
+   "titulo": "Indeed México: sueldo de editor de video",
+   "url": "https://mx.indeed.com/career/editor-de-video/salaries"
+  },
+  {
+   "titulo": "Prolatamwork: tarifas de editores freelance en Latinoamérica",
+   "url": "https://prolatamwork.com/en/blog/how-much-video-editor-freelancer-latin-america-2026"
+  },
+  {
+   "titulo": "Forge: benchmarks de agencias 2026",
+   "url": "https://forge.so/agency-benchmarks"
+  },
+  {
+   "titulo": "Promethean Research: rentabilidad de agencias digitales",
+   "url": "https://prometheanresearch.com/how-profitable-are-digital-agencies"
+  },
+  {
+   "titulo": "Promethean Research: de fábrica a consultoría",
+   "url": "https://prometheanresearch.kit.com/posts/new-updates-to-the-factory-consultancy-continuum-for-agencies"
+  },
+  {
+   "titulo": "Forkoff: precios de clips de podcast",
+   "url": "https://forkoff.xyz/blog/clipping/podcast-clipping-agency-pricing"
+  },
+  {
+   "titulo": "FullCast: costo de producción de podcast",
+   "url": "https://fullcast.co/blog/podcast-production-cost"
+  },
+  {
+   "titulo": "AMCP: consideraciones 2026 para la SAS",
+   "url": "https://amcpdf.org.mx/consideraciones-2026-para-las-sociedades-por-acciones-simplificadas-sas/"
+  },
+  {
+   "titulo": "Praxium: S.A. de C.V. contra SAPI",
+   "url": "https://praxiumconsultores.com/blog/sa-cv-vs-sapi-cual-necesitas"
+  },
+  {
+   "titulo": "Praxium: regímenes fiscales de personas morales 2026",
+   "url": "https://praxiumconsultores.com/blog/regimen-fiscal-personas-morales-comparativa-2026"
+  },
+  {
+   "titulo": "Abogados en CDMX: S.A., S. de R.L. y SAS",
+   "url": "https://abogadosencdmx.com/blog/sa-de-cv-vs-srl-vs-sas-mexico/"
+  },
+  {
+   "titulo": "vLex: art. 114 de la LGSM (acciones de trabajo)",
+   "url": "https://vlex.com.mx/vid/ley-mercantiles-entregar-empleados-408197334"
+  },
+  {
+   "titulo": "Founderpath: Authentic Exposure Studio",
+   "url": "https://founderpath.com/the-deal/authentic-exposure-studio"
+  },
+  {
+   "titulo": "Vidpros: estudios de podcast y precios en EE.UU.",
+   "url": "https://vidpros.com/best-podcast-studios/"
+  },
+  {
+   "titulo": "Press Gazette: suscriptores de Goalhanger",
+   "url": "https://pressgazette.co.uk/paywalls/goalhanger-subscribers/"
+  },
+  {
+   "titulo": "Simon Owens: Crooked Media contra Air America",
+   "url": "https://simonowens.substack.com/p/why-crooked-media-is-succeeding-where"
+  },
+  {
+   "titulo": "PR Newswire: crecimiento de Sonoro",
+   "url": "https://prnewswire.com/news-releases/sonoro-announces-100-year-over-year-growth-and-massive-global-expansion-302083023.html"
+  },
+  {
+   "titulo": "Merca2.0: licencia de La Saga a TV Mexiquense",
+   "url": "https://www.merca20.com/?p=516857"
+  },
+  {
+   "titulo": "Xataka: Jordi Wild entrevista a candidatos",
+   "url": "https://www.xataka.com/magnet/jordi-wild-culmina-su-transformacion-joe-rogan-espanol-entrevistara-a-feijoo-abascal-plena-campana-electoral"
+  },
+  {
+   "titulo": "Mediaweek: Ticker Studios",
+   "url": "https://mediaweek.com.au/news/how-ticker-studios-went-from-the-news-desk-to-podcast-disruptor"
+  },
+  {
+   "titulo": "Triton Digital: Pop Up Podcasting (Ottawa)",
+   "url": "https://tritondigital.com/news-item/July-14-2025/ottawa-s-podcast-studio-gets-a-bold-new-look-for-leaders-and-changemakers"
+  },
+  {
+   "titulo": "Business RadioX: Scaling in Public",
+   "url": "https://businessradiox.com/podcast/scaling-in-public/local-stories-global-screens"
+  },
+  {
+   "titulo": "Wikipedia: TMG Studios",
+   "url": "https://en.wikipedia.org/wiki/TMG_Studios"
+  },
+  {
+   "titulo": "Talk Business: podcastvideos.com",
+   "url": "https://talkbusiness.net/2025/04/podcastvideos-com/"
+  },
+  {
+   "titulo": "cine.salon: calculadora rentar o comprar",
+   "url": "https://www.cine.salon/Rent-or-Buy-Calculator-for-Video-Production-Gear"
+  },
+  {
+   "titulo": "Redshark News: Vū One Mini",
+   "url": "https://redsharknews.com/vū-announces-launch-of-vū-one-mini"
+  },
+  {
+   "titulo": "InformaBTL: incentivos de Durango al cine",
+   "url": "https://www.informabtl.com/entrevista-elisa-haro-secretaria-de-turismo-de-durango-cine/"
+  },
+  {
+   "titulo": "FilmLifestyle: de freelancer a productora",
+   "url": "https://filmlifestyle.com/how-to-grow-from-freelancer-to-video-production-company/"
+  },
+  {
+   "titulo": "INEGI: Encuesta Intercensal 2025, Durango",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2026/ei/EIC2025-def_Dgo.pdf"
+  },
+  {
+   "titulo": "INEGI: Censo 2020, Durango",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2021/EstSociodemo/ResultCenso2020_Dgo.pdf"
+  },
+  {
+   "titulo": "INEGI: ENIGH 2024",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2025/enigh/ENIGH2024_RR.pdf"
+  },
+  {
+   "titulo": "INEGI: ENDUTIH 2024",
+   "url": "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2025/endutih/ENDUTIH_24_RR.pdf"
+  },
+  {
+   "titulo": "Data México: Durango",
+   "url": "https://www.economia.gob.mx/datamexico/es/profile/geo/durango-dg"
+  },
+  {
+   "titulo": "Expansión: guía electoral 2027",
+   "url": "https://politica.expansion.mx/mexico/2026/09/30/guia-electoral-2027-fechas-y-ruta-por-estado"
+  },
+  {
+   "titulo": "Posta: regidores de Durango 2025-2028",
+   "url": "https://www.posta.com.mx/durango/ellos-son-los-regidores-y-regidoras-de-durango-que-inician-funciones-este-1-de-septiembre/vl2088529"
+  },
+  {
+   "titulo": "Congreso de Durango (composición)",
+   "url": "https://wiki.krisyotam.com/content/wikipedia_en_all_nopic_2026-03/Congress_of_Durango"
+  },
+  {
+   "titulo": "Contacto Hoy: En Voz Alta (YouTube)",
+   "url": "https://www.youtube.com/watch?v=hjAMrS2VJOo"
+  },
+  {
+   "titulo": "PIE DE NOTA: entrevista al gobernador de Durango",
+   "url": "https://www.youtube.com/watch?v=AA0pn2YRVxc"
+  },
+  {
+   "titulo": "Rentech: agencias de marketing en Durango",
+   "url": "https://rentechdigital.com/smartscraper/business-report-details/mexico/list-of-marketing-agencies-in-durango"
+  },
+  {
+   "titulo": "Cronoshare: videógrafos en Durango",
+   "url": "https://www.cronoshare.com.mx/servicios/videografo/durango/victoria-de-durango"
+  },
+  {
+   "titulo": "Antemano Taller Creativo",
+   "url": "https://antemano.com.mx"
+  },
+  {
+   "titulo": "El Siglo de Durango",
+   "url": "https://www.elsiglodedurango.com.mx/"
+  },
+  {
+   "titulo": "Wikipedia: UJED",
+   "url": "https://es.wikipedia.org/wiki/Universidad_Ju%C3%A1rez_del_Estado_de_Durango"
+  },
+  {
+   "titulo": "Posta: presupuesto de Durango 2026",
+   "url": "https://www.posta.com.mx/durango/presupuesto-2026-en-durango-destinos-y-prioridades-del-gasto-publico/vl2132833"
+  },
+  {
+   "titulo": "Wikipedia: Zona metropolitana de La Laguna",
+   "url": "https://es.wikipedia.org/wiki/Zona_metropolitana_de_La_Laguna"
+  },
+  {
+   "titulo": "Pincali: locales en renta en Durango",
+   "url": "https://www.pincali.com/inmobiliarios/carog_1/locales-comerciales-en-renta-en-durango-durango"
+  },
+  {
+   "titulo": "Ivy.fm: podcasts con etiqueta Durango",
+   "url": "https://ivy.fm/tag/durango"
+  },
+  {
+   "titulo": "Candela TV (Madrid)",
+   "url": "https://candelatv.com/"
+  },
+  {
+   "titulo": "Wikipedia: YouTube Space",
+   "url": "https://en.wikipedia.org/wiki/YouTube_Space"
+  },
+  {
+   "titulo": "Wikipedia: The Daily Wire",
+   "url": "https://en.wikipedia.org/wiki/The_Daily_Wire"
+  },
+  {
+   "titulo": "Wikipedia: Steven Bartlett",
+   "url": "https://en.wikipedia.org/wiki/Steven_Bartlett_(businessman)"
+  },
+  {
+   "titulo": "Wikipedia: Goalhanger",
+   "url": "https://en.wikipedia.org/wiki/Goalhanger"
+  },
+  {
+   "titulo": "Senal News: Convoy Network",
+   "url": "https://senalnews.com/es/digital/se-lanza-la-plataforma-de-podcast-convoy-network-con-mas-de-8000-horas-de-produccion"
+  },
+  {
+   "titulo": "Platzi: el negocio de los podcasts (Se Regalan Dudas)",
+   "url": "https://platzi.com/cursos/conf-2025-mex/el-negocio-y-el-imperio-de-los-podcasts-nicole-cha/"
+  }
+ ],
+ "h1": "Voz Durango: una agencia de podcast *por iguala.*",
+ "bajada": "Con motor de IA y un estudio que se gana con horas vendidas.",
+ "horas_miguel": {
+  "meta": 6,
+  "serie": [
+   {
+    "mes": "nov-26",
+    "h": 9
+   },
+   {
+    "mes": "dic-26",
+    "h": 9
+   },
+   {
+    "mes": "ene-27",
+    "h": 8
+   },
+   {
+    "mes": "feb-27",
+    "h": 7
+   },
+   {
+    "mes": "mar-27",
+    "h": 6
+   },
+   {
+    "mes": "abr-27",
+    "h": 8
+   },
+   {
+    "mes": "may-27",
+    "h": 8
+   },
+   {
+    "mes": "jun-27",
+    "h": 6
+   },
+   {
+    "mes": "jul-27",
+    "h": 5
+   },
+   {
+    "mes": "ago-27",
+    "h": 5
+   },
+   {
+    "mes": "sep-27",
+    "h": 5
+   },
+   {
+    "mes": "oct-27",
+    "h": 6
+   },
+   {
+    "mes": "nov-27",
+    "h": 5.5
+   },
+   {
+    "mes": "dic-27",
+    "h": 5
+   }
+  ],
+  "nota": "Estimado. Desde enero el productor opera el kit para que Miguel no monte equipo. Abril y mayo suben por la campaña. De abril a diciembre de 2027 el promedio es de 5.9 horas por semana."
+ }
+}
