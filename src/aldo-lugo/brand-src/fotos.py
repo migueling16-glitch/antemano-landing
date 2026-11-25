@@ -112,111 +112,73 @@ ALT_F203 = "Plato de vidrio verde con cubos de queso y ate, visto desde arriba"
 ALT_F216 = "Platos de loza verde con puré, longaniza asada y pistache"
 
 FOTOS: list[Foto] = [
-    # 1 · Hero. Móvil apilado 1:1 centrado en el chef y la llama; escritorio 4:5 (40 % derecho); 9:16 de seleccion §2.
+    # ── v2 (guion GUION_LANDING_v2.md). Cajas compuestas a mano: coronilla al 12–25 % desde arriba, sujeto
+    #    mirando hacia dentro, sin cortar cabeza, manos ni brasa. Sin invitados identificables ni marcas ajenas.
+    # Escena 1 · Hero. Coronilla de Aldo en y≈1450: 9:16 la deja al 25 % con el fuego completo abajo; 4:5 al 18 %.
     Foto("F080", "brasa", [
-        S("F080", "1x1", (100, 1250, 2400, 3550), ALT_F080, anchos=MEDIA),
-        S("F080", "4x5", (0, 500, 2500, 3625), ALT_F080, anchos=GRANDE),
-        S("F080", "9x16", (90, 0, 2199, 3750), ALT_F080, anchos=MEDIA),
+        S("F080", "9x16", (324, 733, 1937, 3600), ALT_F080, anchos=MEDIA),
+        S("F080", "4x5", (50, 955, 2250, 3705), ALT_F080, anchos=GRANDE),
     ]),
-    # 2 · Manifiesto (CARBÓN)
-    Foto("F079", "carbon", [S("F079", "4x5", (0, 500, 2500, 3625), "Leños ardiendo, brasa y ceniza de cerca")]),
-    # 3 · Las lumbres
+    # Escena 2 · Imagina (9:16 móvil, 4:5 escritorio)
+    Foto("F013", "brasa", [
+        S("F013", "9x16", (890, 0, 1827, 1665), ALT_F013, anchos=MEDIA),
+        S("F013", "4x5", (694, 0, 2026, 1665), ALT_F013, anchos=MEDIA),
+    ], dron=True, nota="Centrado en la hacienda (x≈1360) con la sierra y el cielo arriba."),
+    Foto("F028", "brasa", [
+        S("F028", "9x16", (391, 0, 2500, 3750), "Pollos enteros y berenjenas colgados sobre el fuego, con humo", anchos=MEDIA),
+        S("F028", "4x5", (0, 300, 2500, 3425), "Pollos enteros y berenjenas colgados sobre el fuego, con humo", anchos=MEDIA),
+    ]),
+    Foto("F153", "brasa", [
+        S("F153", "9x16", (0, 0, 2109, 3750), ALT_F153, anchos=MEDIA),
+        S("F153", "4x5", (0, 400, 2500, 3525), ALT_F153, anchos=MEDIA),
+    ]),
+    Foto("F255", "brasa", [
+        S("F255", "9x16", (1450, 0, 2388, 1667), "Banquete de noche bajo un árbol iluminado y estrellas de papel", anchos=MEDIA),
+        S("F255", "4x5", (1300, 100, 2500, 1600), "Banquete de noche bajo un árbol iluminado y estrellas de papel", anchos=MEDIA),
+    ], noche=True, nota="Siempre desde x ≥ 1300: fuera la carpa de Coca-Cola y el neón; los invitados quedan lejos."),
+    # Escena 3 · El contraste (de B/N a color en el navegador; se exporta en color)
+    Foto("F220", "brasa", [
+        S("F220", "9x16", (0, 0, 2109, 3750), "Disco de acero en llamas con tuétanos alrededor", anchos=MEDIA),
+        S("F220", "4x5", (0, 30, 2125, 2686), "Disco de acero con leña encendida al centro y tuétanos alrededor", anchos=MEDIA),
+    ]),
+    # Escena 4 · El que cuida el fuego. F042 mira a cámara (coronilla y≈1000 → 18 %); F249 coronilla y≈800 → 17 %.
+    Foto("F042", "carbon", [S("F042", "4x5", (0, 505, 2200, 3255),
+                              "Aldo Lugo mira a cámara con un lomo bridado sobre la brasa y costillares colgados arriba", anchos=MEDIA)],
+         mezcla_bn=(0.45, 0.45, 0.10), nota="Termina en x 2200: fuera el cocinero de la derecha."),
+    Foto("F249", "brasa", [S("F249", "4x5", (0, 269, 2500, 3394), "Aldo Lugo emplata a contraluz, al atardecer", anchos=GRANDE)]),
+    # Escena 5 · Cada pieza pide su fuego
     Foto("F252", "brasa", [S("F252", "4x5", (0, 520, 2200, 3270), "Costillares enteros colgados en un bastidor de hierro sobre la leña")]),
-    Foto("F151", "brasa", [S("F151", "4x5", (880, 1000, 2240, 2700),
-                             "Aldo Lugo, con guante rojo, junto a la jaula de varilla con pollos y verduras colgados sobre el fuego")],
-         nota="Recorte de seleccion §3 corrido 180 px a la derecha (x 880–2240, y 1000–2700): termina arriba de las botellas de Coca-Cola."),
+    Foto("F139", "brasa", [S("F139", "4x5", (0, 450, 2500, 3575), ALT_F139)]),
     Foto("F044", "brasa", [S("F044", "4x5", (0, 500, 2500, 3625), "Lomos bridados sobre la parrilla, entre llama y brasa")]),
-    Foto("F220", "brasa", [S("F220", "4x5", (0, 30, 2125, 2686), "Disco de acero con leña encendida al centro y tuétanos alrededor")],
-         nota="Foco .424/.36 de la ESPEC; el recorte deja fuera la base negra."),
     Foto("F250", "brasa", [S("F250", "4x5", (100, 350, 2400, 3225), "Camotes tatemados sobre brasa y ceniza")]),
-    Foto("F140", "brasa", [S("F140", "4x5", (100, 1000, 2000, 3375), "Olla grande de arroz sobre la brasa")],
-         nota="El recorte deja fuera la cara del cocinero de la derecha y a la persona del borde izquierdo."),
-    # 4 · Una noche en Nombre de Dios. Apertura F019 (retocada; el recorte quita el neón Audi del borde izquierdo).
-    Foto("F019", "brasa", [S("F019", "16x9", (80, 0, 2500, 1361), ALT_F019, anchos=GRANDE)], dron=True,
+    # Escena 6 · Una noche real
+    Foto("F019", "brasa", [
+        S("F019", "16x9", (80, 0, 2500, 1361), ALT_F019, anchos=GRANDE),
+        S("F019", "4x5", (644, 0, 1976, 1665), ALT_F019, anchos=MEDIA),
+    ], dron=True,
          retoques=[
-             # neón "Legado y Mezcal" (seleccion §2: ~x 1390–1480, y 690–740)
              dict(tipo="rellenar", caja=(1393, 690, 1481, 750), pluma=5),
-             # rotulación del food truck: primero el patrón impreso (íconos) del costado y el frente…
              dict(tipo="limpiar_patron", poligono=[(1698, 660), (1893, 720), (1983, 710), (1983, 771), (1900, 792),
                                                    (1897, 858), (1880, 856), (1775, 814), (1768, 800), (1700, 782)], tam=19, umbral=0.10),
-             # …luego la bandera con su leyenda y la insignia redonda (sobre el costado ya limpio)
              dict(tipo="rellenar", caja=(1741, 756, 1765, 777), pluma=2),
              dict(tipo="rellenar", caja=(1766, 764, 1789, 793), pluma=2),
-             # letreros del carrito rojo frente al food truck
              dict(tipo="rellenar", caja=(1906, 889, 1937, 911), pluma=2),
              dict(tipo="rellenar", caja=(1944, 902, 1966, 916), pluma=2),
          ],
-         nota="Retoque automático provisional (neón, insignia y patrón del food truck, letrero del carrito). Falta el retoque fino a mano."),
-    # Línea de tiempo (4:5, editorial)
-    Foto("F028", "brasa", [S("F028", "4x5", (0, 300, 2500, 3425), "Pollos enteros y berenjenas colgados de una estructura de hierro sobre el fuego")]),
-    Foto("F174", "brasa", [S("F174", "4x5", (940, 380, 1800, 1455), "La cocina de fuego abierta: pila de leña, jaula colgante y humo bajo los mezquites")],
-         nota="Recorte cerrado a la banda de la cocina (pila de leña, jaula y humo); deja fuera a los invitados de los lados."),
-    Foto("F218", "brasa", [S("F218", "4x5", (600, 300, 2500, 2675), "Aldo Lugo espolvorea pistache sobre los platos")],
-         nota="Recorte de seleccion §3 (x 600–2500, y 300–2675): quita la lata Corona."),
-    Foto("F303", "brasa", [S("F303", "4x5", (900, 0, 1700, 1000), "Mesas largas llenas de noche, con árboles iluminados y la hacienda al fondo")],
-         noche=True, nota="Recorte de la mitad alta (árboles, arcos y mesas a distancia): los invitados cercanos, identificables, quedan fuera."),
-    Foto("F358", "brasa", [S("F358", "4x5", (550, 0, 1883, 1667),
-                             "Montaña de piñas de agave cocidas por los maestros mezcaleros, con humo y arcos al fondo",
-                             credito=CREDITO_MEZCALEROS)], noche=True),
-    Foto("F363", "brasa", [S("F363", "4x5", (1007, 1010, 1533, 1667), "Fogata de leña al centro del patio, con troncos y empedrado",
-                             anchos=(480,))], noche=True,
-         retoques=[dict(tipo="borrar_impresion", caja=(1411, 1134, 1448, 1197), umbral=0.09)],  # caja de cerveza "XX"
-         nota="Recorte cerrado al fuego, por debajo de las caras (los invitados quedan fuera): mide 526 px. Se retoca la caja \"XX\"."),
-    # Galería (miniatura 1:1, grande 3:2 o 4:5, y un 4:5 de cada una)
-    Foto("F009", "brasa", [
-        S("F009", "1x1", (100, 0, 1765, 1665), ALT_F009, anchos=MINI, jpg=768),
-        S("F009", "3x2", (0, 250, 1770, 1430), ALT_F009, anchos=GRANDE),
-        S("F009", "4x5", (300, 0, 1632, 1665), ALT_F009),
-    ], dron=True, nota="Todos los recortes terminan antes de x 1780: quedan fuera las carpas de Coca-Cola y Tecate."),
-    Foto("F062", "brasa", [
-        S("F062", "1x1", (833, 0, 2500, 1667), ALT_F062, anchos=MINI, jpg=768),
-        S("F062", "3x2", (0, 0, 2500, 1667), ALT_F062, anchos=GRANDE),
-        S("F062", "4x5", (1100, 0, 2433, 1667), ALT_F062),
-    ]),
-    Foto("F139", "brasa", [
-        S("F139", "1x1", (0, 800, 2500, 3300), ALT_F139, anchos=MINI, jpg=768),
-        S("F139", "4x5", (0, 450, 2500, 3575), ALT_F139),
-    ]),
-    Foto("F153", "brasa", [
-        S("F153", "1x1", (0, 950, 2500, 3450), ALT_F153, anchos=MINI, jpg=768),
-        S("F153", "4x5", (0, 400, 2500, 3525), ALT_F153),
-    ]),
-    Foto("F203", "brasa", [
-        S("F203", "1x1", (0, 650, 2500, 3150), ALT_F203, anchos=MINI, jpg=768),
-        S("F203", "4x5", (0, 300, 2500, 3425), ALT_F203),
-    ]),
-    Foto("F216", "brasa", [
-        S("F216", "1x1", (0, 700, 2500, 3200), ALT_F216, anchos=MINI, jpg=768),
-        S("F216", "4x5", (0, 350, 2500, 3475), ALT_F216),
-    ]),
-    Foto("F289", "brasa", [
-        S("F289", "1x1", (400, 217, 1850, 1667), ALT_F289, anchos=MINI, jpg=768, credito=CREDITO_MEZCALEROS),
-        S("F289", "3x2", (0, 214, 2180, 1667), ALT_F289, anchos=GRANDE, credito=CREDITO_MEZCALEROS),
-        S("F289", "4x5", (500, 0, 1833, 1667), ALT_F289, credito=CREDITO_MEZCALEROS),
-    ], noche=True, nota="Todos los recortes terminan antes de x 2200: queda fuera la carretilla roja."),
-    # 5 · Experiencias (tarjetas 4:5)
+         nota="Retoque automático provisional (neón, insignia y patrón del food truck, letrero del carrito)."),
+    Foto("F174", "brasa", [S("F174", "4x5", (940, 380, 1800, 1455), "La cocina de fuego abierta: pila de leña, jaula colgante y humo bajo los mezquites")]),
+    Foto("F216", "brasa", [S("F216", "4x5", (0, 350, 2500, 3475), ALT_F216)]),
+    # Escena 7 · Tu mesa
     Foto("F307", "brasa", [S("F307", "4x5", (0, 350, 2500, 3475), "Tuétanos asados en platos de vidrio ámbar sobre una mesa de madera")]),
-    Foto("F128", "brasa", [S("F128", "4x5", (470, 250, 2500, 2788), "Mesa larga al aire libre con los arcos de la hacienda al fondo")],
-         nota="El recorte empieza en x 470: deja fuera al grupo que platica bajo los arcos."),
-    Foto("F255", "brasa", [S("F255", "4x5", (1300, 167, 2500, 1667), "Banquete en marcha bajo un árbol iluminado y estrellas de papel")],
-         nota="El recorte empieza en x 1300: deja fuera la carpa de Coca-Cola y el neón \"Legado y Mezcal\"."),
+    Foto("F128", "brasa", [S("F128", "4x5", (470, 250, 2500, 2788), "Mesa larga al aire libre con los arcos de la hacienda al fondo")]),
     Foto("F006", "brasa", [S("F006", "4x5", (1000, 250, 2132, 1665), "Mesa larga montada con tejidos y centros de follaje, vista desde arriba")],
-         dron=True, nota="El recorte empieza en y 250: deja fuera el food truck y los puestos del fondo."),
-    # 6 · El anfitrión
-    Foto("F249", "brasa", [S("F249", "4x5", (0, 500, 2500, 3625), "Aldo Lugo emplata a contraluz, al atardecer")]),
-    Foto("F042", "carbon", [S("F042", "4x5", (0, 500, 2200, 3250),
-                              "Aldo Lugo mira a cámara con un lomo bridado sobre la brasa y costillares colgados arriba")],
-         mezcla_bn=(0.45, 0.45, 0.10), nota="Recorte de seleccion §3 (x 0–2200, y 500–3250): deja fuera al cocinero A·L de la derecha."),
-    # 9 · Tu fecha: fondo del formulario (CARBÓN, oscurecido 60 % y desenfocado en el export)
-    Foto("F339", "carbon", [
-        S("F339", "9x16", (195, 0, 2304, 3750), "", anchos=MEDIA, q_avif=40, q_webp=60, fondo=True),
-        S("F339", "16x9", (0, 900, 2500, 2306), "", anchos=GRANDE, q_avif=40, q_webp=60, fondo=True),
-    ]),
-    # 10 · Cierre
-    Foto("F013", "brasa", [
-        S("F013", "9x16", (800, 0, 1737, 1665), ALT_F013, anchos=MEDIA),
-        S("F013", "16x9", (0, 0, 2500, 1406), ALT_F013, anchos=GRANDE),
-    ], dron=True),
+         dron=True),
+    # Escena 6 y 10 · La noche y el cierre: brasa del horno de los maestros mezcaleros (con crédito)
+    Foto("F289", "brasa", [
+        S("F289", "4x5", (500, 0, 1833, 1667), ALT_F289, credito=CREDITO_MEZCALEROS),
+        S("F289", "9x16", (843, 0, 1781, 1667), ALT_F289, anchos=MEDIA, credito=CREDITO_MEZCALEROS),
+        S("F289", "16x9", (0, 300, 2180, 1526), ALT_F289, anchos=GRANDE, credito=CREDITO_MEZCALEROS),
+    ], noche=True, nota="Todos los recortes terminan antes de x 2200: fuera la carretilla roja."),
 ]
 
 OG_CAJA = (80, 40, 2500, 1311)  # F019 (retocada), 1200 × 630; el recorte quita el neón Audi
@@ -642,7 +604,7 @@ def main() -> int:
         if kb > 200:
             avisos.append(f"og.jpg pesa {kb:.0f} KB (> 200 KB)")
     # topes
-    for clave in ("F080-1x1", "F080-4x5", "F080-9x16"):
+    for clave in ("F080-4x5", "F080-9x16"):
         n = f"{clave}-1080.avif"
         if n in pesos and pesos[n] / 1024 > 180:
             avisos.append(f"{n}: {pesos[n] / 1024:.0f} KB > 180 KB")
