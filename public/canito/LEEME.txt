@@ -1,0 +1,2 @@
+Demo de Taquería Canito (antemano.com.mx/canito). NO se edita aquí: se genera desde el repo de Canito
+(C:/Users/migue/Sandbox/canito) con scripts/canito-demo-antemano.py. Ver el encabezado de ese script.
