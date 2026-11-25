@@ -1,0 +1,92 @@
+---
+/**
+ * <Carrusel etiqueta="Las lumbres" tipo="lumbres|noche|formatos" total={6}> <li class="ml-carr__item" …>…</li> </Carrusel>
+ *
+ * ESPEC §7.4. Tira horizontal con scroll-snap. El layout lo decide el ancho: `lumbres` (3 × 2) y `formatos` (4)
+ * pasan a grilla desde 1024 px; `noche` sigue siendo carrusel con tarjetas de ≤ 26rem.
+ * Nunca rota solo. La pista es enfocable (las flechas del teclado desplazan) y los botones siempre responden:
+ * en la última tarjeta "Siguiente" vuelve a la primera y viceversa.
+ */
+import Icono from './Icono.astro';
+
+interface Props {
+  etiqueta: string;
+  tipo: 'lumbres' | 'noche' | 'formatos';
+  total: number;
+  clase?: string;
+}
+const { etiqueta, tipo, total, clase } = Astro.props;
+const dos = (n: number) => String(n).padStart(2, '0');
+---
+<div
+  class:list={['ml-carr', `ml-carr--${tipo}`, tipo !== 'noche' && 'ml-carr--grilla', clase]}
+  role="region"
+  aria-roledescription="carrusel"
+  aria-label={etiqueta}
+  data-carrusel
+>
+  <ul class="ml-carr__pista" tabindex="0" data-pista data-lenis-prevent>
+    <slot />
+  </ul>
+  <div class="ml-carr__control al-wrap">
+    <button type="button" class="ml-carr__boton" data-ant aria-label="Anterior"><Icono nombre="anterior" /></button>
+    <span class="ml-carr__cuenta al-num" data-cuenta aria-hidden="true">01 / {dos(total)}</span>
+    <span class="ml-carr__linea" aria-hidden="true"><span data-avance style={`transform:scaleX(${1 / total})`}></span></span>
+    <button type="button" class="ml-carr__boton" data-sig aria-label="Siguiente"><Icono nombre="siguiente" /></button>
+  </div>
+</div>
+
+<script>
+  const quieto = () => document.documentElement.hasAttribute('data-quieto');
+  const dos = (n: number) => String(n).padStart(2, '0');
+
+  document.querySelectorAll<HTMLElement>('[data-carrusel]').forEach((c) => {
+    const pista = c.querySelector<HTMLElement>('[data-pista]');
+    if (!pista) return;
+    const items = Array.from(pista.children) as HTMLElement[];
+    const n = items.length;
+    const cuenta = c.querySelector<HTMLElement>('[data-cuenta]');
+    const avance = c.querySelector<HTMLElement>('[data-avance]');
+    let activo = 0;
+    let ultimo = 0;
+
+    /** Primera y última tarjeta visibles (≥ 60 %) dentro de la pista. */
+    function medir() {
+      const izq = pista!.scrollLeft;
+      const der = izq + pista!.clientWidth;
+      const vis: number[] = [];
+      items.forEach((it, i) => {
+        const a = it.offsetLeft;
+        const b = a + it.offsetWidth;
+        const visible = Math.min(b, der) - Math.max(a, izq);
+        if (visible >= it.offsetWidth * 0.6) vis.push(i);
+      });
+      if (!vis.length) return;
+      activo = vis[0];
+      ultimo = vis[vis.length - 1];
+      items.forEach((it, i) => it.classList.toggle('is-activa', i >= activo && i <= ultimo));
+      if (cuenta) cuenta.textContent = `${dos(activo + 1)} / ${dos(n)}`;
+      if (avance) avance.style.transform = `scaleX(${(ultimo + 1) / n})`;
+    }
+
+    let cuadro = 0;
+    pista.addEventListener('scroll', () => {
+      cancelAnimationFrame(cuadro);
+      cuadro = requestAnimationFrame(medir);
+    }, { passive: true });
+    addEventListener('resize', () => requestAnimationFrame(medir), { passive: true });
+
+    function ir(i: number) {
+      const it = items[((i % n) + n) % n];
+      const centro = getComputedStyle(it).scrollSnapAlign.includes('center');
+      const relleno = parseFloat(getComputedStyle(pista!).scrollPaddingLeft) || 0;
+      const izq = centro ? it.offsetLeft - (pista!.clientWidth - it.offsetWidth) / 2 : it.offsetLeft - relleno;
+      pista!.scrollTo({ left: Math.max(0, izq), behavior: quieto() ? 'auto' : 'smooth' });
+    }
+    c.querySelector('[data-ant]')?.addEventListener('click', () => ir(activo === 0 ? n - 1 : activo - 1));
+    c.querySelector('[data-sig]')?.addEventListener('click', () => ir(ultimo >= n - 1 ? 0 : activo + 1));
+
+    medir();
+    c.classList.add('is-listo');
+  });
+</script>

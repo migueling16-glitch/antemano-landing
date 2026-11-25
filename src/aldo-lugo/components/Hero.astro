@@ -1,0 +1,55 @@
+---
+/**
+ * 1 · Hero #inicio (propuesta §5 y §6.1; ESPEC §7.3).
+ * Móvil: hero apilado. F080 a sangre arriba (1:1, alto flexible) y el texto abajo sobre carbón, nunca sobre la foto.
+ * Antetítulo, H1, calificación y CTA caben en la primera pantalla; subtítulo, ocasiones y credencial van después.
+ * Escritorio (≥ 1024): hero partido, titular a la izquierda y F080 (4:5) en el 40 % derecho.
+ * Nada aquí se oculta esperando fuentes ni JS; la foto solo anima scale 1.04 → 1 (sin opacidad).
+ */
+import FotoArte from './FotoArte.astro';
+import Texto from './Texto.astro';
+import Dato from './Dato.astro';
+import Icono from './Icono.astro';
+import { HERO, SECCIONES, CTA, calificacionLinea2 } from '../config';
+---
+<section id={SECCIONES.inicio} class="ml-hero" data-tema="noche" aria-labelledby="ml-h1">
+  <div class="ml-hero__pantalla">
+    <div class="ml-hero__media">
+      <FotoArte
+        movil={HERO.foto}
+        escritorio={HERO.fotoEscritorio}
+        alt={HERO.foto.alt}
+        loading="eager"
+        fetchpriority="high"
+        sizesMovil="100vw"
+        sizesEscritorio="40vw"
+        clase="ml-hero__foto"
+      />
+    </div>
+    <div class="ml-hero__texto">
+      <p class="al-label ml-hero__ante">
+        {HERO.antetitulo.split('chef').map((t, i) => (i ? <><span class="ml-minus">chef</span>{t}</> : t))}
+      </p>
+      <h1 id="ml-h1" class="al-h1 ml-hero__h1">{HERO.h1}</h1>
+      <p class="ml-hero__sub ml-hero__sub--ancho">{HERO.subtitulo}</p>
+      <p class="ml-hero__calif">
+        <span class="ml-hero__calif1">{HERO.calificacion[0]}</span>
+        <span class="ml-hero__calif2"><Texto t={calificacionLinea2()} /></span>
+      </p>
+      <div class="ml-hero__ctas" data-hero-cta>
+        <a class="al-btn al-btn--primario ml-hero__cta" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
+        <a class="al-enlace ml-hero__noche" href={HERO.ctaSecundario.href}>
+          {HERO.ctaSecundario.texto}<Icono nombre="abajo" clase="ml-hero__abajo" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="ml-hero__despues">
+    <p class="ml-hero__sub ml-hero__sub--movil">{HERO.subtitulo}</p>
+    <p class="ml-hero__ocasiones">{HERO.ocasiones}</p>
+    <div class="ml-hero__pie">
+      <p class="al-label ml-hero__cred">{HERO.credencial} <Dato valor={null} etiqueta="permiso" pregunta={21} /></p>
+      <span class="al-sello ml-hero__sello" aria-hidden="true">{HERO.sello}</span>
+    </div>
+  </div>
+</section>

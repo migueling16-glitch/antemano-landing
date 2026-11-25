@@ -1,0 +1,19 @@
+---
+/**
+ * <Texto t={FAQ.items[0].respuesta} />
+ * Pinta un Texto de config.ts: strings tal cual y cada hueco h(…) como <Dato /> (valor o chip "por confirmar").
+ * No agrega etiqueta envolvente: va dentro de tu <p>, <li>, <span>…
+ */
+import type { Texto } from '../config';
+import { esHueco } from '../config';
+import Dato from './Dato.astro';
+
+interface Props {
+  t: Texto;
+}
+const { t } = Astro.props;
+const segmentos = typeof t === 'string' ? [t] : t;
+---
+{segmentos.map((s) =>
+  esHueco(s) ? <Dato valor={s.valor} etiqueta={s.hueco} pregunta={s.pregunta} formato={s.formato} /> : <Fragment set:text={s} />,
+)}

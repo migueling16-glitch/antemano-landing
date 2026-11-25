@@ -1,0 +1,38 @@
+---
+/**
+ * Referencias de fotos dentro del cuestionario: "F252 · DSC00533.jpg".
+ * Pinta miniatura SOLO si la foto ya está en la selección de la landing (FOTOS_REQUERIDAS, revisada contra
+ * "Fotos a evitar") y el pipeline ya la exportó (fotos.json). Las demás (con invitados, con otros cocineros…)
+ * van solo como texto, para que el chef las busque en el Drive.
+ */
+import Foto from '../Foto.astro';
+import fotos from '../../fotos.json';
+import { FOTOS_REQUERIDAS, type Recorte } from '../../config';
+import type { Foto as FotoRef } from '../../cuestionario';
+
+interface Props {
+  fotos: FotoRef[];
+  clase?: string;
+}
+const { fotos: lista, clase } = Astro.props;
+const vetadas = new Set(FOTOS_REQUERIDAS.map((f) => f.id));
+const ORDEN: Recorte[] = ['1x1', '4x5', '3x2', '16x9', '9x16'];
+const recorteDe = (id: string): Recorte | null =>
+  vetadas.has(id) ? (ORDEN.find((r) => (fotos as Record<string, unknown>)[`${id}-${r}`]) ?? null) : null;
+const archivo = (a?: string) => (a ? a.split('\\').pop() : '');
+---
+<ul class:list={['cq-fotos', clase]} aria-label="Fotos de referencia">
+  {lista.map((f) => {
+    const r = recorteDe(f.id);
+    return (
+      <li class:list={['cq-foto', r && 'cq-foto--mini']}>
+        {r && (
+          <span class="cq-foto__mini">
+            <Foto id={f.id} recorte={r} decorativa sizes="72px" ajuste="cover" />
+          </span>
+        )}
+        <span class="cq-foto__ref"><b>{f.id}</b>{f.archivo && <span> · {archivo(f.archivo)}</span>}</span>
+      </li>
+    );
+  })}
+</ul>

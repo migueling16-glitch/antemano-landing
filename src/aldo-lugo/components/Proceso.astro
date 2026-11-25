@@ -1,0 +1,59 @@
+---
+/**
+ * 7 · Así trabajamos #proceso (propuesta §4 y §6.3; ESPEC §7.3).
+ * Seis pasos en lista compacta y "Qué necesitamos del lugar" en un <details> cerrado con el esquema SVG.
+ * Medidas, plazos y anticipo por confirmar (P7, P8, P10, P17). Franja de confianza por confirmar (P26).
+ */
+import Texto from './Texto.astro';
+import Dato from './Dato.astro';
+import BotonWa from './BotonWa.astro';
+import EsquemaLugar from './EsquemaLugar.astro';
+import { PROCESO, LUGAR, SECCIONES, CTA, MENSAJES_WA } from '../config';
+---
+<section id={SECCIONES.proceso} class="ml-proc al-sec" data-tema="dia" aria-labelledby="ml-proc-h2">
+  <div class="al-wrap ml-proc__grid">
+    <header class="ml-sec-cab ml-proc__cab">
+      <p class="al-label al-muted">Así trabajamos</p>
+      <h2 id="ml-proc-h2" class="al-h2 al-revela">{PROCESO.titulo}</h2>
+    </header>
+
+    <div class="ml-proc__cuerpo">
+      <ol class="ml-proc__pasos">
+        {PROCESO.pasos.map((p, i) => (
+          <li class="ml-proc__paso al-revela" style={`--al-delay:${i * 70}ms`}>
+            <span class="ml-proc__num al-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <p><Texto t={p} /></p>
+          </li>
+        ))}
+      </ol>
+
+      <details class="ml-det ml-lugar">
+        <summary class="ml-det__sum">{PROCESO.lugarTitulo}</summary>
+        <div class="ml-det__cuerpo ml-lugar__cuerpo">
+          <figure class="ml-lugar__figura">
+            <EsquemaLugar describe="ml-lugar-lista" />
+          </figure>
+          <ul class="ml-lugar__lista" id="ml-lugar-lista">
+            {LUGAR.necesitamos.map((n) => (
+              <li><strong>{n.titulo}.</strong> <Texto t={n.texto} /></li>
+            ))}
+          </ul>
+          <p class="al-small">Si el lugar no permite fuego abierto: <Texto t={LUGAR.noPermiteFuego} /></p>
+          <p class="al-small al-muted">La lumbre, el equipo y la brigada los llevamos nosotros.</p>
+        </div>
+      </details>
+
+      <div class="ml-proc__confianza">
+        <ul class="ml-proc__sellos" aria-label="Formalidad">
+          {PROCESO.confianza.items.map((t) => <li>{t}</li>)}
+        </ul>
+        {!PROCESO.confianza.confirmado && <Dato valor={null} etiqueta="formalidad" pregunta={PROCESO.confianza.pregunta} />}
+      </div>
+
+      <div class="ml-proc__ctas">
+        <a class="al-btn al-btn--secundario" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
+        <BotonWa mensaje={MENSAJES_WA.fotosLugar} texto={PROCESO.ctaFotos} variante="fantasma" />
+      </div>
+    </div>
+  </div>
+</section>

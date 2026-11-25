@@ -1,0 +1,39 @@
+---
+/**
+ * 2 · Manifiesto #manifiesto (propuesta §6.2, voz de Aldo; P23). F079 en CARBÓN.
+ * Cada verso es su propio bloque y se revela una vez desde opacidad .35 (nunca desde 0).
+ */
+import Foto from './Foto.astro';
+import Texto from './Texto.astro';
+import Dato from './Dato.astro';
+import { MANIFIESTO, SECCIONES } from '../config';
+---
+<section id={SECCIONES.manifiesto} class="ml-mani al-sec" data-tema="noche" aria-labelledby="ml-mani-h2">
+  <div class="al-wrap ml-mani__grid">
+    <div class="ml-mani__foto">
+      <Foto
+        id={MANIFIESTO.foto.id}
+        recorte={MANIFIESTO.foto.recorte}
+        alt={MANIFIESTO.foto.alt}
+        sizes="(min-width: 1024px) 38vw, 100vw"
+        ajuste="cover"
+      />
+    </div>
+    <div class="ml-mani__texto">
+      <h2 id="ml-mani-h2" class="al-label al-muted ml-mani__titulo">Manifiesto</h2>
+      <blockquote class="ml-mani__cita">
+        {MANIFIESTO.lineas.map((l, i) => (
+          <p class:list={['al-manifiesto', 'ml-verso', 'al-revela', 'al-revela--tenue', i === MANIFIESTO.lineas.length - 1 && 'ml-verso--final']} style={`--al-delay:${i * 100}ms`}>{l}</p>
+        ))}
+        <footer class="ml-mani__firma al-revela">
+          <span class="al-label">— {MANIFIESTO.firma}</span>
+          <Dato valor={null} etiqueta="texto" pregunta={MANIFIESTO.pregunta} />
+        </footer>
+      </blockquote>
+      <ul class="ml-mani__datos al-revela" aria-label="El evento en datos">
+        {MANIFIESTO.datos.map((d) => <li><Texto t={d} /></li>)}
+      </ul>
+      <a class="al-enlace ml-mani__loop al-revela" href={MANIFIESTO.openLoop.href}>{MANIFIESTO.openLoop.texto} <span aria-hidden="true">↓</span></a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,189 @@
+---
+/**
+ * Un campo del cuestionario (una sub-pregunta de PREGUNTAS_CHEF.md), según su tipo.
+ * Contrato con cuestionario-cliente.ts:
+ *   [data-campo=id][data-tipo]          contenedor (data-si-campo / data-si-valores si es condicional)
+ *   input|textarea[name=id]             texto, número, monto, opción
+ *   [data-celda="fila.col"]             celdas de tabla (radios: name="id::fila.col")
+ *   [data-usar=id][data-valor]          "Usar la propuesta" (se oculta cuando el campo ya tiene valor)
+ *   [data-regla="id:fila"]              aviso suave de la regla de la tabla (mínimo ≥ desde × 21)
+ */
+import type { Campo, Columna, Fila } from '../../cuestionario';
+import { mxn } from '../../config';
+import Opciones from './Opciones.astro';
+import Fotos from './Fotos.astro';
+
+interface Props {
+  campo: Campo;
+}
+const { campo: c } = Astro.props;
+const base = `cq-${c.id.replace(/[^A-Za-z0-9_-]/g, '-')}`;
+const idEtq = `${base}-etq`;
+const idAyuda = `${base}-ayuda`;
+const describe = c.ayuda ? idAyuda : undefined;
+const si = c.si ? { 'data-si-campo': c.si.campo, 'data-si-valores': c.si.valores.join(' ') } : {};
+
+/** Texto del botón "Usar la propuesta". */
+function propuesta(): { valor: string; texto: string } | null {
+  if (!('porDefecto' in c) || c.porDefecto === undefined || c.porDefecto === null) return null;
+  const v = c.porDefecto;
+  if (c.tipo === 'monto') return { valor: JSON.stringify(v), texto: `Usar la propuesta: ${mxn(v as number)}` };
+  if (c.tipo === 'numero') return { valor: JSON.stringify(v), texto: `Usar la propuesta: ${v}${c.unidad ? ` ${c.unidad}` : ''}` };
+  if (c.tipo === 'unica' || c.tipo === 'sino' || c.tipo === 'multiple') {
+    const o = c.opciones.find((x) => x.id === v);
+    return { valor: JSON.stringify(v), texto: `Usar la propuesta: ${o?.etiqueta ?? v}` };
+  }
+  const t = String(v);
+  return { valor: JSON.stringify(t), texto: t.length <= 36 ? `Usar la propuesta: ${t}` : 'Usar la propuesta' };
+}
+const prop = propuesta();
+
+const esOpciones = c.tipo === 'unica' || c.tipo === 'multiple' || c.tipo === 'sino';
+const enFila = (ops: { etiqueta: string }[]) => ops.length <= 3 && ops.every((o) => o.etiqueta.length <= 14);
+
+// Tabla
+const celdaId = (f: Fila, col: Columna) => `${base}-${f.id}-${col.id}`.replace(/[^A-Za-z0-9_-]/g, '-');
+const etqCol = (f: Fila, col: Columna) => f.etiquetas?.[col.id] ?? col.etiqueta;
+---
+{esOpciones && c.tipo !== 'tabla' && (
+  <fieldset class="cq-campo" data-campo={c.id} data-tipo={c.tipo} aria-describedby={describe} {...si}>
+    <legend class="cq-campo__etq">{c.etiqueta}{c.opcional && <span class="cq-opcional"> · opcional</span>}</legend>
+    {c.ayuda && <p class="cq-campo__ayuda" id={idAyuda}>{c.ayuda}</p>}
+    {c.fotos && <Fotos fotos={c.fotos} />}
+    <Opciones
+      nombre={c.id}
+      tipo={c.tipo === 'multiple' ? 'checkbox' : 'radio'}
+      opciones={(c as any).opciones}
+      campo={c.id}
+      fila={c.tipo === 'sino' && enFila((c as any).opciones)}
+      idBase={base}
+    />
+    {prop && <button type="button" class="cq-usar" data-usar={c.id} data-valor={prop.valor} hidden>{prop.texto}</button>}
+  </fieldset>
+)}
+
+{(c.tipo === 'corto' || c.tipo === 'largo') && (
+  <div class="cq-campo" data-campo={c.id} data-tipo={c.tipo} {...si}>
+    <label class="cq-campo__etq" for={base}>{c.etiqueta}{c.opcional && <span class="cq-opcional"> · opcional</span>}</label>
+    {c.ayuda && <p class="cq-campo__ayuda" id={idAyuda}>{c.ayuda}</p>}
+    {c.fotos && <Fotos fotos={c.fotos} />}
+    {c.tipo === 'largo' ? (
+      <textarea id={base} name={c.id} class="cq-input cq-input--largo" rows="3" aria-describedby={describe} placeholder={c.placeholder}></textarea>
+    ) : (
+      <input
+        id={base}
+        name={c.id}
+        class="cq-input"
+        type={c.formato === 'correo' ? 'email' : c.formato === 'telefono' ? 'tel' : 'text'}
+        inputmode={c.formato === 'correo' ? 'email' : c.formato === 'telefono' ? 'tel' : undefined}
+        autocomplete={c.formato === 'correo' ? 'email' : c.formato === 'telefono' ? 'tel' : 'off'}
+        autocapitalize={c.formato === 'mayusculas' ? 'characters' : c.formato === 'correo' ? 'none' : undefined}
+        spellcheck={c.formato === 'correo' || c.formato === 'telefono' ? 'false' : undefined}
+        enterkeyhint="next"
+        placeholder={c.placeholder}
+        aria-describedby={describe}
+      />
+    )}
+    {prop && <button type="button" class="cq-usar" data-usar={c.id} data-valor={prop.valor} hidden>{prop.texto}</button>}
+  </div>
+)}
+
+{(c.tipo === 'numero' || c.tipo === 'monto') && (
+  <div class="cq-campo" data-campo={c.id} data-tipo={c.tipo} {...si}>
+    <label class="cq-campo__etq" for={base}>{c.etiqueta}</label>
+    {c.ayuda && <p class="cq-campo__ayuda" id={idAyuda}>{c.ayuda}</p>}
+    {c.fotos && <Fotos fotos={c.fotos} />}
+    <div class:list={['cq-num', c.tipo === 'monto' && 'cq-num--monto']}>
+      {c.tipo === 'monto' && <span class="cq-num__pre" aria-hidden="true">$</span>}
+      <input
+        id={base}
+        name={c.id}
+        class="cq-input cq-input--num"
+        type="text"
+        inputmode={c.tipo === 'numero' && c.decimales ? 'decimal' : 'numeric'}
+        autocomplete="off"
+        enterkeyhint="next"
+        data-decimales={c.tipo === 'numero' && c.decimales ? '' : undefined}
+        placeholder={c.placeholder}
+        aria-describedby={describe}
+      />
+      <span class="cq-num__unidad">{c.tipo === 'monto' ? 'MXN' : c.unidad}</span>
+    </div>
+    {prop && <button type="button" class="cq-usar" data-usar={c.id} data-valor={prop.valor} hidden>{prop.texto}</button>}
+  </div>
+)}
+
+{c.tipo === 'escala' && (
+  <fieldset class="cq-campo" data-campo={c.id} data-tipo="escala" {...si}>
+    <legend class="cq-campo__etq">{c.etiqueta}</legend>
+    <Opciones
+      nombre={c.id}
+      tipo="radio"
+      opciones={Array.from({ length: c.max - c.min + 1 }, (_, i) => ({ id: String(c.min + i), etiqueta: String(c.min + i) }))}
+      campo={c.id}
+      fila
+      idBase={base}
+    />
+    <p class="cq-escala"><span>{c.extremos[0]}</span><span>{c.extremos[1]}</span></p>
+  </fieldset>
+)}
+
+{c.tipo === 'tabla' && (
+  <div class="cq-campo cq-campo--tabla" data-campo={c.id} data-tipo="tabla" role="group" aria-labelledby={idEtq} aria-describedby={describe} {...si}>
+    <p class="cq-campo__etq" id={idEtq}>{c.etiqueta}</p>
+    {c.ayuda && <p class="cq-campo__ayuda" id={idAyuda}>{c.ayuda}</p>}
+    <div class="cq-filas">
+      {c.filas.map((f) => (
+        <fieldset class="cq-fila" data-fila={f.id}>
+          <legend class="cq-fila__etq">{f.etiqueta}</legend>
+          {f.ayuda && <p class="cq-fila__ayuda">{f.ayuda}</p>}
+          {f.fotos && <Fotos fotos={f.fotos} clase="cq-fotos--fila" />}
+          <div class:list={['cq-celdas', c.columnas.every((col) => col.tipo !== 'opciones') && 'cq-celdas--num']}>
+            {c.columnas.map((col) =>
+              f.omitir?.includes(col.id) ? (
+                f.notas?.[col.id] && <p class="cq-celda cq-celda--nota">{f.notas[col.id]}</p>
+              ) : col.tipo === 'opciones' ? (
+                <fieldset class="cq-celda cq-celda--ops">
+                  <legend class="cq-celda__etq">{etqCol(f, col)}</legend>
+                  <Opciones
+                    nombre={`${c.id}::${f.id}.${col.id}`}
+                    tipo="radio"
+                    opciones={col.opciones ?? []}
+                    campo={c.id}
+                    celda={`${f.id}.${col.id}`}
+                    fila
+                    idBase={celdaId(f, col)}
+                  />
+                </fieldset>
+              ) : (
+                <div class="cq-celda">
+                  <label class="cq-celda__etq" for={celdaId(f, col)}>{etqCol(f, col)}</label>
+                  {col.tipo === 'corto' ? (
+                    <input id={celdaId(f, col)} class="cq-input" type="text" autocomplete="off" enterkeyhint="next" data-celda={`${f.id}.${col.id}`} />
+                  ) : (
+                    <div class:list={['cq-num', col.tipo === 'monto' && 'cq-num--monto']}>
+                      {col.tipo === 'monto' && <span class="cq-num__pre" aria-hidden="true">$</span>}
+                      <input
+                        id={celdaId(f, col)}
+                        class="cq-input cq-input--num"
+                        type="text"
+                        inputmode={col.decimales ? 'decimal' : 'numeric'}
+                        autocomplete="off"
+                        enterkeyhint="next"
+                        data-celda={`${f.id}.${col.id}`}
+                        data-decimales={col.decimales ? '' : undefined}
+                        data-monto={col.tipo === 'monto' ? '' : undefined}
+                      />
+                      {(col.unidad || col.tipo === 'monto') && <span class="cq-num__unidad">{col.tipo === 'monto' ? 'MXN' : col.unidad}</span>}
+                    </div>
+                  )}
+                </div>
+              ),
+            )}
+          </div>
+          {c.regla && <p class="cq-regla" data-regla={`${c.id}:${f.id}`} role="status" hidden></p>}
+        </fieldset>
+      ))}
+    </div>
+  </div>
+)}

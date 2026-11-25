@@ -1,0 +1,29 @@
+---
+/**
+ * <Dato valor={DATOS.zona} etiqueta="zona" pregunta={12} />
+ * <Dato valor={f.precio.desde} formato="mxn" etiqueta="precio" pregunta={5} />
+ *
+ * Con valor: pinta el valor (formateado). Sin valor (null): en DEMO pinta el chip discreto
+ * "<etiqueta> por confirmar"; fuera de DEMO rompe el build (lo no confirmado no se publica).
+ */
+import { DEMO, pendiente, mxn } from '../config';
+
+interface Props {
+  valor: string | number | null | undefined;
+  etiqueta?: string;
+  pregunta?: number;
+  formato?: 'mxn' | 'texto' | ((v: any) => string);
+  clase?: string;
+}
+const { valor, etiqueta, pregunta, formato = 'texto', clase } = Astro.props;
+const fmt = typeof formato === 'function' ? formato : formato === 'mxn' ? (v: number) => mxn(v) : (v: unknown) => String(v);
+const r = pendiente(valor as any, { etiqueta, pregunta, formato: fmt as any });
+if (r.pendiente && !DEMO) {
+  throw new Error(`Dato pendiente "${etiqueta ?? '?'}" (pregunta ${pregunta ?? '?'}): con DEMO = false no se publica.`);
+}
+---
+{r.pendiente ? (
+  <span class:list={['al-pendiente', clase]} title={r.titulo} data-pregunta={pregunta}>{r.texto}</span>
+) : (
+  <span class={clase}>{r.texto}</span>
+)}

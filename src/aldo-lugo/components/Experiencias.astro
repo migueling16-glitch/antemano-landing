@@ -1,0 +1,90 @@
+---
+/**
+ * 5 · Experiencias #experiencias (propuesta §4 y §6.3; ESPEC §7.3).
+ * Cuatro <article> en orden fijo (Íntima, Larga, Boda, Marca). < 1024 px: carrusel con snap y contador 1 / 4;
+ * ≥ 1024 px: grilla de 4. El CTA de cada tarjeta es SECUNDARIO y abre la hoja con su formato preseleccionado
+ * (data-preset). Precios y mínimos salen de OFERTA: en null se pintan como "precio por confirmar" (P5).
+ */
+import Foto from './Foto.astro';
+import Texto from './Texto.astro';
+import Dato from './Dato.astro';
+import Carrusel from './Carrusel.astro';
+import BotonWa from './BotonWa.astro';
+import { EXPERIENCIAS, OFERTA, SECCIONES, MENSAJES_WA, lineaPrecio } from '../config';
+
+const formatos = OFERTA.formatos;
+---
+<section id={SECCIONES.experiencias} class="ml-exp al-sec" data-tema="dia" aria-labelledby="ml-exp-h2">
+  <header class="al-wrap ml-sec-cab">
+    <p class="al-label al-muted">Experiencias</p>
+    <h2 id="ml-exp-h2" class="al-h2 al-revela">{EXPERIENCIAS.titulo}</h2>
+    <p class="al-lead al-medida al-revela">{EXPERIENCIAS.entrada}</p>
+  </header>
+
+  <Carrusel etiqueta="Experiencias" tipo="formatos" total={formatos.length} clase="al-revela">
+    {formatos.map((f, i) => (
+      <li class="ml-carr__item" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${formatos.length}: ${f.nombre}`}>
+        <article class="ml-formato" aria-labelledby={`ml-fmt-${f.id}`}>
+          <figure class="ml-formato__foto">
+            <div class="ml-formato__marco">
+              <Foto id={f.foto.id} recorte={f.foto.recorte} alt={f.foto.alt} sizes="(min-width: 1024px) 22vw, 86vw" ajuste="cover" />
+            </div>
+            <figcaption class="al-small ml-formato__pie">{EXPERIENCIAS.pieFoto}</figcaption>
+          </figure>
+          <div class="ml-formato__cuerpo">
+            <p class="al-label ml-formato__rango">{f.rango}</p>
+            <h3 id={`ml-fmt-${f.id}`} class="al-h3">{f.nombre}</h3>
+            <p class="ml-formato__para">{f.para}</p>
+            <p class="ml-formato__precio"><Texto t={lineaPrecio(f)} /></p>
+            <details class="ml-det ml-formato__incluye">
+              <summary class="ml-det__sum">{EXPERIENCIAS.queIncluye} <Dato valor={null} etiqueta="lista" pregunta={6} /></summary>
+              <ul class="ml-lista">
+                {f.incluye.map((t) => <li><Texto t={t} /></li>)}
+              </ul>
+            </details>
+            <a
+              class="al-btn al-btn--secundario ml-formato__cta"
+              href={`#${SECCIONES.tuFecha}`}
+              data-abrir-hoja
+              data-preset={JSON.stringify(f.preset)}
+            >{f.cta}<span class="al-sr">: {f.nombre}</span></a>
+          </div>
+        </article>
+      </li>
+    ))}
+  </Carrusel>
+
+  <div class="al-wrap ml-exp__pie">
+    <div class="ml-exp__mas al-revela">
+      <p>{EXPERIENCIAS.mas300}</p>
+      <BotonWa mensaje={MENSAJES_WA.mas300} texto="Escribir por WhatsApp" variante="enlace" />
+    </div>
+    <a class="al-enlace al-enlace--flecha ml-exp__aliado" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja data-preset={JSON.stringify({ perfil: 'aliado' })}>{EXPERIENCIAS.aliado}</a>
+
+    <div class="ml-exp__acordeones">
+      <details class="ml-det">
+        <summary class="ml-det__sum">{EXPERIENCIAS.asiSeVio.titulo}</summary>
+        <div class="ml-det__cuerpo">
+          <p class="al-small al-muted">De la noche en Nombre de Dios. <Dato valor={null} etiqueta="qué cocinó Aldo" pregunta={EXPERIENCIAS.asiSeVio.pregunta} /></p>
+          <ul class="ml-lista ml-lista--puntos">
+            {EXPERIENCIAS.asiSeVio.items.map((t) => <li>{t}</li>)}
+          </ul>
+        </div>
+      </details>
+      <details class="ml-det">
+        <summary class="ml-det__sum">Qué incluye siempre y qué va aparte</summary>
+        <div class="ml-det__cuerpo ml-exp__dos">
+          <div>
+            <p class="al-label">Incluye siempre <Dato valor={null} etiqueta="lista" pregunta={6} /></p>
+            <ul class="ml-lista">{OFERTA.incluyeSiempre.map((t) => <li><Texto t={t} /></li>)}</ul>
+          </div>
+          <div>
+            <p class="al-label">Va aparte</p>
+            <ul class="ml-lista">{OFERTA.aparte.map((t) => <li><Texto t={t} /></li>)}</ul>
+            <p class="al-small al-muted">{OFERTA.propina}</p>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>

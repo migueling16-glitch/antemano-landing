@@ -1,0 +1,73 @@
+---
+/**
+ * Grupo de opciones grandes y táctiles (radio o checkbox) para el cuestionario.
+ * Una opción con `detalle` ("Otro: ____") trae su campo de texto, que aparece al elegirla.
+ *   - En lista (vertical), el detalle va justo debajo de su opción.
+ *   - En fila (Sí / No), el detalle va debajo del grupo.
+ * Contrato con cuestionario-cliente.ts:
+ *   input[name=nombre][value=opción]          (data-celda si es una celda de tabla)
+ *   [data-detalle-para="nombre:opción"]        contenedor del detalle (hidden hasta elegirla)
+ *   [data-detalle-de=campo][data-opcion=id]    texto del detalle de un campo
+ *   [data-celda="fila.col.d"]                  texto del detalle de una celda
+ */
+import type { Opcion } from '../../cuestionario';
+
+interface Props {
+  nombre: string;
+  tipo: 'radio' | 'checkbox';
+  opciones: Opcion[];
+  /** Id del campo (para el detalle). */
+  campo: string;
+  /** Celda de tabla "fila.col". */
+  celda?: string;
+  fila?: boolean;
+  idBase: string;
+}
+const { nombre, tipo, opciones, campo, celda, fila = false, idBase } = Astro.props;
+const idDetalle = (o: Opcion) => `${idBase}-${o.id}-d`;
+---
+{(() => {
+  const detalle = (o: Opcion) => (
+    <div class="cq-detalle" data-detalle-para={`${nombre}:${o.id}`} hidden>
+      <label class="cq-detalle__etq" for={idDetalle(o)}>{o.detalle}</label>
+      {o.detalleLargo ? (
+        <textarea
+          id={idDetalle(o)}
+          class="cq-input cq-input--largo"
+          rows="3"
+          data-detalle-de={celda ? undefined : campo}
+          data-opcion={celda ? undefined : o.id}
+          data-celda={celda ? `${celda}.d` : undefined}
+        ></textarea>
+      ) : (
+        <input
+          id={idDetalle(o)}
+          type="text"
+          class="cq-input"
+          autocomplete="off"
+          enterkeyhint="done"
+          data-detalle-de={celda ? undefined : campo}
+          data-opcion={celda ? undefined : o.id}
+          data-celda={celda ? `${celda}.d` : undefined}
+        />
+      )}
+    </div>
+  );
+  return (
+    <>
+      <div class:list={['cq-ops', fila && 'cq-ops--fila', tipo === 'checkbox' && 'cq-ops--check']}>
+        {opciones.map((o) => (
+          <>
+            <label class="cq-op">
+              <input type={tipo} name={nombre} value={o.id} data-celda={celda} />
+              <span class="cq-op__marca" aria-hidden="true"></span>
+              <span class="cq-op__txt">{o.etiqueta}</span>
+            </label>
+            {!fila && o.detalle && detalle(o)}
+          </>
+        ))}
+      </div>
+      {fila && opciones.filter((o) => o.detalle).map((o) => detalle(o))}
+    </>
+  );
+})()}

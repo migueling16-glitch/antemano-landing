@@ -1,0 +1,30 @@
+---
+/**
+ * 9 · Tu fecha #tu-fecha (propuesta §6.3; ESPEC §7.3). F339 en CARBÓN de fondo (oscurecida y desenfocada
+ * en el export, nunca con filtros CSS) y el CTA que abre la hoja en el paso 1. Aquí la barra fija se oculta,
+ * así que este es el único primario en pantalla.
+ */
+import FotoArte from './FotoArte.astro';
+import { TU_FECHA, FORMULARIO, SECCIONES, CTA } from '../config';
+---
+<section id={SECCIONES.tuFecha} class="ml-fecha" data-tema="noche" aria-labelledby="ml-fecha-h2" data-oculta-barra>
+  <div class="ml-fecha__fondo" aria-hidden="true">
+    <FotoArte movil={TU_FECHA.foto} escritorio={TU_FECHA.fotoEscritorio} decorativa bp={768} sizesMovil="100vw" sizesEscritorio="100vw" />
+  </div>
+  <div class="al-wrap al-sec ml-fecha__in">
+    <h2 id="ml-fecha-h2" class="al-h2 al-revela">{TU_FECHA.titulo}</h2>
+    <p class="al-lead al-medida al-revela">{TU_FECHA.entrada}</p>
+    <ol class="ml-fecha__pasos al-revela" aria-label="Lo que te vamos a preguntar">
+      {FORMULARIO.pasos.map((p, i) => (
+        <li><span class="al-num ml-fecha__n" aria-hidden="true">{i + 1}</span>{p.pregunta}</li>
+      ))}
+    </ol>
+    <div class="ml-fecha__accion al-revela">
+      <a class="al-btn al-btn--primario ml-fecha__cta" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
+      <p class="al-small al-muted">6 pantallas · unos 90 segundos</p>
+    </div>
+    <noscript>
+      <p class="al-small ml-fecha__nojs">Para revisar tu fecha necesitamos JavaScript activo en el navegador.</p>
+    </noscript>
+  </div>
+</section>

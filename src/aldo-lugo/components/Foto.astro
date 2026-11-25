@@ -1,0 +1,107 @@
+---
+/**
+ * <Foto id="F080" recorte="9x16" alt="…" loading="eager|lazy" fetchpriority? sizes? clase? />
+ *
+ * Lee src/aldo-lugo/fotos.json (clave "<id>-<recorte>", lo escribe el pipeline de fotos) y pinta
+ * <picture> con AVIF y WebP en escalera + un solo <img> JPEG, con width/height para no mover el layout.
+ * Si la entrada aún no existe, pinta un marcador gris con la proporción del recorte y el id
+ * (así todo compila antes de que existan las fotos).
+ *
+ * Extras opcionales: decorativa (alt=""), imgClase, ajuste="cover" (img llena el contenedor).
+ */
+import fotos from '../fotos.json';
+import type { Recorte } from '../config';
+
+interface Entrada {
+  id: string;
+  recorte: Recorte;
+  tratamiento: 'brasa' | 'carbon';
+  ancho: number;
+  alto: number;
+  anchos: number[];
+  avif: string[];
+  webp: string[];
+  jpg: string;
+  lqip?: string | null;
+  alt?: string;
+}
+interface Props {
+  id: string;
+  recorte: Recorte;
+  alt?: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  sizes?: string;
+  clase?: string;
+  imgClase?: string;
+  decorativa?: boolean;
+  /** "cover": el <img> llena el alto del contenedor con object-fit: cover. */
+  ajuste?: 'natural' | 'cover';
+}
+
+const {
+  id,
+  recorte,
+  loading = 'lazy',
+  fetchpriority,
+  sizes = '100vw',
+  clase,
+  imgClase,
+  decorativa = false,
+  ajuste = 'natural',
+} = Astro.props;
+
+const PROPORCION: Record<Recorte, [number, number]> = {
+  '9x16': [9, 16],
+  '4x5': [4, 5],
+  '16x9': [16, 9],
+  '1x1': [1, 1],
+  '3x2': [3, 2],
+};
+const clave = `${id}-${recorte}`;
+const f = (fotos as Record<string, Entrada>)[clave];
+const alt = decorativa ? '' : (Astro.props.alt ?? f?.alt ?? '');
+const [pw, ph] = PROPORCION[recorte] ?? [4, 5];
+
+/** El ancho de cada archivo sale de su nombre (…-480.avif); si no, del arreglo `anchos`. */
+const conAncho = (urls: string[] = []) =>
+  urls
+    .map((u, i) => {
+      const m = /-(\d+)\.(?:avif|webp|jpe?g)$/i.exec(u);
+      const w = m ? Number(m[1]) : f?.anchos?.[i];
+      return w ? `${u} ${w}w` : null;
+    })
+    .filter(Boolean)
+    .join(', ');
+
+const fondo = f?.lqip ? `background-image:url(${f.lqip});background-size:cover;background-position:center` : undefined;
+const prioridad = fetchpriority ?? (loading === 'eager' ? 'high' : 'low');
+---
+{f ? (
+  <picture class:list={['al-foto', `al-foto--${ajuste}`, clase]} data-foto={clave}>
+    {f.avif?.length > 0 && <source type="image/avif" srcset={conAncho(f.avif)} sizes={sizes} />}
+    {f.webp?.length > 0 && <source type="image/webp" srcset={conAncho(f.webp)} sizes={sizes} />}
+    <img
+      class={imgClase}
+      src={f.jpg}
+      width={f.ancho}
+      height={f.alto}
+      alt={alt}
+      loading={loading}
+      decoding={loading === 'eager' ? undefined : 'async'}
+      fetchpriority={prioridad}
+      style={fondo}
+    />
+  </picture>
+) : (
+  <span
+    class:list={['al-foto', 'al-foto--falta', `al-foto--${ajuste}`, clase]}
+    style={`aspect-ratio:${pw} / ${ph}`}
+    data-foto={clave}
+    role={decorativa || !alt ? undefined : 'img'}
+    aria-label={decorativa || !alt ? undefined : alt}
+    aria-hidden={decorativa || !alt ? 'true' : undefined}
+  >
+    <span class="al-foto__id" aria-hidden="true">{id} · {recorte.replace('x', ':')}</span>
+  </span>
+)}

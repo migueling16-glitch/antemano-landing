@@ -1,0 +1,39 @@
+---
+/**
+ * 6 · El anfitrión #anfitrion (propuesta §6.3; ESPEC §7.3). F249 principal (BRASA) y F042 en CARBÓN.
+ * Bio breve en tercera persona tal como está en la propuesta, marcada por confirmar (P30). Sin Mallmann.
+ * ÚNICA mención de Tacos Canito en todo el sitio: "También fundó Tacos Canito →" (P2), sin logos ni colores.
+ */
+import Foto from './Foto.astro';
+import Dato from './Dato.astro';
+import { ANFITRION, SITIO, DATOS, SECCIONES, CTA } from '../config';
+---
+<section id={SECCIONES.anfitrion} class="ml-anf al-sec" data-tema="noche" aria-labelledby="ml-anf-h2">
+  <div class="al-wrap ml-anf__grid">
+    <div class="ml-anf__fotos">
+      <div class="ml-anf__principal al-revela">
+        <Foto id={ANFITRION.foto.id} recorte={ANFITRION.foto.recorte} alt={ANFITRION.foto.alt} sizes="(min-width: 1024px) 34vw, 78vw" />
+      </div>
+      <div class="ml-anf__secundaria al-revela" style="--al-delay:140ms">
+        <Foto id={ANFITRION.fotoSecundaria.id} recorte={ANFITRION.fotoSecundaria.recorte} alt={ANFITRION.fotoSecundaria.alt} sizes="(min-width: 1024px) 16vw, 42vw" />
+      </div>
+    </div>
+
+    <div class="ml-anf__texto">
+      <p class="al-label al-muted">El anfitrión</p>
+      <h2 id="ml-anf-h2" class="al-h2 al-revela">{ANFITRION.titulo}</h2>
+      <p class="al-lead al-revela">{ANFITRION.bio} <Dato valor={null} etiqueta="bio" pregunta={ANFITRION.pregunta} /></p>
+      <blockquote class="ml-anf__cita al-revela">
+        <p class="al-cita">“{ANFITRION.cita}”</p>
+        <footer class="al-small al-muted">
+          {SITIO.chef}, en su perfil · <a class="ml-anf__ig" href={SITIO.instagram.url} target="_blank" rel="noopener">@{SITIO.instagram.usuario}</a>
+        </footer>
+      </blockquote>
+      <p class="ml-anf__canito al-revela">
+        <a class="al-enlace al-enlace--flecha" href={ANFITRION.canito.href} target="_blank" rel="noopener">{ANFITRION.canito.texto}</a>
+        <Dato valor={DATOS.canitoVerbo} etiqueta="«fundó» o «cofundó»" pregunta={ANFITRION.canito.pregunta} />
+      </p>
+      <a class="al-btn al-btn--secundario" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
+    </div>
+  </div>
+</section>

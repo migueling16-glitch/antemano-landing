@@ -1,0 +1,36 @@
+---
+/**
+ * /aldolugo/ — landing de Mesa de Lumbre (DEMO). Las 10 secciones de la propuesta §5, en orden:
+ * deseo → oficio → prueba → oferta → persona → plan → objeciones → acción.
+ * Contenido: src/aldo-lugo/config.ts · estilos: src/aldo-lugo/landing.css · formulario: src/aldo-lugo/solicitud.ts
+ */
+import AldoLayout from '../../aldo-lugo/AldoLayout.astro';
+import '../../aldo-lugo/landing.css';
+import Hero from '../../aldo-lugo/components/Hero.astro';
+import Manifiesto from '../../aldo-lugo/components/Manifiesto.astro';
+import Lumbres from '../../aldo-lugo/components/Lumbres.astro';
+import UnaNoche from '../../aldo-lugo/components/UnaNoche.astro';
+import Experiencias from '../../aldo-lugo/components/Experiencias.astro';
+import Anfitrion from '../../aldo-lugo/components/Anfitrion.astro';
+import Proceso from '../../aldo-lugo/components/Proceso.astro';
+import Preguntas from '../../aldo-lugo/components/Preguntas.astro';
+import TuFecha from '../../aldo-lugo/components/TuFecha.astro';
+import Cierre from '../../aldo-lugo/components/Cierre.astro';
+import HojaSolicitud from '../../aldo-lugo/components/HojaSolicitud.astro';
+import Barra from '../../aldo-lugo/components/Barra.astro';
+import { SITIO } from '../../aldo-lugo/config';
+---
+<AldoLayout title={SITIO.seo.title} description={SITIO.seo.description} variante="landing">
+  <Hero />
+  <Manifiesto />
+  <Lumbres />
+  <UnaNoche />
+  <Experiencias />
+  <Anfitrion />
+  <Proceso />
+  <Preguntas />
+  <TuFecha />
+  <Cierre />
+  <HojaSolicitud />
+  <Fragment slot="barra"><Barra /></Fragment>
+</AldoLayout>

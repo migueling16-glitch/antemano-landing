@@ -1,0 +1,409 @@
+---
+/**
+ * Hoja del formulario de prospectos (propuesta §7; ESPEC §7.8 y §8). Un <dialog> a pantalla completa que
+ * abre cualquier [data-abrir-hoja] (con data-preset opcional). Seis pantallas: fecha → ocasión → invitados →
+ * lugar → inversión → contacto, y la pantalla de gracias con folio, resumen y la vista previa del mensaje
+ * de WhatsApp. En el DEMO no envía ni guarda nada en ningún servidor. La lógica vive en ../solicitud.ts.
+ *
+ * Reglas de uso que respeta el marcado:
+ * - Radios y casillas reales dentro de <label> con apariencia de tarjeta; "Continuar" siempre existe y nunca
+ *   está deshabilitado: si falta algo, la hoja lleva al campo y explica qué falta.
+ * - El auto-avance (paso 2) solo ocurre con toque o clic, nunca con el teclado.
+ * - [data-si="campo=valor|valor; otro=*" || …] muestra u oculta un bloque según las respuestas.
+ */
+import Texto from './Texto.astro';
+import Dato from './Dato.astro';
+import Icono from './Icono.astro';
+import BotonWa from './BotonWa.astro';
+import {
+  DEMO, FORMULARIO, OCASIONES, BANDAS, LUGAR, GRACIAS, AFINA, LUMBRES, DATOS, MENSAJES_WA, OFERTA, SITIO,
+  formatoPorId, mxn,
+} from '../config';
+
+const P = Object.fromEntries(FORMULARIO.pasos.map((p) => [p.id, p])) as Record<string, any>;
+const pFecha = P.fecha;
+const pOcasion = P.ocasion;
+const pInvitados = P.invitados;
+const pLugar = P.lugar;
+const pInversion = P.inversion;
+const pContacto = P.contacto;
+
+const bandas = BANDAS.filter((b) => b.id !== 'menos-10');
+const menos10 = BANDAS.find((b) => b.id === 'menos-10')!;
+const cortes = pInversion.cortes as [number, number, number] | null;
+const rangos: Record<string, [number, number] | null> = cortes
+  ? { b1: [0, cortes[0]], b2: [cortes[0], cortes[1]], b3: [cortes[1], cortes[2]], b4: [cortes[2], Infinity] }
+  : {};
+const etiquetaRango = (id: string, provisional: string) => {
+  const r = rangos[id];
+  if (!r) return provisional;
+  if (r[0] === 0) return `Menos de ${mxn(r[1])}`;
+  if (r[1] === Infinity) return `Más de ${mxn(r[0])}`;
+  return `${mxn(r[0])}–${mxn(r[1])}`;
+};
+const intima = formatoPorId('mesa-intima');
+
+const slug = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+const AFINA_GRUPOS: { id: string; titulo: string; tipo?: 'radio' | 'checkbox'; ayuda?: string; opciones: { id: string; etiqueta: string }[] }[] = [
+  { id: 'acceso', titulo: 'Acceso del equipo', opciones: AFINA.acceso },
+  { id: 'lluvia', titulo: 'Plan de lluvia', opciones: AFINA.lluvia },
+  { id: 'exclusivo', titulo: '¿El lugar exige proveedor exclusivo o cobra derecho de piso?', opciones: AFINA.exclusivo },
+  { id: 'lumbres', titulo: 'Lumbres', tipo: 'checkbox', opciones: LUMBRES.items.map((l) => ({ id: l.id, etiqueta: l.nombre })) },
+  { id: 'dietas', titulo: '¿Alergias o dietas?', tipo: 'checkbox', ayuda: 'Solo el tipo y cuántas personas; sin nombres.', opciones: AFINA.dietas.map((d) => ({ id: slug(d), etiqueta: d })) },
+  { id: 'momento', titulo: 'Momento del día', opciones: AFINA.momento },
+  { id: 'servicio', titulo: 'Tipo de servicio', opciones: AFINA.servicio },
+  { id: 'bebidas', titulo: 'Bebidas', opciones: AFINA.bebidas },
+  { id: 'mobiliario', titulo: 'Mobiliario, loza y meseros', opciones: AFINA.mobiliario },
+  { id: 'decide', titulo: '¿Quién decide?', opciones: AFINA.decide },
+  { id: 'etapa', titulo: '¿En qué punto estás?', opciones: AFINA.etapa },
+  { id: 'propuesta', titulo: '¿Para cuándo necesitas la propuesta?', opciones: AFINA.propuesta },
+  { id: 'factura', titulo: '¿Requieres factura?', opciones: AFINA.factura },
+];
+const total = FORMULARIO.pasos.length;
+---
+<dialog class="ml-hoja" data-hoja data-tema="noche" aria-labelledby="ml-hoja-titulo" data-lenis-prevent data-clarity-mask="true">
+  <div class="ml-hoja__marco">
+    <div class="ml-hoja__cab">
+      <button type="button" class="ml-hoja__atras is-oculto" data-atras tabindex="-1" aria-hidden="true">
+        <Icono nombre="atras" /><span>{FORMULARIO.atras}</span>
+      </button>
+      <p class="al-label ml-hoja__paso" data-progreso-texto aria-live="polite">{FORMULARIO.progreso(1, total)}</p>
+      <button type="button" class="ml-hoja__cerrar" data-cerrar aria-label="Cerrar"><Icono nombre="cerrar" /></button>
+      <div class="ml-hoja__barra" aria-hidden="true"><span data-progreso style={`transform:scaleX(${FORMULARIO.curva[0] / 100})`}></span></div>
+    </div>
+
+    <div class="ml-hoja__cuerpo" data-cuerpo>
+      <h2 id="ml-hoja-titulo" class="al-sr">{FORMULARIO.titulo}</h2>
+
+      <form class="ml-form" data-form novalidate>
+        <div class="ml-recuperar" data-recuperar hidden>
+          <p data-recuperar-texto></p>
+          <div class="ml-recuperar__acciones">
+            <button type="button" class="al-btn al-btn--fantasma" data-recuperar-seguir>Seguir</button>
+            <button type="button" class="ml-textbtn" data-recuperar-nuevo>Empezar de nuevo</button>
+          </div>
+        </div>
+
+        <input type="hidden" name="formato_pre" value="" />
+        <input type="hidden" name="lumbres_pre" value="" />
+        <input type="hidden" name="perfil" value="" />
+        <input type="hidden" name="version" value={OFERTA.version} />
+
+        {/* ---------- 1 · ¿Para cuándo? ---------- */}
+        <fieldset class="ml-paso" data-paso="fecha">
+          <legend class="ml-paso__q al-h3" tabindex="-1">{pFecha.pregunta}</legend>
+          <div class="ml-grupo" data-grupo="fecha_estado">
+            <div class="ml-opciones ml-opciones--lista">
+              {pFecha.estados.map((e: any, i: number) => (
+                <label class="ml-op"><input type="radio" name="fecha_estado" value={e.id} checked={i === 0} /><span class="ml-op__caja">{e.etiqueta}</span></label>
+              ))}
+            </div>
+            <p class="ml-error" id="ml-err-fecha_estado" data-error hidden></p>
+          </div>
+          <div class="ml-grupo ml-campo" data-grupo="fecha" data-si="fecha_estado=dia" hidden>
+            <label class="ml-campo__label" for="ml-fecha">Fecha del evento</label>
+            <input class="ml-campo__input" type="date" id="ml-fecha" name="fecha" aria-describedby="ml-pronto" />
+            <p class="ml-nota" id="ml-pronto" data-pronto hidden>{pFecha.avisoPronto}</p>
+            <p class="ml-error" id="ml-err-fecha" data-error hidden></p>
+          </div>
+          <div class="ml-grupo ml-campo" data-grupo="fecha_mes" data-si="fecha_estado=mes" hidden>
+            <label class="ml-campo__label" for="ml-mes">Mes aproximado</label>
+            <select class="ml-campo__input" id="ml-mes" name="fecha_mes"><option value="">Elige el mes</option></select>
+            <p class="ml-error" id="ml-err-fecha_mes" data-error hidden></p>
+          </div>
+          <label class="ml-casilla" data-si="fecha_estado=dia|mes" hidden>
+            <input type="checkbox" name="flexible" value="1" /><span class="ml-casilla__caja" aria-hidden="true"><Icono nombre="check" /></span><span>{pFecha.flexible}</span>
+          </label>
+          <div class="ml-paso__acciones">
+            <button type="button" class="al-btn al-btn--primario al-btn--bloque" data-continuar>{FORMULARIO.continuar}</button>
+            {DEMO && <p class="al-small al-muted ml-paso__demo">Demo: puedes recorrerlo completo; no se envía nada.</p>}
+          </div>
+        </fieldset>
+
+        {/* ---------- 2 · ¿Qué vamos a celebrar? ---------- */}
+        <fieldset class="ml-paso" data-paso="ocasion" hidden>
+          <legend class="ml-paso__q al-h3" tabindex="-1">{pOcasion.pregunta}</legend>
+          <div class="ml-grupo" data-grupo="ocasion">
+            <div class="ml-opciones ml-opciones--rejilla">
+              {OCASIONES.map((o) => (
+                <label class="ml-op"><input type="radio" name="ocasion" value={o.id} /><span class="ml-op__caja">{o.etiqueta}</span></label>
+              ))}
+            </div>
+            <p class="ml-error" id="ml-err-ocasion" data-error hidden></p>
+          </div>
+          <button type="button" class="ml-textbtn ml-aliado" data-aliado aria-pressed="false">{pOcasion.aliado}</button>
+          <p class="ml-nota" data-aliado-nota hidden>Listo: te contamos como aliado. Elige el tipo de evento que organizas y seguimos.</p>
+          <div class="ml-paso__acciones">
+            <button type="button" class="al-btn al-btn--primario al-btn--bloque" data-continuar>{FORMULARIO.continuar}</button>
+          </div>
+        </fieldset>
+
+        {/* ---------- 3 · ¿Cuántos invitados? ---------- */}
+        <fieldset class="ml-paso" data-paso="invitados" hidden>
+          <legend class="ml-paso__q al-h3" tabindex="-1">{pInvitados.pregunta}</legend>
+          <p class="ml-ayuda"><Texto t={pInvitados.ayuda} /></p>
+          <div class="ml-grupo" data-grupo="invitados">
+            <div class="ml-opciones ml-opciones--rejilla">
+              {bandas.map((b) => (
+                <label class="ml-op"><input type="radio" name="invitados" value={b.id} /><span class="ml-op__caja al-num">{b.etiqueta}</span></label>
+              ))}
+            </div>
+            <label class="ml-op ml-op--discreta"><input type="radio" name="invitados" value={menos10.id} /><span class="ml-op__caja">{menos10.etiqueta}</span></label>
+            <p class="ml-error" id="ml-err-invitados" data-error hidden></p>
+          </div>
+          <p class="ml-nota" data-si="invitados=mas-300" hidden>{pInvitados.mas300}</p>
+          <div class="ml-salida" data-si="invitados=menos-10" data-salida hidden>
+            <p tabindex="-1" data-salida-texto>{pInvitados.menos10.texto}</p>
+            <div class="ml-salida__acciones">
+              <button type="button" class="al-btn al-btn--fantasma" data-cambiar-numero>{pInvitados.menos10.cambiar}</button>
+              <BotonWa mensaje={MENSAJES_WA.directo} texto={pInvitados.menos10.whatsapp} variante="fantasma" />
+            </div>
+          </div>
+          <div class="ml-paso__acciones">
+            <button type="button" class="al-btn al-btn--primario al-btn--bloque" data-continuar>{FORMULARIO.continuar}</button>
+          </div>
+        </fieldset>
+
+        {/* ---------- 4 · ¿Dónde será? ---------- */}
+        <fieldset class="ml-paso" data-paso="lugar" hidden>
+          <legend class="ml-paso__q al-h3" tabindex="-1">{pLugar.pregunta}</legend>
+
+          <fieldset class="ml-sub ml-grupo" data-grupo="lugar_estado">
+            <legend class="ml-sub__q">{pLugar.estado}</legend>
+            <div class="ml-seg">
+              {LUGAR.estado.map((o) => (
+                <label class="ml-op ml-op--seg"><input type="radio" name="lugar_estado" value={o.id} /><span class="ml-op__caja">{o.etiqueta}</span></label>
+              ))}
+            </div>
+            <p class="ml-error" id="ml-err-lugar_estado" data-error hidden></p>
+          </fieldset>
+
+          <fieldset class="ml-sub ml-grupo" data-grupo="tipo_lugar" data-si="lugar_estado=si|opciones" hidden>
+            <legend class="ml-sub__q">{pLugar.tipo}</legend>
+            <div class="ml-opciones ml-opciones--rejilla">
+              {LUGAR.tipos.map((o) => (
+                <label class="ml-op"><input type="radio" name="tipo_lugar" value={o.id} /><span class="ml-op__caja">{o.etiqueta}</span></label>
+              ))}
+            </div>
+            <p class="ml-error" id="ml-err-tipo_lugar" data-error hidden></p>
+          </fieldset>
+
+          <fieldset class="ml-sub ml-grupo" data-grupo="fuego" data-si="lugar_estado=si|opciones; tipo_lugar=*" hidden>
+            <legend class="ml-sub__q">{pLugar.fuego}</legend>
+            <div class="ml-seg">
+              {LUGAR.fuego.map((o) => (
+                <label class="ml-op ml-op--seg"><input type="radio" name="fuego" value={o.id} /><span class="ml-op__caja">{o.etiqueta}</span></label>
+              ))}
+            </div>
+            <p class="ml-nota" data-si="fuego=no" hidden>{pLugar.fuegoNo} <Dato valor={null} etiqueta="alternativa" pregunta={11} /></p>
+            <p class="ml-error" id="ml-err-fuego" data-error hidden></p>
+          </fieldset>
+
+          <fieldset class="ml-sub ml-grupo" data-grupo="sugerir_lugares" data-si="lugar_estado=aun_no" hidden>
+            <legend class="ml-sub__q">{pLugar.sugerir} <Dato valor={LUGAR.sugerirLugares === null ? null : 'sí'} etiqueta="esta opción" pregunta={11} /></legend>
+            <div class="ml-seg ml-seg--2">
+              <label class="ml-op ml-op--seg"><input type="radio" name="sugerir_lugares" value="si" /><span class="ml-op__caja">Sí</span></label>
+              <label class="ml-op ml-op--seg"><input type="radio" name="sugerir_lugares" value="no" /><span class="ml-op__caja">No</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="ml-sub ml-grupo" data-grupo="zona" data-si="lugar_estado=aun_no || fuego=*" hidden>
+            <legend class="ml-sub__q">{pLugar.zona}</legend>
+            <div class="ml-chips">
+              {LUGAR.zonas.map((z) => (
+                <label class="al-chip"><input type="radio" name="zona" value={z.id} />{z.etiqueta ?? z.provisional}</label>
+              ))}
+            </div>
+            <p class="al-small al-muted"><Dato valor={null} etiqueta="ciudad base y zonas" pregunta={12} /></p>
+            <p class="ml-error" id="ml-err-zona" data-error hidden></p>
+          </fieldset>
+
+          <div class="ml-sub ml-grupo ml-campo" data-grupo="municipio" data-si="zona=*" hidden>
+            <label class="ml-sub__q" for="ml-municipio">{pLugar.municipio}</label>
+            <input
+              class="ml-campo__input"
+              id="ml-municipio"
+              name="municipio"
+              type="text"
+              autocomplete="off"
+              list="ml-municipios"
+              enterkeyhint="done"
+              autocapitalize="words"
+              spellcheck="false"
+              maxlength="60"
+              aria-describedby="ml-municipio-ayuda"
+            />
+            <datalist id="ml-municipios">
+              {LUGAR.municipios.map((m) => <option value={m} />)}
+            </datalist>
+            <p class="ml-ayuda" id="ml-municipio-ayuda">{pLugar.municipioAyuda}</p>
+            <p class="ml-error" id="ml-err-municipio" data-error hidden></p>
+          </div>
+
+          <div class="ml-paso__acciones">
+            <button type="button" class="al-btn al-btn--primario al-btn--bloque" data-continuar>{FORMULARIO.continuar}</button>
+          </div>
+        </fieldset>
+
+        {/* ---------- 5 · ¿Qué inversión tienes en mente? ---------- */}
+        <fieldset class="ml-paso" data-paso="inversion" hidden>
+          <legend class="ml-paso__q al-h3" tabindex="-1">{pInversion.pregunta}</legend>
+          <p class="ml-ayuda"><Texto t={pInversion.ayuda()} /></p>
+          <p class="ml-ayuda" data-si="invitados=10-20" hidden>
+            De 10 a 20 invitados es Mesa Íntima, con precio por evento desde <Dato valor={intima.precio.desde} formato="mxn" etiqueta="precio" pregunta={5} />, IVA incluido.
+          </p>
+          <div class="ml-grupo" data-grupo="inversion">
+            <div class="ml-opciones ml-opciones--lista">
+              {pInversion.opciones.map((o: any) => (
+                <label class="ml-op">
+                  <input type="radio" name="inversion" value={o.id} data-min={rangos[o.id]?.[0]} data-max={rangos[o.id]?.[1] === Infinity ? '' : rangos[o.id]?.[1]} />
+                  <span class="ml-op__caja ml-op__caja--doble">
+                    <span class="ml-op__titulo">{o.id === 'platicar' ? o.provisional : etiquetaRango(o.id, o.provisional)}</span>
+                    {o.id !== 'platicar' && (
+                      <span class="ml-op__sub">
+                        <span data-unidad>{pInversion.unidad}, IVA incluido</span>
+                        {!cortes && <Dato valor={null} etiqueta="monto" pregunta={5} />}
+                        <span data-total></span>
+                      </span>
+                    )}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p class="ml-error" id="ml-err-inversion" data-error hidden></p>
+          </div>
+          <div class="ml-paso__acciones">
+            <button type="button" class="al-btn al-btn--primario al-btn--bloque" data-continuar>{FORMULARIO.continuar}</button>
+          </div>
+        </fieldset>
+
+        {/* ---------- 6 · ¿A quién le escribimos? ---------- */}
+        <fieldset class="ml-paso" data-paso="contacto" hidden>
+          <legend class="ml-paso__q al-h3" tabindex="-1">{pContacto.pregunta}</legend>
+
+          <div class="ml-grupo ml-campo" data-grupo="nombre">
+            <label class="ml-campo__label" for="ml-nombre">{pContacto.nombre}</label>
+            <input class="ml-campo__input" id="ml-nombre" name="nombre" type="text" autocomplete="given-name" autocapitalize="words" enterkeyhint="next" maxlength="60" />
+            <p class="ml-error" id="ml-err-nombre" data-error hidden></p>
+          </div>
+
+          <div class="ml-grupo ml-campo" data-grupo="wa_numero">
+            <label class="ml-campo__label" for="ml-wa">{pContacto.whatsapp}</label>
+            <div class="ml-tel">
+              <select class="ml-campo__input ml-tel__pais" name="wa_pais" autocomplete="tel-country-code" aria-label="Código de país">
+                {pContacto.paises.map((p: any) => <option value={p.id}>{p.etiqueta}</option>)}
+              </select>
+              <input class="ml-campo__input ml-tel__num" id="ml-wa" name="wa_numero" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" maxlength="22" aria-describedby="ml-wa-ayuda" />
+            </div>
+            <p class="ml-ayuda" id="ml-wa-ayuda">10 dígitos. Te escribimos por ahí.</p>
+            <p class="ml-error" id="ml-err-wa_numero" data-error hidden></p>
+          </div>
+
+          <div class="ml-grupo ml-campo" data-grupo="correo">
+            <label class="ml-campo__label" for="ml-correo">{pContacto.correo}</label>
+            <input class="ml-campo__input" id="ml-correo" name="correo" type="email" inputmode="email" autocomplete="email" enterkeyhint="done" maxlength="120" />
+            <p class="ml-error" id="ml-err-correo" data-error hidden></p>
+          </div>
+
+          <div class="ml-grupo ml-campo" data-grupo="empresa" data-si="perfil=aliado || ocasion=empresa" hidden>
+            <label class="ml-campo__label" for="ml-empresa">{pContacto.empresa}</label>
+            <input class="ml-campo__input" id="ml-empresa" name="empresa" type="text" autocomplete="organization" enterkeyhint="done" maxlength="80" />
+          </div>
+
+          <div class="ml-paso__acciones">
+            <p class="al-small ml-priv">{pContacto.privacidad} <button type="button" class="ml-textbtn" data-privacidad aria-haspopup="dialog">{pContacto.privacidadEnlace}</button></p>
+            <button type="submit" class="al-btn al-btn--primario al-btn--bloque" data-continuar>{pContacto.enviar}</button>
+            {DEMO && <p class="al-small al-muted ml-paso__demo">Demo: al tocarlo no se envía nada; ves la pantalla final.</p>}
+          </div>
+        </fieldset>
+      </form>
+
+      {/* ---------- Gracias ---------- */}
+      <section class="ml-gracias" data-gracias hidden aria-labelledby="ml-gracias-h">
+        <span class="al-sello ml-gracias__sello" aria-hidden="true">{GRACIAS.sello}</span>
+        <h3 id="ml-gracias-h" class="al-h2 ml-gracias__titulo" tabindex="-1">{GRACIAS.titulo}</h3>
+
+        <dl class="ml-resumen" data-resumen></dl>
+
+        <p class="ml-gracias__hora">{GRACIAS.enHorario} <Dato valor={DATOS.horarioRespuesta ? 'ok' : null} etiqueta="horario de respuesta" pregunta={17} /></p>
+        <div class="ml-gracias__acciones">
+          <button type="button" class="al-btn al-btn--primario al-btn--bloque" data-wa-resumen><Icono nombre="whatsapp" />{GRACIAS.boton}</button>
+          <button type="button" class="al-btn al-btn--fantasma" data-copiar-folio><Icono nombre="copiar" />{GRACIAS.copiarFolio}</button>
+        </div>
+
+        {DEMO && (
+          <div class="ml-previa">
+            <p class="al-small">{GRACIAS.demoNota}</p>
+            <pre class="ml-previa__msg" data-wa-previa></pre>
+          </div>
+        )}
+
+        {DEMO && (
+          <div class="ml-ficha" aria-labelledby="ml-ficha-t">
+            <p class="al-label" id="ml-ficha-t">Así le llega al chef · solo en el demo</p>
+            <p class="ml-ficha__nivel"><span class="ml-ficha__letra" data-nivel>A</span><span data-nivel-desc></span></p>
+            <ul class="ml-ficha__por" data-nivel-razones></ul>
+            <pre class="ml-ficha__txt" data-ficha></pre>
+            <p class="al-small al-muted">El nivel nunca se le muestra al cliente; aquí aparece solo para revisar el demo.</p>
+          </div>
+        )}
+
+        <div class="ml-gracias__fotos">
+          <p>{GRACIAS.fotos}</p>
+          <BotonWa mensaje={MENSAJES_WA.fotosLugar} texto="Mandar fotos o video del lugar" variante="fantasma" />
+        </div>
+
+        <details class="ml-det ml-afina">
+          <summary class="ml-det__sum">{GRACIAS.afina} <span class="al-small al-muted">· opcional, unos 30 s</span></summary>
+          <form class="ml-det__cuerpo ml-afina__form" data-afina novalidate>
+            <div class="ml-campo">
+              <label class="ml-campo__label" for="ml-afina-lugar">Nombre del lugar (opcional)</label>
+              <input class="ml-campo__input" id="ml-afina-lugar" name="lugar_nombre" type="text" autocomplete="off" maxlength="80" />
+            </div>
+            {AFINA_GRUPOS.map((g) => (
+              <fieldset class="ml-sub">
+                <legend class="ml-sub__q">{g.titulo}</legend>
+                {g.ayuda && <p class="ml-ayuda">{g.ayuda}</p>}
+                <div class="ml-chips">
+                  {g.opciones.map((o) => (
+                    <label class="al-chip"><input type={g.tipo ?? 'radio'} name={`afina_${g.id}`} value={o.id} />{o.etiqueta}</label>
+                  ))}
+                </div>
+                {g.id === 'dietas' && (
+                  <div class="ml-campo ml-campo--corto">
+                    <label class="ml-campo__label" for="ml-afina-personas">¿Cuántas personas en total?</label>
+                    <input class="ml-campo__input" id="ml-afina-personas" name="afina_dietas_personas" type="number" inputmode="numeric" min="0" max="300" />
+                  </div>
+                )}
+              </fieldset>
+            ))}
+            <button type="submit" class="al-btn al-btn--secundario">Sumar a mi folio</button>
+          </form>
+        </details>
+
+        <a class="al-enlace al-enlace--flecha ml-gracias__noche" href="#una-noche" data-ir-noche>{GRACIAS.verNoche}</a>
+        <p><button type="button" class="ml-textbtn" data-nueva>Hacer otra solicitud de prueba</button></p>
+      </section>
+    </div>
+  </div>
+
+  <dialog class="ml-priv-dlg" data-privacidad-dlg data-tema="noche" aria-labelledby="ml-priv-h">
+    <div class="ml-priv-dlg__in">
+      <h3 id="ml-priv-h" class="al-h3" tabindex="-1">Aviso de privacidad</h3>
+      <ul class="ml-lista">
+        <li><strong>Responsable:</strong> {SITIO.chef} <Dato valor={DATOS.razonSocial} etiqueta="razón social" pregunta={18} /></li>
+        <li><strong>Para qué:</strong> responder tu solicitud y preparar tu propuesta.</li>
+        <li><strong>Qué pedimos:</strong> tu nombre, tu WhatsApp y, si quieres, tu correo. Nunca la dirección.</li>
+        <li><strong>Quién más los ve:</strong> los servicios donde se guarda y se avisa tu solicitud. <Dato valor={null} etiqueta="lista" pregunta={18} /></li>
+        <li><strong>Tus derechos ARCO:</strong> acceso, rectificación, cancelación y oposición, escribiendo a <Dato valor={DATOS.correoArco} etiqueta="correo" pregunta={18} /></li>
+      </ul>
+      <p class="al-small">Aviso completo: <Dato valor={DATOS.avisoPrivacidadUrl} etiqueta="enlace" pregunta={18} /></p>
+      <button type="button" class="al-btn al-btn--fantasma al-btn--bloque" data-privacidad-cerrar>Volver al formulario</button>
+    </div>
+  </dialog>
+</dialog>
+
+<script>
+  import { montarSolicitud } from '../solicitud';
+  montarSolicitud();
+</script>

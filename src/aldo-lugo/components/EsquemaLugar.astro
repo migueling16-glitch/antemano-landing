@@ -1,0 +1,53 @@
+---
+/**
+ * Esquema de línea del lugar (propuesta §5 #7; ESPEC §7.3): zona de fuego, zona de servicio, mesa,
+ * acceso del vehículo y viento que se lleva el humo lejos de la mesa. Sin medidas dentro del SVG:
+ * las medidas van como texto HTML en la lista que lo describe (aria-describedby).
+ */
+interface Props {
+  describe: string;
+}
+const { describe } = Astro.props;
+---
+<svg
+  class="ml-esquema"
+  viewBox="0 0 320 210"
+  role="img"
+  aria-label="Esquema del lugar: zona de fuego, zona de servicio, mesa larga, acceso del vehículo y dirección del viento"
+  aria-describedby={describe}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <!-- Viento: de la mesa hacia la lumbre, el humo sale por el otro lado -->
+  <g class="ml-esquema__viento">
+    <path d="M22 34c26-8 52 8 78 0s52-8 78 0" />
+    <path d="M170 28l8 6-8 6" />
+    <path d="M22 50c20-5 40 5 60 0" opacity=".6" />
+  </g>
+  <text x="22" y="22" class="ml-esquema__txt">VIENTO</text>
+
+  <!-- Zona de fuego -->
+  <rect x="196" y="40" width="104" height="64" rx="2" />
+  <path class="ml-esquema__llama" d="M222 92c-5-6-2-12 2-17 1 5 6 8 5 13-1 3-3 4-7 4zM246 92c-6-7-2-14 2-20 1 6 7 9 6 15-1 4-4 5-8 5zM270 92c-5-6-2-12 2-17 1 5 6 8 5 13-1 3-3 4-7 4z" />
+  <path d="M296 40c8-10 2-18 10-26M282 40c6-8 0-14 8-22" opacity=".55" />
+  <text x="200" y="56" class="ml-esquema__txt">LUMBRE</text>
+
+  <!-- Zona de servicio -->
+  <rect x="196" y="124" width="104" height="40" rx="2" stroke-dasharray="4 4" />
+  <text x="204" y="148" class="ml-esquema__txt">SERVICIO</text>
+
+  <!-- Mesa larga con sillas -->
+  <rect x="20" y="132" width="150" height="20" rx="2" />
+  <g class="ml-esquema__sillas">
+    <path d="M32 124h8M56 124h8M80 124h8M104 124h8M128 124h8M152 124h8M32 160h8M56 160h8M80 160h8M104 160h8M128 160h8M152 160h8" />
+  </g>
+  <text x="20" y="180" class="ml-esquema__txt">MESA</text>
+
+  <!-- Acceso del vehículo -->
+  <path d="M248 204v-34" stroke-dasharray="3 4" />
+  <path d="M242 176l6-7 6 7" />
+  <text x="258" y="196" class="ml-esquema__txt">ACCESO</text>
+</svg>

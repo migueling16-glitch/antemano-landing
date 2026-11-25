@@ -1,0 +1,101 @@
+---
+/**
+ * <FotoArte movil={FotoRef} escritorio={FotoRef} bp={1024} alt? decorativa? loading? fetchpriority? sizesMovil? sizesEscritorio? clase? />
+ *
+ * Dirección de arte (ESPEC §7.1): un solo <picture> con el recorte de escritorio en <source media> y el de
+ * móvil por omisión, así el navegador baja UNA foto (no dos con una oculta). Lee fotos.json como <Foto />
+ * (mismo contrato) y siempre llena su contenedor (object-fit: cover). Si falta una de las dos entradas usa la
+ * que exista; si faltan las dos, pinta el marcador gris con los ids.
+ */
+import fotos from '../fotos.json';
+import type { FotoRef } from '../config';
+
+interface Entrada {
+  id: string;
+  recorte: string;
+  ancho: number;
+  alto: number;
+  anchos?: number[];
+  avif?: string[];
+  webp?: string[];
+  jpg: string;
+  lqip?: string | null;
+  alt?: string;
+}
+interface Props {
+  movil: FotoRef;
+  escritorio?: FotoRef;
+  bp?: number;
+  alt?: string;
+  decorativa?: boolean;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  sizesMovil?: string;
+  sizesEscritorio?: string;
+  clase?: string;
+  imgClase?: string;
+}
+const {
+  movil,
+  escritorio,
+  bp = 1024,
+  decorativa = false,
+  loading = 'lazy',
+  fetchpriority,
+  sizesMovil = '100vw',
+  sizesEscritorio = '100vw',
+  clase,
+  imgClase,
+} = Astro.props;
+
+const tabla = fotos as Record<string, Entrada>;
+const em = tabla[`${movil.id}-${movil.recorte}`];
+const ee = escritorio ? tabla[`${escritorio.id}-${escritorio.recorte}`] : undefined;
+const base = em ?? ee;
+const arte = em && ee && ee !== em ? ee : undefined;
+const alt = decorativa ? '' : (Astro.props.alt ?? movil.alt ?? base?.alt ?? '');
+const media = `(min-width: ${bp}px)`;
+
+const conAncho = (f: Entrada, urls: string[] = []) =>
+  urls
+    .map((u, i) => {
+      const m = /-(\d+)\.(?:avif|webp|jpe?g)$/i.exec(u);
+      const w = m ? Number(m[1]) : f.anchos?.[i];
+      return w ? `${u} ${w}w` : null;
+    })
+    .filter(Boolean)
+    .join(', ');
+const prioridad = fetchpriority ?? (loading === 'eager' ? 'high' : 'low');
+const fondo = base?.lqip ? `background-image:url(${base.lqip});background-size:cover;background-position:center` : undefined;
+const ids = [movil, escritorio].filter(Boolean).map((f) => `${f!.id} · ${f!.recorte.replace('x', ':')}`).join(' / ');
+---
+{base ? (
+  <picture class:list={['al-foto', 'al-foto--cover', clase]} data-foto={`${movil.id}-${movil.recorte}`}>
+    {arte && arte.avif?.length ? <source media={media} type="image/avif" srcset={conAncho(arte, arte.avif)} sizes={sizesEscritorio} /> : null}
+    {arte && arte.webp?.length ? <source media={media} type="image/webp" srcset={conAncho(arte, arte.webp)} sizes={sizesEscritorio} /> : null}
+    {arte ? <source media={media} type="image/jpeg" srcset={`${arte.jpg} ${arte.ancho}w`} sizes={sizesEscritorio} /> : null}
+    {base.avif?.length ? <source type="image/avif" srcset={conAncho(base, base.avif)} sizes={sizesMovil} /> : null}
+    {base.webp?.length ? <source type="image/webp" srcset={conAncho(base, base.webp)} sizes={sizesMovil} /> : null}
+    <img
+      class={imgClase}
+      src={base.jpg}
+      width={base.ancho}
+      height={base.alto}
+      alt={alt}
+      loading={loading}
+      decoding={loading === 'eager' ? undefined : 'async'}
+      fetchpriority={prioridad}
+      style={fondo}
+    />
+  </picture>
+) : (
+  <span
+    class:list={['al-foto', 'al-foto--falta', 'al-foto--cover', clase]}
+    data-foto={`${movil.id}-${movil.recorte}`}
+    role={decorativa || !alt ? undefined : 'img'}
+    aria-label={decorativa || !alt ? undefined : alt}
+    aria-hidden={decorativa || !alt ? 'true' : undefined}
+  >
+    <span class="al-foto__id" aria-hidden="true">{ids}</span>
+  </span>
+)}

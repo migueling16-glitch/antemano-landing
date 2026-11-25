@@ -1,0 +1,19 @@
+---
+/**
+ * 10 · Cierre #cierre (propuesta §6.3). F013, la sierra al atardecer. Título, subtítulo y CTA.
+ * El pie (logo, WhatsApp, @aldolugosoto, aviso, razón social) lo pinta AldoLayout.
+ */
+import FotoArte from './FotoArte.astro';
+import Dato from './Dato.astro';
+import { CIERRE, SECCIONES, CTA, DATOS } from '../config';
+---
+<section id={SECCIONES.cierre} class="ml-cierre" data-tema="noche" aria-labelledby="ml-cierre-h2" data-oculta-barra>
+  <div class="ml-cierre__foto">
+    <FotoArte movil={CIERRE.foto} escritorio={CIERRE.fotoEscritorio} alt={CIERRE.foto.alt} bp={768} sizesMovil="100vw" sizesEscritorio="100vw" />
+  </div>
+  <div class="al-wrap ml-cierre__in">
+    <h2 id="ml-cierre-h2" class="al-h2 al-revela">{CIERRE.titulo}</h2>
+    <p class="al-lead al-medida al-revela">{CIERRE.subtitulo} <Dato valor={DATOS.promesaRespuesta} etiqueta="promesa" pregunta={16} /></p>
+    <a class="al-btn al-btn--primario ml-cierre__cta al-revela" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
+  </div>
+</section>

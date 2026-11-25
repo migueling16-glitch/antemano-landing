@@ -1,0 +1,28 @@
+---
+/**
+ * <Logo tipo="logotipo|isotipo" clase? titulo? decorativo? />
+ * Usa el sprite inline que pinta AldoLayout (<symbol id="al-logotipo|al-isotipo">), así el trazo
+ * viaja una sola vez en el HTML. Color: currentColor (se recolorea con `color:`).
+ * Alto por omisión: 1em del contexto; el ancho sale de la proporción. Ancho mínimo del logotipo: 96 px.
+ */
+import { LOGOTIPO, ISOTIPO } from '../logos';
+
+interface Props {
+  tipo?: 'logotipo' | 'isotipo';
+  clase?: string;
+  titulo?: string;
+  decorativo?: boolean;
+}
+const { tipo = 'logotipo', clase, titulo = tipo === 'logotipo' ? 'ALDO chef LUGO' : 'A.L, Aldo Lugo', decorativo = false } = Astro.props;
+const L = tipo === 'logotipo' ? LOGOTIPO : ISOTIPO;
+---
+<svg
+  class:list={['al-logo', `al-logo--${tipo}`, clase]}
+  viewBox={`0 0 ${L.w} ${L.h}`}
+  width={L.w}
+  height={L.h}
+  role={decorativo ? undefined : 'img'}
+  aria-label={decorativo ? undefined : titulo}
+  aria-hidden={decorativo ? 'true' : undefined}
+  focusable="false"
+><use href={`#al-${tipo}`} /></svg>

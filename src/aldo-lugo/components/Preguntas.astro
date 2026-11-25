@@ -1,0 +1,37 @@
+---
+/**
+ * 8 · Preguntas #preguntas (propuesta §6.5): 9 <details name="faq"> nativos (uno abierto a la vez donde
+ * el navegador lo soporte). Los huecos de cada respuesta salen como chips "por confirmar".
+ */
+import Texto from './Texto.astro';
+import Icono from './Icono.astro';
+import BotonWa from './BotonWa.astro';
+import { FAQ, SECCIONES, CTA, MENSAJES_WA } from '../config';
+---
+<section id={SECCIONES.preguntas} class="ml-faq al-sec" data-tema="dia" aria-labelledby="ml-faq-h2">
+  <div class="al-wrap ml-faq__grid">
+    <header class="ml-sec-cab">
+      <p class="al-label al-muted">Preguntas</p>
+      <h2 id="ml-faq-h2" class="al-h2 al-revela">{FAQ.titulo}</h2>
+    </header>
+    <div class="ml-faq__cuerpo">
+      <div class="ml-faq__lista">
+        {FAQ.items.map((it) => (
+          <details class="ml-faq__item" name="faq">
+            <summary class="ml-faq__sum">
+              <span>{it.pregunta}</span>
+              <Icono nombre="mas" clase="ml-faq__icono" />
+            </summary>
+            <div class="ml-faq__resp">
+              <p><Texto t={it.respuesta} /></p>
+            </div>
+          </details>
+        ))}
+      </div>
+      <div class="ml-faq__ctas">
+        <a class="al-btn al-btn--secundario" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
+        <BotonWa mensaje={MENSAJES_WA.directo} texto={CTA.whatsapp} variante="fantasma" />
+      </div>
+    </div>
+  </div>
+</section>

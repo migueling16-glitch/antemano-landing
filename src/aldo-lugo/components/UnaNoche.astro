@@ -1,0 +1,176 @@
+---
+/**
+ * 4 · Una noche en Nombre de Dios #una-noche (propuesta §6.3; ESPEC §7.3, §7.5, §7.6).
+ * Ficha del caso · apertura F019 con pie · línea de tiempo de seis momentos con horas EXIF (carrusel)
+ * · galería de 7 en una tira de miniaturas con lightbox accesible · CTA.
+ * El horno de tierra (F358, F289) se acredita a los maestros mezcaleros, nunca como cocina del chef.
+ * Las horas y los textos viven en el HTML, no solo en la imagen.
+ */
+import Foto from './Foto.astro';
+import Dato from './Dato.astro';
+import Icono from './Icono.astro';
+import Carrusel from './Carrusel.astro';
+import { UNA_NOCHE, SECCIONES } from '../config';
+
+const momentos = UNA_NOCHE.momentos;
+const galeria = UNA_NOCHE.galeria.fotos;
+const [horaApertura, ...restoPie] = UNA_NOCHE.apertura.pie.split(' · ');
+---
+<section id={SECCIONES.unaNoche} class="ml-noche al-sec" data-tema="noche" aria-labelledby="ml-noche-h2">
+  <header class="al-wrap ml-sec-cab">
+    <p class="al-label al-muted">La Tapada de Luna · 2026</p>
+    <h2 id="ml-noche-h2" class="al-h2 al-revela">{UNA_NOCHE.titulo}</h2>
+    <ul class="ml-noche__ficha al-revela" aria-label="Ficha del evento">
+      {UNA_NOCHE.ficha.map((f) => <li>{f}</li>)}
+    </ul>
+    <p class="al-small al-muted al-revela">{UNA_NOCHE.aclaracion} <Dato valor={null} etiqueta="permisos" pregunta={21} /></p>
+  </header>
+
+  <figure class="ml-noche__apertura al-revela">
+    <Foto
+      id={UNA_NOCHE.apertura.foto.id}
+      recorte={UNA_NOCHE.apertura.foto.recorte}
+      alt={UNA_NOCHE.apertura.foto.alt}
+      sizes="100vw"
+    />
+    <figcaption class="al-wrap ml-pie"><span class="al-num ml-pie__hora">{horaApertura}</span> {restoPie.join(' · ')}</figcaption>
+  </figure>
+
+  <div class="ml-noche__linea">
+    <p class="al-wrap al-label al-muted ml-noche__rotulo">Hora por hora</p>
+    <Carrusel etiqueta="Una noche, hora por hora" tipo="noche" total={momentos.length}>
+      {momentos.map((m, i) => (
+        <li class="ml-carr__item" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${momentos.length}: ${m.hora}`}>
+          <article class="ml-momento">
+            <div class="ml-momento__foto">
+              <Foto id={m.foto.id} recorte={m.foto.recorte} alt={m.foto.alt} sizes="(min-width: 1024px) 26rem, 82vw" />
+            </div>
+            <p class="ml-momento__hora al-num"><time>{m.hora}</time></p>
+            <p class="ml-momento__texto">{m.texto}</p>
+            {'nota' in m && m.nota ? <p class="al-small ml-momento__nota">{m.nota}</p> : null}
+            {m.foto.credito ? <p class="al-small al-muted ml-credito">{m.foto.credito}</p> : null}
+          </article>
+        </li>
+      ))}
+    </Carrusel>
+  </div>
+
+  <div class="al-wrap ml-galeria">
+    <h3 class="al-h3 al-revela">{UNA_NOCHE.galeria.titulo}</h3>
+    <ul class="ml-galeria__tira al-revela" data-lenis-prevent>
+      {galeria.map((g, i) => (
+        <li class="ml-galeria__item">
+          <button
+            type="button"
+            class="ml-galeria__boton"
+            data-lb-abrir={i}
+            aria-label={`Ver foto ${i + 1} de ${galeria.length}: ${g.pie}`}
+            aria-haspopup="dialog"
+          >
+            <Foto id={g.miniatura.id} recorte={g.miniatura.recorte} decorativa sizes="(min-width: 1024px) 20vw, 136px" />
+            <span class="ml-galeria__pie" aria-hidden="true">{g.pie}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+    <a class="al-btn al-btn--secundario ml-noche__cta" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{UNA_NOCHE.cta}</a>
+  </div>
+
+  <dialog class="ml-lb" data-lb aria-label={`Galería: ${UNA_NOCHE.galeria.titulo}`} data-tema="noche" data-lenis-prevent>
+    <div class="ml-lb__marco">
+      <div class="ml-lb__cab">
+        <p class="ml-lb__cuenta al-num" data-lb-cuenta aria-live="polite">1 / {galeria.length}</p>
+        <button type="button" class="ml-lb__cerrar" data-lb-cerrar aria-label="Cerrar galería"><Icono nombre="cerrar" /></button>
+      </div>
+      <div class="ml-lb__escena" data-lb-escena>
+        {galeria.map((g, i) => (
+          <figure class="ml-lb__item" data-lb-item={i} hidden>
+            <div class="ml-lb__foto">
+              <Foto id={g.grande.id} recorte={g.grande.recorte} alt={g.grande.alt} sizes="100vw" />
+            </div>
+            <figcaption class="ml-lb__pie">
+              <span>{g.pie}</span>
+              {g.credito ? <span class="al-muted ml-credito">{g.credito}</span> : null}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <button type="button" class="ml-lb__nav ml-lb__nav--ant" data-lb-ant aria-label="Foto anterior"><Icono nombre="anterior" /></button>
+      <button type="button" class="ml-lb__nav ml-lb__nav--sig" data-lb-sig aria-label="Foto siguiente"><Icono nombre="siguiente" /></button>
+    </div>
+  </dialog>
+</section>
+
+<script>
+  import { capa } from './capa';
+
+  const dlg = document.querySelector<HTMLDialogElement>('[data-lb]');
+  if (dlg) {
+    const items = Array.from(dlg.querySelectorAll<HTMLElement>('[data-lb-item]'));
+    const cuenta = dlg.querySelector<HTMLElement>('[data-lb-cuenta]');
+    const cerrar = dlg.querySelector<HTMLButtonElement>('[data-lb-cerrar]');
+    const n = items.length;
+    const abrirCapa = capa(dlg, 'galeria');
+    let actual = 0;
+    let origen: HTMLElement | null = null;
+
+    /** Carga la foto i (y deja pedidas las vecinas): <img loading=lazy> dentro de [hidden] no se pide hasta aquí. */
+    const precargar = (i: number) => {
+      const img = items[((i % n) + n) % n]?.querySelector('img');
+      if (img && img.loading === 'lazy') img.loading = 'eager';
+    };
+
+    function mostrar(i: number) {
+      actual = ((i % n) + n) % n;
+      items.forEach((it, k) => (it.hidden = k !== actual));
+      if (cuenta) cuenta.textContent = `${actual + 1} / ${n}`;
+      precargar(actual);
+      precargar(actual + 1);
+      precargar(actual - 1);
+    }
+
+    document.addEventListener('click', (ev) => {
+      const b = (ev.target as Element | null)?.closest<HTMLElement>('[data-lb-abrir]');
+      if (!b) return;
+      origen = b;
+      mostrar(Number(b.dataset.lbAbrir) || 0);
+      abrirCapa();
+      cerrar?.focus();
+    });
+    cerrar?.addEventListener('click', () => dlg.close());
+    dlg.querySelector('[data-lb-ant]')?.addEventListener('click', () => mostrar(actual - 1));
+    dlg.querySelector('[data-lb-sig]')?.addEventListener('click', () => mostrar(actual + 1));
+    dlg.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); mostrar(actual + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); mostrar(actual - 1); }
+    });
+    // Tocar el fondo (fuera de la foto y los controles) también cierra; un deslizamiento no cuenta como toque.
+    let deslizo = false;
+    dlg.addEventListener('click', (e) => {
+      if (deslizo) { deslizo = false; return; }
+      const t = e.target as HTMLElement;
+      if (t === dlg || t.classList.contains('ml-lb__escena') || t.classList.contains('ml-lb__item')) dlg.close();
+    });
+    dlg.addEventListener('close', () => {
+      origen?.focus({ preventScroll: true });
+    });
+
+    // Deslizar con el dedo (pointer events, umbral 40 px). La escena deja el gesto vertical al navegador.
+    const escena = dlg.querySelector<HTMLElement>('[data-lb-escena]');
+    let x0: number | null = null;
+    let y0 = 0;
+    escena?.addEventListener('pointerdown', (e) => { x0 = e.clientX; y0 = e.clientY; });
+    escena?.addEventListener('pointerup', (e) => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0;
+      const dy = e.clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        deslizo = true;
+        setTimeout(() => (deslizo = false), 80);
+        mostrar(actual + (dx < 0 ? 1 : -1));
+      }
+    });
+    escena?.addEventListener('pointercancel', () => { x0 = null; });
+  }
+</script>

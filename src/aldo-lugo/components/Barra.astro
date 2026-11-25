@@ -1,0 +1,61 @@
+---
+/**
+ * Barra fija inferior de la landing (solo < 1024 px; ESPEC §7.9 y §4.3 sección 0).
+ * Aparece cuando el CTA del hero sale de la pantalla; se oculta con la hoja abierta, con #tu-fecha o #cierre
+ * en pantalla ([data-oculta-barra]) y con el teclado abierto. Oculta = inert (no recibe toques ni foco).
+ * Escribe su alto en --al-barra-h sobre <html> para el aviso y el pie.
+ */
+import BotonWa from './BotonWa.astro';
+import { CTA, SECCIONES, MENSAJES_WA } from '../config';
+---
+<div class="ml-barra" data-barra aria-hidden="true" inert>
+  <div class="ml-barra__in">
+    <a class="al-btn al-btn--primario ml-barra__cta" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja tabindex="-1">{CTA.principal}</a>
+    <BotonWa mensaje={MENSAJES_WA.directo} texto={CTA.whatsapp} variante="icono" clase="ml-barra__wa" />
+  </div>
+</div>
+
+<script>
+  const barra = document.querySelector<HTMLElement>('[data-barra]');
+  const raiz = document.documentElement;
+  if (barra && 'IntersectionObserver' in window) {
+    const angosta = matchMedia('(max-width: 1023.98px)');
+    let ctaVisible = true;
+    const ocultas = new Set<Element>();
+    let teclado = false;
+    let hoja = false;
+    let visible = false;
+
+    function pintar() {
+      const ver = angosta.matches && !ctaVisible && ocultas.size === 0 && !teclado && !hoja;
+      if (ver === visible) return;
+      visible = ver;
+      barra!.classList.toggle('is-visible', ver);
+      barra!.toggleAttribute('inert', !ver);
+      barra!.setAttribute('aria-hidden', ver ? 'false' : 'true');
+      barra!.querySelectorAll<HTMLElement>('a, button').forEach((b) => (ver ? b.removeAttribute('tabindex') : b.setAttribute('tabindex', '-1')));
+      raiz.style.setProperty('--al-barra-h', ver ? `${barra!.offsetHeight}px` : '0px');
+    }
+
+    const cta = document.querySelector('[data-hero-cta]');
+    if (cta) new IntersectionObserver(([e]) => { ctaVisible = e.isIntersecting; pintar(); }).observe(cta);
+
+    const io = new IntersectionObserver((es) => {
+      for (const e of es) e.isIntersecting ? ocultas.add(e.target) : ocultas.delete(e.target);
+      pintar();
+    }, { rootMargin: '0px 0px -20% 0px' });
+    document.querySelectorAll('[data-oculta-barra]').forEach((s) => io.observe(s));
+
+    const vv = window.visualViewport;
+    vv?.addEventListener('resize', () => {
+      teclado = window.innerHeight - vv.height > 150;
+      pintar();
+    });
+    document.addEventListener('al:hoja', (e) => {
+      hoja = !!(e as CustomEvent).detail?.abierta;
+      pintar();
+    });
+    angosta.addEventListener?.('change', pintar);
+    pintar();
+  }
+</script>

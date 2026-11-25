@@ -1,0 +1,39 @@
+---
+/**
+ * <BotonWa mensaje="Hola, Aldo…" texto="Escribir por WhatsApp" variante="secundario|fantasma|enlace|icono" />
+ *
+ * Con DATOS.whatsapp confirmado (P16) pinta un enlace wa.me con el mensaje prellenado.
+ * Mientras siga pendiente (DEMO) pinta un <button> con data-al-aviso: al tocarlo sale el aviso del demo
+ * y nada parece ignorado. Nunca escribe el teléfono del chef en el HTML.
+ */
+import { waHref, AVISO_WA_DEMO } from '../config';
+import Icono from './Icono.astro';
+
+interface Props {
+  mensaje: string;
+  texto: string;
+  variante?: 'secundario' | 'fantasma' | 'enlace' | 'icono';
+  clase?: string;
+}
+const { mensaje, texto, variante = 'fantasma', clase } = Astro.props;
+const href = waHref(mensaje);
+const clases = [
+  variante === 'enlace' ? 'al-enlace ml-wa--enlace' : 'al-btn',
+  variante === 'secundario' && 'al-btn--secundario',
+  variante === 'fantasma' && 'al-btn--fantasma',
+  variante === 'icono' && 'al-btn--icono ml-wa--icono',
+  'ml-wa',
+  clase,
+];
+---
+{href ? (
+  <a class:list={clases} href={href} target="_blank" rel="noopener" aria-label={variante === 'icono' ? texto : undefined}>
+    {variante !== 'secundario' && <Icono nombre="whatsapp" clase="ml-wa__glifo" />}
+    {variante === 'icono' ? null : <span>{texto}</span>}
+  </a>
+) : (
+  <button type="button" class:list={clases} data-al-aviso={AVISO_WA_DEMO} aria-label={variante === 'icono' ? texto : undefined}>
+    {variante !== 'secundario' && <Icono nombre="whatsapp" clase="ml-wa__glifo" />}
+    {variante === 'icono' ? null : <span>{texto}</span>}
+  </button>
+)}

@@ -1,0 +1,615 @@
+---
+/**
+ * /aldolugo/cuestionario/?k=TOKEN — cuestionario interactivo para el chef (34 preguntas de PREGUNTAS_CHEF.md).
+ *
+ * Pantallas (hash): #inicio · #P1…#P34 · #resumen · #gracias. Todo se pinta aquí en el build; el cliente
+ * (src/aldo-lugo/cuestionario-cliente.ts) solo muestra/oculta, lee y guarda. Datos: src/aldo-lugo/cuestionario.ts.
+ * Guardado: src/aldo-lugo/almacen.ts (teléfono siempre; Supabase si config.ts trae SUPABASE_URL y SUPABASE_KEY).
+ * Sin token válido = vista previa: guarda solo en el teléfono y lo avisa.
+ */
+import AldoLayout from '../../aldo-lugo/AldoLayout.astro';
+import Campo from '../../aldo-lugo/components/cuestionario/Campo.astro';
+import Fotos from '../../aldo-lugo/components/cuestionario/Fotos.astro';
+import { SITIO, SUPABASE_URL, SUPABASE_KEY } from '../../aldo-lugo/config';
+import {
+  PREGUNTAS, BLOQUES, PRIORIDADES, TEXTOS, TOTAL, CUENTA, modeloCliente, textosCliente, type Prioridad,
+} from '../../aldo-lugo/cuestionario';
+
+// config.ts manda; si está vacío, se aceptan las variables de entorno PUBLIC_ALDO_SUPABASE_URL / _KEY
+// (Vercel → Settings → Environment Variables). Las dos son públicas por diseño (llave publicable).
+const conexion = {
+  url: SUPABASE_URL || import.meta.env.PUBLIC_ALDO_SUPABASE_URL || '',
+  key: SUPABASE_KEY || import.meta.env.PUBLIC_ALDO_SUPABASE_KEY || '',
+};
+const datos = JSON.stringify({ modelo: modeloCliente(), textos: textosCliente(), conexion }).replace(/</g, '\\u003c');
+
+const bloque = Object.fromEntries(BLOQUES.map((b) => [b.id, b]));
+const prioridades = Object.keys(PRIORIDADES) as Prioridad[];
+const bloquesDe = (pr: Prioridad) => BLOQUES.filter((b) => b.prioridad === pr);
+const preguntasDe = (b: string) => PREGUNTAS.filter((p) => p.bloque === b);
+const T = TEXTOS;
+const modos = Object.entries(T.modos);
+---
+<AldoLayout title={SITIO.cuestionario.title} description={SITIO.cuestionario.description} variante="cuestionario">
+  <Fragment slot="head">
+    <!-- El enlace lleva el token (?k=): que no viaje como referrer a otros sitios. -->
+    <meta name="referrer" content="no-referrer" />
+  </Fragment>
+
+  <div class="cq" id="cq" data-actual="inicio">
+    <script type="application/json" id="cq-datos" set:html={datos} />
+
+    <!-- Barra fija: prioridad, posición, guardado y progreso (un segmento por pregunta) -->
+    <div class="cq-barra" data-tema="noche">
+      <div class="cq-barra__in">
+        <div class="cq-barra__fila">
+          <p class="al-label cq-barra__cont"><span data-cq-prio>P0</span><span aria-hidden="true"> · </span><span data-cq-contador>1 de {TOTAL}</span></p>
+          <p class="cq-barra__estado" data-cq-estado data-estado="local">
+            <span class="cq-barra__punto" aria-hidden="true"></span><span data-cq-estado-txt>{T.estado.local}</span>
+          </p>
+        </div>
+        <ol class="cq-progreso" aria-hidden="true">
+          {PREGUNTAS.map((p, i) => (
+            <li class:list={['cq-seg', i > 0 && PREGUNTAS[i - 1].prioridad !== p.prioridad && 'cq-seg--corte']} data-seg={p.id} data-estado-de={p.id}></li>
+          ))}
+        </ol>
+      </div>
+    </div>
+
+    <div class="cq-cuerpo" data-tema="dia">
+      <!-- Índice (escritorio) -->
+      <nav class="cq-indice" aria-label="Índice de preguntas">
+        {prioridades.map((pr) => (
+          <div class="cq-indice__grupo">
+            <p class="al-label cq-indice__prio">{pr} · {PRIORIDADES[pr].titulo}</p>
+            {bloquesDe(pr).map((b) => (
+              <>
+                <p class="cq-indice__bloque">{b.titulo}</p>
+                <ol class="cq-indice__lista">
+                  {preguntasDe(b.id).map((p) => (
+                    <li>
+                      <a href={`#${p.id}`} data-ind={p.id}>
+                        <span class="cq-punto" data-estado-de={p.id} aria-hidden="true"></span>
+                        <span class="cq-indice__n">{p.n}</span> {p.titulo}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            ))}
+          </div>
+        ))}
+      </nav>
+
+      <div class="cq-pantallas">
+        <!-- ============================== Bienvenida ============================== -->
+        <section class="cq-pantalla cq-inicio is-activa" data-pantalla="inicio" aria-labelledby="cq-inicio-t">
+          <div class="cq-col">
+            <p class="al-label cq-eyebrow">{T.etiqueta}</p>
+            <h1 class="al-h1 cq-inicio__t" id="cq-inicio-t" tabindex="-1">{T.bienvenida.titulo}</h1>
+            <p class="al-lead cq-inicio__lead">{T.bienvenida.lead}</p>
+            <ul class="cq-puntos">
+              {T.bienvenida.puntos.map((t) => <li>{t}</li>)}
+            </ul>
+            <p class="cq-ya" data-cq-ya-enviado hidden></p>
+            <div class="cq-acciones">
+              <a class="al-btn al-btn--primario al-btn--bloque" href="#P1" data-cq-empezar>{T.bienvenida.empezar}</a>
+              <a class="al-btn al-btn--secundario al-btn--bloque" href="#resumen">{T.bienvenida.resumen}</a>
+            </div>
+            <div class="cq-modo" data-cq-modo>
+              {modos.map(([id, texto]) => <p data-modo={id} hidden>{texto}</p>)}
+            </div>
+            <p class="cq-plazo">{T.bienvenida.plazo}</p>
+            <dl class="cq-prios">
+              {prioridades.map((pr) => (
+                <div>
+                  <dt><span class="cq-prio">{pr}</span> {PRIORIDADES[pr].rango}</dt>
+                  <dd><b>{PRIORIDADES[pr].titulo}.</b> {PRIORIDADES[pr].ayuda}{pr === 'P0' && ' P3, P20 y P22 tienen respuesta por defecto y no frenan el lanzamiento.'}</dd>
+                </div>
+              ))}
+            </dl>
+            <p class="al-small al-muted">{T.bienvenida.fotos}</p>
+          </div>
+        </section>
+
+        <!-- ============================== Preguntas ============================== -->
+        {PREGUNTAS.map((p) => (
+          <section class="cq-pantalla cq-preg" data-pantalla={p.id} id={`cq-${p.id}`} aria-labelledby={`cq-${p.id}-t`}>
+            <div class="cq-col">
+              <p class="cq-preg__meta">
+                <span class="cq-prio">{p.prioridad}</span>
+                <span class="al-label">{bloque[p.bloque].titulo}</span>
+              </p>
+              <div class="cq-preg__cab">
+                <span class="cq-preg__n" aria-hidden="true">{p.n}</span>
+                <span class="cq-chip-estado" data-estado-de={p.id}>{T.estados.pendiente}</span>
+              </div>
+              <h2 class="cq-preg__t" id={`cq-${p.id}-t`} tabindex="-1"><span class="al-sr">Pregunta {p.n}. </span>{p.pregunta}</h2>
+              {p.intro && <p class="cq-preg__intro">{p.intro}</p>}
+              {p.siNoContesta && <p class="cq-defecto">{p.siNoContesta}</p>}
+              {p.cita && (
+                <blockquote class="cq-cita">
+                  {p.cita.lineas.map((l) => <p>{l}</p>)}
+                  {p.cita.firma && <footer>{p.cita.firma}</footer>}
+                </blockquote>
+              )}
+              {p.listas?.map((l) => (
+                <div class="cq-lista">
+                  {l.titulo && <p class="cq-lista__t">{l.titulo}</p>}
+                  {l.numerada ? <ol>{l.items.map((i) => <li>{i}</li>)}</ol> : <ul>{l.items.map((i) => <li>{i}</li>)}</ul>}
+                </div>
+              ))}
+              {p.fotos && <Fotos fotos={p.fotos} />}
+              {p.contexto && (
+                <details class="cq-contexto">
+                  <summary>{T.pregunta.contexto}</summary>
+                  <ul>{p.contexto.map((c) => <li>{c}</li>)}</ul>
+                </details>
+              )}
+              <div class="cq-campos">
+                {p.campos.map((c) => <Campo campo={c} />)}
+              </div>
+              {p.noSe && (
+                <div class="cq-nose">
+                  <button type="button" class="cq-nose__btn" data-nose={p.id} aria-pressed="false">{T.pregunta.noSe}</button>
+                  <span class="cq-nose__ayuda">{T.pregunta.noSeAyuda}</span>
+                </div>
+              )}
+            </div>
+          </section>
+        ))}
+
+        <!-- ============================== Resumen ============================== -->
+        <section class="cq-pantalla cq-res" data-pantalla="resumen" aria-labelledby="cq-resumen-t">
+          <div class="cq-col">
+            <p class="al-label cq-eyebrow">{T.resumen.titulo}</p>
+            <h2 class="cq-h" id="cq-resumen-t" tabindex="-1">Tus respuestas</h2>
+            <p class="cq-res__cuenta" data-cq-cuenta>{T.resumen.cuenta(0, TOTAL)}</p>
+            <ul class="cq-res__prios">
+              {prioridades.map((pr) => (
+                <li><span class="cq-prio">{pr}</span> <span data-cq-cuenta-prio={pr}>0 de {CUENTA[pr]}</span></li>
+              ))}
+            </ul>
+            <p class="cq-res__lead">{T.resumen.lead}</p>
+            <p class="cq-enviado" data-cq-enviado hidden></p>
+            <div class="cq-modo" data-cq-modo>
+              {modos.map(([id, texto]) => <p data-modo={id} hidden>{texto}</p>)}
+            </div>
+
+            <div class="cq-enviar">
+              <button type="button" class="al-btn al-btn--primario al-btn--bloque" data-cq-enviar>{T.resumen.enviar}</button>
+              <div class="cq-faltan" data-cq-faltan hidden tabindex="-1" role="region" aria-label="Preguntas que faltan">
+                <p class="cq-faltan__t" data-cq-faltan-texto></p>
+                <p class="cq-faltan__lista" data-cq-faltan-lista></p>
+                <p class="al-small al-muted">{T.resumen.faltanAyuda}</p>
+                <div class="cq-faltan__acc">
+                  <a class="al-btn al-btn--secundario" href="#P1" data-cq-ir-falta>{T.resumen.irA(1)}</a>
+                  <button type="button" class="al-btn al-btn--fantasma" data-cq-enviar-asi>{T.resumen.enviarAsi}</button>
+                </div>
+              </div>
+              <div class="cq-copia" data-cq-copia>
+                <button type="button" class="al-btn al-btn--fantasma al-btn--bloque" data-cq-copiar>{T.resumen.copiar}</button>
+                <p class="al-small al-muted">{T.resumen.copiarAyuda}</p>
+                <textarea class="cq-input cq-copia__area" readonly rows="10" data-cq-copia-area hidden aria-label="Todas tus respuestas"></textarea>
+              </div>
+            </div>
+
+            <nav class="cq-chips" aria-label="Ir a un bloque">
+              {BLOQUES.map((b) => (
+                <button type="button" class="al-chip cq-chips__b" data-ir-bloque={b.id}>
+                  {b.corto} <span class="cq-chips__n" data-cuenta-bloque={b.id}></span>
+                </button>
+              ))}
+            </nav>
+
+            {prioridades.map((pr) => (
+              <div class="cq-res__grupo">
+                <h3 class="cq-res__prio-t"><span class="cq-prio">{pr}</span> {PRIORIDADES[pr].titulo}</h3>
+                {bloquesDe(pr).map((b) => (
+                  <section class="cq-res__bloque" id={`cq-b-${b.id}`} aria-labelledby={`cq-b-${b.id}-t`}>
+                    <h4 class="al-label cq-res__bloque-t" id={`cq-b-${b.id}-t`}>{b.titulo}</h4>
+                    <ol class="cq-res__lista">
+                      {preguntasDe(b.id).map((p) => (
+                        <li>
+                          <a class="cq-res__item" href={`#${p.id}`} data-res={p.id}>
+                            <span class="cq-res__n" aria-hidden="true">{p.n}</span>
+                            <span class="cq-res__cuerpo">
+                              <span class="cq-res__titulo"><span class="al-sr">Pregunta {p.n}: </span>{p.titulo}</span>
+                              <span class="cq-chip-estado" data-estado-de={p.id}>{T.estados.pendiente}</span>
+                              <span class="cq-res__txt" data-res-texto>{T.resumen.sinRespuesta}</span>
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                ))}
+              </div>
+            ))}
+
+            <div class="cq-res__fin">
+              <button type="button" class="al-btn al-btn--secundario al-btn--bloque" data-cq-enviar>{T.resumen.enviar}</button>
+              <div class="cq-copia" data-cq-copia>
+                <button type="button" class="al-btn al-btn--fantasma al-btn--bloque" data-cq-copiar>{T.resumen.copiar}</button>
+                <textarea class="cq-input cq-copia__area" readonly rows="10" data-cq-copia-area hidden aria-label="Todas tus respuestas"></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================== Envío ============================== -->
+        <section class="cq-pantalla cq-gracias" data-pantalla="gracias" aria-label="Envío">
+          <div class="cq-col">
+            <div data-gracias="ok" hidden>
+              <span class="al-sello cq-gracias__sello" aria-hidden="true">{T.gracias.sello}</span>
+              <h2 class="cq-h" tabindex="-1">{T.gracias.titulo}</h2>
+              <p class="al-lead">{T.gracias.texto}</p>
+              <p>{T.gracias.cambios}</p>
+            </div>
+            <div data-gracias="pendiente" hidden>
+              <h2 class="cq-h" tabindex="-1">{T.gracias.pendienteTitulo}</h2>
+              <p class="al-lead">{T.gracias.pendienteTexto}</p>
+            </div>
+            <div data-gracias="local" hidden>
+              <h2 class="cq-h" tabindex="-1">{T.gracias.localTitulo}</h2>
+              <p class="al-lead">{T.gracias.localTexto}</p>
+            </div>
+            <div data-gracias="error" hidden>
+              <h2 class="cq-h" tabindex="-1">{T.gracias.errorTitulo}</h2>
+              <p class="al-lead">{T.gracias.errorTexto}</p>
+            </div>
+            <div class="cq-copia" data-cq-copia>
+              <button type="button" class="al-btn al-btn--fantasma al-btn--bloque" data-cq-copiar>{T.resumen.copiar}</button>
+              <textarea class="cq-input cq-copia__area" readonly rows="10" data-cq-copia-area hidden aria-label="Todas tus respuestas"></textarea>
+            </div>
+            <a class="al-btn al-btn--secundario al-btn--bloque" href="#resumen">{T.gracias.volver}</a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Navegación inferior (preguntas) -->
+    <nav class="cq-nav" data-tema="noche" aria-label="Preguntas" data-cq-nav>
+      <div class="cq-nav__in">
+        <a class="cq-nav__btn cq-nav__atras" href="#inicio" data-cq-atras aria-label={T.nav.atras}><span aria-hidden="true">←</span><span class="cq-nav__txt" aria-hidden="true">{T.nav.atras}</span></a>
+        <a class="cq-nav__btn" href="#resumen">{T.nav.resumen}</a>
+        <a class="al-btn al-btn--primario cq-nav__sig" href="#P2" data-cq-siguiente><span data-cq-siguiente-txt>{T.nav.siguiente}</span> <span aria-hidden="true">→</span></a>
+      </div>
+    </nav>
+  </div>
+
+  <noscript><p class="cq-sinjs">{T.sinJs}</p></noscript>
+
+  <script is:inline>
+    // Antes del primer pintado: abre la pantalla del hash (#P5, #resumen) para que no parpadee la bienvenida.
+    // Si el módulo del cliente no carga, este mismo bloque mantiene la navegación por hash.
+    (function () {
+      var c = document.getElementById('cq');
+      if (!c) return;
+      function abrir() {
+        if (window.__cqListo) return;
+        var h = decodeURIComponent(location.hash.slice(1)) || 'inicio';
+        if (h === 'gracias') h = 'resumen';
+        var s = c.querySelector('[data-pantalla="' + h.replace(/[^A-Za-z0-9_-]/g, '') + '"]');
+        if (!s) return;
+        var a = c.querySelectorAll('.cq-pantalla.is-activa');
+        for (var i = 0; i < a.length; i++) a[i].classList.remove('is-activa');
+        s.classList.add('is-activa');
+        c.setAttribute('data-actual', h);
+      }
+      abrir();
+      window.addEventListener('hashchange', abrir);
+    })();
+  </script>
+  <script>
+    import { iniciar } from '../../aldo-lugo/cuestionario-cliente';
+    iniciar();
+  </script>
+</AldoLayout>
+
+<style is:global>
+  /* =====================================================================
+     CUESTIONARIO (.cq-*) — móvil primero. Tokens --al-* del layout.
+     Tema: cuerpo "dia" (hueso, lectura larga); barra y navegación "noche".
+     ===================================================================== */
+  .cq {
+    --cq-campo: #f7f2e7; /* fondo de controles sobre hueso */
+    --cq-borde: var(--al-tizne); /* 5.6:1 sobre hueso: bordes de controles (WCAG 1.4.11) */
+    --cq-borde-suave: rgba(20, 20, 20, .2);
+    --cq-barra-h: 58px;
+    position: relative;
+  }
+  .cq [hidden] { display: none !important; }
+  .cq fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .cq legend { padding: 0; }
+  .cq ul, .cq ol { margin: 0; padding: 0; }
+  html.al-js .cq-pantalla:not(.is-activa) { display: none; }
+  html:not(.al-js) .cq-barra, html:not(.al-js) .cq-nav { display: none; }
+  .cq a.al-btn--primario { color: var(--al-hueso); } /* el layout hereda color en <a> */
+  .cq-sinjs { max-width: 40rem; margin: 16px auto; padding: 16px var(--al-margen); color: var(--al-hueso); }
+
+  .cq-cuerpo { min-height: calc(100vh - var(--cq-barra-h) - 72px); min-height: calc(100svh - var(--cq-barra-h) - 72px); }
+  .cq-col { max-width: 40rem; margin-inline: auto; padding: var(--al-sp-5) var(--al-margen) var(--al-sp-8); }
+  .cq-eyebrow { color: var(--al-fg-2); }
+  .cq-h { font-family: var(--al-f-display); font-weight: 560; font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.75rem); line-height: 1.08; letter-spacing: -.01em; margin: 8px 0 0; text-wrap: balance; }
+  .cq-h:focus, .cq-preg__t:focus, .cq-inicio__t:focus { outline: none; }
+  .cq-prio {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 2.1em; height: 1.45em; padding: 0 .4em;
+    border: 1px solid currentColor; border-radius: var(--al-r-1);
+    font: 600 .75rem/1 var(--al-f-label); letter-spacing: .08em;
+  }
+
+  /* ---------- Barra ---------- */
+  .cq-barra { position: sticky; top: 0; z-index: 25; border-bottom: 1px solid var(--al-carbon-3); }
+  .cq[data-actual='inicio'] .cq-barra, .cq[data-actual='gracias'] .cq-barra { display: none; }
+  .cq-barra__in { max-width: var(--al-max); margin-inline: auto; padding: 8px var(--al-margen) 10px; }
+  .cq-barra__fila { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 12px; min-height: 24px; }
+  .cq-barra__cont { color: var(--al-hueso); font-size: .8125rem; white-space: nowrap; }
+  .cq-barra__estado { display: inline-flex; align-items: center; gap: 7px; color: var(--al-ceniza); font-size: .8125rem; line-height: 1.3; }
+  .cq-barra__punto { width: 7px; height: 7px; border-radius: 50%; background: var(--al-ceniza); flex: none; }
+  .cq-barra__estado[data-estado='guardado'] { color: var(--al-hueso); }
+  .cq-barra__estado[data-estado='guardado'] .cq-barra__punto { background: var(--al-hueso); }
+  .cq-barra__estado[data-estado='guardando'] .cq-barra__punto { background: var(--al-brasa); }
+  .cq-barra__estado[data-estado='sin-conexion'] .cq-barra__punto,
+  .cq-barra__estado[data-estado='reintentando'] .cq-barra__punto,
+  .cq-barra__estado[data-estado='error'] .cq-barra__punto,
+  .cq-barra__estado[data-estado='sin-almacen'] .cq-barra__punto { background: transparent; box-shadow: inset 0 0 0 1.5px var(--al-ceniza); }
+  .cq-barra__estado[data-estado='error'], .cq-barra__estado[data-estado='sin-almacen'] { color: var(--al-hueso); }
+  .cq-progreso { display: flex; gap: 2px; margin-top: 8px; list-style: none; }
+  .cq-seg { flex: 1 1 0; height: 6px; border-radius: 1px; background: rgba(237, 230, 214, .16); }
+  .cq-seg--corte { margin-left: 5px; }
+  .cq-seg[data-estado='completa'] { background: var(--al-hueso); }
+  .cq-seg[data-estado='nose'] { background: var(--al-ceniza); }
+  .cq-seg[data-estado='parcial'] { background: rgba(237, 230, 214, .5); }
+  .cq-seg.is-actual { background: var(--al-brasa); box-shadow: 0 0 0 1px var(--al-brasa); }
+
+  /* ---------- Navegación inferior ---------- */
+  .cq-nav {
+    position: sticky; bottom: 0; z-index: 25; border-top: 1px solid var(--al-carbon-3);
+    padding: 10px var(--al-margen) calc(10px + env(safe-area-inset-bottom));
+  }
+  .cq:not([data-actual^='P']) .cq-nav { display: none; }
+  .cq[data-escribiendo] .cq-nav { display: none; }
+  .cq-nav__in { display: grid; grid-template-columns: auto auto 1fr; gap: 8px; max-width: 40rem; margin-inline: auto; }
+  .cq-nav__btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .35em; min-height: var(--al-btn-h-2); padding: 0 12px;
+    border: 1px solid var(--al-linea); border-radius: var(--al-r-1); color: var(--al-hueso); text-decoration: none;
+    font: 600 .9375rem/1.1 var(--al-f-text); -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  }
+  .cq-nav__btn:hover { border-color: var(--al-ceniza); }
+  .cq-nav__sig { min-height: var(--al-btn-h-2); padding: 0 14px; white-space: nowrap; }
+  @media (max-width: 419px) { .cq-nav__atras { min-width: var(--al-btn-h-2); padding: 0; } .cq-nav__txt { display: none; } }
+  @media (max-width: 359px) { .cq-nav__btn, .cq-nav__sig { padding: 0 10px; font-size: .875rem; } }
+
+  /* ---------- Índice (escritorio) ---------- */
+  .cq-indice { display: none; }
+  @media (min-width: 1024px) {
+    .cq-cuerpo { display: grid; grid-template-columns: minmax(220px, 290px) minmax(0, 44rem); justify-content: center; column-gap: clamp(32px, 4vw, 72px); padding-inline: var(--al-margen); }
+    .cq-col { padding-inline: 0; padding-top: var(--al-sp-7); }
+    .cq-indice {
+      display: block; position: sticky; top: calc(var(--cq-barra-h) + 8px); align-self: start;
+      max-height: calc(100vh - var(--cq-barra-h) - 16px); overflow-y: auto; padding: var(--al-sp-7) 8px var(--al-sp-6) 0;
+      scrollbar-width: thin;
+    }
+    .cq[data-actual='inicio'] .cq-indice { top: 8px; }
+    .cq-nav__in { max-width: calc(44rem + 290px + 72px); grid-template-columns: auto auto minmax(0, 18rem); justify-content: end; }
+  }
+  .cq-indice__grupo + .cq-indice__grupo { margin-top: var(--al-sp-5); }
+  .cq-indice__prio { color: var(--al-fg-2); }
+  .cq-indice__bloque { margin: 14px 0 4px; font-size: .8125rem; font-weight: 600; }
+  .cq-indice__lista { list-style: none; }
+  .cq-indice__lista a {
+    display: flex; align-items: baseline; gap: 8px; min-height: 32px; padding: 5px 8px; border-radius: var(--al-r-1);
+    color: var(--al-fg-2); font-size: .875rem; line-height: 1.3; text-decoration: none;
+  }
+  .cq-indice__lista a:hover { color: var(--al-fg); background: var(--cq-campo); }
+  .cq-indice__lista a[aria-current='page'] { color: var(--al-fg); background: var(--al-cal); font-weight: 600; }
+  .cq-indice__n { font-variant-numeric: tabular-nums; min-width: 1.4em; }
+  .cq-punto { flex: none; width: 8px; height: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--al-tizne); transform: translateY(-1px); }
+  .cq-punto[data-estado='completa'] { background: var(--al-carbon); box-shadow: none; }
+  .cq-punto[data-estado='parcial'] { background: linear-gradient(90deg, var(--al-carbon) 50%, transparent 50%); }
+  .cq-punto[data-estado='nose'] { background: var(--al-ceniza); box-shadow: none; }
+
+  /* ---------- Bienvenida ---------- */
+  .cq-inicio .cq-col { padding-top: var(--al-sp-5); }
+  .cq-inicio__t { margin-top: 10px; }
+  .cq-inicio__lead { margin-top: 14px; }
+  .cq-puntos { list-style: none; margin-top: 18px; display: grid; gap: 8px; }
+  .cq-puntos li { position: relative; padding-left: 20px; font-size: .9688rem; line-height: 1.45; }
+  .cq-puntos li::before { content: ''; position: absolute; left: 2px; top: .55em; width: 8px; height: 8px; border-radius: 50%; background: var(--al-carbon); }
+  .cq-acciones { display: grid; gap: 10px; margin-top: 22px; }
+  .cq-ya { margin-top: 16px; padding: 12px 14px; background: var(--al-carbon); color: var(--al-hueso); border-radius: var(--al-r-2); font-size: .9375rem; }
+  .cq-modo { margin-top: 16px; }
+  .cq-modo p { padding: 12px 14px; border-left: 3px solid var(--al-carbon); background: var(--cq-campo); font-size: .9375rem; line-height: 1.45; }
+  .cq-plazo { margin-top: 24px; font-weight: 600; }
+  .cq-prios { margin: 14px 0 18px; display: grid; gap: 10px; }
+  .cq-prios > div { display: grid; grid-template-columns: 4.5rem 1fr; gap: 10px; font-size: .9375rem; line-height: 1.45; }
+  .cq-prios dt { display: flex; align-items: flex-start; gap: 6px; font-variant-numeric: tabular-nums; color: var(--al-fg-2); font-size: .8125rem; padding-top: 2px; }
+  .cq-prios dd { margin: 0; }
+  @media (min-width: 768px) { .cq-acciones { grid-template-columns: 1fr 1fr; } }
+
+  /* ---------- Pregunta ---------- */
+  .cq-preg__meta { display: flex; align-items: center; gap: 10px; color: var(--al-fg-2); }
+  .cq-preg__cab { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .cq-preg__n { font-family: var(--al-f-display); font-weight: 560; font-size: 2.5rem; line-height: 1; font-variant-numeric: lining-nums; }
+  .cq-preg__t {
+    margin: 10px 0 0; font-family: var(--al-f-display); font-weight: 560; font-size: clamp(1.5rem, 1.15rem + 1.3vw, 2.25rem);
+    line-height: 1.12; letter-spacing: -.01em; text-wrap: balance;
+  }
+  .cq-preg__intro { margin-top: 12px; font-size: 1rem; line-height: 1.5; }
+  .cq-defecto { margin-top: 12px; padding: 10px 12px; border: 1px dashed var(--cq-borde); border-radius: var(--al-r-2); font-size: .9375rem; }
+  .cq-cita { margin: 18px 0 0; padding: 20px 20px 18px; background: var(--al-carbon); color: var(--al-hueso); border-radius: var(--al-r-1); font-family: var(--al-f-display); font-weight: 560; font-size: 1.1875rem; line-height: 1.42; }
+  .cq-cita p + p { margin-top: .55em; }
+  .cq-cita footer { margin-top: 12px; font: 600 .8125rem/1 var(--al-f-label); letter-spacing: .12em; text-transform: uppercase; color: var(--al-ceniza); }
+  .cq-lista { margin-top: 14px; }
+  .cq-lista__t { font-weight: 600; margin-bottom: 6px; }
+  .cq-lista ul, .cq-lista ol { padding-left: 1.2em; font-size: .9688rem; line-height: 1.5; }
+  .cq-lista ul { list-style: disc; }
+  .cq-lista ol { list-style: decimal; }
+  .cq-lista li + li { margin-top: 6px; }
+  .cq-lista li::marker { color: var(--al-tizne); }
+  .cq-contexto { margin-top: 14px; border-top: 1px solid var(--al-linea); border-bottom: 1px solid var(--al-linea); }
+  .cq-contexto summary {
+    display: flex; align-items: center; gap: 10px; min-height: var(--al-tap); cursor: pointer; list-style: none;
+    font-weight: 600; font-size: .9375rem; -webkit-tap-highlight-color: transparent;
+  }
+  .cq-contexto summary::-webkit-details-marker { display: none; }
+  .cq-contexto summary::before { content: '+'; display: inline-grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--cq-borde); border-radius: 50%; font-weight: 500; line-height: 1; }
+  .cq-contexto[open] summary::before { content: '–'; }
+  .cq-contexto ul { list-style: disc; padding: 0 0 14px 1.2em; font-size: .9375rem; line-height: 1.5; color: var(--al-fg-2); }
+  .cq-contexto li + li { margin-top: 6px; }
+
+  /* ---------- Campos ---------- */
+  .cq-campos { margin-top: 26px; }
+  .cq-campo + .cq-campo { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--al-linea); }
+  .cq-campo__etq { display: block; font-weight: 600; font-size: 1.0625rem; line-height: 1.35; margin-bottom: 4px; }
+  .cq-opcional { font-weight: 400; color: var(--al-fg-2); font-size: .875rem; }
+  .cq-campo__ayuda { color: var(--al-fg-2); font-size: .9375rem; line-height: 1.45; margin-bottom: 4px; }
+  .cq-campo > .cq-ops, .cq-campo > .cq-input, .cq-campo > .cq-num, .cq-campo > .cq-filas { margin-top: 10px; }
+
+  .cq-ops { display: grid; gap: 8px; }
+  .cq-ops--fila { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
+  .cq-op {
+    position: relative; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 11px 14px;
+    border: 1px solid var(--cq-borde); border-radius: var(--al-r-2); background: var(--cq-campo); color: var(--al-carbon);
+    font-size: 1rem; line-height: 1.35; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none;
+    transition: background-color var(--al-t-micro) ease, color var(--al-t-micro) ease;
+  }
+  .cq-ops--fila .cq-op { justify-content: center; padding-inline: 10px; }
+  .cq-op input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+  .cq-op__marca {
+    flex: none; width: 22px; height: 22px; border: 2px solid currentColor; border-radius: 50%;
+    display: grid; place-items: center;
+  }
+  .cq-ops--check .cq-op__marca { border-radius: 3px; }
+  .cq-op__marca::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: currentColor; transform: scale(0); transition: transform var(--al-t-micro) ease; }
+  .cq-ops--check .cq-op__marca::after { width: 11px; height: 6px; border-radius: 0; background: none; border: solid currentColor; border-width: 0 0 2px 2px; transform: translateY(-2px) rotate(-45deg) scale(0); }
+  .cq-op:hover { border-color: var(--al-carbon); }
+  .cq-op.is-on, .cq-op:has(input:checked) { background: var(--al-carbon); color: var(--al-hueso); border-color: var(--al-carbon); }
+  .cq-op.is-on .cq-op__marca::after, .cq-op:has(input:checked) .cq-op__marca::after { transform: scale(1); }
+  .cq-ops--check .cq-op.is-on .cq-op__marca::after, .cq-ops--check .cq-op:has(input:checked) .cq-op__marca::after { transform: translateY(-2px) rotate(-45deg) scale(1); }
+  .cq-op:has(input:focus-visible) { outline: 2px solid var(--al-foco); outline-offset: 2px; }
+  .cq-op:active { transform: scale(.99); }
+
+  .cq-detalle { padding: 6px 0 4px 14px; border-left: 2px solid var(--al-carbon); margin-left: 10px; }
+  .cq-ops--fila + .cq-detalle, .cq-ops--fila ~ .cq-detalle { margin-top: 10px; grid-column: 1 / -1; }
+  .cq-detalle__etq { display: block; font-size: .9375rem; font-weight: 600; margin-bottom: 6px; }
+
+  .cq-input {
+    display: block; width: 100%; min-height: 52px; padding: 12px 14px; border: 1px solid var(--cq-borde); border-radius: var(--al-r-2);
+    background: var(--cq-campo); color: var(--al-carbon); font: 400 var(--al-fs-input) / 1.4 var(--al-f-text);
+    -webkit-appearance: none; appearance: none;
+  }
+  .cq-input::placeholder { color: #7a746a; opacity: 1; }
+  .cq-input:focus-visible { outline: 2px solid var(--al-foco); outline-offset: 1px; }
+  .cq-input--largo { min-height: 104px; resize: vertical; field-sizing: content; max-height: 60vh; }
+  .cq-num {
+    display: flex; align-items: center; gap: 6px; max-width: 15rem; min-height: 52px; padding: 0 12px;
+    border: 1px solid var(--cq-borde); border-radius: var(--al-r-2); background: var(--cq-campo); color: var(--al-carbon);
+  }
+  .cq-num--monto { max-width: 18rem; }
+  .cq-num:focus-within { outline: 2px solid var(--al-foco); outline-offset: 1px; }
+  .cq-num .cq-input { flex: 1 1 auto; min-width: 0; min-height: 50px; padding: 0; border: 0; background: transparent; font-variant-numeric: tabular-nums; }
+  .cq-num .cq-input:focus-visible { outline: none; }
+  .cq-num__pre { font-weight: 600; }
+  .cq-num__unidad { flex: none; color: var(--al-tizne); font-size: .875rem; white-space: nowrap; }
+
+  .cq-usar {
+    display: inline-flex; align-items: center; min-height: var(--al-tap); margin-top: 10px; padding: 0 14px;
+    border: 1px dashed var(--cq-borde); border-radius: var(--al-r-full); background: transparent; color: var(--al-carbon);
+    font: 500 .9375rem/1.25 var(--al-f-text); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  }
+  .cq-usar:hover { border-style: solid; }
+
+  /* Tabla → tarjetas por fila */
+  .cq-filas { display: grid; gap: 12px; }
+  .cq-fila { padding: 14px; border: 1px solid var(--cq-borde-suave) !important; border-radius: var(--al-r-2); background: rgba(255, 255, 255, .28); }
+  .cq-fila > legend { float: left; width: 100%; font-family: var(--al-f-display); font-weight: 560; font-size: 1.1875rem; line-height: 1.2; }
+  .cq-fila > legend + * { clear: both; }
+  .cq-fila__ayuda { clear: both; padding-top: 4px; color: var(--al-fg-2); font-size: .9063rem; line-height: 1.4; }
+  .cq-celdas { clear: both; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 12px; }
+  .cq-celda { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; min-width: 0; }
+  .cq-celda--ops, .cq-celda--nota { grid-column: 1 / -1; }
+  .cq-celda__etq { display: block; font-size: .875rem; font-weight: 600; line-height: 1.3; }
+  .cq-celda .cq-num { max-width: none; }
+  .cq-celda--ops .cq-op { min-height: 48px; }
+  .cq-celda--nota { color: var(--al-fg-2); font-size: .9063rem; }
+  .cq-regla { margin-top: 10px; padding: 8px 10px; border-left: 3px solid var(--al-carbon); background: var(--cq-campo); font-size: .875rem; }
+  @media (min-width: 640px) { .cq-celdas--num { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); } }
+
+  .cq-fotos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; list-style: none; }
+  .cq-foto { display: inline-flex; align-items: center; gap: 8px; color: var(--al-fg-2); font-size: .8125rem; line-height: 1.2; }
+  .cq-foto__ref { padding: 4px 10px; border: 1px solid var(--cq-borde-suave); border-radius: var(--al-r-full); }
+  .cq-foto__ref b { color: var(--al-fg); font-weight: 600; }
+  .cq-foto--mini .cq-foto__ref { padding: 0; border: 0; }
+  .cq-foto__mini { flex: none; width: 56px; height: 56px; overflow: hidden; border-radius: var(--al-r-1); background: var(--al-hollin); }
+  .cq-foto__mini .al-foto { width: 100%; height: 100%; }
+  .cq-foto__mini img { width: 100%; height: 100%; object-fit: cover; }
+  .cq-fotos--fila { margin-top: 8px; }
+
+  /* "No sé todavía" */
+  .cq-nose { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--al-linea); }
+  .cq-nose__btn {
+    display: inline-flex; align-items: center; gap: 8px; min-height: var(--al-tap); padding: 0 16px;
+    border: 1px solid var(--cq-borde); border-radius: var(--al-r-full); background: transparent; color: var(--al-carbon);
+    font: 600 .9375rem/1 var(--al-f-text); cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  }
+  .cq-nose__btn::before { content: ''; width: 14px; height: 14px; border: 1.5px solid currentColor; border-radius: 3px; }
+  .cq-nose__btn[aria-pressed='true'] { background: var(--al-carbon); color: var(--al-hueso); border-color: var(--al-carbon); }
+  .cq-nose__btn[aria-pressed='true']::before { background: currentColor; box-shadow: inset 0 0 0 2px var(--al-carbon); }
+  .cq-nose__ayuda { color: var(--al-fg-2); font-size: .875rem; }
+
+  /* Estado de una pregunta */
+  .cq-chip-estado {
+    display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: var(--al-r-full);
+    border: 1px dashed var(--cq-borde); color: var(--al-tizne); font: 500 .8125rem/1 var(--al-f-text); white-space: nowrap;
+  }
+  .cq-chip-estado[data-estado='completa'] { border: 1px solid var(--al-carbon); background: var(--al-carbon); color: var(--al-hueso); }
+  .cq-chip-estado[data-estado='completa']::before { content: '✓'; margin-right: 5px; }
+  .cq-chip-estado[data-estado='parcial'] { border-style: solid; color: var(--al-carbon); }
+  .cq-chip-estado[data-estado='nose'] { border-style: solid; background: var(--al-cal); color: var(--al-carbon); }
+
+  /* ---------- Resumen ---------- */
+  .cq-res__cuenta { margin-top: 10px; font-size: 1.125rem; font-weight: 600; }
+  .cq-res__prios { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; list-style: none; font-size: .9375rem; color: var(--al-fg-2); }
+  .cq-res__prios li { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+  .cq-res__lead { margin-top: 12px; font-size: .9688rem; }
+  .cq-enviado { margin-top: 14px; padding: 12px 14px; background: var(--al-carbon); color: var(--al-hueso); border-radius: var(--al-r-2); font-size: .9375rem; }
+  .cq-enviar { display: grid; gap: 12px; margin-top: 18px; }
+  .cq-faltan { padding: 14px; border: 1px solid var(--al-carbon); border-radius: var(--al-r-2); background: var(--cq-campo); display: grid; gap: 8px; }
+  .cq-faltan:focus { outline: none; }
+  .cq-faltan:focus-visible { outline: 2px solid var(--al-foco); outline-offset: 2px; }
+  .cq-faltan__t { font-weight: 600; }
+  .cq-faltan__lista { font-size: .9375rem; }
+  .cq-faltan__acc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .cq-copia { display: grid; gap: 6px; }
+  .cq-copia__area { min-height: 220px; font-size: .875rem; line-height: 1.45; white-space: pre-wrap; }
+  .cq-chips { display: flex; gap: 8px; margin: 26px calc(-1 * var(--al-margen)) 0; padding: 2px var(--al-margen) 6px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .cq-chips::-webkit-scrollbar { display: none; }
+  .cq-chips__b { flex: none; border-color: var(--cq-borde); }
+  .cq-chips__n { color: var(--al-fg-2); font-variant-numeric: tabular-nums; font-size: .8125rem; }
+  @media (min-width: 1024px) { .cq-chips { margin-inline: 0; padding-inline: 0; flex-wrap: wrap; overflow: visible; } }
+  .cq-res__grupo { margin-top: 30px; }
+  .cq-res__prio-t { display: flex; align-items: center; gap: 10px; font-family: var(--al-f-display); font-weight: 560; font-size: 1.5rem; line-height: 1.15; margin: 0; }
+  .cq-res__bloque { margin-top: 18px; scroll-margin-top: calc(var(--cq-barra-h) + 12px); }
+  .cq-res__bloque-t { color: var(--al-fg-2); margin: 0 0 4px; }
+  .cq-res__lista { list-style: none; }
+  .cq-res__item {
+    display: grid; grid-template-columns: 2.25rem 1fr; gap: 0 12px; min-height: 56px; padding: 12px 0;
+    border-top: 1px solid var(--al-linea); color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent;
+  }
+  .cq-res__item:hover .cq-res__titulo { text-decoration: underline; text-underline-offset: .2em; }
+  .cq-res__n { font-family: var(--al-f-display); font-weight: 560; font-size: 1.375rem; line-height: 1.1; font-variant-numeric: lining-nums; }
+  .cq-res__cuerpo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-width: 0; }
+  .cq-res__titulo { font-weight: 600; line-height: 1.3; }
+  .cq-res__txt {
+    flex: 1 1 100%; color: var(--al-fg-2); font-size: .9063rem; line-height: 1.42; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+  }
+  .cq-res__fin { display: grid; gap: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--al-linea); }
+
+  /* ---------- Envío ---------- */
+  .cq-gracias .cq-col { display: grid; gap: 16px; padding-top: var(--al-sp-7); }
+  .cq-gracias [data-gracias] { display: grid; gap: 14px; }
+  .cq-gracias__sello { justify-self: start; margin-bottom: 6px; }
+</style>

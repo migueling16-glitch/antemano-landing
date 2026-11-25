@@ -1,0 +1,553 @@
+---
+/**
+ * ALDO chef LUGO — layout autocontenido del demo (landing y cuestionario).
+ * Todo lo de la marca vive en src/aldo-lugo/ y public/aldo-lugo/. Tokens y utilidades: ver README.md.
+ *
+ * Props:
+ *   title, description   (por omisión, los de SITIO.seo)
+ *   variante             'landing' (cabecera con nav y CTA, pie completo) | 'cuestionario' (cabecera simple)
+ * Slots:
+ *   default              contenido de <main id="contenido">
+ *   head                 etiquetas extra en <head>
+ *   barra                barra fija inferior de la landing (va fuera de <main>)
+ *
+ * Contratos para las secciones:
+ *   - Cualquier elemento con [data-abrir-hoja] (y data-preset='{"formato":…}' opcional) abre el formulario;
+ *     sin JS es un enlace a #tu-fecha. Lo implementa el componente del formulario.
+ *   - [data-al-aviso="texto"] → al tocarlo muestra ese aviso (toast) y no navega. window.alAviso(texto) también.
+ *   - .al-revela → aparece al entrar en pantalla (nunca en el hero). <html data-quieto> = sin movimiento.
+ */
+import {
+  DEMO, BASE, ASSETS, ORIGEN, SITIO, NAV, SECCIONES, DATOS, CTA, CREDITO_FOTOS,
+} from './config';
+import { LOGOTIPO, ISOTIPO } from './logos';
+import Logo from './components/Logo.astro';
+import Dato from './components/Dato.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  variante?: 'landing' | 'cuestionario';
+}
+const { title = SITIO.seo.title, description = SITIO.seo.description, variante = 'landing' } = Astro.props;
+const esLanding = variante === 'landing';
+const og = `${ORIGEN}${ASSETS}/og.jpg`;
+const fuentes =
+  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@144,560,30,0&family=Barlow+Condensed:wght@600&display=swap';
+const anio = 2026;
+---
+<!doctype html>
+<html lang="es-MX" data-variante={variante}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+  <script is:inline>
+    // Antes del primer pintado: solo banderas, nada se oculta aquí.
+    // data-quieto = sin movimiento (prefers-reduced-motion o "Pausar movimiento"); data-inapp = navegador de IG/FB.
+    (function (d) {
+      var h = d.documentElement, q = false, p = null;
+      h.classList.add('al-js');
+      try { q = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+      try { p = localStorage.getItem('al-sin-movimiento'); } catch (e) {}
+      if (p === '1') h.setAttribute('data-sin-movimiento', '');
+      if (q || p === '1') h.setAttribute('data-quieto', '');
+      if (/Instagram|FBAN|FBAV|FB_IAB|Line\//i.test(navigator.userAgent || '')) h.setAttribute('data-inapp', '');
+    })(document);
+  </script>
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  {DEMO && <meta name="robots" content="noindex, nofollow" />}
+  <meta name="theme-color" content="#141414" />
+  <meta name="color-scheme" content="dark light" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_MX" />
+  <meta property="og:site_name" content={SITIO.marca} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={og} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href={`${ASSETS}/brand/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${ASSETS}/brand/favicon-48.png`} sizes="48x48" type="image/png" />
+  <link rel="apple-touch-icon" href={`${ASSETS}/brand/apple-touch-icon.png`} />
+  <!-- Fuentes sin bloquear el primer pintado: la hoja se aplica al cargar; mientras, Georgia / system-ui. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href={fuentes} media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href={fuentes} /></noscript>
+  <slot name="head" />
+</head>
+<body class:list={['al', `al--${variante}`]}>
+  <!-- Sprite de marca: el trazo viaja una vez; <Logo /> lo usa con <use>. No usar display:none. -->
+  <svg class="al-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <symbol id="al-logotipo" viewBox={`0 0 ${LOGOTIPO.w} ${LOGOTIPO.h}`}><path fill="currentColor" fill-rule="evenodd" d={LOGOTIPO.d} /></symbol>
+    <symbol id="al-isotipo" viewBox={`0 0 ${ISOTIPO.w} ${ISOTIPO.h}`}><path fill="currentColor" fill-rule="evenodd" d={ISOTIPO.d} /></symbol>
+  </svg>
+
+  <a class="al-saltar" href="#contenido">Saltar al contenido</a>
+
+  {DEMO && (
+    <div class="al-demo" role="note">
+      <div class="al-wrap al-demo__in">
+        <span class="al-demo__punto" aria-hidden="true"></span>
+        {esLanding ? (
+          <span class="al-demo__txt"><span class="al-demo__largo">{SITIO.demo.franja}</span><span class="al-demo__corto">{SITIO.demo.franjaCorta}</span></span>
+          <a class="al-demo__enlace" href={`${BASE}/cuestionario/`}><span class="al-demo__largo">{SITIO.demo.enlaceCuestionario}</span><span class="al-demo__corto">{SITIO.demo.enlaceCorto}</span><span class="al-demo__flecha" aria-hidden="true">→</span></a>
+        ) : (
+          <span class="al-demo__txt">{SITIO.demo.franjaCuestionario}</span>
+        )}
+      </div>
+    </div>
+  )}
+
+  <header class="al-cabecera" data-tema="noche">
+    <div class="al-wrap al-cabecera__in">
+      <a class="al-cabecera__logo" href={`${BASE}/`} aria-label={`${SITIO.marca}, inicio`}>
+        <Logo tipo="logotipo" decorativo />
+      </a>
+      {esLanding ? (
+        <>
+          <nav class="al-nav" aria-label="Secciones">
+            {NAV.map((n) => <a href={n.href}>{n.texto}</a>)}
+          </nav>
+          <a class="al-cabecera__cta" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
+        </>
+      ) : (
+        <a class="al-cabecera__cta" href={`${BASE}/`}>Ver la página</a>
+      )}
+    </div>
+  </header>
+
+  <main id="contenido" tabindex="-1">
+    <slot />
+  </main>
+
+  {esLanding ? (
+    <footer class="al-pie" data-tema="noche">
+      <div class="al-wrap al-pie__in">
+        <a class="al-pie__logo" href={`${BASE}/`} aria-label={`${SITIO.marca}, inicio`}><Logo tipo="logotipo" decorativo /></a>
+        <p class="al-label al-pie__linea">{SITIO.linea} · Banquetes al fuego · Durango</p>
+        <ul class="al-pie__lista">
+          <li><span class="al-muted">WhatsApp</span> <Dato valor={null} etiqueta="número" pregunta={16} /></li>
+          <li><a href={SITIO.instagram.url} target="_blank" rel="noopener">@{SITIO.instagram.usuario}</a></li>
+          <li><span class="al-muted">Aviso de privacidad</span> <Dato valor={DATOS.avisoPrivacidadUrl} etiqueta="aviso" pregunta={18} /></li>
+          <li><span class="al-muted">Razón social y RFC</span> <Dato valor={DATOS.razonSocial} etiqueta="datos fiscales" pregunta={18} /></li>
+        </ul>
+        <p class="al-small al-muted">{CREDITO_FOTOS}. Horno de tierra: maestros mezcaleros del evento.</p>
+        <div class="al-pie__base">
+          <p class="al-small al-muted">© {anio} {SITIO.chef}{DEMO && ' · Demo preparado por Antemano'}</p>
+          <button class="al-movimiento" type="button" data-al-movimiento aria-pressed="false">Pausar movimiento</button>
+        </div>
+      </div>
+    </footer>
+  ) : (
+    <footer class="al-pie al-pie--simple" data-tema="noche">
+      <div class="al-wrap al-pie__base">
+        <a class="al-pie__iso" href={`${BASE}/`} aria-label={`${SITIO.marca}, inicio`}><Logo tipo="isotipo" decorativo /></a>
+        <p class="al-small al-muted">{SITIO.chef} · {SITIO.linea}{DEMO && ' · Demo preparado por Antemano'}</p>
+      </div>
+    </footer>
+  )}
+
+  <slot name="barra" />
+
+  <div class="al-aviso" role="status" aria-live="polite" data-al-aviso-caja></div>
+
+  <script>
+    // ---------- Revelado ligero (solo opacity/transform) ----------
+    // Lo que ya está en pantalla al cargar se marca visible ANTES de activar .al-anima: el primer pintado nunca oculta nada.
+    const raiz = document.documentElement;
+    const quieto = () => raiz.hasAttribute('data-quieto');
+    const pendientes = Array.from(document.querySelectorAll<HTMLElement>('.al-revela'));
+
+    function mostrarTodo() {
+      pendientes.forEach((el) => el.classList.add('is-visible'));
+      raiz.classList.remove('al-anima');
+    }
+
+    if (quieto() || !('IntersectionObserver' in window)) {
+      mostrarTodo();
+    } else {
+      const alto = window.innerHeight || 800;
+      const fuera: HTMLElement[] = [];
+      for (const el of pendientes) {
+        const r = el.getBoundingClientRect();
+        if (r.top < alto && r.bottom > 0) el.classList.add('is-visible');
+        else fuera.push(el);
+      }
+      const io = new IntersectionObserver(
+        (entradas) => {
+          for (const e of entradas) {
+            if (e.isIntersecting) {
+              e.target.classList.add('is-visible');
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
+      );
+      fuera.forEach((el) => io.observe(el));
+      raiz.classList.add('al-anima');
+    }
+
+    // ---------- Avisos (toast) ----------
+    const caja = document.querySelector<HTMLElement>('[data-al-aviso-caja]');
+    let reloj = 0;
+    function alAviso(texto: string) {
+      if (!caja || !texto) return;
+      caja.textContent = '';
+      caja.classList.remove('is-visible');
+      // El aviso no recibe toques (pointer-events: none): nunca tapa un botón. Se va solo a los 5 s.
+    // Reescribir en el siguiente cuadro para que el lector de pantalla lo anuncie aunque se repita.
+      requestAnimationFrame(() => {
+        caja.textContent = texto;
+        caja.classList.add('is-visible');
+      });
+      clearTimeout(reloj);
+      reloj = window.setTimeout(() => caja.classList.remove('is-visible'), 5000);
+    }
+    (window as any).alAviso = alAviso;
+    document.addEventListener('click', (ev) => {
+      const t = (ev.target as Element | null)?.closest<HTMLElement>('[data-al-aviso]');
+      if (!t) return;
+      ev.preventDefault();
+      alAviso(t.dataset.alAviso || '');
+    });
+
+    // ---------- Pausar movimiento (WCAG 2.2.2) ----------
+    const sistemaQuieto = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } })();
+    document.querySelectorAll<HTMLButtonElement>('[data-al-movimiento]').forEach((b) => {
+      const pintar = () => {
+        const pausado = raiz.hasAttribute('data-sin-movimiento');
+        b.setAttribute('aria-pressed', pausado ? 'true' : 'false');
+        b.textContent = pausado ? 'Reanudar movimiento' : 'Pausar movimiento';
+      };
+      pintar();
+      b.addEventListener('click', () => {
+        const pausar = !raiz.hasAttribute('data-sin-movimiento');
+        raiz.toggleAttribute('data-sin-movimiento', pausar);
+        raiz.toggleAttribute('data-quieto', pausar || sistemaQuieto);
+        try { localStorage.setItem('al-sin-movimiento', pausar ? '1' : '0'); } catch {}
+        if (pausar) mostrarTodo();
+        pintar();
+        alAviso(pausar ? 'Movimiento en pausa.' : 'Movimiento activado.');
+        document.dispatchEvent(new CustomEvent('al:movimiento', { detail: { pausado: pausar } }));
+      });
+    });
+  </script>
+</body>
+</html>
+
+<style is:global>
+  /* =====================================================================
+     TOKENS (propuesta §8; ESPEC §3.1) — todo con prefijo --al-
+     ===================================================================== */
+  :root {
+    /* Color: monocromo + acentos. Sello y brasa ≤ 2 % y ≤ 1 % de la pantalla. */
+    --al-carbon: #141414;
+    --al-hollin: #1f1d1a;
+    --al-carbon-3: #2b2824; /* solo filetes decorativos */
+    --al-hueso: #ede6d6;
+    --al-cal: #e0d6c2;
+    --al-ceniza: #9a9183; /* texto secundario sobre carbón/hollín (5.9 / 5.4:1) */
+    --al-tizne: #5e5950; /* texto secundario sobre hueso/cal (5.6 / 4.8:1) */
+    --al-sello: #e3120b; /* solo gráficos o texto ≥ 24 px */
+    --al-sello-tinta: #b0140f; /* fondo del CTA primario (hueso encima 5.7:1); nunca texto sobre oscuro */
+    --al-sello-tinta-2: #95110c; /* hover/activo del primario */
+    --al-brasa: #e8742a; /* solo luz: progreso, brillos. Nunca texto */
+
+    /* Tipografía */
+    --al-f-display: 'Fraunces', Georgia, 'Noto Serif', 'Times New Roman', serif;
+    --al-f-label: 'Barlow Condensed', 'Avenir Next Condensed', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+    --al-f-text: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --al-fs-h1: clamp(2.75rem, 1rem + 7.4vw, 9rem); /* 44 px en 375 · ~122 px en 1440 */
+    --al-fs-h2: clamp(2.125rem, 1.4rem + 3.2vw, 5rem);
+    --al-fs-h3: clamp(1.625rem, 1.3rem + 1.2vw, 2.5rem);
+    --al-fs-manifiesto: clamp(1.75rem, 1.2rem + 2.4vw, 3.5rem);
+    --al-fs-lead: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
+    --al-fs-body: 1.0625rem; /* 17 px */
+    --al-fs-label: 0.8125rem;
+    --al-fs-small: 0.8125rem;
+    --al-fs-input: max(1rem, 16px);
+    --al-lh-h1: 0.98;
+    --al-lh-h2: 1.04;
+    --al-lh-h3: 1.1;
+    --al-lh-body: 1.55;
+    --al-tr-label: 0.14em;
+    --al-medida: 36ch;
+
+    /* Espaciado 4/8 */
+    --al-sp-1: 4px; --al-sp-2: 8px; --al-sp-3: 12px; --al-sp-4: 16px; --al-sp-5: 24px; --al-sp-6: 32px;
+    --al-sp-7: 48px; --al-sp-8: 64px; --al-sp-9: 96px; --al-sp-10: 128px;
+    --al-margen: 20px;
+    --al-sec-pad: clamp(3rem, -1rem + 10vw, 8rem);
+    --al-max: 1440px;
+    --al-tap: 44px;
+    --al-btn-h: 52px;
+    --al-btn-h-2: 48px;
+
+    /* Radios: editorial, casi rectos */
+    --al-r-0: 0; --al-r-1: 2px; --al-r-2: 4px; --al-r-full: 999px;
+
+    /* Movimiento */
+    --al-ease-brasa: cubic-bezier(.22, 1, .36, 1);
+    --al-ease-corte: cubic-bezier(.76, 0, .24, 1);
+    --al-t-micro: 160ms;
+    --al-t-ui: 280ms;
+    --al-t-reveal: 700ms;
+
+    /* Capas y alturas */
+    --al-z-cabecera: 30; --al-z-barra: 50; --al-z-aviso: 55; --al-z-dialogo: 60;
+    --al-demo-h: 32px;
+    --al-cabecera-h: 56px;
+  }
+  @media (min-width: 768px) { :root { --al-margen: 32px; } }
+  @media (min-width: 1024px) { :root { --al-margen: clamp(32px, 5vw, 96px); --al-cabecera-h: 72px; --al-fs-body: 1.125rem; } }
+
+  /* Temas por sección: data-tema="noche" (carbón) | "dia" (hueso). Sin transiciones ligadas al scroll. */
+  [data-tema='noche'] {
+    --al-bg: var(--al-carbon); --al-fg: var(--al-hueso); --al-fg-2: var(--al-ceniza); --al-sup: var(--al-hollin);
+    --al-linea: rgba(237, 230, 214, .16); --al-foco: var(--al-hueso); --al-enlace: var(--al-hueso);
+  }
+  [data-tema='dia'] {
+    --al-bg: var(--al-hueso); --al-fg: var(--al-carbon); --al-fg-2: var(--al-tizne); --al-sup: var(--al-cal);
+    --al-linea: rgba(20, 20, 20, .14); --al-foco: var(--al-carbon); --al-enlace: var(--al-sello-tinta);
+  }
+  [data-tema] { background-color: var(--al-bg); color: var(--al-fg); }
+
+  /* =====================================================================
+     BASE
+     ===================================================================== */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 16px; }
+  html:has(dialog[open]) { overflow: hidden; }
+  @media (prefers-reduced-motion: no-preference) { html:not([data-quieto]) { scroll-behavior: smooth; } }
+  body.al {
+    --al-bg: var(--al-carbon); --al-fg: var(--al-hueso); --al-fg-2: var(--al-ceniza); --al-sup: var(--al-hollin);
+    --al-linea: rgba(237, 230, 214, .16); --al-foco: var(--al-hueso); --al-enlace: var(--al-hueso);
+    margin: 0; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column;
+    background: var(--al-carbon); color: var(--al-hueso);
+    font: 400 var(--al-fs-body) / var(--al-lh-body) var(--al-f-text);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+  .al ::selection { background: var(--al-sello-tinta); color: var(--al-hueso); }
+  .al img, .al svg, .al video { max-width: 100%; }
+  .al a { color: inherit; }
+  .al :focus { outline: none; }
+  .al :focus-visible { outline: 2px solid var(--al-foco); outline-offset: 2px; border-radius: var(--al-r-1); }
+  .al input, .al select, .al textarea { font-size: var(--al-fs-input); }
+  .al p { margin: 0; }
+  .al-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+  main#contenido { flex: 1 0 auto; }
+  main#contenido:focus { outline: none; }
+
+  /* =====================================================================
+     UTILIDADES — layout
+     ===================================================================== */
+  .al-wrap { width: 100%; max-width: var(--al-max); margin-inline: auto; padding-inline: var(--al-margen); }
+  .al-sec { padding-block: var(--al-sec-pad); position: relative; }
+  .al-medida { max-width: var(--al-medida); }
+  @media (min-width: 1024px) { .al-medida { max-width: 60ch; } }
+  .al-pila > * + * { margin-top: var(--al-pila, var(--al-sp-4)); }
+  .al-filete { height: 1px; border: 0; background: var(--al-linea); margin: 0; }
+  .al-sr {
+    position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* =====================================================================
+     UTILIDADES — tipografía
+     ===================================================================== */
+  .al-h1, .al-h2, .al-h3, .al-display {
+    font-family: var(--al-f-display); font-weight: 560; margin: 0;
+    font-optical-sizing: auto; text-wrap: balance; color: inherit;
+  }
+  .al-h1 { font-size: var(--al-fs-h1); line-height: var(--al-lh-h1); letter-spacing: -.02em; }
+  .al-h2 { font-size: var(--al-fs-h2); line-height: var(--al-lh-h2); letter-spacing: -.015em; }
+  .al-h3 { font-size: var(--al-fs-h3); line-height: var(--al-lh-h3); letter-spacing: -.01em; }
+  .al-manifiesto { font-family: var(--al-f-display); font-weight: 560; font-size: var(--al-fs-manifiesto); line-height: 1.15; text-wrap: pretty; }
+  .al-label {
+    font-family: var(--al-f-label); font-weight: 600; font-size: var(--al-fs-label); line-height: 1.25;
+    letter-spacing: var(--al-tr-label); text-transform: uppercase; margin: 0;
+  }
+  .al-lead { font-size: var(--al-fs-lead); line-height: 1.45; text-wrap: pretty; }
+  .al-small { font-size: var(--al-fs-small); line-height: 1.45; }
+  .al-muted { color: var(--al-fg-2); }
+  .al-num { font-variant-numeric: tabular-nums lining-nums; }
+  .al-cita { font-family: var(--al-f-display); font-weight: 560; font-size: var(--al-fs-h3); line-height: 1.2; margin: 0; }
+
+  /* =====================================================================
+     UTILIDADES — acciones
+     .al-btn--primario: el ÚNICO rojo de la pantalla (nunca dos juntos).
+     .al-btn--secundario: filete de 1 px + flecha, 48 px.
+     ===================================================================== */
+  .al-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+    min-height: var(--al-btn-h); padding: 0 1.375rem; border: 1px solid transparent; border-radius: var(--al-r-1);
+    font: 600 1rem/1.2 var(--al-f-text); text-decoration: none; text-align: center; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none;
+    transition: background-color var(--al-t-micro) ease, color var(--al-t-micro) ease, border-color var(--al-t-micro) ease, transform var(--al-t-micro) ease;
+  }
+  .al-btn:active { transform: scale(.98); }
+  .al-btn[disabled], .al-btn[aria-disabled='true'] { opacity: .55; cursor: not-allowed; }
+  .al-btn--primario { background: var(--al-sello-tinta); color: var(--al-hueso); }
+  .al-btn--primario:hover { background: var(--al-sello-tinta-2); }
+  .al-btn--secundario { min-height: var(--al-btn-h-2); background: transparent; color: var(--al-fg); border-color: currentColor; }
+  .al-btn--secundario::after { content: '→'; content: '→' / ''; transition: transform var(--al-t-micro) ease; }
+  .al-btn--secundario:hover::after { transform: translateX(3px); }
+  .al-btn--fantasma { background: transparent; color: var(--al-fg); border-color: var(--al-linea); }
+  .al-btn--icono { width: var(--al-btn-h); padding: 0; }
+  .al-btn--bloque { display: flex; width: 100%; }
+  .al-enlace {
+    color: var(--al-enlace); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .22em;
+    min-height: var(--al-tap); display: inline-flex; align-items: center; gap: .35em;
+  }
+  .al-enlace:hover { text-decoration-thickness: 2px; }
+  .al-enlace--flecha::after { content: '→'; content: '→' / ''; }
+
+  /* Chip seleccionable: <button class="al-chip" aria-pressed> o <label class="al-chip"><input …></label> */
+  .al-chip {
+    position: relative; display: inline-flex; align-items: center; gap: .4em; min-height: var(--al-tap); padding: 0 1rem;
+    border: 1px solid var(--al-linea); border-radius: var(--al-r-full); background: transparent; color: var(--al-fg);
+    font: 500 .9375rem/1.2 var(--al-f-text); cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    transition: background-color var(--al-t-micro) ease, color var(--al-t-micro) ease, border-color var(--al-t-micro) ease;
+  }
+  .al-chip:hover { border-color: var(--al-fg-2); }
+  .al-chip[aria-pressed='true'], .al-chip:has(input:checked) { background: var(--al-fg); color: var(--al-bg); border-color: var(--al-fg); }
+  .al-chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .al-chip:has(input:focus-visible) { outline: 2px solid var(--al-foco); outline-offset: 2px; }
+
+  /* Dato pendiente en el DEMO: chip discreto, nunca corchetes */
+  .al-pendiente {
+    display: inline-block; padding: .05em .6em .1em; margin: 0 .1em; vertical-align: .06em;
+    border: 1px dashed currentColor; border-radius: var(--al-r-full);
+    font: 500 .78em/1.35 var(--al-f-text); letter-spacing: .01em; white-space: nowrap;
+    color: var(--al-fg-2); opacity: .95; cursor: help;
+  }
+  .al-h1 .al-pendiente, .al-h2 .al-pendiente, .al-h3 .al-pendiente { font-size: .32em; vertical-align: .4em; }
+
+  /* Sello: texto rojo solo ≥ 24 px (contraste 3.8:1) */
+  .al-sello {
+    display: inline-block; padding: .2em .55em; border: 2px solid var(--al-sello); color: var(--al-sello);
+    font: 600 1.5rem/1 var(--al-f-label); letter-spacing: .08em; text-transform: uppercase; transform: rotate(-4deg);
+  }
+
+  /* =====================================================================
+     FOTO (components/Foto.astro)
+     ===================================================================== */
+  .al-foto { display: block; position: relative; overflow: hidden; background-color: var(--al-hollin); }
+  .al-foto img { display: block; width: 100%; height: auto; }
+  .al-foto--cover { height: 100%; }
+  .al-foto--cover img { height: 100%; object-fit: cover; }
+  .al-foto--falta {
+    width: 100%;
+    background:
+      repeating-linear-gradient(135deg, rgba(237, 230, 214, .035) 0 10px, transparent 10px 20px),
+      var(--al-hollin);
+  }
+  .al-foto--falta.al-foto--cover { aspect-ratio: auto !important; min-height: 100%; }
+  .al-foto__id {
+    position: absolute; left: 10px; bottom: 8px; font: 600 .75rem/1 var(--al-f-label);
+    letter-spacing: .12em; color: var(--al-ceniza); text-transform: uppercase;
+  }
+
+  /* Logo (components/Logo.astro): alto 1em por omisión, recolorea con color. */
+  .al-logo { display: block; width: auto; height: 1em; fill: currentColor; overflow: visible; }
+
+  /* =====================================================================
+     REVELADO (.al-revela) — solo transform/opacity; .al-anima la pone el script
+     después de marcar lo que ya está en pantalla. Nunca en el hero.
+     .al-revela--tenue: arranca en .35 (manifiesto). --al-delay: retraso inline.
+     ===================================================================== */
+  .al-anima .al-revela {
+    transition: opacity var(--al-t-reveal) var(--al-ease-brasa), transform var(--al-t-reveal) var(--al-ease-brasa);
+    transition-delay: var(--al-delay, 0ms);
+  }
+  .al-anima .al-revela:not(.is-visible) { opacity: 0; transform: translate3d(0, 18px, 0); }
+  .al-anima .al-revela--tenue:not(.is-visible) { opacity: .35; transform: none; }
+  [data-quieto] .al-revela { opacity: 1 !important; transform: none !important; transition: none !important; }
+
+  /* =====================================================================
+     SALTAR, FRANJA DEMO, CABECERA
+     ===================================================================== */
+  .al-saltar {
+    position: absolute; left: 8px; top: -60px; z-index: 100; padding: 12px 16px; border-radius: var(--al-r-1);
+    background: var(--al-hueso); color: var(--al-carbon); font-weight: 600; text-decoration: none;
+  }
+  .al-saltar:focus { top: 8px; }
+
+  .al-demo { background: var(--al-hollin); color: var(--al-ceniza); border-bottom: 1px solid var(--al-carbon-3); }
+  .al-demo__in { display: flex; align-items: center; gap: 8px; min-height: var(--al-demo-h); font-size: .8125rem; line-height: 1.3; padding-block: 4px; }
+  .al-demo__punto { width: 6px; height: 6px; border-radius: 50%; background: var(--al-brasa); flex: none; }
+  .al-demo__txt { flex: 1 1 auto; min-width: 0; }
+  .al-demo__enlace { color: var(--al-hueso); text-decoration: underline; text-underline-offset: .2em; white-space: nowrap; min-height: var(--al-tap); display: inline-flex; align-items: center; gap: .35em; margin-block: -6px; }
+  .al-demo__flecha { text-decoration: none; }
+  .al-demo__largo { display: none; }
+  @media (min-width: 640px) { .al-demo__largo { display: inline; } .al-demo__corto { display: none; } }
+
+  .al-cabecera { position: relative; z-index: var(--al-z-cabecera); border-bottom: 1px solid var(--al-carbon-3); }
+  .al-cabecera__in { display: flex; align-items: center; gap: var(--al-sp-4); min-height: var(--al-cabecera-h); }
+  .al-cabecera__logo { display: inline-flex; align-items: center; min-height: var(--al-tap); color: var(--al-hueso); margin-right: auto; }
+  .al-cabecera__logo .al-logo { height: 17px; }
+  .al-cabecera__cta {
+    display: inline-flex; align-items: center; min-height: var(--al-tap); padding-inline: 2px;
+    color: var(--al-hueso); font-weight: 600; font-size: .9375rem; text-decoration: underline;
+    text-decoration-color: var(--al-sello); text-decoration-thickness: 2px; text-underline-offset: .3em; white-space: nowrap;
+  }
+  .al-nav { display: none; }
+  @media (min-width: 1024px) {
+    .al-cabecera__logo .al-logo { height: 22px; }
+    .al-nav { display: flex; gap: var(--al-sp-5); }
+    .al-nav a {
+      font: 600 .875rem/1 var(--al-f-label); letter-spacing: .12em; text-transform: uppercase; text-decoration: none;
+      color: var(--al-ceniza); min-height: var(--al-tap); display: inline-flex; align-items: center;
+    }
+    .al-nav a:hover { color: var(--al-hueso); }
+    .al-cabecera__cta { padding: 0 18px; border: 1px solid var(--al-hueso); border-radius: var(--al-r-1); text-decoration: none; min-height: 44px; }
+    .al-cabecera__cta:hover { background: var(--al-hueso); color: var(--al-carbon); }
+  }
+  @media (max-width: 359px) { .al-cabecera__logo .al-logo { height: 14px; } .al-cabecera__cta { font-size: .875rem; } }
+
+  /* =====================================================================
+     PIE
+     ===================================================================== */
+  .al-pie { border-top: 1px solid var(--al-carbon-3); padding-block: var(--al-sp-8) calc(var(--al-sp-6) + env(safe-area-inset-bottom)); }
+  .al-pie__in { display: grid; gap: var(--al-sp-5); }
+  .al-pie__logo { color: var(--al-hueso); display: inline-flex; width: fit-content; }
+  .al-pie__logo .al-logo { height: 28px; }
+  .al-pie__linea { color: var(--al-ceniza); }
+  .al-pie__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--al-sp-2); }
+  .al-pie__lista li { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; min-height: 32px; }
+  .al-pie__lista a { min-height: var(--al-tap); display: inline-flex; align-items: center; text-decoration: underline; text-underline-offset: .2em; }
+  .al-pie__base { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--al-sp-3); }
+  .al-pie--simple { padding-block: var(--al-sp-6) calc(var(--al-sp-6) + env(safe-area-inset-bottom)); }
+  .al-pie__iso { color: var(--al-hueso); display: inline-flex; }
+  .al-pie__iso .al-logo { height: 22px; }
+  .al-movimiento {
+    min-height: var(--al-tap); padding: 0 14px; border: 1px solid var(--al-linea); border-radius: var(--al-r-full);
+    background: transparent; color: var(--al-ceniza); font: 500 .8125rem/1 var(--al-f-text); cursor: pointer;
+  }
+  .al-movimiento:hover { color: var(--al-hueso); border-color: var(--al-ceniza); }
+  @media (min-width: 1024px) {
+    .al-pie__in { grid-template-columns: 1fr 1fr; align-items: start; column-gap: var(--al-sp-8); }
+    .al-pie__base { grid-column: 1 / -1; }
+  }
+  /* Con barra fija inferior en la landing, el pie deja su espacio */
+  .al--landing .al-pie { padding-bottom: calc(var(--al-sp-6) + var(--al-barra-h, 0px) + env(safe-area-inset-bottom)); }
+
+  /* =====================================================================
+     AVISO (toast) — data-al-aviso / window.alAviso()
+     ===================================================================== */
+  .al-aviso {
+    position: fixed; left: 50%; bottom: calc(16px + var(--al-barra-h, 0px) + env(safe-area-inset-bottom)); z-index: var(--al-z-aviso);
+    width: min(calc(100% - 32px), 30rem); padding: 14px 16px; border-radius: var(--al-r-2);
+    background: var(--al-hueso); color: var(--al-carbon); font-size: .9375rem; line-height: 1.4;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    transform: translate(-50%, 12px); opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity var(--al-t-ui) ease, transform var(--al-t-ui) var(--al-ease-brasa), visibility 0s linear var(--al-t-ui);
+  }
+  .al-aviso.is-visible { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition-delay: 0s; }
+  [data-quieto] .al-aviso { transition: opacity 150ms ease, visibility 0s linear 150ms; transform: translate(-50%, 0); }
+  [data-quieto] .al-aviso.is-visible { transition-delay: 0s; }
+</style>

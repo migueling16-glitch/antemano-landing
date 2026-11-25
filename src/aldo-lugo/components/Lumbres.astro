@@ -1,0 +1,55 @@
+---
+/**
+ * 3 · Las lumbres #lumbres (propuesta §3 y §6.3; ESPEC §7.3).
+ * < 1024 px: carrusel con snap · ≥ 1024 px: grilla 3 × 2. Cada tarjeta: pictograma, línea y el chip
+ * "Lo quiero en mi mesa" (<button aria-pressed>), que viaja en la solicitud como lumbres_pre.
+ * La lógica del chip vive en solicitud.ts (misma fuente de verdad que el formulario).
+ * En el demo se muestran las seis; cada una se publica solo cuando el chef confirme que la monta (P13).
+ */
+import Foto from './Foto.astro';
+import Icono from './Icono.astro';
+import Texto from './Texto.astro';
+import Dato from './Dato.astro';
+import Carrusel from './Carrusel.astro';
+import { LUMBRES, SECCIONES } from '../config';
+
+const items = LUMBRES.items;
+---
+<section id={SECCIONES.lumbres} class="ml-lumbres al-sec" data-tema="noche" aria-labelledby="ml-lumbres-h2">
+  <header class="al-wrap ml-sec-cab">
+    <p class="al-label al-muted">Las lumbres</p>
+    <h2 id="ml-lumbres-h2" class="al-h2 al-revela">{LUMBRES.titulo}</h2>
+    <p class="al-lead al-medida al-muted al-revela">{LUMBRES.entrada}</p>
+    <p class="al-small al-revela"><Dato valor={null} etiqueta="qué lumbres monta" pregunta={LUMBRES.pregunta} /></p>
+  </header>
+
+  <Carrusel etiqueta="Las lumbres" tipo="lumbres" total={items.length} clase="al-revela">
+    {items.map((l, i) => (
+      <li class="ml-carr__item" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${items.length}: ${l.nombre}`}>
+        <article class="ml-lumbre" aria-labelledby={`ml-lumbre-${l.id}`}>
+          <div class="ml-lumbre__foto">
+            <Foto id={l.foto.id} recorte={l.foto.recorte} alt={l.foto.alt} sizes="(min-width: 1024px) 30vw, 82vw" />
+          </div>
+          <div class="ml-lumbre__cuerpo">
+            <div class="ml-lumbre__cab">
+              <Icono nombre={l.id as any} clase="ml-lumbre__picto" />
+              <h3 id={`ml-lumbre-${l.id}`} class="al-h3">{l.nombre}</h3>
+            </div>
+            <p class="ml-lumbre__linea">{l.linea}</p>
+            <button type="button" class="al-chip ml-lumbre__chip" aria-pressed="false" data-lumbre={l.id} data-nombre={l.nombre}>
+              <span class="ml-lumbre__check" aria-hidden="true"><Icono nombre="check" /></span>
+              {LUMBRES.chip}<span class="al-sr">: {l.nombre}</span>
+            </button>
+          </div>
+        </article>
+      </li>
+    ))}
+  </Carrusel>
+
+  <div class="al-wrap ml-lumbres__pie">
+    <p class="ml-lumbres__elegidas" data-lumbres-visible hidden></p>
+    <p class="al-sr" aria-live="polite" data-lumbres-anuncio></p>
+    <a class="al-btn al-btn--secundario" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{LUMBRES.cta}</a>
+    <p class="al-small al-muted ml-lumbres__lena"><Texto t={LUMBRES.cierre} /></p>
+  </div>
+</section>
