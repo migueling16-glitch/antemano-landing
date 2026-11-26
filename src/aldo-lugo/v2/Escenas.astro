@@ -14,19 +14,19 @@ import { OFERTA, CTA, SECCIONES, type FotoRef, type Recorte } from '../config';
 const R = (id: string, recorte: Recorte, alt = ''): FotoRef => ({ id, recorte, tratamiento: 'brasa', alt });
 
 const IMAGINA = [
-  { hora: '09:00', frase: 'La leña se enciende desde temprano.', movil: R('F028', '9x16'), escritorio: R('F028', '4x5') },
-  { hora: '18:16', frase: 'El sol baja sobre el campo.', movil: R('F013', '9x16'), escritorio: R('F013', '4x5') },
-  { hora: '19:08', frase: 'La mesa larga espera.', movil: R('F153', '9x16'), escritorio: R('F153', '4x5') },
-  { hora: '21:39', frase: 'Y nadie se quiere ir.', movil: R('F255', '9x16'), escritorio: R('F255', '4x5') },
+  { hora: '09:00', frase: 'La leña se enciende desde temprano.', movil: R('F028', '9x16'), escritorio: R('F028', '4x5'), clip: 'imagina-1' },
+  { hora: '18:16', frase: 'El sol baja sobre el campo.', movil: R('F013', '9x16'), escritorio: R('F013', '4x5'), clip: 'imagina-2' },
+  { hora: '19:08', frase: 'La mesa larga se llena.', movil: R('F153', '9x16'), escritorio: R('F153', '4x5'), clip: 'imagina-3' },
+  { hora: '21:39', frase: 'Y nadie se quiere ir.', movil: R('F255', '9x16'), escritorio: R('F255', '4x5'), clip: 'imagina-4' },
 ];
 
 const LUMBRES = [
-  { id: 'F252', nombre: 'Colgadero', linea: 'Horas de humo antes del primer corte.' },
-  { id: 'F139', nombre: 'Jaula', linea: 'Lo que cuelga se dora despacio.' },
-  { id: 'F044', nombre: 'Parrilla', linea: 'Costra afuera, jugo adentro.' },
-  { id: 'F220', nombre: 'Disco', linea: 'Acero al rojo. Tuétanos que burbujean.' },
-  { id: 'F250', nombre: 'Rescoldo', linea: 'El camote en la ceniza: dulce, con sabor a tierra.' },
-  { id: 'F140', nombre: 'Olla de leña', linea: 'Una olla grande al centro de la brasa, para toda la mesa.' },
+  { id: 'F252', clip: 'colgadero', nombre: 'Colgadero', linea: 'Horas de humo antes del primer corte.' },
+  { id: 'F139', clip: 'jaula', nombre: 'Jaula', linea: 'Lo que cuelga se dora despacio.' },
+  { id: 'F044', clip: 'parrilla', nombre: 'Parrilla', linea: 'Costra afuera, jugo adentro.' },
+  { id: 'F220', clip: 'disco', nombre: 'Disco', linea: 'Acero al rojo. Tuétanos que burbujean.' },
+  { id: 'F250', clip: 'rescoldo', nombre: 'Rescoldo', linea: 'El camote en la ceniza: dulce, con sabor a tierra.' },
+  { id: 'F140', clip: '', nombre: 'Olla de leña', linea: 'Una olla grande al centro de la brasa, para toda la mesa.' },
 ];
 
 const TIRA = [
@@ -37,6 +37,8 @@ const TIRA = [
 
 const LUGAR = ['Espacio al aire libre para el fuego', 'Que se permita leña', 'Acceso para el equipo', 'Un plan de lluvia'];
 const BRASAS = Array.from({ length: 9 }, (_, i) => i);
+/** Loops del evento (03_Video → _tools/loops_web.py): la foto queda debajo; el video entra con fundido al reproducirse. */
+const clip = (n: string) => `/aldo-lugo/video/${n}.mp4`;
 ---
 <script is:inline>
   // Antes de pintar: decide si hay intro (una vez por visita, nunca con "reducir movimiento").
@@ -68,6 +70,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
         sizesEscritorio="48vw"
         clase="e2-hero__foto"
       />
+      <video class="e2-clip" data-clip={clip('hero')} data-clip-tras-carga muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
     </div>
     <div class="e2-brasas" aria-hidden="true">{BRASAS.map((i) => <i style={`--i:${i}`}></i>)}</div>
   </div>
@@ -89,6 +92,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     {IMAGINA.map((b, i) => (
       <figure class="e2-imagina__foto" data-n={i} aria-hidden={i === 0 ? undefined : 'true'}>
         <FotoArte movil={b.movil} escritorio={b.escritorio} decorativa={i !== 0} sizesMovil="100vw" sizesEscritorio="50vw" />
+        <video class="e2-clip" data-clip={clip(b.clip)} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
       </figure>
     ))}
     <p class="e2-imagina__hora" aria-hidden="true"><span data-hora>{IMAGINA[0].hora}</span></p>
@@ -143,6 +147,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     </div>
     <figure class="e2-guia__accion al-revela" style="--al-delay:120ms">
       <Foto id="F249" recorte="4x5" sizes="(min-width: 1024px) 26vw, 82vw" ajuste="cover" />
+      <video class="e2-clip" data-clip={clip('guia')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
     </figure>
   </div>
 </section>
@@ -157,7 +162,10 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     <ul class="e2-oficio__pista" data-pista>
       {LUMBRES.map((l) => (
         <li class="e2-lumbre">
-          <figure class="e2-lumbre__foto"><Foto id={l.id} recorte="4x5" sizes="(min-width: 1024px) 26vw, 76vw" ajuste="cover" /></figure>
+          <figure class="e2-lumbre__foto">
+            <Foto id={l.id} recorte="4x5" sizes="(min-width: 1024px) 26vw, 76vw" ajuste="cover" />
+            {l.clip && <video class="e2-clip" data-clip={clip(l.clip)} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
+          </figure>
           <h3 class="e2-lumbre__nombre">{l.nombre}</h3>
           <p class="e2-lumbre__linea">{l.linea}</p>
         </li>
@@ -171,6 +179,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   <div class="e2-prueba__dron">
     <div class="e2-prueba__zoom" data-zoom>
       <FotoArte movil={R('F019', '4x5')} escritorio={R('F019', '16x9')} alt="Vista aérea al atardecer: mesas largas en cruz y la cocina de leña encendida" sizesMovil="100vw" sizesEscritorio="100vw" />
+      <video class="e2-clip" data-clip={clip('prueba')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
     </div>
     <div class="e2-prueba__texto">
       <p class="e2-label">Una noche real · 21 nov 2026</p>
@@ -241,6 +250,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
 <section id={SECCIONES.cierre} class="e2-cierre" aria-labelledby="e2-cierre-h2" data-oculta-barra>
   <div class="e2-cierre__media">
     <FotoArte movil={R('F289', '9x16')} escritorio={R('F289', '16x9')} alt="Piedra volcánica incandescente entre piñas de agave, bajo luces colgantes" sizesMovil="100vw" sizesEscritorio="100vw" />
+    <video class="e2-clip" data-clip={clip('cierre')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
     <span class="e2-cierre__luz" aria-hidden="true"></span>
     <div class="e2-brasas e2-brasas--cierre" aria-hidden="true">{BRASAS.map((i) => <i style={`--i:${i}`}></i>)}</div>
   </div>
@@ -287,6 +297,12 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   }
   .e2-enlace--oscuro { color: var(--al-carbon); text-decoration-color: rgba(20, 20, 20, .4); }
   .e2-credito { display: block; font-size: .72rem; letter-spacing: .02em; color: rgba(237, 230, 214, .6); margin-top: .35rem; }
+
+  /* Loops de video: encima de su foto; entran con fundido al reproducirse (la foto es el respaldo). */
+  .e2-clip { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .9s ease; pointer-events: none; }
+  .e2-clip.is-viva { opacity: 1; }
+  [data-quieto] .e2-clip, [data-suave] .e2-clip { display: none; }
+  .e2-lumbre__foto, .e2-guia__accion { position: relative; }
 
   /* Brasas flotantes: pocas, lentas, solo transform/opacity; se detienen solas (6 ciclos). */
   .e2-brasas { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }

@@ -86,6 +86,57 @@ export function iniciarMovimiento(): void {
     mueve.style.transform = `translate3d(0, ${p * 14}%, 0) scale(${1 + p * 0.08})`;
   });
 
+  // ---------- Loops de video (la foto queda debajo; nunca en modo suave ni con ahorro de datos) ----------
+  const clips = Array.from(document.querySelectorAll<HTMLVideoElement>('video[data-clip]'));
+  const ahorro = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+  const visibles = new Set<HTMLVideoElement>();
+  let cargada = document.readyState === 'complete';
+  const permitido = (v: HTMLVideoElement) => {
+    const f = v.closest('.e2-imagina__foto');
+    if (f && !f.classList.contains('is-activa')) return false; // en Imagina solo corre la escena activa
+    if (v.hasAttribute('data-clip-tras-carga') && !cargada) return false; // la portada espera a que cargue la página
+    return true;
+  };
+  const sincronizarClips = () => {
+    if (suave || ahorro) return;
+    for (const v of clips) {
+      const debe = visibles.has(v) && permitido(v) && !raiz.hasAttribute('data-quieto');
+      if (debe) {
+        if (!v.getAttribute('src')) v.src = v.dataset.clip!;
+        if (v.paused) v.play().catch(() => {}); // si el navegador lo bloquea, se queda la foto
+      } else if (!v.paused) v.pause();
+    }
+  };
+  if (clips.length && !suave && !ahorro) {
+    clips.forEach((v) => {
+      v.muted = true;
+      v.addEventListener('playing', () => v.classList.add('is-viva'));
+    });
+    const ioClips = new IntersectionObserver(
+      (entradas) => {
+        for (const e of entradas) {
+          const v = e.target as HTMLVideoElement;
+          if (e.isIntersecting) visibles.add(v);
+          else visibles.delete(v);
+        }
+        sincronizarClips();
+      },
+      { rootMargin: '20% 0px 20% 0px' },
+    );
+    clips.forEach((v) => ioClips.observe(v));
+    if (!cargada) {
+      window.addEventListener('load', () => {
+        cargada = true;
+        window.setTimeout(sincronizarClips, 400);
+      }, { once: true });
+    }
+    document.addEventListener('al:movimiento', sincronizarClips);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) clips.forEach((v) => v.pause());
+      else sincronizarClips();
+    });
+  }
+
   // ---------- 2 · Imagina: la foto fija cambia con cada frase ----------
   const imagina = document.querySelector<HTMLElement>('[data-imagina]');
   if (imagina) {
@@ -97,6 +148,7 @@ export function iniciarMovimiento(): void {
       if (n === actual) return;
       actual = n;
       fotos.forEach((f, i) => f.classList.toggle('is-activa', i === n));
+      sincronizarClips();
       pasos.forEach((p, i) => p.classList.toggle('is-activo', i === n));
       if (hora) {
         hora.style.opacity = '0';
