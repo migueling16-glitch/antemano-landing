@@ -51,7 +51,7 @@ export const SECCIONES = {
 
 /** Navegación de escritorio (en móvil solo logo + "Revisar mi fecha"). */
 export const NAV = [
-  { texto: 'Las lumbres', href: `#${SECCIONES.lumbres}` },
+  { texto: 'El oficio', href: `#${SECCIONES.lumbres}` },
   { texto: 'Una noche', href: `#${SECCIONES.unaNoche}` },
   { texto: 'Experiencias', href: `#${SECCIONES.experiencias}` },
   { texto: 'Preguntas', href: `#${SECCIONES.preguntas}` },
@@ -134,8 +134,8 @@ export const SITIO = {
   marca: 'ALDO chef LUGO',
   linea: 'Mesa de Lumbre',
   chef: 'Aldo Lugo',
-  concepto: 'Un banquete que empieza cuando se enciende la lumbre y termina en la sobremesa.',
-  promesa: 'Ustedes eligen el lugar. Nosotros llevamos la lumbre.',
+  concepto: 'Un banquete que empieza cuando se enciende el fuego y termina en la sobremesa.',
+  promesa: 'Ustedes eligen el lugar. Nosotros llevamos el fuego.',
   region: 'Durango, México',
   instagram: { usuario: 'aldolugosoto', url: 'https://www.instagram.com/aldolugosoto/' },
   /** Cita de su bio de Instagram (pública). */
@@ -157,7 +157,7 @@ export const SITIO = {
     enlaceCorto: 'Cuestionario',
   },
   /** Página 404 (propuesta §6.3). */
-  noEncontrado: 'Aquí no hay lumbre.',
+  noEncontrado: 'Aquí no hay fuego.',
 } as const;
 
 /**
@@ -183,8 +183,8 @@ export const DATOS = {
   edadNinos: null as number | null,
 };
 
-export const CREDITO_FOTOS = 'Foto: La Tapada de Luna, Nombre de Dios, 2026'; // P20 (respuesta por defecto)
-export const CREDITO_MEZCALEROS = 'Horno de tierra de los maestros mezcaleros · ritual del evento';
+export const CREDITO_FOTOS = 'Fotos: @ananda_creativo · La Tapada de Luna, Nombre de Dios, 2026'; // P20 (respuesta del chef)
+export const CREDITO_MEZCALEROS = 'Horno de tierra del maestro mezcalero Paco Camacho · ritual del evento'; // P28
 
 // =====================================================================================
 // Fotos (ids de inventario.csv, recortes del contrato de fotos.json)
@@ -216,13 +216,13 @@ const foto = (id: string, recorte: Recorte, tratamiento: Tratamiento, alt: strin
 
 export const HERO = {
   antetitulo: 'ALDO chef LUGO · Mesa de Lumbre · Durango',
-  h1: 'La lumbre pone la mesa.',
+  h1: 'El fuego pone la mesa.',
   /** Calificación en dos líneas. La segunda lleva zona, "desde" y mínimo (desdePublico / minimoPublico). */
   calificacion: [
-    'De 10 a 300 invitados · donde haya espacio para la lumbre',
+    'De 10 a 300 invitados · donde haya espacio para el fuego',
     // se completa en runtime con huecoDesde()/huecoMinimo(); ver calificacionLinea2()
   ],
-  subtitulo: 'Ustedes eligen el lugar. Nosotros llevamos la lumbre.',
+  subtitulo: 'Ustedes eligen el lugar. Nosotros llevamos el fuego.',
   ctaPrimario: 'Revisar mi fecha',
   ctaSecundario: { texto: 'Ver una noche', href: `#${SECCIONES.unaNoche}` },
   ocasiones: 'Bodas, cumpleaños, fiestas y eventos de empresa cocinados con leña, brasa y rescoldo, frente a tus invitados.',
@@ -239,7 +239,7 @@ export const HERO = {
 export const MANIFIESTO = {
   pregunta: 23,
   lineas: [
-    'Antes que el plato, está la lumbre. Y la lumbre viaja: la llevo al jardín, a la hacienda o al patio de su casa.',
+    'Antes que el plato, está el fuego. Y el fuego viaja: lo llevo al jardín, a la hacienda o al patio de su casa.',
     'La prendo temprano y la dejo hablar. La brasa no se apura; el rescoldo termina lo que la flama empezó; el humo se queda en la ropa como un recuerdo.',
     'Cuelgo la carne sobre la leña, dejo el camote en la ceniza, pongo una olla grande al centro del fuego.',
     'Luego, la mesa larga bajo los mezquites: la conversación se alarga y nadie mira el reloj.',
@@ -277,7 +277,7 @@ export const LUMBRES = {
   chip: 'Lo quiero en mi mesa',
   /** Anuncio aria-live al tocar el chip. */
   anuncio: (n: number) =>
-    n === 0 ? 'Quitaste las lumbres de tu solicitud.' : `Elegiste ${n} ${n === 1 ? 'lumbre' : 'lumbres'}. Las sumamos a tu solicitud.`,
+    n === 0 ? 'Quitaste los fuegos de tu solicitud.' : `Elegiste ${n} ${n === 1 ? 'fuego' : 'fuegos'}. Los sumamos a tu solicitud.`,
   cierre: [h('especie de leña', 14), ' · La leña la escogemos nosotros.'] as Texto,
   cta: 'Imaginar mi mesa',
   items: [
@@ -423,7 +423,7 @@ export const OFERTA = {
       para: 'Pedidas, aniversarios, cumpleaños y cenas privadas; también bodas íntimas y cenas de empresa chicas.',
       invitados: [10, 20],
       rango: 'De 10 a 20 invitados',
-      incluye: ['4 a 6 tiempos servidos y contados por el chef', '2 a 3 lumbres'],
+      incluye: ['4 a 6 tiempos servidos y contados por el chef', '2 a 3 fuegos'],
       precio: { tipo: 'por_evento', desde: null, extraPorInvitado: null, extraDesdeInvitados: null, iva: 'incluido' },
       cta: 'Ver si es para mí',
       preset: { formato: 'mesa-intima', invitados: '10-20' },
@@ -435,7 +435,7 @@ export const OFERTA = {
       para: 'Cumpleaños, fiestas y celebraciones, aniversarios, reuniones familiares.',
       invitados: [21, 300],
       rango: 'De 21 a 300 invitados',
-      incluye: ['Recibimiento', 'Entradas al centro', 'Piezas de 3 a 4 lumbres cortadas frente a la mesa', 'Postre'],
+      incluye: ['Recibimiento', 'Entradas al centro', 'Piezas de 3 a 4 fuegos cortadas frente a la mesa', 'Postre'],
       precio: { tipo: 'por_invitado', desde: null, minimo: null, iva: 'incluido' },
       cta: 'Planear mi mesa',
       preset: { formato: 'mesa-larga' },
@@ -609,7 +609,7 @@ export const LUGAR = {
   },
   /** Tabla "Qué necesitamos del lugar" (Así trabajamos y FAQ 1). */
   necesitamos: [
-    { titulo: 'Espacio para la lumbre', texto: ['Un área al aire libre de unos ', h('medidas', 10), ' para la zona de fuego, más ', h('m²', 10), ' para la zona de servicio y emplatado. Crece con el número de invitados.'] },
+    { titulo: 'Espacio para el fuego', texto: ['Un área al aire libre de unos ', h('medidas', 10), ' para la zona de fuego, más ', h('m²', 10), ' para la zona de servicio y emplatado. Crece con el número de invitados.'] },
     { titulo: 'Fuego permitido', texto: 'Que el lugar, y el municipio, permitan leña o fuego abierto.' },
     { titulo: 'Suelo y entorno', texto: 'Piso firme o tierra, lejos de lonas, ramas bajas y materiales que ardan. Orientamos la cocina para que el viento lleve el humo lejos de la mesa.' },
     { titulo: 'Acceso', texto: ['Que un vehículo llegue a la zona de fuego o a menos de ', h('distancia', 10), '.'] },
@@ -617,7 +617,7 @@ export const LUGAR = {
     { titulo: 'Servicios', texto: ['Agua y luz cerca de la zona de servicio · ', h('si hacen falta', 10)] },
   ] as { titulo: string; texto: Texto }[],
   resumen: [
-    'Un espacio al aire libre de unos ', h('medidas', 10), ' para la lumbre y ', h('m²', 10), ' para servir · que el lugar permita leña · que el equipo llegue en vehículo a menos de ', h('distancia', 10), ' · un techo abierto o carpa si llueve. La lumbre, el equipo y la brigada los llevamos nosotros.',
+    'Un espacio al aire libre de unos ', h('medidas', 10), ' para el fuego y ', h('m²', 10), ' para servir · que el lugar permita leña · que el equipo llegue en vehículo a menos de ', h('distancia', 10), ' · un techo abierto o carpa si llueve. El fuego, el equipo y la brigada los llevamos nosotros.',
   ] as Texto,
   noPermiteFuego: [h('alternativa si no se permite fuego', 11)] as Texto,
 };
@@ -628,7 +628,7 @@ export const LUGAR = {
 
 export const EXPERIENCIAS = {
   titulo: 'Cuatro formas de sentarse al fuego.',
-  entrada: 'Ustedes eligen el lugar. Nosotros llevamos la lumbre. De 10 a 300 invitados, en un jardín, una hacienda, un rancho, una quinta, una terraza o su casa.',
+  entrada: 'Ustedes eligen el lugar. Nosotros llevamos el fuego. De 10 a 300 invitados, en un jardín, una hacienda, un rancho, una quinta, una terraza o su casa.',
   /** Pie visible en cada tarjeta hasta tener fotos de eventos propios (v3). */
   pieFoto: CREDITO_FOTOS,
   queIncluye: 'Qué incluye',
@@ -646,10 +646,10 @@ export const EXPERIENCIAS = {
 // =====================================================================================
 
 export const ANFITRION = {
-  titulo: 'El que cuida la lumbre.',
+  titulo: 'El que cuida el fuego.',
   pregunta: 30,
   /** Bio en tercera persona [CONFIRMAR cada dato]. Mallmann en nivel 0: no se nombra. */
-  bio: 'Aldo Lugo cocina en Durango y viene del taco y el nixtamal. En sus mesas de fuego cuelga costillares sobre la leña, deja el camote en el rescoldo y pone una olla grande al centro de la brasa. Cocina al frente de la lumbre.',
+  bio: 'Aldo Lugo lleva dieciocho años en la cocina: una cocina libre y de mucha técnica. En sus mesas de fuego cuelga costillares sobre la leña, deja el camote en el rescoldo y pone una olla grande al centro de la brasa. Entre las cocinas que lo inspiran está la de fuego abierto que Francis Mallmann popularizó.', // P30 · P31 · P3 nivel 1
   cita: SITIO.bioCita,
   /** ÚNICA mención de Canito en todo el sitio. Sin fotos, colores ni logos de Canito. */
   canito: {
@@ -674,7 +674,7 @@ export const PROCESO = {
     ['Te mandamos la propuesta en ', h('plazo', 17), '.'],
     ['Visitamos el lugar en bodas y en eventos de más de ', h('número de invitados', 8), ' invitados; degustación en bodas · ', h('costo de la degustación', 7)],
     ['Contrato y ', h('anticipo', 7), ' de anticipo.'],
-    'El día del evento llegamos horas antes, montamos la lumbre y entregamos el terreno limpio y apagado.',
+    'El día del evento llegamos horas antes, montamos el fuego y entregamos el terreno limpio y apagado.',
   ] as Texto[],
   lugarTitulo: 'Qué necesitamos del lugar',
   /** Franja de confianza [CONFIRMAR]. */
@@ -694,7 +694,7 @@ export const FAQ: { titulo: string; items: { pregunta: string; respuesta: Texto;
       respuesta: [
         'Puede ser un jardín, una hacienda, un rancho, una quinta, una terraza, el patio de una casa o un salón con área exterior. Pedimos cuatro cosas: un espacio al aire libre de unos ',
         h('medidas', 10),
-        ' para la lumbre, más ',
+        ' para el fuego, más ',
         h('m²', 10),
         ' para servir, con piso firme y lejos de lonas y ramas bajas; que el lugar permita leña o fuego abierto; que el equipo llegue en vehículo a menos de ',
         h('distancia', 10),
@@ -763,7 +763,7 @@ export const FAQ: { titulo: string; items: { pregunta: string; respuesta: Texto;
     {
       pregunta: '¿Hasta dónde van?',
       respuesta: [
-        'A donde haya espacio para la lumbre, en ',
+        'A donde haya espacio para el fuego, en ',
         h('ciudad base', 12),
         ' y ',
         h('zona', 12),
@@ -792,7 +792,7 @@ export const TU_FECHA = {
 };
 
 export const CIERRE = {
-  titulo: 'La próxima lumbre puede ser la tuya.',
+  titulo: 'El próximo fuego puede ser el tuyo.',
   subtitulo: 'Cuéntanos tu evento en 90 segundos. Te respondo en persona por WhatsApp.', // P16/P17
   foto: foto('F013', '9x16', 'brasa', 'La sierra de Durango al atardecer, con el valle y la hacienda en penumbra'),
   fotoEscritorio: foto('F013', '16x9', 'brasa', 'La sierra de Durango al atardecer, con el valle y la hacienda en penumbra'),
@@ -872,7 +872,7 @@ export const FORMULARIO = {
       pregunta: '¿Dónde será?',
       estado: '¿Ya tienes lugar?',
       tipo: '¿Qué tipo de lugar?',
-      fuego: '¿Hay espacio al aire libre para la lumbre y el lugar permite leña o fuego abierto?',
+      fuego: '¿Hay espacio al aire libre para el fuego y el lugar permite leña?',
       zona: '¿En qué zona?',
       municipio: 'Municipio o ciudad',
       municipioAyuda: 'Solo el municipio; la dirección la vemos después.',
@@ -929,11 +929,11 @@ export const FORMULARIO = {
 
 export const GRACIAS = {
   sello: 'RECIBIDO',
-  titulo: 'Listo. La lumbre ya está prendida.',
+  titulo: 'Listo. El fuego ya está prendido.',
   enHorario: 'Toca el botón: se abre WhatsApp con tu resumen.',
   boton: CTA.abrirWa,
   copiarFolio: 'Copiar folio',
-  fotos: 'Mándanos fotos o un video del lugar, con el espacio donde iría la lumbre.',
+  fotos: 'Mándanos fotos o un video del lugar, con el espacio donde iría el fuego.',
   afina: 'Afina tu propuesta',
   verNoche: 'Así fue una noche en Nombre de Dios',
   /** Solo en DEMO, sobre la vista previa del mensaje. */

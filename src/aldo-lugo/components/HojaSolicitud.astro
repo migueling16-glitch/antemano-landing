@@ -48,7 +48,7 @@ const AFINA_GRUPOS: { id: string; titulo: string; tipo?: 'radio' | 'checkbox'; a
   { id: 'acceso', titulo: 'Acceso del equipo', opciones: AFINA.acceso },
   { id: 'lluvia', titulo: 'Plan de lluvia', opciones: AFINA.lluvia },
   { id: 'exclusivo', titulo: '¿El lugar exige proveedor exclusivo o cobra derecho de piso?', opciones: AFINA.exclusivo },
-  { id: 'lumbres', titulo: 'Lumbres', tipo: 'checkbox', opciones: LUMBRES.items.map((l) => ({ id: l.id, etiqueta: l.nombre })) },
+  { id: 'lumbres', titulo: 'Fuegos', tipo: 'checkbox', opciones: LUMBRES.items.map((l) => ({ id: l.id, etiqueta: l.nombre })) },
   { id: 'dietas', titulo: '¿Alergias o dietas?', tipo: 'checkbox', ayuda: 'Solo el tipo y cuántas personas; sin nombres.', opciones: AFINA.dietas.map((d) => ({ id: slug(d), etiqueta: d })) },
   { id: 'momento', titulo: 'Momento del día', opciones: AFINA.momento },
   { id: 'servicio', titulo: 'Tipo de servicio', opciones: AFINA.servicio },

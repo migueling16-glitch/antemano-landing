@@ -330,6 +330,31 @@
     "lqip": "data:image/webp;base64,UklGRhABAABXRUJQVlA4IAQBAACQBQCdASoYAB4APu1iqE2ppaOiMAgBMB2JbACdMtFGamAOXgaqqlH7MJngPP1jqQPIs32oAAD+rYMeKX4hsMLFU19aeaM/AauwEMcAubmGtliYp55fM6aQ3ZRPTU56QmnKUji93z2m0Rkexr2F0wzDDSJ7jqf4PhqHNNGq1fspeG/wk6NY2Udlx+cF6ogbBKgQsG69ltF5+tAugmqNOQiGuHfZubilPV/dE6kJDEzwO9HpX3K+waFXOoKEJgwvVs/Sk+jjAmKhjQ7mFgaFQvYpUzvkkirU4nCRYzoayeMx8FolB5Xqw0K1T6Gv6Uy3uMe+hWJDrOQudKtMrMn6i8WY7uAAAA==",
     "alt": "Pollo entero amarrado con hilo y romero, colgado entre berenjenas"
   },
+  "F140-4x5": {
+    "id": "F140",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 1080,
+    "alto": 1350,
+    "anchos": [
+      480,
+      768,
+      1080
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/F140-4x5-480.avif",
+      "/aldo-lugo/fotos/F140-4x5-768.avif",
+      "/aldo-lugo/fotos/F140-4x5-1080.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/F140-4x5-480.webp",
+      "/aldo-lugo/fotos/F140-4x5-768.webp",
+      "/aldo-lugo/fotos/F140-4x5-1080.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/F140-4x5-960.jpg",
+    "lqip": "data:image/webp;base64,UklGRgoBAABXRUJQVlA4IP4AAACQBQCdASoYAB4APu1qr1CppaSiqAqpMB2JQBdmYwXtoS+m9Oe2HYvyjMY9DXK5n1KclLfUAAD+oTBIDZhq7dEkuKHsOzFTMw8qSIMYrPHq6s3G+5NMdr0GHKnK/cJE3FgE8OVSaui64Vx0deMv2vsroBxSdTBlmXZ69h60B1B9e2Ba5Gm2BMkz+4XkBqm5KB69lBta0hTV1i8/KCy6fqHvOcuCJACEFNCMYtYO6QZ3+CUC2yNJnnlmkPgQauO0CmVA1qH6PTMNVx9Dss0bWfUtz6MOsbXQgbdlHylO2tKbiWBHFfjIdIOPXEkxvKB14OtIA22ItQ6l4ai81gHAAA==",
+    "alt": "Olla grande de arroz cremoso sobre la brasa"
+  },
   "F153-4x5": {
     "id": "F153",
     "recorte": "4x5",

@@ -151,6 +151,8 @@ FOTOS: list[Foto] = [
     Foto("F139", "brasa", [S("F139", "4x5", (0, 450, 2500, 3575), ALT_F139)]),
     Foto("F044", "brasa", [S("F044", "4x5", (0, 500, 2500, 3625), "Lomos bridados sobre la parrilla, entre llama y brasa")]),
     Foto("F250", "brasa", [S("F250", "4x5", (100, 350, 2400, 3225), "Camotes tatemados sobre brasa y ceniza")]),
+    Foto("F140", "brasa", [S("F140", "4x5", (100, 1000, 2000, 3375), "Olla grande de arroz cremoso sobre la brasa")],
+         nota="El recorte deja fuera la cara del cocinero de la derecha y a la persona del borde izquierdo."),
     # Escena 6 · Una noche real
     Foto("F019", "brasa", [
         S("F019", "16x9", (80, 0, 2500, 1361), ALT_F019, anchos=GRANDE),

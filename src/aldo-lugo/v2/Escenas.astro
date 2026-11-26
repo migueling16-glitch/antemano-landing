@@ -14,7 +14,7 @@ import { OFERTA, CTA, SECCIONES, type FotoRef, type Recorte } from '../config';
 const R = (id: string, recorte: Recorte, alt = ''): FotoRef => ({ id, recorte, tratamiento: 'brasa', alt });
 
 const IMAGINA = [
-  { hora: '15:43', frase: 'La leña se enciende horas antes.', movil: R('F028', '9x16'), escritorio: R('F028', '4x5') },
+  { hora: '09:00', frase: 'La leña se enciende desde temprano.', movil: R('F028', '9x16'), escritorio: R('F028', '4x5') },
   { hora: '18:16', frase: 'El sol baja sobre el campo.', movil: R('F013', '9x16'), escritorio: R('F013', '4x5') },
   { hora: '19:08', frase: 'La mesa larga espera.', movil: R('F153', '9x16'), escritorio: R('F153', '4x5') },
   { hora: '21:39', frase: 'Y nadie se quiere ir.', movil: R('F255', '9x16'), escritorio: R('F255', '4x5') },
@@ -25,13 +25,14 @@ const LUMBRES = [
   { id: 'F139', nombre: 'Jaula', linea: 'Lo que cuelga se dora despacio.' },
   { id: 'F044', nombre: 'Parrilla', linea: 'Costra afuera, jugo adentro.' },
   { id: 'F220', nombre: 'Disco', linea: 'Acero al rojo. Tuétanos que burbujean.' },
-  { id: 'F250', nombre: 'Rescoldo', linea: 'Brasa y ceniza: dulce, con sabor a tierra.' },
+  { id: 'F250', nombre: 'Rescoldo', linea: 'El camote en la ceniza: dulce, con sabor a tierra.' },
+  { id: 'F140', nombre: 'Olla de leña', linea: 'Una olla grande al centro de la brasa, para toda la mesa.' },
 ];
 
 const TIRA = [
   { id: 'F174', hora: '15:43', que: 'La cocina, a la vista' },
   { id: 'F216', hora: '19:08', que: 'La cena' },
-  { id: 'F289', hora: '21:39', que: 'La noche', credito: 'Horno de tierra de los maestros mezcaleros' },
+  { id: 'F289', hora: '21:39', que: 'La noche', credito: 'Horno de tierra del maestro mezcalero Paco Camacho' },
 ];
 
 const LUGAR = ['Espacio al aire libre para el fuego', 'Que se permita leña', 'Acceso para el equipo', 'Un plan de lluvia'];
@@ -73,7 +74,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   <div class="e2-hero__texto">
     <p class="e2-label">Banquetes al fuego · Durango</p>
     <h1 id="e2-h1" class="e2-h1 e2-hero__h1">
-      {['La', 'lumbre', 'pone', 'la', 'mesa.'].map((p, i) => <Fragment><span style={`--i:${i}`}>{p}</span>{i < 4 ? ' ' : ''}</Fragment>)}
+      {['El', 'fuego', 'pone', 'la', 'mesa.'].map((p, i) => <Fragment><span style={`--i:${i}`}>{p}</span>{i < 4 ? ' ' : ''}</Fragment>)}
     </h1>
     <div class="e2-hero__ctas" data-hero-cta>
       <a class="al-btn al-btn--primario" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
@@ -83,7 +84,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
 </section>
 
 <!-- 2 · Imagina -->
-<section id="imagina" class="e2-imagina" aria-label="Una noche de lumbre" data-imagina>
+<section id="imagina" class="e2-imagina" aria-label="Una noche al fuego" data-imagina>
   <div class="e2-imagina__escena">
     {IMAGINA.map((b, i) => (
       <figure class="e2-imagina__foto" data-n={i} aria-hidden={i === 0 ? undefined : 'true'}>
@@ -133,10 +134,11 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     <div class="e2-guia__texto">
       <p class="e2-label">El que cuida el fuego</p>
       <h2 id="e2-guia-h2" class="e2-h2 al-revela">Aldo Lugo</h2>
-      <p class="e2-guia__linea al-revela">Del taco y el nixtamal a la mesa larga.</p>
+      <p class="e2-guia__linea al-revela">Dieciocho años de cocina libre y de mucha técnica.</p>
       <blockquote class="e2-cita al-revela">
         <p>“Cocinar es una forma de comunicar, de expresar quién eres.”</p>
       </blockquote>
+      <p class="e2-guia__inspira al-revela">Entre las cocinas que lo inspiran está la de fuego abierto que Francis Mallmann popularizó.</p>
       <a class="e2-enlace e2-enlace--oscuro" href="https://www.instagram.com/tacoscanito/" target="_blank" rel="noopener">También fundó Tacos Canito <span aria-hidden="true">→</span></a>
     </div>
     <figure class="e2-guia__accion al-revela" style="--al-delay:120ms">
@@ -175,8 +177,9 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
       <h2 id="e2-prueba-h2" class="e2-h2">La Tapada de Luna</h2>
       <p class="e2-label e2-label--claro">Nombre de Dios, Durango</p>
       <dl class="e2-cifras">
-        <div><dt><span data-cuenta="200" data-pre="≈">≈200</span></dt><dd>invitados</dd></div>
-        <div><dt><span data-cuenta="8" data-suf=" h">8 h</span></dt><dd>de fuego</dd></div>
+        <div><dt><span data-cuenta="200">200</span></dt><dd>invitados</dd></div>
+        <div><dt><span data-cuenta="7">7</span></dt><dd>tiempos</dd></div>
+        <div><dt><span data-cuenta="4">4</span></dt><dd>fuegos de leña</dd></div>
       </dl>
     </div>
   </div>
@@ -196,7 +199,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
 <section id={SECCIONES.experiencias} class="e2-mesas" data-tema="dia" aria-labelledby="e2-mesas-h2">
   <header class="e2-mesas__cab">
     <p class="e2-label">Tu mesa · de 10 a 300 invitados</p>
-    <h2 id="e2-mesas-h2" class="e2-h2 al-revela">Ustedes eligen el lugar.<br /><em>Nosotros llevamos la lumbre.</em></h2>
+    <h2 id="e2-mesas-h2" class="e2-h2 al-revela">Ustedes eligen el lugar.<br /><em>Nosotros llevamos el fuego.</em></h2>
   </header>
   <ul class="e2-mesas__lista">
     {OFERTA.formatos.map((f, i) => (
@@ -245,7 +248,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     <p class="e2-cierre__antes al-revela">El fuego se apaga.</p>
     <h2 id="e2-cierre-h2" class="e2-h1 al-revela">La noche<br />se queda.</h2>
     <a id={SECCIONES.tuFecha} class="al-btn al-btn--primario al-revela" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
-    <p class="e2-credito">Brasa del horno de tierra de los maestros mezcaleros · La Tapada de Luna</p>
+    <p class="e2-credito">Brasa del horno de tierra del maestro mezcalero Paco Camacho · La Tapada de Luna · Foto: @ananda_creativo</p>
   </div>
 </section>
 
@@ -439,6 +442,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   .e2-guia__retrato :is(picture, img), .e2-guia__accion :is(picture, img) { width: 100%; height: 100%; }
   .e2-guia__texto { display: grid; gap: 16px; align-content: start; }
   .e2-guia__linea { margin: 0; font-size: 1.15rem; color: var(--al-tizne); }
+  .e2-guia__inspira { margin: 0; font-size: .92rem; line-height: 1.5; color: var(--al-tizne); max-width: 38ch; }
   .e2-cita { margin: 8px 0; padding: 0; border: 0; }
   .e2-cita p { margin: 0; font-family: var(--al-f-display); font-weight: 560; font-size: clamp(1.7rem, 1.2rem + 2vw, 3rem); line-height: 1.12; color: var(--al-carbon); text-wrap: balance; }
   .e2-guia__accion { aspect-ratio: 4 / 5; width: 82%; justify-self: end; }
@@ -478,9 +482,9 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   .e2-prueba__zoom :is(picture, img) { width: 100%; height: 100%; }
   .e2-prueba__dron::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 10, 9, .2), transparent 35%, rgba(11, 10, 9, .92) 85%, #0b0a09); pointer-events: none; }
   .e2-prueba__texto { position: relative; z-index: 2; padding: 0 var(--al-margen) 40px; display: grid; gap: 10px; }
-  .e2-cifras { display: flex; gap: clamp(28px, 6vw, 80px); margin: 14px 0 0; }
+  .e2-cifras { display: flex; flex-wrap: wrap; gap: 14px clamp(22px, 6vw, 80px); margin: 14px 0 0; }
   .e2-cifras div { display: grid; }
-  .e2-cifras dt { font-family: var(--al-f-display); font-weight: 560; font-size: clamp(3rem, 2rem + 4vw, 6rem); line-height: 1; color: #f2c38f; font-variant-numeric: tabular-nums; }
+  .e2-cifras dt { font-family: var(--al-f-display); font-weight: 560; font-size: clamp(2.6rem, 1.8rem + 4vw, 6rem); line-height: 1; color: #f2c38f; font-variant-numeric: tabular-nums; }
   .e2-cifras dd { margin: 4px 0 0; font-family: var(--al-f-label); font-weight: 600; text-transform: uppercase; letter-spacing: .16em; font-size: .8rem; color: var(--al-ceniza); }
   .e2-tira { list-style: none; margin: 0; padding: 0 var(--al-margen); display: grid; gap: 18px; max-width: var(--al-max); margin-inline: auto; }
   .e2-tira figure { margin: 0; }
