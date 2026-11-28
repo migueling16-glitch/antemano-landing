@@ -8,7 +8,8 @@
  *  - Lo que la propuesta tiene entre corchetes ([ZONA], $[X], [48 h]…) va en null o como hueco h().
  *    En el DEMO se pinta como chip "… por confirmar" con <Dato /> o <Texto />. Nunca corchetes crudos.
  *  - `pregunta` es el número de PREGUNTAS_CHEF.md que resuelve el hueco.
- *  - Nunca escribir aquí el teléfono del chef: DATOS.whatsapp sigue en null hasta que lo confirme (P16).
+ *  - Teléfono del chef: solo DATOS.whatsapp. Lo dio en el cuestionario (P16, "número para la página") y el 28-nov
+ *    pidió por WhatsApp que todo le llegue ahí y contestar él en persona.
  *  - Nada de Canito salvo ANFITRION.canito. Nada de Burning Man. Mallmann: nivel 0 (no se nombra).
  *  - El horno de tierra (F289, F323, F358, F362) es de los maestros mezcaleros: siempre con CREDITO_MEZCALEROS.
  */
@@ -145,7 +146,7 @@ export const SITIO = {
   seo: {
     title: 'Banquetes al fuego para bodas y eventos en Durango | Aldo Lugo',
     description:
-      'Banquetes, outdoor kitchen y show cooking con cocina de brasa y fuego para bodas, cumpleaños y eventos de empresa de 10 a 300 invitados, en el lugar que elijas.',
+      'Banquetes y catering al fuego en Durango: bodas, cenas privadas, cumpleaños y empresas de 10 a 300 invitados, con menú de temporada y show cooking, en el lugar que elijas.',
   },
   cuestionario: {
     title: 'Cuestionario para el chef | Aldo Lugo · Mesa de Lumbre',
@@ -163,12 +164,12 @@ export const SITIO = {
 } as const;
 
 /**
- * Datos operativos que solo el chef tiene. Todos null hasta que conteste.
- * NUNCA poner un teléfono aquí sin su confirmación expresa (P16).
+ * Datos operativos que solo el chef tiene. null mientras no conteste.
+ * El WhatsApp lo confirmó él: P16 del cuestionario + "que se mande todo a mi WhatsApp" (28-nov).
  */
 export const DATOS = {
-  whatsapp: null as string | null, // E.164 sin "+", p. ej. "52618…". P16
-  quienResponde: null as string | null, // P16
+  whatsapp: '526181342413' as string | null, // E.164 sin "+". P16 · confirmado 28-nov
+  quienResponde: 'Aldo' as string | null, // P16: "yo"; 28-nov: "voy a contestar yo para que sea más personalizado"
   horarioRespuesta: null as { desde: string; hasta: string; dias: number[] } | null, // P17
   promesaRespuesta: null as string | null, // "Te respondo en persona por WhatsApp el mismo día hábil." P17
   ciudadBase: null as string | null, // P12
@@ -413,7 +414,9 @@ export interface Formato {
 
 export const OFERTA = {
   pregunta: 5,
-  version: '2026-11-24.1',
+  /** 28-nov (WhatsApp): "el precio para catering va desde los 450 por persona; según el número de personas puede o no
+   *  incluir loza y meseros". Las cenas privadas de 10 a 20 son parte del catering, así que también van por persona. */
+  version: '2026-11-28.1',
   moneda: 'MXN',
   ivaTasa: 0.16,
   zonaHoraria: 'America/Monterrey',
@@ -426,7 +429,7 @@ export const OFERTA = {
       invitados: [10, 20],
       rango: 'De 10 a 20 invitados',
       incluye: ['4 a 6 tiempos servidos y contados por el chef', '2 a 3 fuegos'],
-      precio: { tipo: 'por_evento', desde: null, extraPorInvitado: null, extraDesdeInvitados: null, iva: 'incluido' },
+      precio: { tipo: 'por_invitado', desde: 450, minimo: null, iva: 'incluido' },
       cta: 'Ver si es para mí',
       preset: { formato: 'mesa-intima', invitados: '10-20' },
       foto: foto('F307', '4x5', 'brasa', 'Tuétanos asados en platos de vidrio ámbar sobre una mesa de madera'),
@@ -438,7 +441,7 @@ export const OFERTA = {
       invitados: [21, 300],
       rango: 'De 21 a 300 invitados',
       incluye: ['Recibimiento', 'Entradas al centro', 'Piezas de 3 a 4 fuegos cortadas frente a la mesa', 'Postre'],
-      precio: { tipo: 'por_invitado', desde: null, minimo: null, iva: 'incluido' },
+      precio: { tipo: 'por_invitado', desde: 450, minimo: null, iva: 'incluido' },
       cta: 'Planear mi mesa',
       preset: { formato: 'mesa-larga' },
       foto: foto('F128', '4x5', 'brasa', 'Mesa larga al aire libre con los arcos de la hacienda al fondo'),
@@ -455,7 +458,7 @@ export const OFERTA = {
         'Visita al lugar',
         ['Degustación · ', h('costo de la degustación', 7)],
       ],
-      precio: { tipo: 'por_invitado', desde: null, minimo: null, iva: 'incluido' },
+      precio: { tipo: 'por_invitado', desde: 450, minimo: null, iva: 'incluido' },
       cta: 'Revisar mi fecha',
       preset: { formato: 'boda-al-fuego', ocasion: 'boda' },
       foto: foto('F255', '4x5', 'brasa', 'Banquete en marcha bajo un árbol iluminado y estrellas de papel', { retoque: 'Carpa de Coca-Cola y neón' }),
@@ -467,7 +470,7 @@ export const OFERTA = {
       invitados: [21, 300],
       rango: 'De 21 a 300 invitados',
       incluye: ['El fuego como escenario', 'Estaciones a la vista', 'Factura CFDI'],
-      precio: { tipo: 'por_invitado', desde: null, minimo: null, iva: 'mas_iva' },
+      precio: { tipo: 'por_invitado', desde: 450, minimo: null, iva: 'mas_iva' },
       cta: 'Diseñar el encuentro',
       preset: { formato: 'fuego-de-marca', ocasion: 'empresa' },
       foto: foto('F006', '4x5', 'brasa', 'Mesa larga montada con tejidos y centros florales, vista desde arriba', { retoque: 'Revisar' }),
@@ -484,7 +487,7 @@ export const OFERTA = {
   aparte: [
     'El lugar (renta, derecho de piso o proveedor exclusivo, si el lugar los cobra)',
     'Bebidas',
-    'Mobiliario, loza y meseros',
+    'Mobiliario; loza y meseros, según el número de invitados',
     'Carpa o plan de lluvia',
     'Iluminación',
     ['Viáticos fuera de ', h('zona', 12), ' (traslado, hospedaje y alimentos de la brigada, desglosados)'],
@@ -706,12 +709,14 @@ export const FAQ: { titulo: string; items: { pregunta: string; respuesta: Texto;
     },
     {
       pregunta: '¿Cuál es el mínimo de invitados?',
-      respuesta: [
-        'Cocinamos para eventos de 10 a unos 300 invitados. De 10 a 20 es Mesa Íntima, con un precio por evento de ',
-        h('precio', 5),
-        ', IVA incluido. Con menos de 10, por ahora no montamos el servicio completo. Con más de 300, lo revisamos contigo.',
-      ],
-      confirmar: 5,
+      respuesta:
+        'Cocinamos para eventos de 10 a unos 300 invitados; de 10 a 20 son cenas privadas. Con menos de 10, por ahora no montamos el servicio completo. Con más de 300, lo revisamos contigo.',
+    },
+    {
+      // 28-nov: "es imperante mencionar que trabajamos y diseñamos por temporalidad" · evento ideal: "que el cliente confíe en mi trabajo y me deje libertad completa"
+      pregunta: '¿El menú es fijo?',
+      respuesta:
+        'No. Aldo diseña cada menú para tu evento y para la temporada del año: cocina con lo que está en su mejor momento. Lo mejor sale cuando le das libertad.',
     },
     {
       pregunta: '¿Se necesita permiso?',
@@ -737,17 +742,17 @@ export const FAQ: { titulo: string; items: { pregunta: string; respuesta: Texto;
     {
       pregunta: '¿Cuánto cuesta y qué incluye?',
       respuesta: [
-        'De 21 a 300 invitados, desde ',
-        h('precio', 5),
-        ' por invitado, con un mínimo por evento según el formato; de 10 a 20 (Mesa Íntima), desde ',
-        h('precio', 5),
-        ' por evento. IVA incluido. Para empresas (Fuego de Marca), desde ',
-        h('precio', 5),
-        ' por invitado + IVA, con CFDI. Incluye fuego, equipo, leña, brigada, montaje en tu lugar y limpieza. Bebidas, mobiliario, loza, meseros, carpa y viáticos fuera de ',
+        'Desde $450 por persona. El precio final depende del menú, de la temporada y del número de invitados; según el tamaño del evento, puede incluir loza y meseros. Siempre incluye el fuego, el equipo, la leña, la brigada, el montaje en tu lugar y la limpieza. Bebidas, mobiliario, carpa y viáticos fuera de ',
         h('zona', 12),
         ' van aparte.',
       ],
-      confirmar: 6,
+      confirmar: 12,
+    },
+    {
+      // 28-nov: "el show cooking es una experiencia o un servicio especial" (p. ej. la paella a la leña de un evento de empresa)
+      pregunta: '¿Qué es el show cooking?',
+      respuesta:
+        'Una experiencia especial: Aldo cocina frente a tus invitados y ellos cocinan con él. En un evento de empresa, los invitados aprendieron a hacer paella a la leña. Pídelo al cotizar.',
     },
     {
       pregunta: '¿Cómo aparto y si cancelo?',
@@ -885,8 +890,9 @@ export const FORMULARIO = {
       id: 'inversion',
       pregunta: '¿Qué inversión tienes en mente?',
       unidad: 'por invitado',
-      /** Cortes [A, B, C] por invitado (P5). null → las bandas se pintan con `provisional` + chip. */
-      cortes: null as [number, number, number] | null,
+      /** Cortes [A, B, C] por invitado (P5). null → las bandas se pintan con `provisional` + chip.
+       *  450 es el piso que dio Aldo (28-nov); 650 y 900 son propuesta de Antemano para separar banquete de catering [VALIDAR]. */
+      cortes: [450, 650, 900] as [number, number, number] | null,
       opciones: [
         { id: 'b1', provisional: 'Rango 1' },
         { id: 'b2', provisional: 'Rango 2' },
@@ -897,8 +903,7 @@ export const FORMULARIO = {
       ayuda: (): Texto => [
         'Desde ',
         h('precio', 5, desdePublico(), 'mxn'),
-        ' por invitado, IVA incluido · mínimo por evento ',
-        h('mínimo', 5, minimoPublico(), 'mxn'),
+        ' por persona. El menú y el número de invitados definen el precio final.',
       ],
     },
     {

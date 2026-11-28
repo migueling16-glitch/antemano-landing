@@ -5,6 +5,9 @@
  * (v2/Carril.astro) con invitación obvia a deslizar, y el contraste es un comparador que se arrastra de lado.
  * Copy concreto, como escribe Aldo (fuego, leña, técnica; nada de poesía de más). Desde sus correcciones del
  * 27-nov (WhatsApp) va en tercera persona ("Aldo lleva el fuego"), con sus nombres: domo, chapa, tomahawk y su menú real.
+ * Respuestas del 28-nov (WhatsApp): banquetes y catering (las cenas privadas de 10 a 20 son catering), show cooking como
+ * experiencia especial, menú por temporada, desde $450 por persona, de 5 a 12 eventos al mes, catering en Durango desde
+ * 2018 y todo el contacto a su WhatsApp, que contesta él. Burning Man no se nombra (política de marca): "desierto de Nevada".
  * Movimiento: v2/movimiento.ts.
  */
 import Foto from '../components/Foto.astro';
@@ -12,7 +15,7 @@ import FotoArte from '../components/FotoArte.astro';
 import Texto from '../components/Texto.astro';
 import Preguntas from '../components/Preguntas.astro';
 import Carril from './Carril.astro';
-import { OFERTA, CTA, SECCIONES, type FotoRef, type Recorte } from '../config';
+import { OFERTA, CTA, SECCIONES, SITIO, mxn, type FotoRef, type Recorte } from '../config';
 import { VERSIONES, type Ranura, type VersionId } from './versiones';
 
 interface Props {
@@ -59,8 +62,15 @@ const MESAS: Record<string, string> = {
   'mesa-intima': 'Cenas privadas, pedidas y aniversarios.',
   'mesa-larga': 'Cumpleaños, fiestas y reuniones familiares.',
   'boda-al-fuego': 'Tu boda, la cena de bienvenida o el tornaboda.',
-  'fuego-de-marca': 'Cierres de año, lanzamientos y comidas con clientes.',
+  'fuego-de-marca': 'Cierres de año, lanzamientos y show cooking para tu equipo.',
 };
+
+/** Otros eventos que Aldo contó el 28-nov (sus posts de Instagram). Sin fotos: las de Instagram son solo referencia. */
+const FUEGOS = [
+  { donde: 'Desierto de Nevada · 10 días', que: '250 personas al día', det: 'Catering para el staff y los invitados de un campamento internacional.' },
+  { donde: 'Pedida de mano · 20 invitados', que: 'Cena privada', det: 'Camote ahumado en leña de manzano, filete sous vide, cebolla al rescoldo y salsa bordelesa.' },
+  { donde: 'Evento de empresa · show cooking', que: 'Paella a la leña', det: 'Los invitados aprendieron a hacerla con Aldo. Con tortilla de patata y crema catalana.' },
+];
 
 const LUGAR = ['Espacio al aire libre para el fuego', 'Que se permita leña', 'Que el equipo pueda llegar', 'Un plan por si llueve'];
 const BRASAS = Array.from({ length: 9 }, (_, i) => i);
@@ -100,7 +110,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     <div class="e2-brasas" aria-hidden="true">{BRASAS.map((i) => <i style={`--i:${i}`}></i>)}</div>
   </div>
   <div class="e2-hero__texto">
-    <p class="e2-label">Banquetes · Outdoor kitchen · Show cooking</p>
+    <p class="e2-label">Banquetes · Catering · Show cooking</p>
     <h1 id="e2-h1" class="e2-h1 e2-hero__h1">
       {['Banquetes', 'al', 'fuego', 'para', 'tu', 'evento.'].map((p, i) => <Fragment><span style={`--i:${i}`}>{p}</span>{i < 5 ? ' ' : ''}</Fragment>)}
     </h1>
@@ -177,7 +187,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     <div class="e2-guia__texto">
       <p class="e2-label">Quién cocina</p>
       <h2 id="e2-guia-h2" class="e2-h2 al-revela">Aldo Lugo.</h2>
-      <p class="e2-guia__linea al-revela">Lleva 18 años en la cocina. Su cocina es libre y de mucha técnica: leña, brasa, rescoldo… y precisión.</p>
+      <p class="e2-guia__linea al-revela">Lleva 18 años en la cocina y desde 2018 hace catering en Durango. Su cocina es libre y de mucha técnica: leña, brasa, rescoldo… y precisión.</p>
       <blockquote class="e2-cita al-revela">
         <p>“Cocinar es una forma de comunicar, de expresar quién eres.”</p>
       </blockquote>
@@ -216,7 +226,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   <header class="e2-cab">
     <p class="e2-label">El menú · La Tapada de Luna</p>
     <h2 id="e2-platos-h2" class="e2-h2">Lo que llegó <em>a la mesa.</em></h2>
-    <p class="e2-cab__sub">Los 8 platos que Aldo cocinó para 200 invitados. Cada menú se arma contigo.</p>
+    <p class="e2-cab__sub">Los 8 platos que Aldo cocinó para 200 invitados. Cada menú se diseña para tu evento y la temporada.</p>
   </header>
   <Carril etiqueta="Los platos del menú" n={PLATOS.length} tema="dia">
     {PLATOS.map((p, i) => (
@@ -253,11 +263,33 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   </div>
 </section>
 
+<!-- 6b · Más fuegos: otros eventos (texto; sin fotos de Instagram) -->
+<section id="mas-fuegos" class="e2-sec e2-sec--noche e2-fuegos" aria-labelledby="e2-fuegos-h2">
+  <header class="e2-cab">
+    <p class="e2-label">Desde 2018</p>
+    <h2 id="e2-fuegos-h2" class="e2-h2 al-revela">Y muchos <em>fuegos más.</em></h2>
+    <p class="e2-cab__sub">Bodas civiles, cenas privadas, pedidas de mano, cumpleaños y empresas.</p>
+  </header>
+  <ul class="e2-fuegos__lista">
+    {FUEGOS.map((f, i) => (
+      <li class="al-revela" style={`--al-delay:${i * 120}ms`}>
+        <p class="e2-label">{f.donde}</p>
+        <p class="e2-fuegos__que">{f.que}</p>
+        <p class="e2-fuegos__det">{f.det}</p>
+      </li>
+    ))}
+  </ul>
+  <p class="e2-fuegos__pie">
+    <a class="e2-enlace" href={SITIO.instagram.url} target="_blank" rel="noopener">Ver sus eventos en Instagram <span aria-hidden="true">→</span></a>
+  </p>
+</section>
+
 <!-- 7 · Tu evento (carril de mesas, día) -->
 <section id={SECCIONES.experiencias} class="e2-sec e2-mesas" data-tema="dia" aria-labelledby="e2-mesas-h2">
   <header class="e2-cab">
     <p class="e2-label">Tu evento · de 10 a 300 personas</p>
     <h2 id="e2-mesas-h2" class="e2-h2">Tú pones el lugar.<br /><em>Aldo lleva el fuego.</em></h2>
+    <p class="e2-cab__sub">Banquetes, catering y cenas privadas. Y si quieres que tus invitados cocinen con él, pide el show cooking.</p>
   </header>
   <Carril etiqueta="Tipos de evento" n={OFERTA.formatos.length} tema="dia">
     {OFERTA.formatos.map((f, i) => (
@@ -270,7 +302,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
         <details class="e2-mas">
           <summary>Qué incluye</summary>
           <ul>{f.incluye.map((t) => <li><Texto t={t} /></li>)}</ul>
-          <p class="e2-mas__precio">Precio por confirmar con el chef{f.precio.iva === 'mas_iva' ? ' · más IVA' : ' · IVA incluido'}</p>
+          <p class="e2-mas__precio">{f.precio.desde ? `Desde ${mxn(f.precio.desde)} por persona. Según el número de invitados, puede incluir loza y meseros.` : 'Precio por confirmar con el chef'}</p>
         </details>
       </li>
     ))}
@@ -286,10 +318,10 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   <h2 id="e2-pasos-h2" class="e2-h2 al-revela">Así empieza.</h2>
   <ol class="e2-pasos__lista">
     <li class="al-revela"><span class="e2-sello">1</span><p><strong>Comparte tu fecha.</strong> Dos minutos.</p></li>
-    <li class="al-revela" style="--al-delay:120ms"><span class="e2-sello">2</span><p><strong>Aldo revisa tu lugar y arma el menú contigo.</strong></p></li>
+    <li class="al-revela" style="--al-delay:120ms"><span class="e2-sello">2</span><p><strong>Aldo te contesta en persona.</strong> Revisa tu lugar y diseña un menú de temporada.</p></li>
     <li class="al-revela" style="--al-delay:240ms"><span class="e2-sello">3</span><p><strong>Aldo prende el fuego.</strong></p></li>
   </ol>
-  <p class="e2-pasos__nota al-revela">Cada evento se prepara desde cero. Aparta tu fecha con tiempo.</p>
+  <p class="e2-pasos__nota al-revela">Cada evento se prepara desde cero. Aldo toma de 5 a 12 eventos al mes: aparta tu fecha con tiempo.</p>
 </section>
 
 <!-- 9 · Preguntas -->
@@ -537,6 +569,21 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   .e2-mesa__nombre { margin: 0; font-family: var(--al-f-display); font-weight: 560; font-size: clamp(1.8rem, 1.5rem + 1.2vw, 2.5rem); line-height: 1; }
   .e2-mesa__rango { margin: 0; font-family: var(--al-f-label); font-weight: 600; text-transform: uppercase; letter-spacing: .14em; font-size: .8rem; color: var(--al-tizne); }
   .e2-mesa__para { margin: 0; color: #2b2824; }
+
+  /* Más fuegos: tres eventos en texto, con una línea de brasa arriba. */
+  .e2-fuegos { padding-top: clamp(28px, 6vw, 72px); }
+  .e2-fuegos__lista {
+    list-style: none; margin: 0 auto; padding: 0 var(--al-margen); max-width: var(--al-max);
+    display: grid; gap: 26px;
+  }
+  .e2-fuegos__lista li { display: grid; gap: 8px; align-content: start; padding-top: 16px; border-top: 1px solid rgba(242, 195, 143, .28); }
+  .e2-fuegos__que {
+    margin: 0; font-family: var(--al-f-display); font-weight: 560; line-height: 1.02; letter-spacing: -.01em;
+    font-size: clamp(1.9rem, 1.3rem + 2.4vw, 3rem); color: #f2c38f;
+  }
+  .e2-fuegos__det { margin: 0; color: var(--al-ceniza); max-width: 34ch; }
+  .e2-fuegos__pie { margin: 24px auto 0; padding: 0 var(--al-margen); max-width: var(--al-max); }
+  @media (min-width: 900px) { .e2-fuegos__lista { grid-template-columns: repeat(3, 1fr); gap: 40px; } }
   .e2-mesa__cta { justify-self: start; min-height: var(--al-tap); display: inline-flex; align-items: center; gap: .4em; font-weight: 700; color: var(--al-sello-tinta); text-decoration: none; border-bottom: 2px solid currentColor; }
   .e2-mas { border-top: 1px solid rgba(20, 20, 20, .16); }
   .e2-mas summary { cursor: pointer; min-height: var(--al-tap); display: flex; align-items: center; justify-content: space-between; font-weight: 600; color: var(--al-tizne); list-style: none; }

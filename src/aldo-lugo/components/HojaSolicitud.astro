@@ -17,7 +17,7 @@ import Icono from './Icono.astro';
 import BotonWa from './BotonWa.astro';
 import {
   DEMO, FORMULARIO, OCASIONES, BANDAS, LUGAR, GRACIAS, AFINA, LUMBRES, DATOS, MENSAJES_WA, OFERTA, SITIO,
-  formatoPorId, mxn,
+  mxn,
 } from '../config';
 
 const P = Object.fromEntries(FORMULARIO.pasos.map((p) => [p.id, p])) as Record<string, any>;
@@ -41,7 +41,6 @@ const etiquetaRango = (id: string, provisional: string) => {
   if (r[1] === Infinity) return `Más de ${mxn(r[0])}`;
   return `${mxn(r[0])}–${mxn(r[1])}`;
 };
-const intima = formatoPorId('mesa-intima');
 
 const slug = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_');
 const AFINA_GRUPOS: { id: string; titulo: string; tipo?: 'radio' | 'checkbox'; ayuda?: string; opciones: { id: string; etiqueta: string }[] }[] = [
@@ -250,7 +249,7 @@ const total = FORMULARIO.pasos.length;
           <legend class="ml-paso__q al-h3" tabindex="-1">{pInversion.pregunta}</legend>
           <p class="ml-ayuda"><Texto t={pInversion.ayuda()} /></p>
           <p class="ml-ayuda" data-si="invitados=10-20" hidden>
-            De 10 a 20 invitados es Mesa Íntima, con precio por evento desde <Dato valor={intima.precio.desde} formato="mxn" etiqueta="precio" pregunta={5} />, IVA incluido.
+            De 10 a 20 invitados es una cena privada: un menú de varios tiempos, diseñado para la ocasión.
           </p>
           <div class="ml-grupo" data-grupo="inversion">
             <div class="ml-opciones ml-opciones--lista">
