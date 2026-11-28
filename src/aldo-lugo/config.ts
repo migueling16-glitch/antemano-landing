@@ -49,11 +49,11 @@ export const SECCIONES = {
   cierre: 'cierre',
 } as const;
 
-/** Navegación de escritorio (en móvil solo logo + "Revisar mi fecha"). */
+/** Navegación de escritorio (en móvil solo logo + "Cotiza tu evento"). */
 export const NAV = [
+  { texto: 'Así se vive', href: '#asi-se-vive' },
   { texto: 'El oficio', href: `#${SECCIONES.lumbres}` },
-  { texto: 'Una noche', href: `#${SECCIONES.unaNoche}` },
-  { texto: 'Experiencias', href: `#${SECCIONES.experiencias}` },
+  { texto: 'Tu evento', href: `#${SECCIONES.experiencias}` },
   { texto: 'Preguntas', href: `#${SECCIONES.preguntas}` },
 ];
 
@@ -687,7 +687,7 @@ export const PROCESO = {
 // =====================================================================================
 
 export const FAQ: { titulo: string; items: { pregunta: string; respuesta: Texto; confirmar?: number }[] } = {
-  titulo: 'Lo que suelen preguntarnos',
+  titulo: 'Antes de cotizar',
   items: [
     {
       pregunta: '¿Qué necesitan del lugar?',
@@ -803,7 +803,7 @@ export const CIERRE = {
 // =====================================================================================
 
 export const CTA = {
-  principal: 'Revisar mi fecha',
+  principal: 'Cotiza tu evento',
   verNoche: 'Ver una noche',
   imaginarMesa: 'Imaginar mi mesa',
   nocheAsi: 'Quiero una noche así',

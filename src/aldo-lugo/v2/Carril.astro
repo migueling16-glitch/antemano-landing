@@ -1,0 +1,111 @@
+---
+/**
+ * Carril horizontal con invitación obvia a deslizar (v2/movimiento.ts → iniciarCarriles).
+ * Señales: la siguiente tarjeta asoma · mano que hace el gesto · empujoncito al entrar en pantalla ·
+ * barras tipo historias + contador · flechas grandes. scroll-snap-stop: always → un deslizón = una tarjeta.
+ *
+ * <Carril etiqueta="Así se vive" tipo="historias" n={4}> <li class="e2-carril__item">…</li> … </Carril>
+ */
+interface Props {
+  etiqueta: string;
+  tipo?: 'historias' | 'tarjetas';
+  n: number;
+  tema?: 'noche' | 'dia';
+}
+const { etiqueta, tipo = 'tarjetas', n, tema = 'noche' } = Astro.props;
+---
+<div class:list={['e2-carril', `e2-carril--${tipo}`, `e2-carril--${tema}`]} data-carril>
+  <ul class="e2-carril__pista" data-pista tabindex="0" role="region" aria-roledescription="carrusel" aria-label={`${etiqueta}: desliza para ver más`}>
+    <slot />
+  </ul>
+  <div class="e2-carril__invita" data-invita aria-hidden="true">
+    <svg class="e2-carril__mano" viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 14a8 8 0 0 1-8 8" /><path d="M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2" /><path d="M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1" /><path d="M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10" /><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+    </svg>
+    <span class="e2-carril__rastro"></span>
+    <span class="e2-carril__desliza">Desliza</span>
+  </div>
+  <div class="e2-carril__guia">
+    <ol class="e2-carril__barras" aria-hidden="true">{Array.from({ length: n }, () => <li><i></i></li>)}</ol>
+    <p class="e2-carril__cuenta" aria-live="polite"><span data-actual>1</span> / {n}</p>
+    <button class="e2-carril__flecha" type="button" data-anterior aria-label="Anterior" disabled>
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+    </button>
+    <button class="e2-carril__flecha e2-carril__flecha--sig" type="button" data-siguiente aria-label="Siguiente">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+    </button>
+  </div>
+</div>
+
+<style is:global>
+  .e2-carril { position: relative; }
+  .e2-carril__pista {
+    position: relative; list-style: none; margin: 0; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden;
+    padding: 4px var(--al-margen) 6px; scroll-padding-inline: var(--al-margen);
+    scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    outline: none;
+  }
+  .e2-carril__pista::-webkit-scrollbar { display: none; }
+  .e2-carril__pista:focus-visible { outline: 2px solid var(--al-hueso); outline-offset: 4px; }
+  .e2-carril__pista.is-arrastrando { scroll-snap-type: none; cursor: grabbing; }
+  @media (hover: hover) and (pointer: fine) { .e2-carril__pista { cursor: grab; } }
+  .e2-carril__pista img { -webkit-user-drag: none; user-select: none; }
+  .e2-carril__item { flex: 0 0 auto; scroll-snap-align: start; scroll-snap-stop: always; position: relative; }
+  /* Empujoncito al entrar en pantalla: todo el carril se asoma a la izquierda y regresa con rebote */
+  .e2-carril.is-empuja .e2-carril__item { animation: e2-empuja 1.05s cubic-bezier(.3, .7, .3, 1); }
+  @keyframes e2-empuja { 0% { transform: none; } 38% { transform: translateX(-78px); } 68% { transform: translateX(10px); } 100% { transform: none; } }
+  .e2-carril--tarjetas .e2-carril__item { width: 74vw; }
+  .e2-carril--historias .e2-carril__item { width: 80vw; }
+  @media (min-width: 768px) {
+    .e2-carril--tarjetas .e2-carril__item { width: clamp(260px, 30vw, 380px); }
+    .e2-carril--historias .e2-carril__item { width: clamp(220px, min(24vw, 34svh), 340px); } /* la historia entera cabe en pantalla */
+  }
+
+  /* Guía: barras tipo historias + contador + flechas */
+  .e2-carril__guia { display: flex; align-items: center; gap: 14px; padding: 14px var(--al-margen) 0; }
+  .e2-carril__barras { list-style: none; margin: 0; padding: 0; display: flex; gap: 5px; flex: 1; max-width: 360px; }
+  .e2-carril__barras li { flex: 1; height: 3px; border-radius: 3px; background: rgba(237, 230, 214, .22); overflow: hidden; }
+  .e2-carril--dia .e2-carril__barras li { background: rgba(20, 20, 20, .16); }
+  .e2-carril__barras i { display: block; height: 100%; background: #f2c38f; transform: scaleX(0); transform-origin: left; transition: transform .45s var(--al-ease-brasa); }
+  .e2-carril--dia .e2-carril__barras i { background: var(--al-sello-tinta); }
+  .e2-carril__barras li.is-hecha i { transform: scaleX(1); }
+  .e2-carril__cuenta { margin: 0; font-family: var(--al-f-label); font-weight: 600; letter-spacing: .14em; font-size: .85rem; color: var(--al-ceniza); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .e2-carril--dia .e2-carril__cuenta { color: var(--al-tizne); }
+  .e2-carril__flecha {
+    width: 48px; height: 48px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%;
+    border: 1.5px solid rgba(237, 230, 214, .55); background: transparent; color: var(--al-hueso); cursor: pointer;
+    transition: background .2s ease, opacity .2s ease, transform .2s ease;
+  }
+  .e2-carril--dia .e2-carril__flecha { border-color: rgba(20, 20, 20, .45); color: var(--al-carbon); }
+  .e2-carril__flecha:disabled { opacity: .3; cursor: default; }
+  .e2-carril__flecha--sig:not(:disabled) { background: var(--al-sello-tinta); border-color: var(--al-sello-tinta); color: var(--al-hueso); }
+  html:not([data-quieto]) .e2-carril:not(.is-tocado) .e2-carril__flecha--sig { animation: e2-late 1.6s ease-in-out infinite; }
+  @keyframes e2-late { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(176, 20, 15, .55); } 50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(176, 20, 15, 0); } }
+
+  /* Invitación: una mano que hace el gesto de deslizar sobre la primera tarjeta */
+  .e2-carril__invita {
+    position: absolute; z-index: 4; right: calc(var(--al-margen) + 6vw); top: 38%; pointer-events: none;
+    display: grid; justify-items: center; gap: 6px; color: #fff; filter: drop-shadow(0 2px 10px rgba(0, 0, 0, .55));
+    transition: opacity .4s ease;
+  }
+  .e2-carril.is-tocado .e2-carril__invita { opacity: 0; }
+  .e2-carril__mano { transform-origin: 30% 80%; }
+  html:not([data-quieto]) .e2-carril__mano { animation: e2-desliza 1.9s cubic-bezier(.45, 0, .2, 1) infinite; }
+  @keyframes e2-desliza {
+    0% { transform: translateX(34px) rotate(8deg); opacity: 0; }
+    15% { opacity: 1; }
+    65% { transform: translateX(-56px) rotate(-6deg); opacity: 1; }
+    85%, 100% { transform: translateX(-56px) rotate(-6deg); opacity: 0; }
+  }
+  .e2-carril__rastro {
+    position: absolute; top: 20px; right: 10px; width: 86px; height: 3px; border-radius: 3px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, .85), rgba(255, 255, 255, 0)); transform-origin: right; opacity: 0;
+  }
+  html:not([data-quieto]) .e2-carril__rastro { animation: e2-rastro 1.9s cubic-bezier(.45, 0, .2, 1) infinite; }
+  @keyframes e2-rastro { 0%, 12% { transform: scaleX(0); opacity: 0; } 60% { transform: scaleX(1); opacity: .9; } 85%, 100% { transform: scaleX(1); opacity: 0; } }
+  .e2-carril__desliza {
+    font-family: var(--al-f-label); font-weight: 600; text-transform: uppercase; letter-spacing: .2em; font-size: .78rem;
+    background: rgba(11, 10, 9, .55); padding: 5px 10px 4px; border-radius: 999px; backdrop-filter: blur(4px);
+  }
+  @media (min-width: 768px) { .e2-carril__invita { right: 18%; } }
+</style>

@@ -1,10 +1,10 @@
 /**
- * Movimiento de la landing v2. Sin dependencias.
- * - Un solo listener de scroll (pasivo) + rAF; cada efecto solo corre mientras su escena está en pantalla.
- * - Solo se escriben transform/opacity (vía variables CSS que el CSS convierte en transform).
- * - <html data-quieto> ("Pausar movimiento"): no se anima nada; el CSS ya deja todo visible.
- * - <html data-suave> (el sistema pide menos movimiento): versión calmada — intro, fundidos, brillos y cifras sí;
- *   zooms, parallax, carrusel fijo y desplazamientos grandes no.
+ * Movimiento de la landing v3. Sin dependencias.
+ * - Carriles horizontales (v2/Carril.astro) y comparador servido/al fuego: funcionan siempre, incluso con
+ *   "Pausar movimiento"; lo único que se apaga ahí son las invitaciones animadas (empujoncito, meneo).
+ * - Un solo listener de scroll vertical (pasivo) + rAF; cada efecto solo corre mientras su escena está en pantalla.
+ * - <html data-quieto> ("Pausar movimiento"): nada se anima solo.
+ * - <html data-suave> (el sistema pide menos movimiento): sin parallax, zoom ni video; carriles y comparador sí.
  */
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -12,12 +12,237 @@ const curva = (a: number, b: number, v: number) => {
   const t = clamp((v - a) / (b - a));
   return t * t * (3 - 2 * t);
 };
+const raiz = document.documentElement;
+const enPausa = () => raiz.hasAttribute('data-quieto');
+
+// ---------- Carriles: un deslizón = una tarjeta, con invitación obvia ----------
+function iniciarCarriles(): void {
+  document.querySelectorAll<HTMLElement>('[data-carril]').forEach((carril) => {
+    const pista = carril.querySelector<HTMLElement>('[data-pista]');
+    if (!pista) return;
+    const items = Array.from(pista.children) as HTMLElement[];
+    if (!items.length) return;
+    const barras = Array.from(carril.querySelectorAll<HTMLElement>('.e2-carril__barras li'));
+    const cuenta = carril.querySelector<HTMLElement>('[data-actual]');
+    const ant = carril.querySelector<HTMLButtonElement>('[data-anterior]');
+    const sig = carril.querySelector<HTMLButtonElement>('[data-siguiente]');
+
+    // Posición de scroll en la que cada tarjeta queda alineada (la última se recorta al final de la pista).
+    const destino = (i: number) => {
+      const max = pista.scrollWidth - pista.clientWidth;
+      return clamp(items[i].offsetLeft - items[0].offsetLeft, 0, max);
+    };
+    const indice = () => {
+      const x = pista.scrollLeft;
+      let mejor = 0;
+      let d = Infinity;
+      items.forEach((_, i) => {
+        const dd = Math.abs(destino(i) - x);
+        if (dd < d) { d = dd; mejor = i; }
+      });
+      return mejor;
+    };
+    let actual = -1;
+    const pintar = () => {
+      const n = indice();
+      if (n === actual) return;
+      actual = n;
+      barras.forEach((b, i) => b.classList.toggle('is-hecha', i <= n));
+      if (cuenta) cuenta.textContent = String(n + 1);
+      if (ant) ant.disabled = n === 0;
+      if (sig) sig.disabled = n === items.length - 1;
+    };
+    const ir = (i: number) => {
+      const n = clamp(i, 0, items.length - 1);
+      pista.scrollTo({ left: destino(n), behavior: enPausa() ? 'auto' : 'smooth' });
+    };
+
+    let tocado = false;
+    const marcar = () => {
+      if (tocado) return;
+      tocado = true;
+      carril.classList.add('is-tocado');
+      carril.classList.remove('is-empuja');
+    };
+
+    let pendiente = false;
+    pista.addEventListener('scroll', () => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(() => { pendiente = false; pintar(); });
+      if (pista.scrollLeft > 8) marcar();
+    }, { passive: true });
+    window.addEventListener('resize', () => { actual = -1; pintar(); }, { passive: true });
+    pista.addEventListener('touchstart', marcar, { passive: true, once: true });
+    ant?.addEventListener('click', () => { marcar(); ir(actual - 1); });
+    sig?.addEventListener('click', () => { marcar(); ir(actual + 1); });
+    pista.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); marcar(); ir(actual + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); marcar(); ir(actual - 1); }
+    });
+
+    // Arrastre con mouse (en táctil manda el scroll nativo con snap).
+    let x0 = 0;
+    let xu = 0;
+    let s0 = 0;
+    let arrastre = false;
+    let movido = false;
+    pista.addEventListener('dragstart', (e) => e.preventDefault()); // las fotos no se "arrastran" como archivo
+    pista.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      arrastre = true;
+      movido = false;
+      x0 = xu = e.clientX;
+      s0 = pista.scrollLeft;
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!arrastre) return;
+      xu = e.clientX;
+      const dx = e.clientX - x0;
+      if (!movido && Math.abs(dx) > 6) {
+        movido = true;
+        marcar();
+        pista.classList.add('is-arrastrando');
+      }
+      if (movido) pista.scrollLeft = s0 - dx;
+    });
+    const soltar = (e: PointerEvent) => {
+      if (!arrastre) return;
+      arrastre = false;
+      if (!movido) return;
+      const dx = (e.type === 'pointercancel' ? xu : e.clientX) - x0;
+      const desde = indice();
+      pista.classList.remove('is-arrastrando');
+      // Basta un jalón corto para pasar de tarjeta, como en el celular.
+      const base = items.findIndex((_, i) => destino(i) >= s0 - 1);
+      const n = Math.abs(dx) > 40 ? (dx < 0 ? Math.max(desde, base + 1) : Math.min(desde, base - 1)) : base;
+      ir(n);
+    };
+    window.addEventListener('pointerup', soltar);
+    window.addEventListener('pointercancel', soltar);
+    pista.addEventListener('click', (e) => {
+      if (movido) { e.preventDefault(); e.stopPropagation(); movido = false; }
+    }, true);
+
+    // Empujoncito: al entrar en pantalla, las tarjetas se asoman a la izquierda y regresan (hasta 3 veces).
+    let veces = 0;
+    let reloj = 0;
+    const empujar = () => {
+      if (tocado || enPausa() || veces >= 3) return;
+      veces++;
+      carril.classList.remove('is-empuja');
+      void carril.offsetWidth;
+      carril.classList.add('is-empuja');
+      reloj = window.setTimeout(empujar, 4200);
+    };
+    const vista = new IntersectionObserver((entradas) => {
+      for (const e of entradas) {
+        window.clearTimeout(reloj);
+        if (e.isIntersecting) reloj = window.setTimeout(empujar, 650);
+      }
+    }, { threshold: 0.55 });
+    vista.observe(carril);
+    carril.addEventListener('animationend', (e) => {
+      if ((e.target as HTMLElement) === items[0]) carril.classList.remove('is-empuja');
+    });
+
+    pintar();
+  });
+}
+
+// ---------- Comparador: arrastra la línea de fuego de lado ----------
+function iniciarComparador(): void {
+  const caja = document.querySelector<HTMLElement>('[data-antes]');
+  if (!caja) return;
+  const rango = caja.querySelector<HTMLInputElement>('[data-antes-rango]');
+  let p = 58;
+  const poner = (v: number) => {
+    p = clamp(v, 0, 100);
+    caja.style.setProperty('--p', `${p.toFixed(2)}%`);
+    if (rango) rango.value = String(Math.round(p));
+  };
+  const desdeX = (x: number) => {
+    const r = caja.getBoundingClientRect();
+    poner(((x - r.left) / r.width) * 100);
+  };
+  let tocado = false;
+  let meneo = 0;
+  const marcar = () => {
+    if (tocado) return;
+    tocado = true;
+    cancelAnimationFrame(meneo);
+    caja.classList.add('is-tocado');
+  };
+
+  let id: number | null = null;
+  let x0 = 0;
+  let y0 = 0;
+  let decidido = false;
+  caja.addEventListener('dragstart', (e) => e.preventDefault());
+  caja.addEventListener('pointerdown', (e) => {
+    id = e.pointerId;
+    x0 = e.clientX;
+    y0 = e.clientY;
+    decidido = e.pointerType === 'mouse';
+    if (decidido) {
+      marcar();
+      caja.setPointerCapture(e.pointerId);
+      desdeX(e.clientX);
+    }
+  });
+  caja.addEventListener('pointermove', (e) => {
+    if (id !== e.pointerId) return;
+    if (!decidido) {
+      const dx = Math.abs(e.clientX - x0);
+      if (dx < 6 || dx < Math.abs(e.clientY - y0)) return;
+      decidido = true;
+      marcar();
+      try { caja.setPointerCapture(e.pointerId); } catch {}
+    }
+    desdeX(e.clientX);
+  });
+  const soltar = (e: PointerEvent) => {
+    if (id !== e.pointerId) return;
+    // Un toque sin arrastre también mueve la línea ahí (hasta un niño lo entiende).
+    if (!decidido && e.type === 'pointerup' && Math.abs(e.clientY - y0) < 10) { marcar(); desdeX(e.clientX); }
+    id = null;
+    decidido = false;
+  };
+  caja.addEventListener('pointerup', soltar);
+  caja.addEventListener('pointercancel', soltar);
+  rango?.addEventListener('input', () => { marcar(); poner(Number(rango.value)); });
+
+  // Meneo al entrar en pantalla: la línea va y viene para que se note que se mueve (2 veces como máximo).
+  let veces = 0;
+  let reloj = 0;
+  const menear = () => {
+    if (tocado || enPausa() || veces >= 2) return;
+    veces++;
+    const t0 = performance.now();
+    const base = p;
+    const paso = (t: number) => {
+      const k = clamp((t - t0) / 1700);
+      poner(base + Math.sin(k * Math.PI * 2) * 26 * (1 - k * 0.35) * (k < 1 ? 1 : 0));
+      if (k < 1 && !tocado) meneo = requestAnimationFrame(paso);
+      else if (!tocado) { poner(base); reloj = window.setTimeout(menear, 4500); }
+    };
+    meneo = requestAnimationFrame(paso);
+  };
+  const vista = new IntersectionObserver((entradas) => {
+    for (const e of entradas) {
+      window.clearTimeout(reloj);
+      if (e.isIntersecting) reloj = window.setTimeout(menear, 500);
+    }
+  }, { threshold: 0.6 });
+  vista.observe(caja);
+}
 
 export function iniciarMovimiento(): void {
-  const raiz = document.documentElement;
-  const quieto = raiz.hasAttribute('data-quieto');
+  const quieto = enPausa();
   const suave = raiz.hasAttribute('data-suave');
-  const escritorio = window.matchMedia('(min-width: 1024px)');
+
+  iniciarCarriles();
+  iniciarComparador();
 
   // ---------- 0 · Encendido + 1 · titular que se enciende ----------
   const hero = document.querySelector<HTMLElement>('.e2-hero');
@@ -47,7 +272,7 @@ export function iniciarMovimiento(): void {
 
   const vh = () => window.innerHeight;
 
-  // ---------- Registro de efectos ligados al scroll ----------
+  // ---------- Registro de efectos ligados al scroll vertical ----------
   type Efecto = { el: Element; activo: boolean; correr: () => void };
   const efectos: Efecto[] = [];
   const vigia = new IntersectionObserver(
@@ -87,20 +312,15 @@ export function iniciarMovimiento(): void {
   });
 
   // ---------- Loops de video (la foto queda debajo; nunca en modo suave ni con ahorro de datos) ----------
+  // El observador ve también el recorte de los carriles: solo corren la tarjeta visible y la que se asoma.
   const clips = Array.from(document.querySelectorAll<HTMLVideoElement>('video[data-clip]'));
   const ahorro = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
   const visibles = new Set<HTMLVideoElement>();
   let cargada = document.readyState === 'complete';
-  const permitido = (v: HTMLVideoElement) => {
-    const f = v.closest('.e2-imagina__foto');
-    if (f && !f.classList.contains('is-activa')) return false; // en Imagina solo corre la escena activa
-    if (v.hasAttribute('data-clip-tras-carga') && !cargada) return false; // la portada espera a que cargue la página
-    return true;
-  };
   const sincronizarClips = () => {
     if (suave || ahorro) return;
     for (const v of clips) {
-      const debe = visibles.has(v) && permitido(v) && !raiz.hasAttribute('data-quieto');
+      const debe = visibles.has(v) && (cargada || !v.hasAttribute('data-clip-tras-carga')) && !enPausa();
       if (debe) {
         if (!v.getAttribute('src')) v.src = v.dataset.clip!;
         if (v.paused) v.play().catch(() => {}); // si el navegador lo bloquea, se queda la foto
@@ -137,94 +357,7 @@ export function iniciarMovimiento(): void {
     });
   }
 
-  // ---------- 2 · Imagina: la foto fija cambia con cada frase ----------
-  const imagina = document.querySelector<HTMLElement>('[data-imagina]');
-  if (imagina) {
-    const fotos = Array.from(imagina.querySelectorAll<HTMLElement>('.e2-imagina__foto'));
-    const pasos = Array.from(imagina.querySelectorAll<HTMLElement>('.e2-paso'));
-    const hora = imagina.querySelector<HTMLElement>('[data-hora]');
-    let actual = -1;
-    const activar = (n: number) => {
-      if (n === actual) return;
-      actual = n;
-      fotos.forEach((f, i) => f.classList.toggle('is-activa', i === n));
-      sincronizarClips();
-      pasos.forEach((p, i) => p.classList.toggle('is-activo', i === n));
-      if (hora) {
-        hora.style.opacity = '0';
-        window.setTimeout(() => {
-          hora.textContent = pasos[n]?.dataset.horaPaso ?? '';
-          hora.style.opacity = '1';
-        }, 220);
-      }
-    };
-    activar(0);
-    // Manda la FRASE, no el bloque: está activa la última frase que ya subió por encima del 62 % de la pantalla.
-    // Se calcula por posición (no solo al cruzar), así un salto o un scroll rápido nunca deja la foto equivocada.
-    const frases = pasos.map((p) => p.querySelector<HTMLElement>('.e2-frase'));
-    const calcular = () => {
-      const linea = vh() * 0.62;
-      let n = 0;
-      frases.forEach((f, i) => { if (f && f.getBoundingClientRect().top < linea) n = i; });
-      activar(n);
-    };
-    registrar(imagina, calcular);
-    calcular();
-  }
-
-  // ---------- 3 · Contraste: la brasa quema el blanco y negro a color ----------
-  const contraste = document.querySelector<HTMLElement>('[data-contraste]');
-  const tacha = contraste?.querySelector<HTMLElement>('[data-tacha]');
-  registrar(contraste, () => {
-    if (!contraste) return;
-    const r = contraste.getBoundingClientRect();
-    const total = r.height - vh();
-    const p = clamp(-r.top / total);
-    const k = curva(0.12, 0.78, p);
-    if (suave) contraste.style.setProperty('--e2-o', k.toFixed(3));
-    else contraste.style.setProperty('--e2-c', `${((1 - k) * 100).toFixed(2)}%`);
-    tacha?.classList.toggle('is-tachado', p > 0.18);
-  });
-
-  // ---------- 5 · Oficio: carrusel con dedo (móvil) o fijo horizontal (escritorio) ----------
-  const oficio = document.querySelector<HTMLElement>('[data-oficio]');
-  const pista = oficio?.querySelector<HTMLElement>('[data-pista]');
-  if (oficio && pista) {
-    // móvil: la tarjeta del centro crece
-    const tarjetas = Array.from(pista.children) as HTMLElement[];
-    const centro = new IntersectionObserver(
-      (entradas) => {
-        for (const e of entradas) (e.target as HTMLElement).classList.toggle('is-centro', e.intersectionRatio > 0.6);
-      },
-      { root: pista, threshold: [0, 0.6, 1] },
-    );
-    tarjetas.forEach((t) => centro.observe(t));
-    pista.classList.add('is-viva');
-
-    let distancia = 0;
-    const medir = () => {
-      if (escritorio.matches && !suave) {
-        oficio.setAttribute('data-pin-activo', '');
-        distancia = Math.max(0, pista.scrollWidth - window.innerWidth);
-        oficio.style.setProperty('--e2-oficio-h', `${vh() + distancia}px`);
-      } else {
-        oficio.removeAttribute('data-pin-activo');
-        oficio.style.removeProperty('--e2-oficio-h');
-        pista.style.removeProperty('--e2-x');
-      }
-    };
-    medir();
-    window.addEventListener('resize', medir, { passive: true });
-    escritorio.addEventListener?.('change', medir);
-    registrar(oficio, () => {
-      if (suave || !escritorio.matches || !distancia) return;
-      const r = oficio.getBoundingClientRect();
-      const p = clamp(-r.top / (r.height - vh()));
-      pista.style.setProperty('--e2-x', `${(-p * distancia).toFixed(1)}px`);
-    });
-  }
-
-  // ---------- 6 · Una noche real: el dron baja + cifras que cuentan ----------
+  // ---------- 6 · Lo que ya hice: el dron baja + cifras que cuentan ----------
   const zoom = document.querySelector<HTMLElement>('[data-zoom]');
   if (!suave) registrar(zoom?.parentElement ?? null, () => {
     if (!zoom?.parentElement) return;
