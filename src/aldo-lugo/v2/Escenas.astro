@@ -3,7 +3,8 @@
  * Landing v3 — ritmo horizontal, claridad y voz de Aldo (27-nov-2026).
  * Cada escena ≈ una pantalla. Lo que antes era scroll vertical largo ahora son carriles horizontales
  * (v2/Carril.astro) con invitación obvia a deslizar, y el contraste es un comparador que se arrastra de lado.
- * Copy en primera persona, concreto, como escribe Aldo (fuego, leña, técnica; nada de poesía de más).
+ * Copy concreto, como escribe Aldo (fuego, leña, técnica; nada de poesía de más). Desde sus correcciones del
+ * 27-nov (WhatsApp) va en tercera persona ("Aldo lleva el fuego"), con sus nombres: domo, chapa, tomahawk y su menú real.
  * Movimiento: v2/movimiento.ts.
  */
 import Foto from '../components/Foto.astro';
@@ -24,32 +25,34 @@ const R = (id: string, recorte: Recorte, alt = ''): FotoRef => ({ id, recorte, t
 /** Loop de la ranura en esta versión ('' = solo foto). La foto queda debajo; el video entra con fundido al reproducirse. */
 const clip = (r: Ranura | '') => (r && VERSIONES[version].clips[r] ? `/aldo-lugo/video/${VERSIONES[version].clips[r]}.mp4` : '');
 
+/** Estructura y comida, no el lugar ni las mesas: que no se entienda que los eventos son ahí (Aldo, 27-nov). */
 const HISTORIAS = [
-  { hora: '09:00', frase: 'Prendo la leña temprano. El fuego no se apura.', foto: R('F028', '9x16', 'Pollos y berenjenas colgados sobre el fuego'), clip: 'historia-1' as Ranura },
-  { hora: '18:16', frase: 'Baja el sol. El humo ya avisa que algo viene.', foto: R('F013', '9x16', 'La sierra de Durango al atardecer'), clip: 'historia-2' as Ranura },
-  { hora: '19:08', frase: 'La mesa larga se llena.', foto: R('F153', '9x16', 'Mesa larga lista para el banquete'), clip: 'historia-3' as Ranura },
-  { hora: '21:39', frase: 'Y nadie se quiere ir.', foto: R('F255', '9x16', 'Banquete de noche bajo un árbol iluminado'), clip: 'historia-4' as Ranura },
+  { hora: '09:00', frase: 'La leña se prende temprano. El fuego no se apura.', foto: R('F028', '9x16', 'Pollos enteros y berenjenas colgados en el domo, con humo'), clip: 'historia-1' as Ranura },
+  { hora: '18:16', frase: 'Baja el sol. El humo ya avisa que algo viene.', foto: R('V011', '9x16', 'Aldo Lugo entre el humo, junto al domo'), clip: 'historia-2' as Ranura },
+  { hora: '19:08', frase: 'Del fuego al plato, frente a todos.', foto: R('V085', '9x16', 'Aldo Lugo emplata frente a una fila de platos'), clip: 'historia-3' as Ranura },
+  { hora: '21:39', frase: 'Y nadie se quiere ir.', foto: R('V142', '9x16', 'Tuétanos asados, de noche'), clip: 'historia-4' as Ranura },
 ];
 
+/** Nombres y piezas como los dice Aldo (27-nov): domo, chapa, tomahawk, zanahorias en leña de manzano. */
 const OFICIO: { id: string; clip: Ranura; nombre: string; linea: string }[] = [
-  { id: 'F252', clip: 'colgadero', nombre: 'Colgadero', linea: 'Costillar de res colgado sobre leña de encino. Horas de humo.' },
-  { id: 'F139', clip: 'jaula', nombre: 'Jaula', linea: 'Pollo al romero que se dora colgado, despacio.' },
+  { id: 'F252', clip: 'colgadero', nombre: 'Colgadero', linea: 'Tomahawk colgado sobre leña de encino. Horas de humo.' },
+  { id: 'F139', clip: 'domo', nombre: 'Domo', linea: 'Pollo al romero que se dora colgado, despacio.' },
   { id: 'F044', clip: 'parrilla', nombre: 'Parrilla', linea: 'Lomo bridado, término medio. Costra afuera, jugo adentro.' },
-  { id: 'F220', clip: 'disco', nombre: 'Disco', linea: 'Tuétanos al disco, burbujeando sobre la leña.' },
-  { id: 'F250', clip: 'rescoldo', nombre: 'Rescoldo', linea: 'Camote ahumado con leña de manzano, entre la brasa y la ceniza.' },
-  { id: 'F140', clip: 'olla', nombre: 'Olla de leña', linea: 'Arroz cremoso en una olla grande, al centro de la brasa.' },
+  { id: 'F220', clip: 'chapa', nombre: 'Chapa', linea: 'Tuétanos a la chapa.' },
+  { id: 'F250', clip: 'rescoldo', nombre: 'Rescoldo', linea: 'Zanahorias chamuscadas en leña de manzano.' },
+  { id: 'F140', clip: 'olla', nombre: 'Olla de leña', linea: 'Risotto de hongos en una olla grande, al centro de la brasa.' },
 ];
 
-/** El menú de La Tapada de Luna: los 8 platos que hizo Aldo (cuestionario, 24-nov). Solo lo que se ve en foto. */
+/** El menú de La Tapada de Luna: los 8 platos que hizo Aldo, con los nombres que él mandó (27-nov). */
 const PLATOS: { foto: string; clip: Ranura | ''; nombre: string; linea: string }[] = [
-  { foto: 'F203', clip: '', nombre: 'Quesos con ate', linea: 'Para recibir: queso, ate y aceitunas.' },
-  { foto: 'F308', clip: 'plato-tuetanos', nombre: 'Tuétanos al disco', linea: 'Del disco al plato, todavía burbujeando.' },
-  { foto: 'F216', clip: 'plato-longaniza', nombre: 'Longaniza con pistache', linea: 'Asada sobre puré, con pistache encima.' },
-  { foto: 'F276', clip: 'plato-camote', nombre: 'Camote al rescoldo', linea: 'En puré, con carne y hierbas.' },
-  { foto: 'F310', clip: 'plato-arroz', nombre: 'Arroz cremoso', linea: 'De la olla de leña, con carne y queso rallado al momento.' },
-  { foto: 'V055', clip: 'plato-pollo', nombre: 'Pollo al romero', linea: 'Dorado despacio en la jaula.' },
-  { foto: 'F251', clip: 'plato-lomo', nombre: 'Costillar y lomo', linea: 'Horas sobre leña de encino.' },
-  { foto: 'F321', clip: 'plato-postre', nombre: 'Postre', linea: 'Con helado, para cerrar.' },
+  { foto: 'F203', clip: '', nombre: 'Aceitunas a la brasa', linea: 'Maceradas en ajos confitados, con queso añejo.' },
+  { foto: 'F308', clip: 'plato-picadas', nombre: 'Picadas veracruzanas', linea: 'Con mole de guayaba, queso fresco y tuétanos.' },
+  { foto: 'F216', clip: 'plato-hummus', nombre: 'Hummus', linea: 'Con salchicha picante y pistache.' },
+  { foto: 'F276', clip: 'plato-muhamara', nombre: 'Muhamara y kebab', linea: 'Con almendras y pan a la brasa.' },
+  { foto: 'F310', clip: 'plato-risotto', nombre: 'Risotto de hongos', linea: 'Con cabrería sin hueso y provolone ahumado.' },
+  { foto: 'V055', clip: 'plato-pollo', nombre: 'Pollo al romero', linea: 'Dorado despacio en el domo.' },
+  { foto: 'F251', clip: 'plato-tomahawk', nombre: 'Tomahawk en colgadero', linea: 'Horas sobre leña de encino.' },
+  { foto: 'F321', clip: 'plato-postre', nombre: 'Calabaza en tacha', linea: 'Con helado de requesón y guayaba.' },
 ];
 
 const MESAS: Record<string, string> = {
@@ -59,7 +62,7 @@ const MESAS: Record<string, string> = {
   'fuego-de-marca': 'Cierres de año, lanzamientos y comidas con clientes.',
 };
 
-const LUGAR = ['Espacio al aire libre para el fuego', 'Que se permita leña', 'Que mi equipo pueda llegar', 'Un plan por si llueve'];
+const LUGAR = ['Espacio al aire libre para el fuego', 'Que se permita leña', 'Que el equipo pueda llegar', 'Un plan por si llueve'];
 const BRASAS = Array.from({ length: 9 }, (_, i) => i);
 ---
 <script is:inline>
@@ -85,7 +88,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
       <FotoArte
         movil={R('F080', '9x16')}
         escritorio={R('F080', '4x5')}
-        alt="Aldo Lugo cocinando frente al colgadero de hierro, con costillares sobre la leña encendida"
+        alt="Aldo Lugo cocinando frente al colgadero de hierro, con tomahawks sobre la leña encendida"
         loading="eager"
         fetchpriority="high"
         sizesMovil="100vw"
@@ -97,11 +100,11 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     <div class="e2-brasas" aria-hidden="true">{BRASAS.map((i) => <i style={`--i:${i}`}></i>)}</div>
   </div>
   <div class="e2-hero__texto">
-    <p class="e2-label">Aldo Lugo · Chef · Durango</p>
+    <p class="e2-label">Banquetes · Outdoor kitchen · Show cooking</p>
     <h1 id="e2-h1" class="e2-h1 e2-hero__h1">
       {['Banquetes', 'al', 'fuego', 'para', 'tu', 'evento.'].map((p, i) => <Fragment><span style={`--i:${i}`}>{p}</span>{i < 5 ? ' ' : ''}</Fragment>)}
     </h1>
-    <p class="e2-hero__sub">Bodas, cumpleaños y empresas, de 10 a 300 personas. <strong>Tú pones el lugar, yo llevo el fuego.</strong></p>
+    <p class="e2-hero__sub">Cocina de brasa y fuego para bodas, cumpleaños y empresas, de 10 a 300 personas. <strong>Tú pones el lugar, Aldo lleva el fuego.</strong></p>
     <div class="e2-hero__ctas" data-hero-cta>
       <a class="al-btn al-btn--primario" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
       <a class="e2-enlace" href="#asi-se-vive">Ver cómo se vive <span aria-hidden="true">→</span></a>
@@ -130,7 +133,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     ))}
     <li class="e2-carril__item e2-historia e2-historia--fin" aria-roledescription="diapositiva" aria-label={`${HISTORIAS.length + 1} de ${HISTORIAS.length + 1}`}>
       <div class="e2-historia__fin">
-        <p class="e2-historia__fin-txt">Eso es una<br /><em>Mesa de Lumbre.</em></p>
+        <p class="e2-historia__fin-txt">Eso se siente<br /><em>con el alma.</em></p>
         <a class="al-btn al-btn--primario" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
       </div>
     </li>
@@ -142,15 +145,15 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   <header class="e2-cab">
     <p class="e2-label">La diferencia</p>
     <h2 id="e2-contraste-h2" class="e2-h2">Aquí nada llega <em>de charola.</em></h2>
-    <p class="e2-cab__sub">Cocino frente a tus invitados. Lo que sale del fuego va directo a la mesa.</p>
+    <p class="e2-cab__sub">Se cocina frente a tus invitados: una experiencia de cercanía con el producto.</p>
   </header>
   <div class="e2-antes" data-antes style="--p:58%">
     <div class="e2-antes__capa e2-antes__capa--bn" aria-hidden="true">
       <FotoArte movil={R('F220', '4x5')} escritorio={R('F220', '4x5')} decorativa sizesMovil="100vw" sizesEscritorio="60vw" />
     </div>
     <div class="e2-antes__capa e2-antes__capa--color">
-      <FotoArte movil={R('F220', '4x5')} escritorio={R('F220', '4x5')} alt="Tuétanos al disco sobre la leña encendida" sizesMovil="100vw" sizesEscritorio="60vw" />
-      {clip('disco') && <video class="e2-clip" data-clip={clip('disco')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
+      <FotoArte movil={R('F220', '4x5')} escritorio={R('F220', '4x5')} alt="Tuétanos a la chapa sobre la leña encendida" sizesMovil="100vw" sizesEscritorio="60vw" />
+      {clip('chapa') && <video class="e2-clip" data-clip={clip('chapa')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
     </div>
     <span class="e2-antes__et e2-antes__et--izq" aria-hidden="true">Servido</span>
     <span class="e2-antes__et e2-antes__et--der" aria-hidden="true">Al fuego</span>
@@ -173,8 +176,8 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     </figure>
     <div class="e2-guia__texto">
       <p class="e2-label">Quién cocina</p>
-      <h2 id="e2-guia-h2" class="e2-h2 al-revela">Soy Aldo Lugo.</h2>
-      <p class="e2-guia__linea al-revela">Llevo 18 años en la cocina. Mi cocina es libre y de mucha técnica: leña, brasa, rescoldo… y precisión.</p>
+      <h2 id="e2-guia-h2" class="e2-h2 al-revela">Aldo Lugo.</h2>
+      <p class="e2-guia__linea al-revela">Lleva 18 años en la cocina. Su cocina es libre y de mucha técnica: leña, brasa, rescoldo… y precisión.</p>
       <blockquote class="e2-cita al-revela">
         <p>“Cocinar es una forma de comunicar, de expresar quién eres.”</p>
       </blockquote>
@@ -213,7 +216,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   <header class="e2-cab">
     <p class="e2-label">El menú · La Tapada de Luna</p>
     <h2 id="e2-platos-h2" class="e2-h2">Lo que llegó <em>a la mesa.</em></h2>
-    <p class="e2-cab__sub">Los 8 platos que cociné para 200 invitados. Cada menú lo armo contigo.</p>
+    <p class="e2-cab__sub">Los 8 platos que Aldo cocinó para 200 invitados. Cada menú se arma contigo.</p>
   </header>
   <Carril etiqueta="Los platos del menú" n={PLATOS.length} tema="dia">
     {PLATOS.map((p, i) => (
@@ -230,7 +233,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   </Carril>
 </section>
 
-<!-- 6 · Lo que ya hice -->
+<!-- 6 · Un evento real -->
 <section id={SECCIONES.unaNoche} class="e2-prueba" aria-labelledby="e2-prueba-h2">
   <div class="e2-prueba__dron">
     <div class="e2-prueba__zoom" data-zoom>
@@ -238,9 +241,9 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
       {clip('prueba') && <video class="e2-clip" data-clip={clip('prueba')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
     </div>
     <div class="e2-prueba__texto">
-      <p class="e2-label e2-label--claro">Lo que ya hice · Chef invitado · nov 2026</p>
+      <p class="e2-label e2-label--claro">Un evento real · Chef invitado · nov 2026</p>
       <h2 id="e2-prueba-h2" class="e2-h2">La Tapada de Luna</h2>
-      <p class="e2-prueba__linea">Nombre de Dios, Durango. Cociné con mi brigada para todos los invitados.</p>
+      <p class="e2-prueba__linea">Nombre de Dios, Durango. Aldo y su brigada cocinaron para todos los invitados.</p>
       <dl class="e2-cifras">
         <div><dt><span data-cuenta="200">200</span></dt><dd>invitados</dd></div>
         <div><dt><span data-cuenta="7">7</span></dt><dd>tiempos</dd></div>
@@ -254,7 +257,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
 <section id={SECCIONES.experiencias} class="e2-sec e2-mesas" data-tema="dia" aria-labelledby="e2-mesas-h2">
   <header class="e2-cab">
     <p class="e2-label">Tu evento · de 10 a 300 personas</p>
-    <h2 id="e2-mesas-h2" class="e2-h2">Tú pones el lugar.<br /><em>Yo llevo el fuego.</em></h2>
+    <h2 id="e2-mesas-h2" class="e2-h2">Tú pones el lugar.<br /><em>Aldo lleva el fuego.</em></h2>
   </header>
   <Carril etiqueta="Tipos de evento" n={OFERTA.formatos.length} tema="dia">
     {OFERTA.formatos.map((f, i) => (
@@ -278,15 +281,15 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   </details>
 </section>
 
-<!-- 8 · Así empezamos -->
+<!-- 8 · Así empieza -->
 <section id={SECCIONES.proceso} class="e2-pasos" aria-labelledby="e2-pasos-h2">
-  <h2 id="e2-pasos-h2" class="e2-h2 al-revela">Así empezamos.</h2>
+  <h2 id="e2-pasos-h2" class="e2-h2 al-revela">Así empieza.</h2>
   <ol class="e2-pasos__lista">
-    <li class="al-revela"><span class="e2-sello">1</span><p><strong>Me cuentas tu fecha.</strong> Dos minutos.</p></li>
-    <li class="al-revela" style="--al-delay:120ms"><span class="e2-sello">2</span><p><strong>Vemos tu lugar y armamos el menú.</strong></p></li>
-    <li class="al-revela" style="--al-delay:240ms"><span class="e2-sello">3</span><p><strong>Prendo el fuego.</strong></p></li>
+    <li class="al-revela"><span class="e2-sello">1</span><p><strong>Comparte tu fecha.</strong> Dos minutos.</p></li>
+    <li class="al-revela" style="--al-delay:120ms"><span class="e2-sello">2</span><p><strong>Aldo revisa tu lugar y arma el menú contigo.</strong></p></li>
+    <li class="al-revela" style="--al-delay:240ms"><span class="e2-sello">3</span><p><strong>Aldo prende el fuego.</strong></p></li>
   </ol>
-  <p class="e2-pasos__nota al-revela">Cada evento lo preparo desde cero. Aparta tu fecha con tiempo.</p>
+  <p class="e2-pasos__nota al-revela">Cada evento se prepara desde cero. Aparta tu fecha con tiempo.</p>
 </section>
 
 <!-- 9 · Preguntas -->
@@ -295,7 +298,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
 <!-- 10 · Cierre -->
 <section id={SECCIONES.cierre} class="e2-cierre" aria-labelledby="e2-cierre-h2" data-oculta-barra>
   <div class="e2-cierre__media">
-    <FotoArte movil={R('F289', '9x16')} escritorio={R('F289', '16x9')} alt="Piedra volcánica incandescente entre piñas de agave, bajo luces colgantes" sizesMovil="100vw" sizesEscritorio="100vw" />
+    <FotoArte movil={R('VC2068', '9x16')} escritorio={R('VC2068', '16x9')} alt="Leña ardiendo dentro de una reja de hierro" sizesMovil="100vw" sizesEscritorio="100vw" />
     {clip('cierre') && <video class="e2-clip" data-clip={clip('cierre')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
     <span class="e2-cierre__luz" aria-hidden="true"></span>
     <div class="e2-brasas e2-brasas--cierre" aria-hidden="true">{BRASAS.map((i) => <i style={`--i:${i}`}></i>)}</div>
@@ -304,7 +307,6 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     <p class="e2-cierre__antes al-revela">El fuego se apaga.</p>
     <h2 id="e2-cierre-h2" class="e2-h1 al-revela">La noche<br />se queda.</h2>
     <a id={SECCIONES.tuFecha} class="al-btn al-btn--primario al-revela" href={`#${SECCIONES.tuFecha}`} data-abrir-hoja>{CTA.principal}</a>
-    <p class="e2-credito">Brasa del horno de tierra del maestro mezcalero Paco Camacho · La Tapada de Luna · Foto: @ananda_creativo</p>
   </div>
 </section>
 

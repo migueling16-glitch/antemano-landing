@@ -102,16 +102,16 @@ def S(id_, recorte, caja, alt, **kw) -> Salida:
 # Inventario de fotos del demo (propuesta §5, recortes de seleccion_fotos.md §2–§3 y ESPEC §5.5 donde existen).
 # Las cajas están en píxeles del original. Las verticales miden 2500 × 3750; las horizontales, 2500 × 1667 (dron 1665).
 # ---------------------------------------------------------------------------------------------------------------
-ALT_F080 = "Aldo Lugo frente al colgadero de hierro, con costillares sobre la leña encendida"
+ALT_F080 = "Aldo Lugo frente al colgadero de hierro, con tomahawks sobre la leña encendida"
 ALT_F019 = "Vista aérea al atardecer: mesas largas en cruz, la cocina de leña encendida y la ex hacienda bajo la sierra"
 ALT_F013 = "La sierra de Durango al atardecer, con el valle y la hacienda en penumbra"
 ALT_F009 = "Campo de agaves y la sierra vistos desde el dron"
 ALT_F062 = "Pabellón de piedra con una pila de piñas de agave y luces colgantes"
 ALT_F289 = "Piedra volcánica incandescente rodeada de piñas de agave en el horno de tierra de los maestros mezcaleros"
-ALT_F139 = "Pollo entero amarrado con hilo y romero, colgado entre berenjenas"
+ALT_F139 = "Pollo entero amarrado con hilo y romero, colgado en el domo entre berenjenas"
 ALT_F153 = "Mesa larga con bajoplatos de palma, en perspectiva"
-ALT_F203 = "Plato de vidrio verde con cubos de queso y ate, visto desde arriba"
-ALT_F216 = "Platos de loza verde con puré, longaniza asada y pistache"
+ALT_F203 = "Aceitunas a la brasa con cubos de queso añejo en un plato de vidrio verde, visto desde arriba"
+ALT_F216 = "Platos de loza verde con hummus, salchicha picante y pistache"
 
 FOTOS: list[Foto] = [
     # ── v2 (guion GUION_LANDING_v2.md). Cajas compuestas a mano: coronilla al 12–25 % desde arriba, sujeto
@@ -140,8 +140,8 @@ FOTOS: list[Foto] = [
     ], noche=True, nota="Siempre desde x ≥ 1300: fuera la carpa de Coca-Cola y el neón; los invitados quedan lejos."),
     # Escena 3 · El contraste (de B/N a color en el navegador; se exporta en color)
     Foto("F220", "brasa", [
-        S("F220", "9x16", (0, 0, 2109, 3750), "Disco de acero en llamas con tuétanos alrededor", anchos=MEDIA),
-        S("F220", "4x5", (0, 30, 2125, 2686), "Disco de acero con leña encendida al centro y tuétanos alrededor", anchos=MEDIA),
+        S("F220", "9x16", (0, 0, 2109, 3750), "Chapa de acero en llamas con tuétanos alrededor", anchos=MEDIA),
+        S("F220", "4x5", (0, 30, 2125, 2686), "Chapa de acero con leña encendida al centro y tuétanos alrededor", anchos=MEDIA),
     ]),
     # Escena 4 · El que cuida el fuego. F042 mira a cámara (coronilla y≈1000 → 18 %); F249 coronilla y≈800 → 17 %.
     Foto("F042", "carbon", [S("F042", "4x5", (0, 505, 2200, 3255),
@@ -149,11 +149,11 @@ FOTOS: list[Foto] = [
          mezcla_bn=(0.45, 0.45, 0.10), nota="Termina en x 2200: fuera el cocinero de la derecha."),
     Foto("F249", "brasa", [S("F249", "4x5", (0, 269, 2500, 3394), "Aldo Lugo emplata a contraluz, al atardecer", anchos=GRANDE)]),
     # Escena 5 · Cada pieza pide su fuego
-    Foto("F252", "brasa", [S("F252", "4x5", (0, 520, 2200, 3270), "Costillares enteros colgados en un bastidor de hierro sobre la leña")]),
+    Foto("F252", "brasa", [S("F252", "4x5", (0, 520, 2200, 3270), "Tomahawks colgados en un bastidor de hierro sobre la leña")]),
     Foto("F139", "brasa", [S("F139", "4x5", (0, 450, 2500, 3575), ALT_F139)]),
     Foto("F044", "brasa", [S("F044", "4x5", (0, 500, 2500, 3625), "Lomos bridados sobre la parrilla, entre llama y brasa")]),
-    Foto("F250", "brasa", [S("F250", "4x5", (100, 350, 2400, 3225), "Camotes tatemados sobre brasa y ceniza")]),
-    Foto("F140", "brasa", [S("F140", "4x5", (100, 1000, 2000, 3375), "Olla grande de arroz cremoso sobre la brasa")],
+    Foto("F250", "brasa", [S("F250", "4x5", (100, 350, 2400, 3225), "Zanahorias chamuscadas sobre brasa y ceniza")]),
+    Foto("F140", "brasa", [S("F140", "4x5", (100, 1000, 2000, 3375), "Olla grande de risotto de hongos sobre la brasa")],
          nota="El recorte deja fuera la cara del cocinero de la derecha y a la persona del borde izquierdo."),
     # Escena 6 · Una noche real
     Foto("F019", "brasa", [
@@ -170,7 +170,7 @@ FOTOS: list[Foto] = [
              dict(tipo="rellenar", caja=(1944, 902, 1966, 916), pluma=2),
          ],
          nota="Retoque automático provisional (neón, insignia y patrón del food truck, letrero del carrito)."),
-    Foto("F174", "brasa", [S("F174", "4x5", (940, 380, 1800, 1455), "La cocina de fuego abierta: pila de leña, jaula colgante y humo bajo los mezquites")]),
+    Foto("F174", "brasa", [S("F174", "4x5", (940, 380, 1800, 1455), "La cocina de fuego abierta: pila de leña, domo colgante y humo bajo los mezquites")]),
     Foto("F216", "brasa", [S("F216", "4x5", (0, 350, 2500, 3475), ALT_F216)]),
     # Escena 7 · Tu mesa
     Foto("F307", "brasa", [S("F307", "4x5", (0, 350, 2500, 3475), "Tuétanos asados en platos de vidrio ámbar sobre una mesa de madera")]),
@@ -185,13 +185,23 @@ FOTOS: list[Foto] = [
     ], noche=True, nota="Todos los recortes terminan antes de x 2200: fuera la carretilla roja."),
     # Sección de platos (menú de La Tapada, 27-nov-2026). Solo el plato: sin caras ni marcas.
     Foto("F203", "brasa", [S("F203", "4x5", (380, 730, 2180, 2980), ALT_F203, anchos=MINI)]),
-    Foto("F308", "brasa", [S("F308", "4x5", (300, 450, 2500, 3200), "Tuétanos asados en un plato de vidrio ámbar", anchos=MINI)], noche=True),
-    Foto("F276", "brasa", [S("F276", "4x5", (200, 850, 2200, 3350), "Puré de camote con carne y hierbas en platos de cerámica", anchos=MINI)], noche=True),
-    Foto("F310", "brasa", [S("F310", "4x5", (150, 1450, 1950, 3700), "Arroz cremoso con carne rebanada y queso rallado al momento", anchos=MINI)],
+    Foto("F308", "brasa", [S("F308", "4x5", (300, 450, 2500, 3200), "Picadas con tuétanos asados en un plato de vidrio ámbar", anchos=MINI)], noche=True),
+    Foto("F276", "brasa", [S("F276", "4x5", (200, 850, 2200, 3350), "Muhamara con kebab y almendras en platos de cerámica", anchos=MINI)], noche=True),
+    Foto("F310", "brasa", [S("F310", "4x5", (150, 1450, 1950, 3700), "Risotto de hongos con cabrería rebanada y provolone rallado al momento", anchos=MINI)],
          noche=True, nota="Empieza en y 1450: fuera la cara del cocinero."),
-    Foto("F251", "brasa", [S("F251", "4x5", (0, 500, 2500, 3625), "Piezas de res colgadas de ganchos sobre la parrilla", anchos=MINI)]),
-    Foto("F321", "brasa", [S("F321", "4x5", (280, 650, 2080, 2900), "Postre con helado y salsa en un platito blanco", anchos=MINI)], noche=True),
-    Foto("V055", "brasa", [S("V055", "4x5", (0, 470, 1080, 1820), "Pollo al romero colgado en la jaula, entre berenjenas", anchos=MINI)]),
+    Foto("F251", "brasa", [S("F251", "4x5", (0, 500, 2500, 3625), "Tomahawks colgados de ganchos sobre la parrilla", anchos=MINI)]),
+    Foto("F321", "brasa", [S("F321", "4x5", (280, 650, 2080, 2900), "Calabaza en tacha con helado de requesón y guayaba en un platito blanco", anchos=MINI)], noche=True),
+    Foto("V055", "brasa", [S("V055", "4x5", (0, 470, 1080, 1820), "Pollo al romero colgado en el domo, entre berenjenas", anchos=MINI)]),
+    # Correcciones de Aldo (27-nov): "Así se vive" con estructura y comida (cuadros de los clips, 1080 × 1920 = 9:16 completo)
+    # y el cierre con fuego prendiendo de su cocina (carpeta de Canito, sin marca a la vista).
+    Foto("V011", "brasa", [S("V011", "9x16", (0, 0, 1080, 1920), "Aldo Lugo entre el humo, junto al domo con piñas y berenjenas", anchos=MEDIA)]),
+    Foto("V085", "brasa", [S("V085", "9x16", (0, 0, 1080, 1920), "Aldo Lugo emplata frente a una fila de platos", anchos=MEDIA)]),
+    Foto("V142", "brasa", [S("V142", "9x16", (0, 0, 1080, 1920), "Picadas con tuétanos asados en un plato de vidrio ámbar, de noche", anchos=MEDIA)],
+         noche=True),
+    Foto("VC2068", "brasa", [
+        S("VC2068", "9x16", (0, 0, 1080, 1920), "Leña ardiendo dentro de una reja de hierro", anchos=MEDIA),
+        S("VC2068", "16x9", (0, 660, 1080, 1268), "Leña ardiendo dentro de una reja de hierro", anchos=MEDIA),
+    ], noche=True, nota="Cuadro del clip C2068 (Clips Drive/Noviembre)."),
 ]
 
 OG_CAJA = (80, 40, 2500, 1311)  # F019 (retocada), 1200 × 630; el recorte quita el neón Audi

@@ -144,14 +144,14 @@ const anio = 2026;
     <footer class="al-pie" data-tema="noche">
       <div class="al-wrap al-pie__in">
         <a class="al-pie__logo" href={`${BASE}/`} aria-label={`${SITIO.marca}, inicio`}><Logo tipo="logotipo" decorativo /></a>
-        <p class="al-label al-pie__linea">{SITIO.linea} · Banquetes al fuego · Durango</p>
+        <p class="al-label al-pie__linea">{SITIO.linea}</p>
         <ul class="al-pie__lista">
           <li><span class="al-muted">WhatsApp</span> <Dato valor={null} etiqueta="número" pregunta={16} /></li>
           <li><a href={SITIO.instagram.url} target="_blank" rel="noopener">@{SITIO.instagram.usuario}</a></li>
           <li><span class="al-muted">Aviso de privacidad</span> <Dato valor={DATOS.avisoPrivacidadUrl} etiqueta="aviso" pregunta={18} /></li>
           <li><span class="al-muted">Razón social y RFC</span> <Dato valor={DATOS.razonSocial} etiqueta="datos fiscales" pregunta={18} /></li>
         </ul>
-        <p class="al-small al-muted">{CREDITO_FOTOS}. Horno de tierra: maestro mezcalero Paco Camacho.</p>
+        <p class="al-small al-muted">{CREDITO_FOTOS}.</p>
         <div class="al-pie__base">
           <p class="al-small al-muted">© {anio} {SITIO.chef}{DEMO && ' · Demo preparado por Antemano'}</p>
           <button class="al-movimiento" type="button" data-al-movimiento aria-pressed="false">Pausar movimiento</button>

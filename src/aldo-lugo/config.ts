@@ -133,7 +133,8 @@ export function textoPlano(t: Texto): string {
 
 export const SITIO = {
   marca: 'ALDO chef LUGO',
-  linea: 'Mesa de Lumbre',
+  /** Lema que pidió Aldo (27-nov): va bajo el logotipo, en el pie. */
+  linea: 'Experiencias gastronómicas que se sienten con el alma',
   chef: 'Aldo Lugo',
   concepto: 'Un banquete que empieza cuando se enciende el fuego y termina en la sobremesa.',
   promesa: 'Ustedes eligen el lugar. Nosotros llevamos el fuego.',
@@ -144,7 +145,7 @@ export const SITIO = {
   seo: {
     title: 'Banquetes al fuego para bodas y eventos en Durango | Aldo Lugo',
     description:
-      'Bodas, cumpleaños, fiestas y eventos de empresa de 10 a 300 invitados, cocinados con leña y brasa en el lugar que elijas. Revisa tu fecha.',
+      'Banquetes, outdoor kitchen y show cooking con cocina de brasa y fuego para bodas, cumpleaños y eventos de empresa de 10 a 300 invitados, en el lugar que elijas.',
   },
   cuestionario: {
     title: 'Cuestionario para el chef | Aldo Lugo · Mesa de Lumbre',
@@ -286,13 +287,13 @@ export const LUMBRES = {
       id: 'colgadero',
       nombre: 'Colgadero',
       vista: 'Bastidor de hierro con costillares colgados sobre leña',
-      linea: 'Costillares enteros colgados sobre la leña. Horas de humo antes del primer corte.',
+      linea: 'Tomahawks colgados sobre la leña. Horas de humo antes del primer corte.',
       foto: foto('F252', '4x5', 'brasa', 'Costillares enteros colgados en un bastidor de hierro sobre la leña'),
       confirmada: false,
     },
     {
       id: 'jaula',
-      nombre: 'Jaula',
+      nombre: 'Domo',
       vista: 'Domo de varilla con pollos al romero, coles y berenjenas colgados',
       linea: 'Un domo de varilla con fuego al pie. Pollos al romero y verduras que se doran colgando.',
       foto: foto('F151', '4x5', 'brasa', 'Aldo Lugo, con guante rojo, junto a la jaula de varilla con pollos y verduras colgados sobre el fuego', {
@@ -310,9 +311,9 @@ export const LUMBRES = {
     },
     {
       id: 'disco',
-      nombre: 'Disco',
+      nombre: 'Chapa',
       vista: 'Disco de acero con leña al centro y tuétanos',
-      linea: 'Acero al rojo con leña al centro. Tuétanos que salen burbujeando.',
+      linea: 'Acero al rojo con leña al centro. Tuétanos a la chapa.',
       foto: foto('F220', '4x5', 'brasa', 'Disco de acero con leña encendida al centro y tuétanos alrededor'),
       confirmada: false,
     },
@@ -320,7 +321,7 @@ export const LUMBRES = {
       id: 'rescoldo',
       nombre: 'Rescoldo',
       vista: 'Camote tatemado sobre brasa y ceniza',
-      linea: 'Camote sobre brasa y ceniza caliente. Sale dulce y con sabor a tierra.',
+      linea: 'Zanahorias chamuscadas en leña de manzano, entre la brasa y la ceniza.',
       foto: foto('F250', '4x5', 'brasa', 'Camotes tatemados sobre brasa y ceniza'),
       confirmada: false,
     },
