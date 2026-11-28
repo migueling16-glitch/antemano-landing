@@ -45,6 +45,8 @@ AQUI = Path(__file__).resolve().parent
 RAIZ = AQUI.parents[2]
 ORIGINALES = Path(os.environ.get("ALDO_FOTOS", r"C:\Users\migue\Videos\Canito\Chef Aldo Lugo\02_Fotos\00_Originales_Drive"))
 INVENTARIO = ORIGINALES.parent / "_analisis" / "inventario.csv"
+# Cuadros fijos sacados de los clips del evento (1080×1920) para platos sin foto: ids "Vxxx" (03_Video/_cuadros).
+CUADROS = ORIGINALES.parents[1] / "03_Video" / "_cuadros"
 SALIDA = RAIZ / "public" / "aldo-lugo" / "fotos"
 JSON = RAIZ / "src" / "aldo-lugo" / "fotos.json"
 OG = RAIZ / "public" / "aldo-lugo" / "og.jpg"
@@ -181,6 +183,15 @@ FOTOS: list[Foto] = [
         S("F289", "9x16", (843, 0, 1781, 1667), ALT_F289, anchos=MEDIA, credito=CREDITO_MEZCALEROS),
         S("F289", "16x9", (0, 300, 2180, 1526), ALT_F289, anchos=GRANDE, credito=CREDITO_MEZCALEROS),
     ], noche=True, nota="Todos los recortes terminan antes de x 2200: fuera la carretilla roja."),
+    # Sección de platos (menú de La Tapada, 27-nov-2026). Solo el plato: sin caras ni marcas.
+    Foto("F203", "brasa", [S("F203", "4x5", (380, 730, 2180, 2980), ALT_F203, anchos=MINI)]),
+    Foto("F308", "brasa", [S("F308", "4x5", (300, 450, 2500, 3200), "Tuétanos asados en un plato de vidrio ámbar", anchos=MINI)], noche=True),
+    Foto("F276", "brasa", [S("F276", "4x5", (200, 850, 2200, 3350), "Puré de camote con carne y hierbas en platos de cerámica", anchos=MINI)], noche=True),
+    Foto("F310", "brasa", [S("F310", "4x5", (150, 1450, 1950, 3700), "Arroz cremoso con carne rebanada y queso rallado al momento", anchos=MINI)],
+         noche=True, nota="Empieza en y 1450: fuera la cara del cocinero."),
+    Foto("F251", "brasa", [S("F251", "4x5", (0, 500, 2500, 3625), "Piezas de res colgadas de ganchos sobre la parrilla", anchos=MINI)]),
+    Foto("F321", "brasa", [S("F321", "4x5", (280, 650, 2080, 2900), "Postre con helado y salsa en un platito blanco", anchos=MINI)], noche=True),
+    Foto("V055", "brasa", [S("V055", "4x5", (0, 470, 1080, 1820), "Pollo al romero colgado en la jaula, entre berenjenas", anchos=MINI)]),
 ]
 
 OG_CAJA = (80, 40, 2500, 1311)  # F019 (retocada), 1200 × 630; el recorte quita el neón Audi
@@ -365,7 +376,7 @@ def inventario() -> dict[str, str]:
 
 
 def cargar(foto: Foto, inv: dict[str, str]) -> np.ndarray:
-    ruta = ORIGINALES / inv[foto.id]
+    ruta = CUADROS / f"{foto.id}.jpg" if foto.id.startswith("V") else ORIGINALES / inv[foto.id]
     with Image.open(ruta) as im:
         im = ImageOps.exif_transpose(im)
         icc = im.info.get("icc_profile")

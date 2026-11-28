@@ -427,6 +427,28 @@
     "lqip": "data:image/webp;base64,UklGRtAAAABXRUJQVlA4IMQAAABwBQCdASoYAB4APu1gp02ppaOiMAgBMB2JZQDE2BuU5eVUcisx/0RwfYSq2KJREWp9Me8CAOHasrWMmOEU5AjkFAgDKEevxlGqFkrfZuaw2FqUMG65lKpm3/9tDWRW+Arfx2sXA3iUo9v6b/BK9fis1x+bC6mwNrkgmUQKLVejTVyshBHy7V8agSf00pX8Q/HbfrWxymqfgKo1omHGKb1Apb6C6nzjrap67Xm4ZyBxgfsePr3Ee6ajFA6KEYcH6B6a4AAA",
     "alt": "La cocina de fuego abierta: pila de leña, jaula colgante y humo bajo los mezquites"
   },
+  "F203-4x5": {
+    "id": "F203",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 768,
+    "alto": 960,
+    "anchos": [
+      480,
+      768
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/F203-4x5-480.avif",
+      "/aldo-lugo/fotos/F203-4x5-768.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/F203-4x5-480.webp",
+      "/aldo-lugo/fotos/F203-4x5-768.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/F203-4x5-768.jpg",
+    "lqip": "data:image/webp;base64,UklGRsIAAABXRUJQVlA4ILYAAACQBQCdASoYAB4APu1mrE8ppaQiMBgIATAdiWQAtOgQ56jIBM+NccYPUgx0pISAvcEXFa3lgAD+jCyOamUNePUOHqiXEXTMo1Jw8v7/dpjmyqMAk3DNGWZXueQcWCcqduBWGemTIGfT2Jtqi9b0sGIfJ/qMxPF6iHZvXwf9KagdypSAJp3VrKaHaGe4zaNE64BCTHxR5/qQZU3p5TpLMnZqYk8x09hdJT+vZuURlh07s8HS14ZoAA==",
+    "alt": "Plato de vidrio verde con cubos de queso y ate, visto desde arriba"
+  },
   "F216-4x5": {
     "id": "F216",
     "recorte": "4x5",
@@ -555,6 +577,28 @@
     "lqip": "data:image/webp;base64,UklGRigBAABXRUJQVlA4IBwBAADwBgCdASoYAB4APu1gp02ppSOiMAgBMB2JbACdOUFUvioIFR/y75pL2gBIMLuRzF+usnofRh0jJzVTFXXMgcAAAPzv/gD1RRHNzeMIRs2WJhb7UjfxttruY+4mTqhscPsbzekSJYvwm2i7ZiC0SemeIuPUuGw32QFZz1q7pjrP8tikC7mnw7aYZH+S0ilHAd5MWMau1v+GWf0VNadRBcue4alhEvB82eVPG2ld9QbV+6c2YWxHRR7IxPl0NEQICyvDdNH51KzKBfIxKVSDZXlovphy+n+2jOUaDyFCDDwvBNaswNc0XmNe7v1+EZRv58Ms5blwOdSdUQlN9S48xKpC9F5HvztynRYxvbwFHdtvumTgPJtxMLw5/AAcAA==",
     "alt": "Camotes tatemados sobre brasa y ceniza"
   },
+  "F251-4x5": {
+    "id": "F251",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 768,
+    "alto": 960,
+    "anchos": [
+      480,
+      768
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/F251-4x5-480.avif",
+      "/aldo-lugo/fotos/F251-4x5-768.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/F251-4x5-480.webp",
+      "/aldo-lugo/fotos/F251-4x5-768.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/F251-4x5-768.jpg",
+    "lqip": "data:image/webp;base64,UklGRiYBAABXRUJQVlA4IBoBAADwBQCdASoYAB4APu1mqk2ppaQiMAgBMB2JZgCdMoR8/fxl3Drnn+wjau+OzoZ4AVPchJqktN/0gAD+zCDSPRXXyr7fkvt+6vtqVqRwMY8TEq3bsEEEWxTB/eVbNM8RdmiBfza8+BOmtqrmUUAuqcpivJdyn1DyZE2LO2oW7mM5urbDDqDtRRla/Q75omnngCrE5pBp8yfdRFGI68WRYoJqU2X9yCpHYbOQGj6jfKWs7mJa/XHkg4SywWXdWNTZYpCCc8CrvHDAWwHmee7xQBX3GXW+iHZMcPpAecvDOgJrlQ/nQTS0HbhCODJyybQ6HAO/zFdMCJU1nHL7gvnNNiyGhU2lES6wK616as2+Q8WEO9Rbxu+syXysgAA=",
+    "alt": "Piezas de res colgadas de ganchos sobre la parrilla"
+  },
   "F252-4x5": {
     "id": "F252",
     "recorte": "4x5",
@@ -629,6 +673,28 @@
     "jpg": "/aldo-lugo/fotos/F255-9x16-938.jpg",
     "lqip": "data:image/webp;base64,UklGRhgBAABXRUJQVlA4IAwBAAAQBgCdASoYACsAPu1wrVKppiQipWsxMB2JZACpJ0zHYi+uNy8E9Mwg5f9GFNf5ko0zNbY3PaVqRDwA/t9h0di1RTaWnUS0GlHxEaXIM8hRCMzULR1+KllW9cSu3UeB3u4WJThlqxV+Sypv45wQLEzMFbncj0KLImAFdnxGksVXf9SeTAm8DFdDC4wQ/3wK3e1A8rBC70K6NRzbaArAyk62Z1WD0hR1Ty4Yvj8LyrLHfjxLxef2XGuqTimjWvaFONoI18o1jQBkL79wtXurL9sluoe7ksINRtnpDfjNAt2fwK7e39KodJ9sWiTM7G4+rGiHfVlLwnZ9bDK5qeSI3X3z15y79pu4bx6FqAAA",
     "alt": "Banquete de noche bajo un árbol iluminado y estrellas de papel"
+  },
+  "F276-4x5": {
+    "id": "F276",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 768,
+    "alto": 960,
+    "anchos": [
+      480,
+      768
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/F276-4x5-480.avif",
+      "/aldo-lugo/fotos/F276-4x5-768.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/F276-4x5-480.webp",
+      "/aldo-lugo/fotos/F276-4x5-768.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/F276-4x5-768.jpg",
+    "lqip": "data:image/webp;base64,UklGRj4BAABXRUJQVlA4IDIBAACwBgCdASoYAB4APu1gp02ppSOiMAgBMB2JbACdMoR/d4K3EKhESA9GCW6/J9SEx/iESlM82KFFReAp0ovvgAD+53s4utvooFrPrRisulVfVmL5jFq3Qrg7nXQY7CyIVputb5sTAOixu4Wh8Tu0gM3TAaR4b7QFB2ZX15fkuhD7CmTft5baMx6MrM38xPbBfkTUimi2do9CMsGtqo1QrrWc+Fe/9be22C/z3A+iiY4kXJr3nWhsULOp0l+jmAB+zC/8wA2JLU/9DjqSmKrbPFQIeSU8PvsLdX96kIB4SggYrv8PzG/vNIBGrNy815xoiZYVID+EhrXyoT2Q5/xVXs6MhM9jEGgMFL8RPVTz7npxjlOqmaBUfcLAfd+DzePnSToF9XNvDKfSHE8/KJoGKOQ94AA=",
+    "alt": "Puré de camote con carne y hierbas en platos de cerámica"
   },
   "F289-16x9": {
     "id": "F289",
@@ -735,5 +801,93 @@
     "jpg": "/aldo-lugo/fotos/F307-4x5-960.jpg",
     "lqip": "data:image/webp;base64,UklGRkABAABXRUJQVlA4IDQBAAAwBwCdASoYAB4APu1krE+ppSQiMBgIATAdiWwAnTKEfK+k3cyH+gdQMDidcGxgY6MdEjVZYlWNyd/cOoCPbjEaWgAA8LH3EKQdm2Yf1FnHblWwaqzJpq/utLWi6zWp5VrkzcKG9I04JElqNroFb90yw3fGnYMyloz/HILA12zzY/RLMfyVuiECiJKXK9MA1y+/oH6CIyisJ5qB1/yJZdeMqbDmfWofq+VGlGvCvncTOABOIIoitPUk/NYuhsBtCv9Qt+UWs8Aq5Jf3ZDwUIg/U6g46vGbY3xSvHHocblVnBXspygSrV+OwpLU70uBFOJEp8Zw6YiEMyiltnjiltUZ+0V0N25XQLW5r5IKYJ/uEn204eFDfrpQk/YoxvLUfZyZi1CE+yivKMIgKIL1EqSL9omkYAA==",
     "alt": "Tuétanos asados en platos de vidrio ámbar sobre una mesa de madera"
+  },
+  "F308-4x5": {
+    "id": "F308",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 768,
+    "alto": 960,
+    "anchos": [
+      480,
+      768
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/F308-4x5-480.avif",
+      "/aldo-lugo/fotos/F308-4x5-768.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/F308-4x5-480.webp",
+      "/aldo-lugo/fotos/F308-4x5-768.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/F308-4x5-768.jpg",
+    "lqip": "data:image/webp;base64,UklGRkABAABXRUJQVlA4IDQBAAAQBwCdASoYAB4APu1iqE2ppaOiMAgBMB2JbACdMzQ6f5zw8dG92ADlqod4d603/FQGKpkeFMEWCwrnUM2zSl0WAAD+2+i8s41/GX+L2gBkTZZ0fFpS0Yaxq42FahAeT5Jzx6+n8r8VpyaJZCNdqBiWOmwIpRQ+Cf/okqMX8h2/i8TuvRNGvb7B11YeksWAV0K8jn+tQ7taz1ijQrIYqB7Ptv5wopK1lej+54AlJ9yh73QAEAtciNG+3Hnd/qnXJ8cknG6O2t1bsRAOT73Y6nVywZwRTzA7fYi/mslPzRfzv8ZEsa4n29ucqxQo50hIjYifcOHKocUXML1rXknHG/Pt2wdJv+oAR7a6FEtpiK+y+v9ERgEv8onwcicR87l8zTixVA+IJRUuAAeVdq+0wn7VrgAAAA==",
+    "alt": "Tuétanos asados en un plato de vidrio ámbar"
+  },
+  "F310-4x5": {
+    "id": "F310",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 768,
+    "alto": 960,
+    "anchos": [
+      480,
+      768
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/F310-4x5-480.avif",
+      "/aldo-lugo/fotos/F310-4x5-768.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/F310-4x5-480.webp",
+      "/aldo-lugo/fotos/F310-4x5-768.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/F310-4x5-768.jpg",
+    "lqip": "data:image/webp;base64,UklGRhABAABXRUJQVlA4IAQBAADQBQCdASoYAB4APu1srFEppaQiqAqpMB2JbACdMoMdDCUTlbM3z5aPq2LmnV2Mz83OtXC0SleYAP70KyHcnu4JlpIMX5G/F97FXXufvzPxTrtt5bdd1Hjg0Va9E/nqHzVqatjaCetxCVafC/Tzw17cRIu6RMtUMyjttE2lZVvdcMz8gUSM1Wb5efllFQ3QlDkM/Y7w8XUA7UlxGvUvnQFvE8jDsk/LDQdAwhTZOvKfD581TZQ+HE52WuRIT/puemgjtThsq0r+oAz2k9UnCwUEl2Zt4QOR9jQ34ztfn4w8GufMcLtz9bQ5MduetojuiEA75ZXZ8jS8N7hqQRpjyNihZx5AAA==",
+    "alt": "Arroz cremoso con carne rebanada y queso rallado al momento"
+  },
+  "F321-4x5": {
+    "id": "F321",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 768,
+    "alto": 960,
+    "anchos": [
+      480,
+      768
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/F321-4x5-480.avif",
+      "/aldo-lugo/fotos/F321-4x5-768.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/F321-4x5-480.webp",
+      "/aldo-lugo/fotos/F321-4x5-768.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/F321-4x5-768.jpg",
+    "lqip": "data:image/webp;base64,UklGRigBAABXRUJQVlA4IBwBAACwBgCdASoYAB4APu1mqk8ppaOiKA1RMB2JbACdMoRwN6qytUWyUTF5BI7XLxydGmOqwbGAEOU9OKTZ0KWosAD6IWy5PktcImDW+COQT+KX4nPPmtSDqRvPQVLmd80WM5rMPxspFTprp/i7dD4NuVtP7RBBELgYxKlibTk9pFfgZ+U5n1bu/Igd4xDdm+jmq03MSnd/uMXAklyXPuZ1yykPkCMx/BQufubNOBAfxVWlK+arDTzEr/9wb5sq762th5MXn5KujaBJy3CFrYNKd46Gji+zkCZnaAfzQw0ZJ8LmNVGskf9FKewlSQRZW/3tfGCtzq0itXmJuxzJGzA68OOy5cf1PqwlZsZN8hbUeLIOgMuTGw3z++qOGWrAAA==",
+    "alt": "Postre con helado y salsa en un platito blanco"
+  },
+  "V055-4x5": {
+    "id": "V055",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 768,
+    "alto": 960,
+    "anchos": [
+      480,
+      768
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/V055-4x5-480.avif",
+      "/aldo-lugo/fotos/V055-4x5-768.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/V055-4x5-480.webp",
+      "/aldo-lugo/fotos/V055-4x5-768.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/V055-4x5-768.jpg",
+    "lqip": "data:image/webp;base64,UklGRugAAABXRUJQVlA4INwAAAAwBgCdASoYAB4APu1irVAppSQisBgIATAdiWYAnTNofgAVPo66H3s1PGpR8gKdZqlQFMuXZpp3SiQAAP7PH9Cq3y+XKwOEWf67Au0Jngddr9tgq2m97vg/N9P9oGiiVc3lh+XeDlx9vI3sxvnm4ofjyXLpxTLazEg9DfYFEvo4eUpTyRbNk6k6ACCT6Lj2CrET1nUckqVTDDevLkhGamWHdsg3eQ5q8js25il08Y9Q9HLnhM11n8ADtImQi19OWmNK7ndePdfzLxMmYXXkYAEhkvW6WJWpI/uBgAAA",
+    "alt": "Pollo al romero colgado en la jaula, entre berenjenas"
   }
 }

@@ -12,8 +12,8 @@ import HojaSolicitud from '../../aldo-lugo/components/HojaSolicitud.astro';
 import Barra from '../../aldo-lugo/components/Barra.astro';
 import { SITIO } from '../../aldo-lugo/config';
 ---
-<AldoLayout title={SITIO.seo.title} description={SITIO.seo.description} variante="landing">
-  <Escenas />
+<AldoLayout title={SITIO.seo.title} description={SITIO.seo.description} variante="landing" version="a">
+  <Escenas version="a" />
   <HojaSolicitud />
   <Fragment slot="barra"><Barra /></Fragment>
 </AldoLayout>

@@ -53,6 +53,7 @@ export const SECCIONES = {
 export const NAV = [
   { texto: 'Así se vive', href: '#asi-se-vive' },
   { texto: 'El oficio', href: `#${SECCIONES.lumbres}` },
+  { texto: 'El menú', href: '#platos' },
   { texto: 'Tu evento', href: `#${SECCIONES.experiencias}` },
   { texto: 'Preguntas', href: `#${SECCIONES.preguntas}` },
 ];

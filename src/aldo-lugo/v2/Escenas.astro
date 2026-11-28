@@ -12,25 +12,44 @@ import Texto from '../components/Texto.astro';
 import Preguntas from '../components/Preguntas.astro';
 import Carril from './Carril.astro';
 import { OFERTA, CTA, SECCIONES, type FotoRef, type Recorte } from '../config';
+import { VERSIONES, type Ranura, type VersionId } from './versiones';
+
+interface Props {
+  /** Misma historia con otras tomas del evento (v2/versiones.ts). */
+  version?: VersionId;
+}
+const { version = 'a' } = Astro.props;
 
 const R = (id: string, recorte: Recorte, alt = ''): FotoRef => ({ id, recorte, tratamiento: 'brasa', alt });
-/** Loops del evento (03_Video → _tools/loops_web.py): la foto queda debajo; el video entra con fundido al reproducirse. */
-const clip = (n: string) => `/aldo-lugo/video/${n}.mp4`;
+/** Loop de la ranura en esta versión ('' = solo foto). La foto queda debajo; el video entra con fundido al reproducirse. */
+const clip = (r: Ranura | '') => (r && VERSIONES[version].clips[r] ? `/aldo-lugo/video/${VERSIONES[version].clips[r]}.mp4` : '');
 
 const HISTORIAS = [
-  { hora: '09:00', frase: 'Prendo la leña temprano. El fuego no se apura.', foto: R('F028', '9x16', 'Pollos y berenjenas colgados sobre el fuego'), clip: 'imagina-1' },
-  { hora: '18:16', frase: 'Baja el sol. El humo ya avisa que algo viene.', foto: R('F013', '9x16', 'La sierra de Durango al atardecer'), clip: 'imagina-2' },
-  { hora: '19:08', frase: 'La mesa larga se llena.', foto: R('F153', '9x16', 'Mesa larga lista para el banquete'), clip: 'imagina-3' },
-  { hora: '21:39', frase: 'Y nadie se quiere ir.', foto: R('F255', '9x16', 'Banquete de noche bajo un árbol iluminado'), clip: 'imagina-4' },
+  { hora: '09:00', frase: 'Prendo la leña temprano. El fuego no se apura.', foto: R('F028', '9x16', 'Pollos y berenjenas colgados sobre el fuego'), clip: 'historia-1' as Ranura },
+  { hora: '18:16', frase: 'Baja el sol. El humo ya avisa que algo viene.', foto: R('F013', '9x16', 'La sierra de Durango al atardecer'), clip: 'historia-2' as Ranura },
+  { hora: '19:08', frase: 'La mesa larga se llena.', foto: R('F153', '9x16', 'Mesa larga lista para el banquete'), clip: 'historia-3' as Ranura },
+  { hora: '21:39', frase: 'Y nadie se quiere ir.', foto: R('F255', '9x16', 'Banquete de noche bajo un árbol iluminado'), clip: 'historia-4' as Ranura },
 ];
 
-const OFICIO = [
+const OFICIO: { id: string; clip: Ranura; nombre: string; linea: string }[] = [
   { id: 'F252', clip: 'colgadero', nombre: 'Colgadero', linea: 'Costillar de res colgado sobre leña de encino. Horas de humo.' },
   { id: 'F139', clip: 'jaula', nombre: 'Jaula', linea: 'Pollo al romero que se dora colgado, despacio.' },
   { id: 'F044', clip: 'parrilla', nombre: 'Parrilla', linea: 'Lomo bridado, término medio. Costra afuera, jugo adentro.' },
   { id: 'F220', clip: 'disco', nombre: 'Disco', linea: 'Tuétanos al disco, burbujeando sobre la leña.' },
   { id: 'F250', clip: 'rescoldo', nombre: 'Rescoldo', linea: 'Camote ahumado con leña de manzano, entre la brasa y la ceniza.' },
-  { id: 'F140', clip: '', nombre: 'Olla de leña', linea: 'Arroz cremoso en una olla grande, al centro de la brasa.' },
+  { id: 'F140', clip: 'olla', nombre: 'Olla de leña', linea: 'Arroz cremoso en una olla grande, al centro de la brasa.' },
+];
+
+/** El menú de La Tapada de Luna: los 8 platos que hizo Aldo (cuestionario, 24-nov). Solo lo que se ve en foto. */
+const PLATOS: { foto: string; clip: Ranura | ''; nombre: string; linea: string }[] = [
+  { foto: 'F203', clip: '', nombre: 'Quesos con ate', linea: 'Para recibir: queso, ate y aceitunas.' },
+  { foto: 'F308', clip: 'plato-tuetanos', nombre: 'Tuétanos al disco', linea: 'Del disco al plato, todavía burbujeando.' },
+  { foto: 'F216', clip: 'plato-longaniza', nombre: 'Longaniza con pistache', linea: 'Asada sobre puré, con pistache encima.' },
+  { foto: 'F276', clip: 'plato-camote', nombre: 'Camote al rescoldo', linea: 'En puré, con carne y hierbas.' },
+  { foto: 'F310', clip: 'plato-arroz', nombre: 'Arroz cremoso', linea: 'De la olla de leña, con carne y queso rallado al momento.' },
+  { foto: 'V055', clip: 'plato-pollo', nombre: 'Pollo al romero', linea: 'Dorado despacio en la jaula.' },
+  { foto: 'F251', clip: 'plato-lomo', nombre: 'Costillar y lomo', linea: 'Horas sobre leña de encino.' },
+  { foto: 'F321', clip: 'plato-postre', nombre: 'Postre', linea: 'Con helado, para cerrar.' },
 ];
 
 const MESAS: Record<string, string> = {
@@ -101,7 +120,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
       <li class="e2-carril__item e2-historia" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${HISTORIAS.length + 1}`}>
         <figure class="e2-historia__media">
           <FotoArte movil={h.foto} escritorio={h.foto} alt={h.foto.alt} sizesMovil="80vw" sizesEscritorio="24vw" />
-          <video class="e2-clip" data-clip={clip(h.clip)} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
+          {clip(h.clip) && <video class="e2-clip" data-clip={clip(h.clip)} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
         </figure>
         <div class="e2-historia__texto">
           <p class="e2-historia__hora">{h.hora}</p>
@@ -131,7 +150,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     </div>
     <div class="e2-antes__capa e2-antes__capa--color">
       <FotoArte movil={R('F220', '4x5')} escritorio={R('F220', '4x5')} alt="Tuétanos al disco sobre la leña encendida" sizesMovil="100vw" sizesEscritorio="60vw" />
-      <video class="e2-clip" data-clip={clip('disco')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
+      {clip('disco') && <video class="e2-clip" data-clip={clip('disco')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
     </div>
     <span class="e2-antes__et e2-antes__et--izq" aria-hidden="true">Servido</span>
     <span class="e2-antes__et e2-antes__et--der" aria-hidden="true">Al fuego</span>
@@ -164,7 +183,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
     </div>
     <figure class="e2-guia__accion al-revela" style="--al-delay:120ms">
       <Foto id="F249" recorte="4x5" sizes="(min-width: 1024px) 26vw, 82vw" ajuste="cover" />
-      <video class="e2-clip" data-clip={clip('guia')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
+      {clip('guia') && <video class="e2-clip" data-clip={clip('guia')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
     </figure>
   </div>
 </section>
@@ -180,10 +199,32 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
       <li class="e2-carril__item e2-lumbre" aria-roledescription="diapositiva" aria-label={`${l.nombre}, ${i + 1} de ${OFICIO.length}`}>
         <figure class="e2-lumbre__foto">
           <Foto id={l.id} recorte="4x5" sizes="(min-width: 768px) 30vw, 74vw" ajuste="cover" />
-          {l.clip && <video class="e2-clip" data-clip={clip(l.clip)} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
+          {clip(l.clip) && <video class="e2-clip" data-clip={clip(l.clip)} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
         </figure>
         <h3 class="e2-lumbre__nombre">{l.nombre}</h3>
         <p class="e2-lumbre__linea">{l.linea}</p>
+      </li>
+    ))}
+  </Carril>
+</section>
+
+<!-- 5b · Lo que llegó a la mesa (carril de platos, día) -->
+<section id="platos" class="e2-sec e2-platos" data-tema="dia" aria-labelledby="e2-platos-h2">
+  <header class="e2-cab">
+    <p class="e2-label">El menú · La Tapada de Luna</p>
+    <h2 id="e2-platos-h2" class="e2-h2">Lo que llegó <em>a la mesa.</em></h2>
+    <p class="e2-cab__sub">Los 8 platos que cociné para 200 invitados. Cada menú lo armo contigo.</p>
+  </header>
+  <Carril etiqueta="Los platos del menú" n={PLATOS.length} tema="dia">
+    {PLATOS.map((p, i) => (
+      <li class="e2-carril__item e2-plato" aria-roledescription="diapositiva" aria-label={`${p.nombre}, ${i + 1} de ${PLATOS.length}`}>
+        <figure class="e2-plato__foto">
+          <Foto id={p.foto} recorte="4x5" sizes="(min-width: 768px) 30vw, 74vw" ajuste="cover" />
+          {clip(p.clip) && <video class="e2-clip" data-clip={clip(p.clip)} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
+          <span class="e2-plato__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+        </figure>
+        <h3 class="e2-plato__nombre">{p.nombre}</h3>
+        <p class="e2-plato__linea">{p.linea}</p>
       </li>
     ))}
   </Carril>
@@ -194,7 +235,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   <div class="e2-prueba__dron">
     <div class="e2-prueba__zoom" data-zoom>
       <FotoArte movil={R('F019', '4x5')} escritorio={R('F019', '16x9')} alt="Vista aérea al atardecer: mesas largas en cruz y la cocina de leña encendida" sizesMovil="100vw" sizesEscritorio="100vw" />
-      <video class="e2-clip" data-clip={clip('prueba')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
+      {clip('prueba') && <video class="e2-clip" data-clip={clip('prueba')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
     </div>
     <div class="e2-prueba__texto">
       <p class="e2-label e2-label--claro">Lo que ya hice · Chef invitado · nov 2026</p>
@@ -255,7 +296,7 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
 <section id={SECCIONES.cierre} class="e2-cierre" aria-labelledby="e2-cierre-h2" data-oculta-barra>
   <div class="e2-cierre__media">
     <FotoArte movil={R('F289', '9x16')} escritorio={R('F289', '16x9')} alt="Piedra volcánica incandescente entre piñas de agave, bajo luces colgantes" sizesMovil="100vw" sizesEscritorio="100vw" />
-    <video class="e2-clip" data-clip={clip('cierre')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>
+    {clip('cierre') && <video class="e2-clip" data-clip={clip('cierre')} muted playsinline loop preload="none" disablepictureinpicture aria-hidden="true"></video>}
     <span class="e2-cierre__luz" aria-hidden="true"></span>
     <div class="e2-brasas e2-brasas--cierre" aria-hidden="true">{BRASAS.map((i) => <i style={`--i:${i}`}></i>)}</div>
   </div>
@@ -460,6 +501,17 @@ const BRASAS = Array.from({ length: 9 }, (_, i) => i);
   .e2-lumbre__foto :is(picture, img) { width: 100%; height: 100%; }
   .e2-lumbre__nombre { margin: 14px 0 4px; font-family: var(--al-f-display); font-weight: 560; font-size: clamp(1.7rem, 1.4rem + 1.2vw, 2.4rem); line-height: 1; }
   .e2-lumbre__linea { margin: 0; color: var(--al-ceniza); line-height: 1.45; }
+
+  /* ── 5b · Lo que llegó a la mesa (día) ─────────────────────────────────────────────── */
+  .e2-platos { background: #efe7d6; color: var(--al-carbon); }
+  .e2-plato__foto { margin: 0; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 12px; position: relative; background: #d9cfbb; }
+  .e2-plato__foto :is(picture, img) { width: 100%; height: 100%; }
+  .e2-plato__num {
+    position: absolute; z-index: 2; left: 12px; top: 12px; font-family: var(--al-f-label); font-weight: 600; letter-spacing: .14em;
+    font-size: .8rem; color: var(--al-hueso); background: rgba(20, 20, 20, .55); padding: 4px 8px 3px; border-radius: 999px;
+  }
+  .e2-plato__nombre { margin: 14px 0 4px; font-family: var(--al-f-display); font-weight: 560; font-size: clamp(1.7rem, 1.4rem + 1.2vw, 2.4rem); line-height: 1; }
+  .e2-plato__linea { margin: 0; color: #2b2824; line-height: 1.45; }
 
   /* ── 6 · Lo que ya hice ─────────────────────────────────────────────────────────────── */
   .e2-prueba { background: #0b0a09; }

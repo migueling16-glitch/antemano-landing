@@ -1,0 +1,23 @@
+---
+/**
+ * /aldolugo/b/ · /aldolugo/c/ · /aldolugo/d/ — la misma landing contada con otras tomas del evento
+ * (src/aldo-lugo/v2/versiones.ts). La versión A es /aldolugo/.
+ */
+import AldoLayout from '../../aldo-lugo/AldoLayout.astro';
+import '../../aldo-lugo/landing.css';
+import Escenas from '../../aldo-lugo/v2/Escenas.astro';
+import HojaSolicitud from '../../aldo-lugo/components/HojaSolicitud.astro';
+import Barra from '../../aldo-lugo/components/Barra.astro';
+import { SITIO } from '../../aldo-lugo/config';
+import type { VersionId } from '../../aldo-lugo/v2/versiones';
+
+export function getStaticPaths() {
+  return (['b', 'c', 'd'] as const).map((version) => ({ params: { version } }));
+}
+const version = Astro.params.version as VersionId;
+---
+<AldoLayout title={SITIO.seo.title} description={SITIO.seo.description} variante="landing" version={version}>
+  <Escenas version={version} />
+  <HojaSolicitud />
+  <Fragment slot="barra"><Barra /></Fragment>
+</AldoLayout>

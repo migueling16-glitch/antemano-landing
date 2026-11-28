@@ -23,13 +23,16 @@ import {
 import { LOGOTIPO, ISOTIPO } from './logos';
 import Logo from './components/Logo.astro';
 import Dato from './components/Dato.astro';
+import { VERSIONES, type VersionId } from './v2/versiones';
 
 interface Props {
   title?: string;
   description?: string;
   variante?: 'landing' | 'cuestionario';
+  /** Landing: versión de tomas (v2/versiones.ts); muestra el selector A·B·C·D en la franja del demo. */
+  version?: VersionId;
 }
-const { title = SITIO.seo.title, description = SITIO.seo.description, variante = 'landing' } = Astro.props;
+const { title = SITIO.seo.title, description = SITIO.seo.description, variante = 'landing', version } = Astro.props;
 const esLanding = variante === 'landing';
 const og = `${ORIGEN}${ASSETS}/og.jpg`;
 const fuentes =
@@ -95,9 +98,19 @@ const anio = 2026;
       <div class="al-wrap al-demo__in">
         <span class="al-demo__punto" aria-hidden="true"></span>
         {esLanding ? (
+          <Fragment>
           <span class="al-demo__txt"><span class="al-demo__largo">{SITIO.demo.franja}</span><span class="al-demo__corto">{SITIO.demo.franjaCorta}</span></span>
+          {version && (
+            <nav class="al-demo__versiones" aria-label="Versiones del demo">
+              <span class="al-demo__largo">Versión</span>
+              {Object.entries(VERSIONES).map(([id, v]) => (
+                <a href={v.ruta} aria-current={id === version ? 'page' : undefined}>{v.nombre}</a>
+              ))}
+            </nav>
+          )}
           <button class="al-demo__mov" type="button" data-movimiento-completo hidden>Ver movimiento completo</button>
           <a class="al-demo__enlace" href={`${BASE}/cuestionario/`}><span class="al-demo__largo">{SITIO.demo.enlaceCuestionario}</span><span class="al-demo__corto">{SITIO.demo.enlaceCorto}</span><span class="al-demo__flecha" aria-hidden="true">→</span></a>
+          </Fragment>
         ) : (
           <span class="al-demo__txt">{SITIO.demo.franjaCuestionario}</span>
         )}
@@ -486,10 +499,19 @@ const anio = 2026;
   [data-suave] .al-anima .al-revela:not(.is-visible) { transform: none; }
   .al-demo__mov { background: none; border: 1px solid rgba(237, 230, 214, .35); color: var(--al-hueso); font: inherit; font-size: .75rem; padding: 2px 10px; border-radius: 999px; cursor: pointer; margin-left: auto; margin-right: 12px; white-space: nowrap; }
   .al-demo__mov:hover { border-color: var(--al-hueso); }
+  .al-demo__versiones { display: flex; align-items: center; gap: 2px; margin: -4px 12px -4px auto; }
+  .al-demo__versiones > span { margin-right: 6px; font-size: .75rem; }
+  .al-demo__versiones a { min-width: 30px; height: 30px; display: grid; place-items: center; border-radius: 999px; font-size: .78rem; font-weight: 600; color: var(--al-ceniza); text-decoration: none; }
+  .al-demo__versiones a:hover { color: var(--al-hueso); }
+  .al-demo__versiones a[aria-current] { background: var(--al-hueso); color: var(--al-carbon); }
+  .al-demo__versiones ~ .al-demo__mov { margin-left: 0; }
   @media (max-width: 560px) {
     .al-demo__mov { font-size: .7rem; padding: 2px 8px; margin: 0 auto 0 0; }
     .al-demo__in:has(.al-demo__mov:not([hidden])) .al-demo__txt,
     .al-demo__in:has(.al-demo__mov:not([hidden])) .al-demo__punto { display: none; }
+    .al-demo__in:has(.al-demo__versiones) :is(.al-demo__txt, .al-demo__punto) { display: none; }
+    .al-demo__versiones { margin: -4px 8px -4px 0; }
+    .al-demo__versiones a { min-width: 28px; height: 28px; }
   }
 
   /* =====================================================================
