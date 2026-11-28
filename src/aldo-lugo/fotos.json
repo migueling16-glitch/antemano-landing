@@ -674,6 +674,31 @@
     "lqip": "data:image/webp;base64,UklGRhgBAABXRUJQVlA4IAwBAAAQBgCdASoYACsAPu1wrVKppiQipWsxMB2JZACpJ0zHYi+uNy8E9Mwg5f9GFNf5ko0zNbY3PaVqRDwA/t9h0di1RTaWnUS0GlHxEaXIM8hRCMzULR1+KllW9cSu3UeB3u4WJThlqxV+Sypv45wQLEzMFbncj0KLImAFdnxGksVXf9SeTAm8DFdDC4wQ/3wK3e1A8rBC70K6NRzbaArAyk62Z1WD0hR1Ty4Yvj8LyrLHfjxLxef2XGuqTimjWvaFONoI18o1jQBkL79wtXurL9sluoe7ksINRtnpDfjNAt2fwK7e39KodJ9sWiTM7G4+rGiHfVlLwnZ9bDK5qeSI3X3z15y79pu4bx6FqAAA",
     "alt": "Banquete de noche bajo un árbol iluminado y estrellas de papel"
   },
+  "F261-4x5": {
+    "id": "F261",
+    "recorte": "4x5",
+    "tratamiento": "brasa",
+    "ancho": 1080,
+    "alto": 1350,
+    "anchos": [
+      480,
+      768,
+      1080
+    ],
+    "avif": [
+      "/aldo-lugo/fotos/F261-4x5-480.avif",
+      "/aldo-lugo/fotos/F261-4x5-768.avif",
+      "/aldo-lugo/fotos/F261-4x5-1080.avif"
+    ],
+    "webp": [
+      "/aldo-lugo/fotos/F261-4x5-480.webp",
+      "/aldo-lugo/fotos/F261-4x5-768.webp",
+      "/aldo-lugo/fotos/F261-4x5-1080.webp"
+    ],
+    "jpg": "/aldo-lugo/fotos/F261-4x5-960.jpg",
+    "lqip": "data:image/webp;base64,UklGRiwBAABXRUJQVlA4ICABAADQBQCdASoYAB4APu1mqk2ppaQiMAgBMB2JbACdMoGv/i2bUFm7D0sDwDqNK54EvfTH2jT/am+4APWZlRJnHMsdxSrEdU8n+wJgErA3V+orokeGOhAc7OidoeOVFbuW4VJkZgirs+hCwUZkVXtWDxzRTNF4Pg4PT7dBYAndw33KTyLWVLL0cnaOP8XjM+Foiz0ysvLrefP0kk7UD9OPMGCBYtDzEfHmOaqrwxYFurjpd3XFc+YHB21cHG6zexbIlCXXNyyHxK9KSBcwD0uIefgGw0ehyoC9ugf9rk7311GmwAziWZ/lzMtyEfxF07jvd0MycCQwrYarMCT50bc3fpe50e4ZxcfKBH440joIW73WdwmInOISe0EISBds/z7hAAA=",
+    "alt": "Domo de varilla con piñas, pollos y berenjenas colgados; al fondo, luces y mesas al atardecer"
+  },
   "F276-4x5": {
     "id": "F276",
     "recorte": "4x5",

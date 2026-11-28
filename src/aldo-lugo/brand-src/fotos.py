@@ -177,6 +177,8 @@ FOTOS: list[Foto] = [
     Foto("F128", "brasa", [S("F128", "4x5", (470, 250, 2500, 2788), "Mesa larga al aire libre con los arcos de la hacienda al fondo")]),
     Foto("F006", "brasa", [S("F006", "4x5", (1000, 250, 2132, 1665), "Mesa larga montada con tejidos y centros de follaje, vista desde arriba")],
          dron=True),
+    # Tarjeta Fuego de Marca (Aldo, 28-nov): el domo con piñas al atardecer. Los invitados del fondo quedan desenfocados.
+    Foto("F261", "brasa", [S("F261", "4x5", (0, 320, 2500, 3445), "Domo de varilla con piñas, pollos y berenjenas colgados; al fondo, luces y mesas al atardecer")]),
     # Escena 6 y 10 · La noche y el cierre: brasa del horno de los maestros mezcaleros (con crédito)
     Foto("F289", "brasa", [
         S("F289", "4x5", (500, 0, 1833, 1667), ALT_F289, credito=CREDITO_MEZCALEROS),

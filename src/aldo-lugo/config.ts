@@ -10,7 +10,8 @@
  *  - `pregunta` es el número de PREGUNTAS_CHEF.md que resuelve el hueco.
  *  - Teléfono del chef: solo DATOS.whatsapp. Lo dio en el cuestionario (P16, "número para la página") y el 28-nov
  *    pidió por WhatsApp que todo le llegue ahí y contestar él en persona.
- *  - Nada de Canito salvo ANFITRION.canito. Nada de Burning Man. Mallmann: nivel 0 (no se nombra).
+ *  - Nada de Canito salvo ANFITRION.canito. Burning Man 2025 sí se nombra (Aldo lo pidió el 28-nov; propuesta privada).
+ *    Mallmann: nivel 0 (no se nombra).
  *  - El horno de tierra (F289, F323, F358, F362) es de los maestros mezcaleros: siempre con CREDITO_MEZCALEROS.
  */
 
@@ -473,7 +474,8 @@ export const OFERTA = {
       precio: { tipo: 'por_invitado', desde: 450, minimo: null, iva: 'mas_iva' },
       cta: 'Diseñar el encuentro',
       preset: { formato: 'fuego-de-marca', ocasion: 'empresa' },
-      foto: foto('F006', '4x5', 'brasa', 'Mesa larga montada con tejidos y centros florales, vista desde arriba', { retoque: 'Revisar' }),
+      // 28-nov: Aldo pidió cambiarla por esta (la mandó por WhatsApp; es la F261 del Drive).
+      foto: foto('F261', '4x5', 'brasa', 'Domo de varilla con piñas, pollos y berenjenas colgados; al fondo, luces y mesas al atardecer'),
     },
   ] as Formato[],
   /** Regla de asignación (propuesta §4): 10–20 → Íntima; 21–300 por ocasión; > 300 revisión manual. */

@@ -123,7 +123,7 @@ Formulario: `FORMULARIO` (6 pasos §7.1, mensajes, almacén), `GRACIAS, AFINA, C
 ## Reglas duras
 
 - Marca monocroma; ningún material de Canito, solo "También fundó Tacos Canito →" en El anfitrión (`ANFITRION.canito`).
-- Sin Burning Man. Mallmann: nivel 0, no se nombra.
+- Burning Man 2025 sí se nombra en "Y muchos fuegos más" (Aldo, 28-nov; propuesta privada). Mallmann: nivel 0, no se nombra.
 - Horno de tierra (F289, F323, F358, F362) = maestros mezcaleros (`CREDITO_MEZCALEROS`), nunca cocina del chef.
 - Nada de fotos de "Fotos a evitar" (`seleccion_fotos.md` §8). Nunca el teléfono del chef. Formulario del demo: no envía nada.
 
